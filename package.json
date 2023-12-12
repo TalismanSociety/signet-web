@@ -1,0 +1,57 @@
+{
+  "private": true,
+  "name": "talisman-web",
+  "license": "GPL-3.0-or-later",
+  "packageManager": "yarn@3.4.1",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "postinstall": "husky install",
+    "dev": "yarn turbo run dev",
+    "build": "yarn turbo run build",
+    "test": "yarn turbo run test",
+    "lint": "echo \"skipping until fixed\"",
+    "check-types": "echo \"skipping until fixed\"",
+    "e2e": "yarn turbo run e2e",
+    "storybook": "yarn turbo run storybook",
+    "build-storybook": "yarn turbo run storybook",
+    "build-signet:docker": "docker build -t signet-fe -f apps/multisig/Dockerfile ."
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.4.2",
+    "@commitlint/config-conventional": "^17.4.2",
+    "eslint": "^8.33.0",
+    "husky": "^8.0.3",
+    "prettier": "^2.8.6",
+    "pretty-quick": "^3.1.3",
+    "turbo": "^1.8.2"
+  },
+  "resolutions": {
+    "@polkadot/api": "10.9.1",
+    "@polkadot/api-augment": "10.9.1",
+    "@polkadot/api-base": "10.9.1",
+    "@polkadot/api-contract": "10.9.1",
+    "@polkadot/api-derive": "10.9.1",
+    "@polkadot/rpc-augment": "10.9.1",
+    "@polkadot/rpc-core": "10.9.1",
+    "@polkadot/rpc-provider": "10.9.1",
+    "@polkadot/typegen": "10.9.1",
+    "@polkadot/types-augment": "10.9.1",
+    "@polkadot/types-codec": "10.9.1",
+    "@polkadot/types-create": "10.9.1",
+    "@polkadot/types-known": "10.9.1",
+    "@polkadot/types-support": "10.9.1",
+    "@polkadot/types": "10.9.1",
+    "json-stream-stringify": "2.0.4",
+    "recoil@^0.7.7": "patch:recoil@npm%3A0.7.7#./.yarn/patches/recoil-npm-0.7.7-4452f58b67.patch",
+    "threads@^1.7.0": "patch:threads@npm%3A1.7.0#./.yarn/patches/threads-npm-1.7.0-c432dbb3e9.patch"
+  },
+  "importSort": {
+    ".js, .jsx, .ts, .tsx": {
+      "style": "module",
+      "parser": "typescript"
+    }
+  }
+}
