@@ -11,6 +11,7 @@ import MultiSend from '../layouts/NewTransaction/Multisend'
 import Vote from '../layouts/NewTransaction/Vote'
 import Advanced from '../layouts/NewTransaction/Advanced'
 import Staking from '../layouts/Staking'
+import { Dapps } from '../layouts/Dapps'
 
 const router = createBrowserRouter([
   {
@@ -70,6 +71,14 @@ const router = createBrowserRouter([
     element: (
       <RequireAuth requireSignIn>
         <Advanced />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/dapps',
+    element: (
+      <RequireAuth requireSignIn>
+        <Dapps />
       </RequireAuth>
     ),
   },

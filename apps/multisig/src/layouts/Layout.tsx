@@ -1,4 +1,4 @@
-import { Eye, List, Send, Settings, Share2, Users, Vote, Zap } from '@talismn/icons'
+import { Eye, Globe, List, Send, Settings, Share2, Users, Vote, Zap } from '@talismn/icons'
 import { useNavigate } from 'react-router-dom'
 import Header from './Header'
 import Sidebar from './Sidebar'
@@ -83,6 +83,11 @@ export const Layout: React.FC<
                   {
                     name: 'Advanced',
                     options: [
+                      {
+                        name: 'Dapps',
+                        icon: <Globe />,
+                        onClick: () => navigate('/dapps'),
+                      },
                       {
                         name: 'Call data',
                         icon: <List />,
