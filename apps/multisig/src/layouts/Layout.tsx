@@ -44,46 +44,56 @@ export const Layout: React.FC<
             {!hideSideBar && (
               <Sidebar
                 selected={selected}
-                options={[
+                sections={[
                   {
-                    name: 'Overview',
-                    icon: <Eye />,
-                    onClick: () => navigate('/overview'),
-                  },
-                  {
-                    name: 'Send',
-                    icon: <Send />,
-                    onClick: () => navigate('/send'),
-                  },
-                  {
-                    name: 'Multi-send',
-                    icon: <Share2 />,
-                    onClick: () => navigate('/multisend'),
-                  },
-                  {
-                    name: 'Voting',
-                    icon: <Vote />,
-                    onClick: () => navigate('/voting'),
-                  },
-                  {
-                    name: 'Staking',
-                    icon: <Zap />,
-                    onClick: () => navigate('/staking'),
+                    name: 'Vault',
+                    options: [
+                      {
+                        name: 'Overview',
+                        icon: <Eye />,
+                        onClick: () => navigate('/overview'),
+                      },
+                      {
+                        name: 'Send',
+                        icon: <Send />,
+                        onClick: () => navigate('/send'),
+                      },
+                      {
+                        name: 'Multi-send',
+                        icon: <Share2 />,
+                        onClick: () => navigate('/multisend'),
+                      },
+                      {
+                        name: 'Voting',
+                        icon: <Vote />,
+                        onClick: () => navigate('/voting'),
+                      },
+                      {
+                        name: 'Staking',
+                        icon: <Zap />,
+                        onClick: () => navigate('/staking'),
+                      },
+                      {
+                        name: 'Address Book',
+                        icon: <Users />,
+                        onClick: () => navigate('/address-book'),
+                      },
+                    ],
                   },
                   {
                     name: 'Advanced',
-                    icon: <List />,
-                    onClick: () => navigate('/advanced'),
-                  },
-                  {
-                    name: 'Address Book',
-                    icon: <Users />,
-                    onClick: () => navigate('/address-book'),
-                  },
-                  {
-                    name: 'Settings',
-                    icon: <Settings />,
-                    onClick: () => navigate('/settings'),
+                    options: [
+                      {
+                        name: 'Call data',
+                        icon: <List />,
+                        onClick: () => navigate('/advanced'),
+                      },
+                      {
+                        name: 'Settings',
+                        icon: <Settings />,
+                        onClick: () => navigate('/settings'),
+                      },
+                    ],
                   },
                 ]}
               />
