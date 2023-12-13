@@ -66,7 +66,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: '/advanced',
+    path: '/custom-call-data',
     element: (
       <RequireAuth requireSignIn>
         <Advanced />

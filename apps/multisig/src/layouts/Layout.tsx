@@ -86,7 +86,7 @@ export const Layout: React.FC<
                       {
                         name: 'Call data',
                         icon: <List />,
-                        onClick: () => navigate('/advanced'),
+                        onClick: () => navigate('/custom-call-data'),
                       },
                       {
                         name: 'Settings',
