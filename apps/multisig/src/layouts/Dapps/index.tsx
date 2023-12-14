@@ -1,10 +1,11 @@
 import { TextInput } from '@talismn/ui'
 import { Layout } from '../Layout'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@components/ui/button'
 import { MessageService } from '../../domains/connect/MessageService'
 import clsx from 'clsx'
 import { atom, useRecoilValue } from 'recoil'
+import { useSelectedMultisig } from '../../domains/multisig'
 
 const isValidUrl = (url: string) => {
   try {
@@ -18,9 +19,10 @@ const isValidUrl = (url: string) => {
 const messageServiceState = atom({
   key: 'iframeMessageService',
   default: new MessageService(message => {
-    console.log(message)
+    // TODO: filter only iframe messages
     return true
   }),
+  dangerouslyAllowMutability: true,
 })
 
 export const Dapps: React.FC = () => {
@@ -29,6 +31,9 @@ export const Dapps: React.FC = () => {
   const [isSdkSupported, setIsSdkSupported] = useState<boolean | undefined>()
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const messageService = useRecoilValue(messageServiceState)
+  const [sdkSupportTimeout, setSdkSupportTimeout] = useState<NodeJS.Timeout>()
+
+  const [selectedMultisig] = useSelectedMultisig()
 
   const isUrlValid = isValidUrl(url)
 
@@ -50,14 +55,53 @@ export const Dapps: React.FC = () => {
       const targetWindow = iframeRef.current?.contentWindow
       if (!targetWindow) return setIsSdkSupported(false) // most likely caused by broken url
 
-      const res = await messageService.send('pub(iframe.hasSignetSdk)', [], url, targetWindow)
-      console.log(res) // we're expecting true here
+      // if we didn't get a sdk init message within 3 seconds, we assume it's not supported
+      const timeoutId = setTimeout(() => {
+        setIsSdkSupported(false)
+      }, 3000)
+
+      setSdkSupportTimeout(timeoutId)
     } catch (e) {
       setIsSdkSupported(false)
     }
   }
 
   const loading = useMemo(() => shouldLoadUrl && isSdkSupported === undefined, [isSdkSupported, shouldLoadUrl])
+
+  // this hook handles passing data from Signet to the iframe
+  useEffect(() => {
+    messageService.onData((message, res) => {
+      if (message.origin !== url) return console.log('message origin does not match iframe url')
+      const { type } = message.data
+      if (type === 'iframe(init)') {
+        setIsSdkSupported(true)
+        if (sdkSupportTimeout !== undefined) {
+          setSdkSupportTimeout(undefined)
+          clearTimeout(sdkSupportTimeout)
+          res(true)
+        }
+      }
+
+      if (type === 'iframe(getAccount)') {
+        res({
+          chain: {
+            genesisHash: selectedMultisig.chain.genesisHash,
+            id: selectedMultisig.chain.squidIds.chainData,
+            name: selectedMultisig.chain.chainName,
+          },
+          name: selectedMultisig.name,
+          vaultAddress: selectedMultisig.proxyAddress.toSs58(selectedMultisig.chain),
+        })
+      }
+    })
+  }, [
+    messageService,
+    sdkSupportTimeout,
+    selectedMultisig.chain,
+    selectedMultisig.name,
+    selectedMultisig.proxyAddress,
+    url,
+  ])
 
   return (
     <Layout selected="Dapps" requiresMultisig>
@@ -77,7 +121,7 @@ export const Dapps: React.FC = () => {
               ref={iframeRef}
               src={url}
               title="Signet Dapps"
-              className={clsx(isSdkSupported ? 'w-full h-full visible' : 'w-0 h-0 invisible')}
+              className={clsx(isSdkSupported ? 'w-full h-full min-h-screen visible' : 'w-0 h-0 invisible')}
               onLoad={handleIframeLoaded}
             />
             {!isSdkSupported && (

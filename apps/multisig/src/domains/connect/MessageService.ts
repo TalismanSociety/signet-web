@@ -1,13 +1,27 @@
-import crypto from 'crypto'
-
 type Methods = {
-  'pub(iframe.hasSignetSdk)': {
+  'iframe(init)': {
     payload: []
     expects: boolean
   }
+  'iframe(getAccount)': {
+    payload: []
+    expects: {
+      vaultAddress: string
+      name: string
+      chain: {
+        id: string
+        name: string
+        genesisHash: string
+      }
+    }
+  }
 }
 
-type Callback = (response: any) => void
+type Data<T extends keyof Methods> = {
+  id: string
+  type: T
+  payload: Methods[T]['payload']
+}
 
 // this only validates the format of message
 const isValidMessage = (message: MessageEvent) => {
@@ -19,60 +33,35 @@ const isValidMessage = (message: MessageEvent) => {
   return id !== undefined && type !== undefined && payload !== undefined
 }
 
+type DataHandler<T extends keyof Methods> = (
+  data: MessageEvent<Data<T>>,
+  respond: (payload: Methods[Data<T>['type']]['expects']) => void
+) => void
+
 export class MessageService {
-  private callbacks = new Map<string, Callback>()
+  private dataHandler: DataHandler<any> = () => {}
 
   constructor(private readonly messageFilter: (message: MessageEvent) => boolean) {
-    console.log('Listening...')
     window.addEventListener('message', this.onMessage)
   }
 
   cleanUp() {
-    console.log('Clean up..')
     window.removeEventListener('message', this.onMessage)
+  }
+
+  onData = <T extends keyof Methods>(handler: DataHandler<T>) => {
+    this.dataHandler = handler
   }
 
   private onMessage = (message: MessageEvent) => {
     // filter out invalid message
     if (!isValidMessage(message) || !this.messageFilter(message)) return
-    this.handleIncomingMessage(message.data)
-  }
 
-  private handleIncomingMessage = (payload: any): void => {
-    const { id } = payload
-
-    const cb = this.callbacks.get(id)
-    if (cb) {
-      cb(payload)
-      this.callbacks.delete(id)
-    } else {
-      // TODO: route non-callbacks incoming messages
-    }
-  }
-
-  async send<T extends keyof Methods>(
-    type: T,
-    payload: Methods[T]['payload'],
-    target: string = '*',
-    overrideWindow?: Window | null
-  ): Promise<Methods[T]['expects']> {
-    const id = crypto.randomBytes(16).toString('hex')
-
-    const targetWindow = overrideWindow || window
-    targetWindow.postMessage({ id, type, payload }, target)
-
-    return new Promise((resolve, reject) => {
-      // timeout in 1.5s
-      const timeoutId = setTimeout(() => {
-        this.callbacks.delete(id)
-        reject(new Error('Timeout'))
-      }, 1500)
-
-      this.callbacks.set(id, payload => {
-        clearTimeout(timeoutId)
-        this.callbacks.delete(id)
-        resolve(payload)
-      })
+    this.dataHandler(message, res => {
+      message.source?.postMessage(
+        { id: message.data.id, type: message.data.type, res },
+        { targetOrigin: message.origin }
+      )
     })
   }
 }

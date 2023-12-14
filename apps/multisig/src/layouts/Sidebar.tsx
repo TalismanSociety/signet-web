@@ -16,7 +16,7 @@ const Sidebar = (props: Props) => {
   return (
     <section className="flex flex-col items-center bg-gray-800 px-[16px] py-[12px] rounded-[16px] gap-[32px] lg:pr-[24px]">
       {props.sections.map(({ name, options }) => (
-        <div className="w-full flex flex-col">
+        <div className="w-full flex flex-col" key={name}>
           <p className="hidden lg:block uppercase text-[12px] mb-[8px]">{name}</p>
           <div className="grid gap-[12px]">
             {options.map(({ name, icon, onClick }) => (
