@@ -1,11 +1,15 @@
 import { TextInput } from '@talismn/ui'
 import { Layout } from '../Layout'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@components/ui/button'
 import { MessageService } from '../../domains/connect/MessageService'
 import clsx from 'clsx'
 import { atom, useRecoilValue } from 'recoil'
 import { useSelectedMultisig } from '../../domains/multisig'
+import { decodeCallData } from '../../domains/chains'
+import { useApi } from '../../domains/chains/pjs-api'
+import { SubmittableExtrinsic } from '@polkadot/api/types'
+import { CallSummary } from './CallSummary'
 
 const isValidUrl = (url: string) => {
   try {
@@ -18,10 +22,13 @@ const isValidUrl = (url: string) => {
 
 const messageServiceState = atom({
   key: 'iframeMessageService',
-  default: new MessageService(message => {
-    // TODO: filter only iframe messages
-    return true
-  }),
+  default: new MessageService(
+    message => {
+      // TODO: filter only iframe messages
+      return true
+    },
+    { debug: true }
+  ),
   dangerouslyAllowMutability: true,
 })
 
@@ -29,11 +36,14 @@ export const Dapps: React.FC = () => {
   const [url, setUrl] = useState('')
   const [shouldLoadUrl, setShouldLoadUrl] = useState(false)
   const [isSdkSupported, setIsSdkSupported] = useState<boolean | undefined>()
-  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const [txRequest, setTxRequest] = useState<{ innerExtrinsic: SubmittableExtrinsic<'promise'>; res: Function }>()
+
   const messageService = useRecoilValue(messageServiceState)
-  const [sdkSupportTimeout, setSdkSupportTimeout] = useState<NodeJS.Timeout>()
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const timeoutIdRef = useRef<number>()
 
   const [selectedMultisig] = useSelectedMultisig()
+  const { api } = useApi(selectedMultisig.chain.rpcs)
 
   const isUrlValid = isValidUrl(url)
 
@@ -46,40 +56,47 @@ export const Dapps: React.FC = () => {
     e.preventDefault()
     setShouldLoadUrl(false)
     setIsSdkSupported(undefined)
+    window.clearTimeout(timeoutIdRef.current)
     setUrl(e.target.value)
   }
 
   const handleIframeLoaded = async () => {
-    // send message to dapp to check if they support our sdk
-    try {
-      const targetWindow = iframeRef.current?.contentWindow
-      if (!targetWindow) return setIsSdkSupported(false) // most likely caused by broken url
-
-      // if we didn't get a sdk init message within 3 seconds, we assume it's not supported
-      const timeoutId = setTimeout(() => {
-        setIsSdkSupported(false)
-      }, 3000)
-
-      setSdkSupportTimeout(timeoutId)
-    } catch (e) {
+    // make sure we clear all previously set timeouts
+    window.clearTimeout(timeoutIdRef.current)
+    // if we didn't get a sdk init message within 3 seconds, we assume it's not supported
+    timeoutIdRef.current = window.setTimeout(() => {
       setIsSdkSupported(false)
-    }
+    }, 3000)
   }
 
   const loading = useMemo(() => shouldLoadUrl && isSdkSupported === undefined, [isSdkSupported, shouldLoadUrl])
 
+  const handleNewExtrinsic = useCallback(
+    (calldata: string) => {
+      try {
+        if (!api) return { error: 'api not loaded', ok: false }
+        const extrinsic = decodeCallData(api, calldata as `0x{string}`)
+        if (!extrinsic) return { error: 'Could not decode calldata!', ok: false }
+
+        return { ok: true, extrinsic }
+      } catch (error) {
+        if (error instanceof Error) return { error: `Invalid calldata: ${error.message}`, ok: false }
+        else return { error: `Invalid calldata: unknown error`, ok: false }
+      }
+    },
+    [api]
+  )
+
   // this hook handles passing data from Signet to the iframe
   useEffect(() => {
     messageService.onData((message, res) => {
-      if (message.origin !== url) return console.log('message origin does not match iframe url')
+      if (message.origin.toLowerCase() !== url.toLowerCase())
+        return console.log('message origin does not match iframe url')
       const { type } = message.data
       if (type === 'iframe(init)') {
         setIsSdkSupported(true)
-        if (sdkSupportTimeout !== undefined) {
-          setSdkSupportTimeout(undefined)
-          clearTimeout(sdkSupportTimeout)
-          res(true)
-        }
+        window.clearTimeout(timeoutIdRef.current)
+        res(true)
       }
 
       if (type === 'iframe(getAccount)') {
@@ -93,10 +110,19 @@ export const Dapps: React.FC = () => {
           vaultAddress: selectedMultisig.proxyAddress.toSs58(selectedMultisig.chain),
         })
       }
+
+      if (type === 'iframe(send)') {
+        const [account, calldata] = message.data.payload
+        if (!account) return res(false)
+        if (!calldata) return res(false)
+        const { extrinsic } = handleNewExtrinsic(calldata)
+        if (extrinsic) setTxRequest({ innerExtrinsic: extrinsic, res })
+        else res(false)
+      }
     })
   }, [
+    handleNewExtrinsic,
     messageService,
-    sdkSupportTimeout,
     selectedMultisig.chain,
     selectedMultisig.name,
     selectedMultisig.proxyAddress,
@@ -111,7 +137,7 @@ export const Dapps: React.FC = () => {
           <div className="w-full [&>div]:w-full">
             <TextInput className="w-full" value={url} onChange={handleUrlChange} />
           </div>
-          <Button disabled={!isUrlValid} className="h-[51px]" loading={loading} onClick={() => setShouldLoadUrl(true)}>
+          <Button disabled={!isUrlValid} className="h-[51px]" loading={loading}>
             Visit Dapp
           </Button>
         </form>
@@ -119,7 +145,7 @@ export const Dapps: React.FC = () => {
           <div className={clsx('bg-gray-800 rounded-[12px] overflow-hidden border border-gray-600')}>
             <iframe
               ref={iframeRef}
-              src={url}
+              src={url.toLowerCase()}
               title="Signet Dapps"
               className={clsx(isSdkSupported ? 'w-full h-full min-h-screen visible' : 'w-0 h-0 invisible')}
               onLoad={handleIframeLoaded}
@@ -136,6 +162,13 @@ export const Dapps: React.FC = () => {
           </div>
         )}
       </div>
+      <CallSummary
+        dappUrl={url}
+        innerExtrinsic={txRequest?.innerExtrinsic}
+        onComplete={() => {
+          console.log('done')
+        }}
+      />
     </Layout>
   )
 }
