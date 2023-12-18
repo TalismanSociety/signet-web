@@ -112,12 +112,11 @@ export const Dapps: React.FC = () => {
       }
 
       if (type === 'iframe(send)') {
-        const [account, calldata] = message.data.payload
-        if (!account) return res(false)
-        if (!calldata) return res(false)
-        const { extrinsic } = handleNewExtrinsic(calldata)
+        const [calldata] = message.data.payload
+        if (!calldata) return res({ ok: false, error: 'Missing calldata!' })
+        const { extrinsic, ok, error } = handleNewExtrinsic(calldata)
         if (extrinsic) setTxRequest({ innerExtrinsic: extrinsic, res })
-        else res(false)
+        else res({ ok, error })
       }
     })
   }, [
@@ -165,8 +164,9 @@ export const Dapps: React.FC = () => {
       <CallSummary
         dappUrl={url}
         innerExtrinsic={txRequest?.innerExtrinsic}
-        onComplete={() => {
-          console.log('done')
+        onComplete={result => {
+          setTxRequest(undefined)
+          txRequest?.res(result)
         }}
       />
     </Layout>

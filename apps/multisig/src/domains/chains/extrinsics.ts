@@ -429,7 +429,6 @@ export const useApproveAsMulti = (
             if (!result || !result.status) {
               return
             }
-
             if (result.status.isFinalized) {
               result.events.forEach(async ({ event: { method } }): Promise<void> => {
                 if (method === 'ExtrinsicFailed') {
@@ -465,7 +464,7 @@ export const useApproveAsMulti = (
           }
         )
         .catch(e => {
-          onFailure(JSON.stringify(e))
+          onFailure(e instanceof Error ? e.message : JSON.stringify(e))
         })
     },
     [

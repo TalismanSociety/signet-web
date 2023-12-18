@@ -18,8 +18,16 @@ type Methods = {
   }
   'iframe(getAccount)': VaultAccount
   'iframe(send)': {
-    payload: [VaultAccount, string]
-    expects: boolean
+    payload: [string]
+    expects: {
+      ok: boolean
+      receipt?: {
+        blockNumber?: number
+        txIndex?: number
+        txHash: string
+      }
+      error?: string
+    }
   }
 }
 
