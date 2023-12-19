@@ -5,6 +5,7 @@ import { SiwsMessage } from '@talismn/siws'
 import { InjectedAccount, accountsState } from '../extension'
 import persistAtom from '../persist'
 import toast from 'react-hot-toast'
+import { captureException } from '@sentry/react'
 
 const SIWS_ENDPOINT = process.env.REACT_APP_SIWS_ENDPOINT ?? ''
 
@@ -131,6 +132,7 @@ export const useSignIn = () => {
         }
       } catch (e) {
         console.error(e)
+        captureException(e, { extra: { siwsEndpoint: SIWS_ENDPOINT } })
         toast.error(typeof e === 'string' ? e : (e as any).message ?? 'Failed to sign in.')
       } finally {
         setSigningIn(false)
