@@ -11,6 +11,7 @@ import MultiSend from '../layouts/NewTransaction/Multisend'
 import Vote from '../layouts/NewTransaction/Vote'
 import Advanced from '../layouts/NewTransaction/Advanced'
 import Staking from '../layouts/Staking'
+import { SignetConnect } from '../layouts/Connect'
 
 const router = createBrowserRouter([
   {
@@ -78,6 +79,14 @@ const router = createBrowserRouter([
     element: (
       <RequireAuth requireSignIn>
         <AddressBook />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/connect',
+    element: (
+      <RequireAuth requireSignIn>
+        <SignetConnect />
       </RequireAuth>
     ),
   },
