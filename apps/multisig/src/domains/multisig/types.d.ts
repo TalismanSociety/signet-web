@@ -5,6 +5,7 @@ export interface Multisig {
   id: string
   name: string
   chain: Chain
+  azeroID?: string | null
   multisigAddress: Address
   proxyAddress: Address
   signers: Address[]

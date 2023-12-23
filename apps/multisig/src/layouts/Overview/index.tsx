@@ -4,7 +4,7 @@ import { TxMetadataWatcher, getAllChangeAttempts } from '@domains/offchain-data/
 import { toMultisigAddress } from '@util/addresses'
 import { device } from '@util/breakpoints'
 import { useCallback, useEffect } from 'react'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useRecoilState } from 'recoil'
 
 import Assets, { TokenAugmented } from './Assets'
 import Transactions from './Transactions'
@@ -16,12 +16,17 @@ import { selectedAccountState } from '../../domains/auth'
 import VaultOverview from './VaultOverview'
 import { useToast } from '../../components/ui/use-toast'
 
+import { Address } from '@util/addresses'
+import { selectedMulisigA0IDState } from '@domains/multisig'
+import { SupportedChainId, resolveAddressToDomain } from '@azns/resolver-core'
+
 const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const signedInAccount = useRecoilValue(selectedAccountState)
   const changingMultisigConfig = useRecoilValue(changingMultisigConfigState)
   const { updateMultisigConfig } = useUpdateMultisigConfig()
   const { toast, dismiss } = useToast()
+  const [selectedMultisigA0ID, setSelectedMultisigA0ID] = useRecoilState(selectedMulisigA0IDState)
 
   // TODO: consider migrating to top level so it works regardless of page?
   const detectChangeAndAutoUpdate = useCallback(async () => {
@@ -103,6 +108,34 @@ const Overview = () => {
   }, [changingMultisigConfig, detectChangeAndAutoUpdate, selectedMultisig.id, selectedMultisig.proxies])
 
   useEffect(() => () => dismiss(), [dismiss])
+
+  useEffect(() => {
+    const azeroResolver = async (address: Address) => {
+      const { primaryDomain, error } = await resolveAddressToDomain(
+        '5EeXYRxqC9gZZHdypcquyM9CTRumMVoVFpbJsdE4dgaKiHof',
+        {
+          chainId: SupportedChainId.AlephZeroTestnet,
+        }
+      )
+      if (error) {
+        console.error(error)
+      }
+      return primaryDomain
+    }
+    // console.log("selected account: ", selectedAccount)
+    // if (selectedMultisig) {
+    azeroResolver(selectedMultisig.proxyAddress)
+      .then(z0Id => {
+        console.log('Result: ', z0Id)
+        // const { primaryDomain } = result
+        if (z0Id) setSelectedMultisigA0ID(z0Id)
+      })
+      .catch(error => {
+        console.error('AZERO.ID Resolution Error: ', error)
+      })
+    // }
+    console.log('accountAZEROID: ', selectedMultisigA0ID)
+  }, [selectedMultisig.proxyAddress, selectedMultisigA0ID, setSelectedMultisigA0ID])
 
   const augmentedTokens: TokenAugmented[] = useAugmentedBalances()
   return (

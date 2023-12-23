@@ -31,6 +31,12 @@ export const authTokenBookState = atom<AuthTokenBook>({
   effects_UNSTABLE: [persistAtom],
 })
 
+export const resolvedA0ID = atom<string | null>({
+  key: 'AuthTokenBook',
+  default: null,
+  effects_UNSTABLE: [persistAtom],
+})
+
 // an account can only be selected if:
 // - user has explicitly selected the address
 // - jwt is stored in auth book
