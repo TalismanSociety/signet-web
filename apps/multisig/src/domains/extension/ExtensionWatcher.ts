@@ -1,10 +1,17 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
-import { accountsState, extensionAllowedState, extensionInitiatedState, extensionLoadingState } from './index'
+import {
+  InjectedAccount,
+  accountsState,
+  extensionAllowedState,
+  extensionInitiatedState,
+  extensionLoadingState,
+} from './index'
 import { web3AccountsSubscribe, web3Enable } from '@polkadot/extension-dapp'
 import toast from 'react-hot-toast'
 import { uniqBy } from 'lodash'
 import { Address } from '@util/addresses'
+import { azeroResolver } from '@util/azeroid'
 
 export const ExtensionWatcher = () => {
   // extensionAllowed is used to trigger web3Enable call
@@ -54,12 +61,16 @@ export const ExtensionWatcher = () => {
     if (!extensionsDetected || subscribed) return
 
     setSubscribed(true)
-    web3AccountsSubscribe(accounts => {
-      const uniqueAccounts = uniqBy(accounts, account => account.address).map(account => {
-        const address = Address.fromSs58(account.address)
-        if (!address) throw Error("Can't parse address from web3AccountsSubscribe!")
-        return { ...account, address }
-      })
+    web3AccountsSubscribe(async accounts => {
+      const uniqueAccounts = await Promise.all(
+        uniqBy(accounts, account => account.address).map(async account => {
+          const address = Address.fromSs58(account.address)
+          if (!address) throw Error("Can't parse address from web3AccountsSubscribe!")
+          const a0Id = await azeroResolver(address)
+          if (a0Id) return { ...account, address, a0Id }
+          return { ...account, address }
+        })
+      )
 
       setAccounts(uniqueAccounts)
 
@@ -91,6 +102,26 @@ export const ExtensionWatcher = () => {
     setExtensionInitiated,
     subscribed,
   ])
+
+  // useEffect(() => {
+  //   const getA0IdResolutions = async (accounts: InjectedAccount[]) => {
+  //     const updatedAccountsDetails = await Promise.all(
+  //       accounts.map(async account => {
+  //         const a0id = await azeroResolver(account.address)
+  //         if (a0id) return { ...account, a0Id: a0id }
+  //         return account
+  //       })
+  //     )
+  //     return updatedAccountsDetails
+  //   }
+  //   if (accounts.length > 0) {
+  //     getA0IdResolutions(accounts)
+  //       .then(accountsWithAnyA0Id => {
+  //         setAccounts(accountsWithAnyA0Id)
+  //       })
+  //       .catch(err => console.error(err))
+  //   }
+  // }, [accounts, setAccounts])
 
   return null
 }

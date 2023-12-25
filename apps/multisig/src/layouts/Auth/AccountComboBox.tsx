@@ -3,6 +3,7 @@ import { Identicon } from '@talismn/ui'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronVertical, Search } from '@talismn/icons'
 import { useOnClickOutside } from '../../domains/common/useOnClickOutside'
+import { Tooltip } from '@talismn/ui'
 
 type Props = {
   accounts: InjectedAccount[]
@@ -17,10 +18,15 @@ const AccountRow = ({ account }: { account: InjectedAccount }) => {
       <Identicon size={24} value={addressString} />
       <p css={({ color }) => ({ marginTop: 4, color: color.lightGrey })}>
         <span css={{ width: '100%' }}>{account.meta.name}</span>{' '}
-        <span css={({ color }) => ({ color: color.offWhite })}>({account.address.toShortSs58()})</span>
+        <span css={({ color }) => ({ color: color.offWhite })}>
+          ({account.a0Id ? account.a0Id.toUpperCase() : account.address.toShortSs58()})
+        </span>
       </p>
     </div>
   )
+}
+{
+  /* <Tooltip content={<p css={{ fontSize: 12 }}>{address.toSs58(chain)}</p>}>{accountDetailsUI}</Tooltip> */
 }
 
 const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount }) => {
@@ -53,6 +59,7 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
 
   if (!selectedAccount) return null
 
+  console.log('filtered accounts: ', filteredAccounts)
   return (
     <div ref={ref} css={{ position: 'relative', width: '100%' }}>
       <div
@@ -77,7 +84,9 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
         })}
         onClick={() => setExpanded(!expanded)}
       >
-        <AccountRow account={selectedAccount} />
+        <Tooltip content={<p css={{ fontSize: 12 }}>{selectedAccount.address.toSs58()}</p>}>
+          <AccountRow account={selectedAccount} />
+        </Tooltip>
         <div
           css={({ color }) => ({
             height: 'max-content',
@@ -147,7 +156,9 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
                   onSelect?.(acc)
                 }}
               >
-                <AccountRow account={acc} />
+                <Tooltip content={<p css={{ fontSize: 12 }}>{selectedAccount.address.toSs58()}</p>}>
+                  <AccountRow account={acc} />
+                </Tooltip>
               </div>
             ))}
           </div>

@@ -6,6 +6,7 @@ import persistAtom from '../persist'
 
 export type InjectedAccount = {
   address: Address
+  a0Id?: string
 } & Omit<InjectedAccountWithMeta, 'address'>
 
 export const accountsState = atom<InjectedAccount[]>({

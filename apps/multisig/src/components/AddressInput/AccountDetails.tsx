@@ -9,6 +9,7 @@ type Props = {
   chain?: Chain
   address: Address
   name?: string
+  a0Id?: string
   disableCopy?: boolean
   nameOrAddressOnly?: boolean
   withAddressTooltip?: boolean
@@ -20,6 +21,7 @@ export const AccountDetails: React.FC<Props> = ({
   chain,
   address,
   name,
+  a0Id,
   disableCopy,
   nameOrAddressOnly,
   identiconSize = 24,
@@ -33,6 +35,7 @@ export const AccountDetails: React.FC<Props> = ({
         address={address}
         chain={chain}
         name={name}
+        a0Id={a0Id}
         nameOrAddressOnly={nameOrAddressOnly}
         breakLine={breakLine}
       />

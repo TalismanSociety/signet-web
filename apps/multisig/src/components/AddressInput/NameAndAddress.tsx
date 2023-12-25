@@ -4,11 +4,15 @@ import { Address } from '@util/addresses'
 export const NameAndAddress: React.FC<{
   address: Address
   name?: string
+  a0Id?: string
   chain?: Chain
   nameOrAddressOnly?: boolean
   breakLine?: boolean
-}> = ({ address, name, chain, nameOrAddressOnly, breakLine }) => {
-  if (!name) return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{address?.toShortSs58(chain)}</p>
+}> = ({ address, name, a0Id, chain, nameOrAddressOnly, breakLine }) => {
+  if (!name && !a0Id)
+    return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{address?.toShortSs58(chain)}</p>
+
+  if (a0Id) return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{a0Id.toUpperCase()}</p>
 
   return (
     <div

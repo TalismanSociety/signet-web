@@ -20,7 +20,6 @@ export const VaultOverview: React.FC = () => {
   const [showMembers, setShowMembers] = useRecoilState(showMemberState)
   const { contactByAddress } = useKnownAddresses(selectedMultisig.id)
 
-  console.log('multisig info: ', JSON.stringify(selectedMultisig))
   return (
     <section
       css={{
@@ -36,15 +35,23 @@ export const VaultOverview: React.FC = () => {
         <ChainPill chain={selectedMultisig.chain} />
       </div>
       <div css={{ marginTop: 24 }}>
-        <p css={({ color }) => ({ color: color.offWhite, fontSize: 14, marginTop: 3 })}>
-          Vault Address hi {selectedMultisig.azeroID}
-        </p>
-        <AccountDetails
-          chain={selectedMultisig.chain}
-          address={selectedMultisig.proxyAddress}
-          identiconSize={20}
-          withAddressTooltip
-        />
+        <p css={({ color }) => ({ color: color.offWhite, fontSize: 14, marginTop: 3 })}>Vault Address</p>
+        {selectedMultisig.azeroID ? (
+          <AccountDetails
+            chain={selectedMultisig.chain}
+            address={selectedMultisig.proxyAddress}
+            a0Id={selectedMultisig.azeroID}
+            identiconSize={20}
+            withAddressTooltip
+          />
+        ) : (
+          <AccountDetails
+            chain={selectedMultisig.chain}
+            address={selectedMultisig.proxyAddress}
+            identiconSize={20}
+            withAddressTooltip
+          />
+        )}
       </div>
       <div
         css={{

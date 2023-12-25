@@ -18,6 +18,8 @@ const SignInPage: React.FC<Props> = ({ accounts }) => {
     signIn(accountToSignIn)
   }
 
+  console.log('connected  accounts:: ', JSON.stringify(accounts))
+
   return (
     <div css={{ display: 'flex', flexDirection: 'column', gap: 72, padding: 24, alignItems: 'center' }}>
       <header>
