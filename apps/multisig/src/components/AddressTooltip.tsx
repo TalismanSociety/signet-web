@@ -1,5 +1,5 @@
 import { Check, Copy, ExternalLink } from '@talismn/icons'
-import { Chain } from '../domains/chains'
+import { Chain, filteredSupportedChains } from '../domains/chains'
 import { Address } from '../util/addresses'
 import { Tooltip } from './ui/tooltip'
 import { useToast } from './ui/use-toast'
@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { cn } from '../util/tailwindcss'
 
 export const AddressTooltip: React.FC<
-  React.PropsWithChildren & { address: Address | string; chain: Chain; name?: string }
+  React.PropsWithChildren & { address: Address | string; chain?: Chain; name?: string }
 > = ({ children, address: _address, chain, name }) => {
   const address = typeof _address === 'string' ? (Address.fromSs58(_address) as Address) : _address
   const ss58Address = address.toSs58(chain)
@@ -42,7 +42,7 @@ export const AddressTooltip: React.FC<
             <a
               className="cursor-pointer hover:text-offWhite"
               onClick={handleCopy}
-              href={address.toSubscanUrl(chain)}
+              href={address.toSubscanUrl(chain ?? (filteredSupportedChains[0] as Chain))}
               target="_blank"
               rel="noreferrer"
             >

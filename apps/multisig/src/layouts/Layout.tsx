@@ -8,9 +8,14 @@ import { useRecoilValue } from 'recoil'
 import { activeMultisigsState } from '@domains/multisig'
 import { activeTeamsState } from '../domains/offchain-data'
 import { Navigate } from 'react-router-dom'
+import BetaNotice from './Overview/BetaNotice'
 
 export const Layout: React.FC<
-  React.PropsWithChildren & { selected?: string; requiresMultisig?: boolean; hideSideBar?: boolean }
+  React.PropsWithChildren & {
+    selected?: string
+    requiresMultisig?: boolean
+    hideSideBar?: boolean
+  }
 > = ({ children, selected, requiresMultisig, hideSideBar }) => {
   const multisigs = useRecoilValue(activeMultisigsState)
   const activeTeams = useRecoilValue(activeTeamsState)
@@ -89,6 +94,7 @@ export const Layout: React.FC<
               />
             )}
             {children}
+            {multisigs.length && <BetaNotice />}
           </>
         )}
       </div>
