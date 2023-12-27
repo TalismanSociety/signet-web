@@ -1,5 +1,5 @@
 import { Address } from './addresses'
-import { SupportedChainId, resolveAddressToDomain } from '@azns/resolver-core'
+import { SupportedChainId, resolveAddressToDomain, resolveDomainToAddress } from '@azns/resolver-core'
 
 export const azeroResolver = async (address: Address) => {
   const { primaryDomain, error } = await resolveAddressToDomain('5EeXYRxqC9gZZHdypcquyM9CTRumMVoVFpbJsdE4dgaKiHof', {
@@ -9,4 +9,14 @@ export const azeroResolver = async (address: Address) => {
     console.error(error)
   }
   return primaryDomain
+}
+
+export const azeroResolverToAddress = async (domain: string) => {
+  const { address, error } = await resolveDomainToAddress('GCGPARTNERS.TZERO', {
+    chainId: SupportedChainId.AlephZeroTestnet,
+  })
+  if (error) {
+    console.error(error)
+  }
+  return address
 }

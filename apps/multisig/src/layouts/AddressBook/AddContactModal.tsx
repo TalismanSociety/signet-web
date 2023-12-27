@@ -1,10 +1,11 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Button, TextInput } from '@talismn/ui'
 import Modal from '@components/Modal'
 import { useInput } from '@hooks/useInput'
 import { Address } from '@util/addresses'
 import { useAddressBook, useCreateContact } from '../../domains/offchain-data'
 import { useSelectedMultisig } from '../../domains/multisig'
+import { azeroResolverToAddress } from '@util/azeroid'
 
 type Props = {
   onClose?: () => void
@@ -25,6 +26,34 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
     onClose?.()
   }
 
+  const parsedAZEROID = useMemo(() => {
+    try {
+      if (addressInput.value.includes('.azero')) return addressInput.value
+      return false
+    } catch (e) {
+      return false
+    }
+  }, [addressInput.value])
+
+  // const parsedAZEROID = useMemo(async() => {
+  //   try {
+  //     if (addressInput.value.includes(".azero") || addressInput.value.includes(".tzero")) {
+  //       const resolvedAddress = await azeroResolverToAddress(addressInput.value)
+  //       if (resolvedAddress) {
+  //         return Address.fromSs58(resolvedAddress);
+  //       } else {
+  //         console.error("AZERO ID Does not exist!")
+  //         return
+  //       }
+  //     }
+  //     return false
+  //   } catch (e) {
+  //     return false
+  //   }
+  // }, [addressInput.value])
+
+  // console.log("parsedAZEROID:: ", parsedAZEROID)
+
   const parsedAddress = useMemo(() => {
     try {
       return Address.fromSs58(addressInput.value)
@@ -33,15 +62,85 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   }, [addressInput.value])
 
+  // const handleCreateContact = async () => {
+  //   if (!parsedAddress || !parsedAZEROID) return
+  //   let resultingAddress: Address;
+  //   if (parsedAddress) {resultingAddress = parsedAddress}
+  //   else if (parsedAZEROID) {
+  //     const resolvedAddress = await azeroResolverToAddress(parsedAZEROID)
+  //     if (typeof resolvedAddress === 'string') {
+  //       const addressFromSs58 = Address.fromSs58(resolvedAddress);
+  //       if (addressFromSs58) {resultingAddress = addressFromSs58}
+  //       else return
+  //     } else {
+  //       console.error("AZERO ID Does not exist!")
+  //       return
+  //     }
+  //   }
+  //   const created = await createContact(resultingAddress, nameInput.value, selectedMultisig.id)
+  //   if (created) handleClose()
+  // }
+
   const handleCreateContact = async () => {
-    if (!parsedAddress) return
-    const created = await createContact(parsedAddress, nameInput.value, selectedMultisig.id)
-    if (created) handleClose()
+    if (parsedAddress) {
+      const created = await createContact(parsedAddress, nameInput.value, selectedMultisig.id)
+      if (created) handleClose()
+    } else if (parsedAZEROID) {
+      const resolvedAddress = await azeroResolverToAddress(parsedAZEROID)
+      if (resolvedAddress) {
+        const addressFromSs58 = Address.fromSs58(resolvedAddress)
+        if (addressFromSs58) {
+          const created = await createContact(addressFromSs58, nameInput.value, selectedMultisig.id)
+          if (created) handleClose()
+        } else {
+          console.error('No Address found for AZERO ID')
+          return
+        }
+      } else {
+        console.error('AZERO ID Does not exist!')
+        return
+      }
+    } else {
+      return
+    }
   }
 
-  const disabled = !parsedAddress || !nameInput.value
+  const disabled = !(parsedAddress || parsedAZEROID) || !nameInput.value
   const conflict = parsedAddress ? !!contactsByAddress[parsedAddress.toSs58()] : false
+  const isAzeroId = !parsedAZEROID ? true : false
 
+  // refactor to use this so that it can account for existing created Addresses
+  // const parsedAddress = useMemo(async() => {
+  //   try {
+  //     if (addressInput.value.includes(".azero") || addressInput.value.includes(".tzero")) {
+  //       const resolvedAddress = await azeroResolverToAddress(addressInput.value)
+  //       if (resolvedAddress) {
+  //         return Address.fromSs58(resolvedAddress);
+  //       } else {
+  //         console.error("AZERO ID Does not exist!")
+  //         return false
+  //       }
+  //     }
+  //     return Address.fromSs58(addressInput.value)
+  //   } catch (e) {
+  //     return false
+  //   }
+  // }, [addressInput.value])
+
+  // const handleCreateContact = async () => {
+  //   const resultingAddress = await parsedAddress
+  //   if (!(resultingAddress)) return
+  //   const created = await createContact(resultingAddress, nameInput.value, selectedMultisig.id)
+  //   if (created) handleClose()
+  // }
+
+  // const disabled = !parsedAddress || !nameInput.value
+  // const conflict = parsedAddress ? !!contactsByAddress[parsedAddress.toSs58()] : false
+
+  // console.log("isAzeroId: ", isAzeroId)
+  // console.log("conflict: ", conflict)
+  // console.log("disabled: ", disabled)
+  // console.log("creating: ", creating)
   return (
     <Modal isOpen={isOpen ?? false} width="100%" maxWidth={420} contentLabel="Add new contact">
       <h1 css={{ fontSize: 20, fontWeight: 700 }}>Add new contact</h1>
@@ -82,7 +181,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </Button>
           <Button
             css={{ width: '100%' }}
-            disabled={disabled || creating || conflict}
+            disabled={disabled || creating || conflict || isAzeroId}
             loading={creating}
             onClick={handleCreateContact}
           >
