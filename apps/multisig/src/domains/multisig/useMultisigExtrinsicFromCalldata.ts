@@ -2,7 +2,7 @@ import { ApiPromise } from '@polkadot/api'
 import { useCallback, useMemo, useState } from 'react'
 import { allChainTokensSelector, decodeCallData, useApproveAsMulti } from '../chains'
 import { Multisig } from './types'
-import { Transaction, TransactionApprovals, extrinsicToDecoded, useNextTransactionSigner } from '.'
+import { Transaction, TransactionApprovals, extrinsicToDecoded, useNextTransactionSigner } from './index'
 import { useRecoilValueLoadable } from 'recoil'
 
 // TODO: use this hook in all new transaction

@@ -44,11 +44,12 @@ export const SignSummary: React.FC<Props> = ({
       if (e === 'Cancelled') return
 
       console.error(e)
-      onCancel() // close the sidesheet so user can see the error
+      onCancel() // close the sidesheet so user can see the error toast
       toast({
         title: 'Transaction failed',
         description: getErrorString(e, 120, 'Check browser console for details of error.'),
         duration: 300_000, // stay open for 5 minutes
+        variant: 'destructive',
       })
     }
   }, [approve, description, onApproved, onCancel, toast])

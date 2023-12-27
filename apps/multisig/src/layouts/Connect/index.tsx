@@ -1,13 +1,13 @@
-import { Navigate, useNavigate } from 'react-router-dom'
-import { Layout } from '../Layout'
-import { useRecoilValue } from 'recoil'
-import { Multisig, activeMultisigsState } from '../../domains/multisig'
-import { Identicon } from '@talismn/ui'
-import { Button } from '../../components/ui/button'
 import { useEffect, useMemo, useState } from 'react'
-import { Checkbox } from '../../components/ui/checkbox'
+import { Navigate, useNavigate } from 'react-router-dom'
+import { useRecoilValue } from 'recoil'
+import { Multisig, activeMultisigsState } from '@domains/multisig'
+import { Identicon } from '@talismn/ui'
+import { Button } from '@components/ui/button'
+import { Checkbox } from '@components/ui/checkbox'
+import { Layout } from '../Layout'
 
-/** Signet Conenct is not the actual product name, just trying to make it cool :) */
+/** Signet Conenct is not the actual feature name (yet), just trying to make it cool :) */
 export const SignetConnect: React.FC = () => {
   const navigate = useNavigate()
   const activeMultisigs = useRecoilValue(activeMultisigsState)

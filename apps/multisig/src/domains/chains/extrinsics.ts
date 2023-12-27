@@ -434,7 +434,7 @@ export const useApproveAsMulti = (
             if (result.status.isFinalized) {
               result.events.forEach(async ({ event: { method } }): Promise<void> => {
                 if (method === 'ExtrinsicFailed') {
-                  const errorModule = (result.toHuman() as any).dispatchError.Module
+                  const errorModule = (result.toHuman() as any)?.dispatchError?.Module
                   const errorMessage = decodeSubstrateError(errorModule, apiLoadable.contents)
                   captureException({ result: result.toHuman(), errorMessage })
                   onFailure(errorMessage || JSON.stringify(result.toHuman()))
