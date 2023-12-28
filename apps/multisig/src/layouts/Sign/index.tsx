@@ -2,15 +2,19 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Layout } from '../Layout'
 import { useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { multisigsState, useSelectedMultisig } from '@domains/multisig'
+import { Multisig, multisigsState, useSelectedMultisig } from '@domains/multisig'
 import { Address } from '@util/addresses'
 import { Chain, filteredSupportedChains } from '@domains/chains'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { Button } from '@components/ui/button'
 import { SignSummary } from './SignSummary'
-import { TextInput } from '@talismn/ui'
+import { CircularProgressIndicator, TextInput } from '@talismn/ui'
 import { authTokenBookState, selectedAddressState } from '@domains/auth'
-import { XCircle } from '@talismn/icons'
+import { Info, XCircle } from '@talismn/icons'
+import { useDecodedCalldata } from '@domains/common'
+import { CheckIcon, CopyIcon } from 'lucide-react'
+import useCopied from '@hooks/useCopied'
+import { Tooltip } from '@components/ui/tooltip'
 
 const Wrapper: React.FC<React.PropsWithChildren & { source?: string }> = ({ children, source }) => (
   <Layout hideSideBar requiresMultisig>
@@ -36,6 +40,7 @@ export const Sign: React.FC = () => {
   const [selectedAddress, setSelectedAddress] = useRecoilState(selectedAddressState)
   const [reviewing, setReviewing] = useState(false)
   const [skipAutoSelect, setSkipAutoSelect] = useState(false)
+  const { copied, copy } = useCopied(3000)
 
   const { id, callDataHex, dappUrl, proxiedAccount, genesisHash } = useMemo(() => {
     const proxiedAccount = Address.fromSs58(searchParams.get('account') ?? '')
@@ -65,11 +70,19 @@ export const Sign: React.FC = () => {
     }
   }, [multisigs, searchParams])
 
-  const [description, setDescription] = useState('')
+  const [description, setDescription] = useState(`Transaction from ${dappUrl?.origin}`)
 
   const targetVaults = useMemo(() => {
     if (!proxiedAccount || !genesisHash) return undefined
-    return multisigs.filter(
+    const counted = new Map<string, boolean>()
+    const uniqueMultisigs: Multisig[] = []
+    for (const multisig of multisigs) {
+      if (!counted.has(multisig.proxyAddress.toSs58())) {
+        uniqueMultisigs.push(multisig)
+        counted.set(multisig.proxyAddress.toSs58(), true)
+      }
+    }
+    return uniqueMultisigs.filter(
       ({ proxyAddress, chain }) =>
         chain.genesisHash.toLowerCase() === genesisHash.toLowerCase() &&
         proxiedAccount &&
@@ -115,6 +128,8 @@ export const Sign: React.FC = () => {
     targetVaults,
   ])
 
+  const { decodedCalldata, error, loading } = useDecodedCalldata(callDataHex as `0x${string}`, genesisHash || undefined)
+
   if (!id || !callDataHex || !dappUrl || !proxiedAccount || !genesisHash)
     return (
       <Wrapper>
@@ -129,11 +144,11 @@ export const Sign: React.FC = () => {
       <div className="grid w-full gap-[24px]">
         <div className="flex flex-col sm:flex-row items-center w-full gap-[24px]">
           <div className="w-full">
-            <p>Source</p>
+            <p className="text-[14px]">Source</p>
             <p className="text-offWhite">{dappUrl.origin}</p>
           </div>
           <div className="w-full">
-            <p>Vault</p>
+            <p className="text-[14px]">Vault</p>
             <AccountDetails
               address={proxiedAccount}
               name={targetVaults?.map(({ name }) => name).join(', ')}
@@ -145,14 +160,46 @@ export const Sign: React.FC = () => {
           </div>
         </div>
         <div className="w-full max-w-4xl">
-          <p>Call Data</p>
-          <div className="p-[16px] rounded-[8px] bg-gray-800 w-full mt-[4px]">
-            <p className="break-all w-full">{callDataHex}</p>
+          <div className="flex items-center justify-between mb-[8px]">
+            <div className="flex items-center gap-[4px]">
+              <p className="mt-[2px] text-[14px]">Call Data</p>
+              <Tooltip content="Signet will use the Dapp call data to craft a proxy transaction that will be executed by the multisig of your vault.">
+                <Info size={16} />
+              </Tooltip>
+            </div>
+            {copied ? (
+              <div className="flex items-center gap-[8px]">
+                <p>Copied</p>
+                <CheckIcon size={20} />
+              </div>
+            ) : (
+              <Tooltip content="Copy call data in hex format.">
+                <div
+                  className="flex items-center gap-[8px] cursor-pointer hover:text-primary"
+                  onClick={() => copy(callDataHex, 'Copied call data!')}
+                >
+                  <p>Copy</p>
+                  <CopyIcon size={20} />
+                </div>
+              </Tooltip>
+            )}
           </div>
+          {loading ? (
+            <div className="flex items-center gap-[12px]">
+              <CircularProgressIndicator />
+              <p className="mt-[2px] opacity-70">Decoding call data...</p>
+            </div>
+          ) : error ? (
+            <p>Could not decode call data.</p>
+          ) : (
+            <div className="py-[8px] px-[16px] rounded-[8px] bg-gray-800 w-full mt-[4px]">
+              <pre className="text-[14px]">{JSON.stringify(decodedCalldata, null, 2)}</pre>
+            </div>
+          )}
         </div>
         <TextInput
-          leadingLabel="Transaction Description (Optional)"
-          css={{ fontSize: '18px !important' }}
+          leadingLabel="Transaction Description"
+          css={{ label: { fontSize: 14 } }}
           placeholder={`e.g. "Buy DOT"`}
           value={description}
           onChange={e => setDescription(e.target.value)}
