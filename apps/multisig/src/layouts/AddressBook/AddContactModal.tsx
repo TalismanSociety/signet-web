@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button, TextInput } from '@talismn/ui'
 import Modal from '@components/Modal'
 import { useInput } from '@hooks/useInput'
@@ -18,6 +18,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { createContact, creating } = useCreateContact()
   const [selectedMultisig] = useSelectedMultisig()
   const { contactsByAddress } = useAddressBook()
+  const [resolvedAddress, setResolvedAddress] = useState<string>('')
 
   const handleClose = () => {
     if (creating) return
@@ -28,31 +29,11 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   const parsedAZEROID = useMemo(() => {
     try {
-      if (addressInput.value.includes('.azero')) return addressInput.value
-      return false
+      return Address.fromSs58(resolvedAddress)
     } catch (e) {
       return false
     }
-  }, [addressInput.value])
-
-  // const parsedAZEROID = useMemo(async() => {
-  //   try {
-  //     if (addressInput.value.includes(".azero") || addressInput.value.includes(".tzero")) {
-  //       const resolvedAddress = await azeroResolverToAddress(addressInput.value)
-  //       if (resolvedAddress) {
-  //         return Address.fromSs58(resolvedAddress);
-  //       } else {
-  //         console.error("AZERO ID Does not exist!")
-  //         return
-  //       }
-  //     }
-  //     return false
-  //   } catch (e) {
-  //     return false
-  //   }
-  // }, [addressInput.value])
-
-  // console.log("parsedAZEROID:: ", parsedAZEROID)
+  }, [resolvedAddress])
 
   const parsedAddress = useMemo(() => {
     try {
@@ -62,85 +43,35 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   }, [addressInput.value])
 
-  // const handleCreateContact = async () => {
-  //   if (!parsedAddress || !parsedAZEROID) return
-  //   let resultingAddress: Address;
-  //   if (parsedAddress) {resultingAddress = parsedAddress}
-  //   else if (parsedAZEROID) {
-  //     const resolvedAddress = await azeroResolverToAddress(parsedAZEROID)
-  //     if (typeof resolvedAddress === 'string') {
-  //       const addressFromSs58 = Address.fromSs58(resolvedAddress);
-  //       if (addressFromSs58) {resultingAddress = addressFromSs58}
-  //       else return
-  //     } else {
-  //       console.error("AZERO ID Does not exist!")
-  //       return
-  //     }
-  //   }
-  //   const created = await createContact(resultingAddress, nameInput.value, selectedMultisig.id)
-  //   if (created) handleClose()
-  // }
+  useEffect(() => {
+    if (
+      addressInput.value.slice(-6).toLowerCase().includes('.azero') ||
+      addressInput.value.slice(-6).toLowerCase().includes('.tzero')
+    ) {
+      azeroResolverToAddress(addressInput.value).then(res => {
+        if (res) {
+          setResolvedAddress(res)
+        }
+      })
+    } else {
+      setResolvedAddress('')
+    }
+  }, [addressInput.value])
 
   const handleCreateContact = async () => {
     if (parsedAddress) {
       const created = await createContact(parsedAddress, nameInput.value, selectedMultisig.id)
       if (created) handleClose()
     } else if (parsedAZEROID) {
-      const resolvedAddress = await azeroResolverToAddress(parsedAZEROID)
-      if (resolvedAddress) {
-        const addressFromSs58 = Address.fromSs58(resolvedAddress)
-        if (addressFromSs58) {
-          const created = await createContact(addressFromSs58, nameInput.value, selectedMultisig.id)
-          if (created) handleClose()
-        } else {
-          console.error('No Address found for AZERO ID')
-          return
-        }
-      } else {
-        console.error('AZERO ID Does not exist!')
-        return
-      }
-    } else {
-      return
-    }
+      const created = await createContact(parsedAZEROID, nameInput.value, selectedMultisig.id)
+      if (created) handleClose()
+    } else return
   }
 
   const disabled = !(parsedAddress || parsedAZEROID) || !nameInput.value
-  const conflict = parsedAddress ? !!contactsByAddress[parsedAddress.toSs58()] : false
-  const isAzeroId = !parsedAZEROID ? true : false
+  const conflictA = parsedAddress ? !!contactsByAddress[parsedAddress.toSs58()] : false
+  const conflictB = parsedAZEROID ? !!contactsByAddress[parsedAZEROID.toSs58()] : false
 
-  // refactor to use this so that it can account for existing created Addresses
-  // const parsedAddress = useMemo(async() => {
-  //   try {
-  //     if (addressInput.value.includes(".azero") || addressInput.value.includes(".tzero")) {
-  //       const resolvedAddress = await azeroResolverToAddress(addressInput.value)
-  //       if (resolvedAddress) {
-  //         return Address.fromSs58(resolvedAddress);
-  //       } else {
-  //         console.error("AZERO ID Does not exist!")
-  //         return false
-  //       }
-  //     }
-  //     return Address.fromSs58(addressInput.value)
-  //   } catch (e) {
-  //     return false
-  //   }
-  // }, [addressInput.value])
-
-  // const handleCreateContact = async () => {
-  //   const resultingAddress = await parsedAddress
-  //   if (!(resultingAddress)) return
-  //   const created = await createContact(resultingAddress, nameInput.value, selectedMultisig.id)
-  //   if (created) handleClose()
-  // }
-
-  // const disabled = !parsedAddress || !nameInput.value
-  // const conflict = parsedAddress ? !!contactsByAddress[parsedAddress.toSs58()] : false
-
-  // console.log("isAzeroId: ", isAzeroId)
-  // console.log("conflict: ", conflict)
-  // console.log("disabled: ", disabled)
-  // console.log("creating: ", creating)
   return (
     <Modal isOpen={isOpen ?? false} width="100%" maxWidth={420} contentLabel="Add new contact">
       <h1 css={{ fontSize: 20, fontWeight: 700 }}>Add new contact</h1>
@@ -152,7 +83,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
           leadingLabel="Address"
           {...addressInput}
           leadingSupportingText={
-            conflict ? (
+            conflictA || conflictB ? (
               <p
                 css={({ color }) => ({
                   color: color.lightGrey,
@@ -181,7 +112,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </Button>
           <Button
             css={{ width: '100%' }}
-            disabled={disabled || creating || conflict || isAzeroId}
+            disabled={disabled || creating || conflictA || conflictB}
             loading={creating}
             onClick={handleCreateContact}
           >

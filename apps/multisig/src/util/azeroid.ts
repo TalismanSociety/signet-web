@@ -12,6 +12,7 @@ export const azeroResolver = async (address: Address) => {
 }
 
 export const azeroResolverToAddress = async (domain: string) => {
+  // return '5EeXYRxqC9gZZHdypcquyM9CTRumMVoVFpbJsdE4dgaKiHof'
   const { address, error } = await resolveDomainToAddress('GCGPARTNERS.TZERO', {
     chainId: SupportedChainId.AlephZeroTestnet,
   })

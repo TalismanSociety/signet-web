@@ -11,7 +11,7 @@ import { Layout } from '../Layout'
 import { Copy, Database, Plus, Trash } from '@talismn/icons'
 import { Contact, useAddressBook, useDeleteContact } from '@domains/offchain-data'
 import { AddContactModal } from './AddContactModal'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { copyToClipboard } from '@domains/common'
 import { useInput } from '@hooks/useInput'
 import { Multisig, useSelectedMultisig } from '@domains/multisig'
@@ -73,7 +73,7 @@ const ContactRow: React.FC<{ contact: Contact; multisig: Multisig }> = ({ contac
         <Identicon value={address} size={32} />
         <div>
           <p css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>{contact.name}</p>
-          <p css={{ fontSize: 12 }}>{contact.address.toShortSs58(multisig.chain)}</p>
+          <p css={{ fontSize: 12 }}>{contact.a0Id ?? contact.address.toShortSs58(multisig.chain)}</p>
         </div>
       </div>
       <div
@@ -137,7 +137,9 @@ export const AddressBook: React.FC = () => {
                 }}
               >
                 {filteredContacts.map(contact => (
-                  <ContactRow key={contact.id} contact={contact} multisig={selectedMultisig} />
+                  <Tooltip content={<p css={{ fontSize: 12 }}>{contact.address.toSs58(selectedMultisig.chain)}</p>}>
+                    {<ContactRow key={contact.id} contact={contact} multisig={selectedMultisig} />}
+                  </Tooltip>
                 ))}
               </div>
             </div>

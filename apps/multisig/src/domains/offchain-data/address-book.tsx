@@ -7,6 +7,7 @@ import { requestSignetBackend } from './hasura'
 import { Address } from '@util/addresses'
 import toast from 'react-hot-toast'
 import { isEqual } from 'lodash'
+import { azeroResolver } from '@util/azeroid'
 
 const ADDRESSES_QUERY = gql`
   query Addresses($teamId: uuid!) {
@@ -23,6 +24,7 @@ export type Contact = {
   id: string
   name: string
   address: Address
+  a0Id?: string
   teamId: string
 }
 
@@ -216,6 +218,18 @@ export const AddressBookWatcher = () => {
         })
 
         if (isEqual(addressBookByTeamId, newAddressBookByTeamId)) return
+        const resolveContactA0Ids = newAddressBookByTeamId[selectedMultisig.id]
+        if (resolveContactA0Ids) {
+          newAddressBookByTeamId[selectedMultisig.id] = await Promise.all(
+            resolveContactA0Ids.map(async entry => {
+              const resolvedA0Id = await azeroResolver(entry.address)
+              if (resolvedA0Id) {
+                return { ...entry, a0Id: resolvedA0Id.toUpperCase() } as Contact
+              }
+              return entry
+            })
+          )
+        }
         setAddressBookByTeamId(newAddressBookByTeamId)
       }
     } catch (e) {
