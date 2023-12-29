@@ -2,12 +2,10 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import { authTokenBookState, selectedAddressState } from '.'
 import { accountsState, extensionAllowedState, extensionInitiatedState } from '../extension'
 import { useCallback, useEffect } from 'react'
-import { SupportedChainId, resolveAddressToDomain } from '@azns/resolver-core'
 
 export const AccountWatcher: React.FC = () => {
   const [authTokenBook, setAuthTokenBook] = useRecoilState(authTokenBookState)
   const [selectedAccount, setSelectedAccount] = useRecoilState(selectedAddressState)
-  const [accountAZEROID, setAccountAZEROID] = useRecoilState(selectedAddressState)
 
   const extensionInitiated = useRecoilValue(extensionInitiatedState)
 
@@ -61,31 +59,6 @@ export const AccountWatcher: React.FC = () => {
     setAuthTokenBook,
     setSelectedAccount,
   ])
-
-  // useEffect(() => {
-  //   const azeroResolver = async (address: string) => {
-  //     const { primaryDomain, error } = await resolveAddressToDomain(
-  //       "5EeXYRxqC9gZZHdypcquyM9CTRumMVoVFpbJsdE4dgaKiHof",
-  //       {
-  //         chainId: SupportedChainId.AlephZeroTestnet,
-  //       }
-  //     )
-  //     return { primaryDomain, error }
-  //   }
-  //   console.log("selected account: ", selectedAccount)
-  //   if (selectedAccount) {
-  //     azeroResolver(selectedAccount)
-  //       .then(result => {
-  //         console.log('Result: ', result)
-  //         const { primaryDomain } = result
-  //         if (primaryDomain) setAccountAZEROID(primaryDomain)
-  //       })
-  //       .catch(error => {
-  //         console.error('AZERO.ID Resolution Error: ', error)
-  //       })
-  //   }
-  //   console.log("accountAZEROID: ", accountAZEROID)
-  // }, [selectedAccount, accountAZEROID, setAccountAZEROID])
 
   return null
 }

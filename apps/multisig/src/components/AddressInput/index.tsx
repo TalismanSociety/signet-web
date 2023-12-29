@@ -6,12 +6,14 @@ import { Chain } from '@domains/chains'
 import { useOnClickOutside } from '@domains/common/useOnClickOutside'
 import { SelectedAddress } from './SelectedAddressPill'
 import { AccountDetails } from './AccountDetails'
+import { azeroResolverToAddress, azeroResolver } from '@util/azeroid'
 
 export type AddressWithName = {
   address: Address
   name: string
   type: string
   chain?: Chain
+  a0Id?: string
 
   extensionName?: string
   addressBookName?: string
@@ -40,6 +42,7 @@ const AddressInput: React.FC<Props> = ({
   leadingLabel,
   compact,
 }) => {
+  //update the input to use A0Id along with addresses
   const [input, setInput] = useState(value ?? '')
   const [expanded, setExpanded] = useState(false)
   const [querying, setQuerying] = useState(false)
@@ -50,6 +53,61 @@ const AddressInput: React.FC<Props> = ({
   useEffect(() => {
     if (value !== undefined && value === '') setAddress(undefined)
   }, [value])
+
+  // const [a0Id, setA0Id] = useState('');
+  const [resolvedAddress, setResolvedAddress] = useState<
+    | {
+        address: string
+        a0Id: string
+      }
+    | undefined
+  >(undefined)
+  // const [query, setQuery] = useState('');
+  // useEffect(() => {
+  //   setQuery(value ?? input)
+  // }, [input, value])
+
+  useEffect(() => {
+    if (
+      input &&
+      (input.slice(-6).toLowerCase().includes('.azero') || input.slice(-6).toLowerCase().includes('.tzero'))
+    ) {
+      azeroResolverToAddress(input).then(res => {
+        if (res) {
+          // const address = Address.fromSs58(res)
+          // if (address) {
+          //   setAddress(address)
+          // }
+          if (res) {
+            // setA0Id(input)
+            // setResolvedAddress(res)
+            setResolvedAddress({
+              address: res,
+              a0Id: input,
+            })
+          }
+        }
+      })
+    }
+    if (input && Address.fromSs58(input)) {
+      azeroResolver(input).then(res => {
+        if (res) {
+          // setResolvedAddress(input)
+          // setA0Id(res)
+          setResolvedAddress({
+            address: input,
+            a0Id: res,
+          })
+        }
+      })
+    }
+  }, [input])
+
+  // console.log("Adrress inpu: ", addresses)
+  console.log('address input: ', address)
+  console.log('input: ', input)
+  // console.log("a0Id: ", a0Id)
+  console.log('resolvedAddress: ', resolvedAddress)
 
   const blur = () => {
     setExpanded(false)
@@ -102,12 +160,14 @@ const AddressInput: React.FC<Props> = ({
       if (parsedInputAddress) inputAddress = parsedInputAddress
     } catch (e) {}
 
-    return addresses.filter(({ address, name }) => {
+    return addresses.filter(({ address, name, a0Id }) => {
       if (inputAddress && inputAddress.isEqual(address)) return true
       if (name.toLowerCase().includes(query.toLowerCase())) return true
+      if (a0Id && a0Id.toLowerCase().includes(query.toLowerCase())) return true
 
       const addressString = address.toSs58(chain)
       const genericAddressString = address.toSs58()
+
       return (
         addressString.toLowerCase().includes(query.toLowerCase()) ||
         genericAddressString.toLowerCase().includes(query.toLowerCase())
@@ -118,16 +178,50 @@ const AddressInput: React.FC<Props> = ({
   const validRawInputAddress = useMemo(() => {
     try {
       const parsedInputAddress = Address.fromSs58(query)
-      if (parsedInputAddress) return parsedInputAddress
+      if (parsedInputAddress)
+        return {
+          address: parsedInputAddress,
+          a0Id: resolvedAddress?.a0Id || undefined,
+        }
+      if (resolvedAddress !== undefined) {
+        const resolvedA0IdAddress = Address.fromSs58(resolvedAddress.address)
+        if (resolvedA0IdAddress) {
+          return {
+            address: resolvedA0IdAddress,
+            a0Id: resolvedAddress.a0Id,
+          }
+        }
+      }
+      // const resolvedA0IdAddress = Address.fromSs58(resolvedAddress)
+      // if (resolvedA0IdAddress) return {
+      //   address: resolvedA0IdAddress,
+      //   a0Id: a0Id
+      // }
+      // if (a0Id) return {
+      //   address: resolvedA0IdAddress,
+      //   a0Id: a0Id
+      // }
     } catch (e) {}
 
     return undefined
-  }, [query])
+  }, [query, resolvedAddress])
+
+  console.log('validRawInputAddress: ', validRawInputAddress)
+  console.log('!querying && validRawInputAddress: ', !querying && validRawInputAddress)
+  console.log('!querying: ', !querying)
+  console.log('validRawInputAddress: ', validRawInputAddress ? true : false)
+  console.log('controlledSelectedInput: ', controlledSelectedInput)
 
   return (
     <div css={{ width: '100%', position: 'relative' }} ref={containerRef}>
       {controlledSelectedInput && (
-        <SelectedAddress address={address} chain={chain} name={contact?.name} onClear={handleClearInput} />
+        <SelectedAddress
+          address={address}
+          a0Id={resolvedAddress?.a0Id}
+          chain={chain}
+          name={contact?.name}
+          onClear={handleClearInput}
+        />
       )}
       <TextInput
         leadingLabel={leadingLabel}
@@ -188,6 +282,8 @@ const AddressInput: React.FC<Props> = ({
                   name={contact.name}
                   chain={chain}
                   address={contact.address}
+                  a0Id={contact.a0Id}
+                  a0IdAndAddress={true}
                   disableCopy
                   breakLine={compact}
                   identiconSize={compact ? 32 : 24}
@@ -207,11 +303,13 @@ const AddressInput: React.FC<Props> = ({
                   filter: 'brightness(1.2)',
                 },
               }}
-              onClick={() => handleSelectFromList(validRawInputAddress)}
+              onClick={() => handleSelectFromList(validRawInputAddress.address)}
             >
               <AccountDetails
-                address={validRawInputAddress}
+                address={validRawInputAddress.address}
                 chain={chain}
+                a0Id={validRawInputAddress.a0Id}
+                a0IdAndAddress={true}
                 disableCopy
                 breakLine={compact}
                 identiconSize={compact ? 32 : 24}

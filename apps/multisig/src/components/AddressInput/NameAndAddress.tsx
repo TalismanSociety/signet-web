@@ -6,13 +6,20 @@ export const NameAndAddress: React.FC<{
   name?: string
   a0Id?: string
   chain?: Chain
+  a0IdAndAddress?: boolean
   nameOrAddressOnly?: boolean
   breakLine?: boolean
-}> = ({ address, name, a0Id, chain, nameOrAddressOnly, breakLine }) => {
+}> = ({ address, name, a0Id, chain, a0IdAndAddress, nameOrAddressOnly, breakLine }) => {
   if (!name && !a0Id)
-    return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{address?.toShortSs58(chain)}</p>
+    return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{address.toShortSs58(chain)}</p>
 
-  if (a0Id) return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{a0Id.toUpperCase()}</p>
+  if (a0Id)
+    return (
+      <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>
+        {a0Id.toUpperCase()}
+        {a0IdAndAddress ? `   ${address.toShortSs58(chain)}` : null}
+      </p>
+    )
 
   return (
     <div

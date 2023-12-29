@@ -222,7 +222,7 @@ export const AddressBookWatcher = () => {
         if (resolveContactA0Ids) {
           newAddressBookByTeamId[selectedMultisig.id] = await Promise.all(
             resolveContactA0Ids.map(async entry => {
-              const resolvedA0Id = await azeroResolver(entry.address)
+              const resolvedA0Id = await azeroResolver(entry.address.toSs58())
               if (resolvedA0Id) {
                 return { ...entry, a0Id: resolvedA0Id.toUpperCase() } as Contact
               }

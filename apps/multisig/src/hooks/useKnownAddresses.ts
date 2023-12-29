@@ -22,9 +22,10 @@ export const useKnownAddresses = (
 
     const addresses = addressBookByTeamId[teamId ?? ''] ?? []
 
-    return addresses.map(({ address, name }) => ({
+    return addresses.map(({ address, name, a0Id }) => ({
       address,
       name,
+      a0Id,
       type: 'Contacts',
     }))
   }, [addressBookByTeamId, teamId])

@@ -16,9 +16,10 @@ import { selectedAccountState } from '../../domains/auth'
 import VaultOverview from './VaultOverview'
 import { useToast } from '../../components/ui/use-toast'
 
-import { Address } from '@util/addresses'
+// import { Address } from '@util/addresses'
 import { selectedMulisigA0IDState } from '@domains/multisig'
-import { SupportedChainId, resolveAddressToDomain } from '@azns/resolver-core'
+// import { SupportedChainId, resolveAddressToDomain } from '@azns/resolver-core'
+import { azeroResolver } from '@util/azeroid'
 
 const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
@@ -110,21 +111,21 @@ const Overview = () => {
   useEffect(() => () => dismiss(), [dismiss])
 
   useEffect(() => {
-    const azeroResolver = async (address: Address) => {
-      const { primaryDomain, error } = await resolveAddressToDomain(
-        '5EeXYRxqC9gZZHdypcquyM9CTRumMVoVFpbJsdE4dgaKiHof',
-        {
-          chainId: SupportedChainId.AlephZeroTestnet,
-        }
-      )
-      if (error) {
-        console.error(error)
-      }
-      return primaryDomain
-    }
+    // const azeroResolver = async (address: Address) => {
+    //   const { primaryDomain, error } = await resolveAddressToDomain(
+    //     '5EeXYRxqC9gZZHdypcquyM9CTRumMVoVFpbJsdE4dgaKiHof',
+    //     {
+    //       chainId: SupportedChainId.AlephZeroTestnet,
+    //     }
+    //   )
+    //   if (error) {
+    //     console.error(error)
+    //   }
+    //   return primaryDomain
+    // }
     // console.log("selected account: ", selectedAccount)
     // if (selectedMultisig) {
-    azeroResolver(selectedMultisig.proxyAddress)
+    azeroResolver(selectedMultisig.proxyAddress.toSs58())
       .then(z0Id => {
         console.log('Result: ', z0Id)
         // const { primaryDomain } = result

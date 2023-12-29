@@ -66,7 +66,8 @@ export const ExtensionWatcher = () => {
         uniqBy(accounts, account => account.address).map(async account => {
           const address = Address.fromSs58(account.address)
           if (!address) throw Error("Can't parse address from web3AccountsSubscribe!")
-          const a0Id = await azeroResolver(address)
+          //may utilize Address instead of string in the future
+          const a0Id = await azeroResolver(account.address)
           if (a0Id) return { ...account, address, a0Id }
           return { ...account, address }
         })
