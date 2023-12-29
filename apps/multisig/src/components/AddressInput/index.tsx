@@ -49,12 +49,6 @@ const AddressInput: React.FC<Props> = ({
   const [address, setAddress] = useState(defaultAddress ?? (value ? Address.fromSs58(value) || undefined : undefined))
   const [contact, setContact] = useState<AddressWithName | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (value !== undefined && value === '') setAddress(undefined)
-  }, [value])
-
-  // const [a0Id, setA0Id] = useState('');
   const [resolvedAddress, setResolvedAddress] = useState<
     | {
         address: string
@@ -62,10 +56,10 @@ const AddressInput: React.FC<Props> = ({
       }
     | undefined
   >(undefined)
-  // const [query, setQuery] = useState('');
-  // useEffect(() => {
-  //   setQuery(value ?? input)
-  // }, [input, value])
+
+  useEffect(() => {
+    if (value !== undefined && value === '') setAddress(undefined)
+  }, [value])
 
   useEffect(() => {
     if (
@@ -74,17 +68,12 @@ const AddressInput: React.FC<Props> = ({
     ) {
       azeroResolverToAddress(input).then(res => {
         if (res) {
-          // const address = Address.fromSs58(res)
-          // if (address) {
-          //   setAddress(address)
-          // }
           if (res) {
-            // setA0Id(input)
-            // setResolvedAddress(res)
             setResolvedAddress({
               address: res,
               a0Id: input,
             })
+            setQuerying(false)
           }
         }
       })
@@ -92,12 +81,11 @@ const AddressInput: React.FC<Props> = ({
     if (input && Address.fromSs58(input)) {
       azeroResolver(input).then(res => {
         if (res) {
-          // setResolvedAddress(input)
-          // setA0Id(res)
           setResolvedAddress({
             address: input,
             a0Id: res,
           })
+          setQuerying(false)
         }
       })
     }
@@ -192,15 +180,6 @@ const AddressInput: React.FC<Props> = ({
           }
         }
       }
-      // const resolvedA0IdAddress = Address.fromSs58(resolvedAddress)
-      // if (resolvedA0IdAddress) return {
-      //   address: resolvedA0IdAddress,
-      //   a0Id: a0Id
-      // }
-      // if (a0Id) return {
-      //   address: resolvedA0IdAddress,
-      //   a0Id: a0Id
-      // }
     } catch (e) {}
 
     return undefined
@@ -208,6 +187,7 @@ const AddressInput: React.FC<Props> = ({
 
   console.log('validRawInputAddress: ', validRawInputAddress)
   console.log('!querying && validRawInputAddress: ', !querying && validRawInputAddress)
+  console.log('!querying && validRawInputAddress boolean: ', !querying && validRawInputAddress ? true : false)
   console.log('!querying: ', !querying)
   console.log('validRawInputAddress: ', validRawInputAddress ? true : false)
   console.log('controlledSelectedInput: ', controlledSelectedInput)

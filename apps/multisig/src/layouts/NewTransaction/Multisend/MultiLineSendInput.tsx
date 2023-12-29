@@ -41,7 +41,10 @@ const theme = createTheme({
 const findAddressAndAmount = (
   row: string,
   parseAmount: (amount: string) => BN
-): { data?: { address: Address; addressString: string; amount: string; amountBn: BN }; error?: string } => {
+): {
+  data?: { a0Id?: string; address: Address; addressString: string; amount: string; amountBn: BN }
+  error?: string
+} => {
   // try format "address, amount"
   let [address, amount] = row.split(',')
 
@@ -78,6 +81,7 @@ const findAddressAndAmount = (
 
   return {
     data: {
+      a0Id: undefined,
       address: parsedAddress,
       addressString: trimmedAddress,
       amount: trimmedAmount,

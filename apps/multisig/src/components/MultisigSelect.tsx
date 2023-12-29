@@ -12,6 +12,15 @@ type Props = {
   onChange: (multisig: Multisig) => void
 }
 
+const ShortedAzeroId = (azeroId: string) => {
+  const [prefix, suffix] = azeroId.toUpperCase().split('.')
+  if (prefix && prefix.length > 6) {
+    return `${prefix.slice(0, 6)}...${suffix}`
+  } else {
+    return azeroId
+  }
+}
+
 const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; selected?: boolean }> = ({
   multisig,
   disableCopy,
@@ -82,7 +91,9 @@ const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; select
         {truncateMiddle(multisig.name, 24, 0, '...')}
       </p>
       <div css={{ display: 'flex', gap: 4 }}>
-        <p css={{ fontSize: 12, marginTop: 2 }}>{multisig.proxyAddress.toShortSs58(multisig.chain)}</p>
+        <p css={{ fontSize: 12, marginTop: 2 }}>
+          {multisig.azeroID ? ShortedAzeroId(multisig.azeroID) : multisig.proxyAddress.toShortSs58(multisig.chain)}
+        </p>
         {!disableCopy && (
           <Copy
             className={css`

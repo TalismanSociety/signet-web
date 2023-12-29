@@ -25,9 +25,6 @@ const AccountRow = ({ account }: { account: InjectedAccount }) => {
     </div>
   )
 }
-{
-  /* <Tooltip content={<p css={{ fontSize: 12 }}>{address.toSs58(chain)}</p>}>{accountDetailsUI}</Tooltip> */
-}
 
 const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount }) => {
   const [expanded, setExpanded] = useState(false)

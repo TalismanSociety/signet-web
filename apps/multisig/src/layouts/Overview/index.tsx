@@ -111,20 +111,6 @@ const Overview = () => {
   useEffect(() => () => dismiss(), [dismiss])
 
   useEffect(() => {
-    // const azeroResolver = async (address: Address) => {
-    //   const { primaryDomain, error } = await resolveAddressToDomain(
-    //     '5EeXYRxqC9gZZHdypcquyM9CTRumMVoVFpbJsdE4dgaKiHof',
-    //     {
-    //       chainId: SupportedChainId.AlephZeroTestnet,
-    //     }
-    //   )
-    //   if (error) {
-    //     console.error(error)
-    //   }
-    //   return primaryDomain
-    // }
-    // console.log("selected account: ", selectedAccount)
-    // if (selectedMultisig) {
     azeroResolver(selectedMultisig.proxyAddress.toSs58())
       .then(z0Id => {
         console.log('Result: ', z0Id)

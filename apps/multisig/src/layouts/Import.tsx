@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useRecoilState, useSetRecoilState } from 'recoil'
-import { SupportedChainId, resolveAddressToDomain } from '@azns/resolver-core'
+import { azeroResolver } from '@util/azeroid'
 
 /** @deprecated since the intro of a backend, vaults are automatically imported and you don't have to import via link */
 const Import = () => {
@@ -101,25 +101,7 @@ const Import = () => {
           return
         }
 
-        const azeroID = (
-          await resolveAddressToDomain('5EeXYRxqC9gZZHdypcquyM9CTRumMVoVFpbJsdE4dgaKiHof', {
-            chainId: SupportedChainId.AlephZeroTestnet,
-          })
-        ).primaryDomain
-
-        console.log('azero id: ', azeroID)
-        // if (primaryDomain) {
-        //   azeroResolver(selectedAccount)
-        //     .then(result => {
-        //       console.log('Result: ', result)
-        //       const { primaryDomain } = result
-        //       if (primaryDomain) setAccountAZEROID(primaryDomain)
-        //     })
-        //     .catch(error => {
-        //       console.error('AZERO.ID Resolution Error: ', error)
-        //     })
-        // }
-        // console.log("accountAZEROID: ", accountAZEROID)
+        const azeroID = await azeroResolver(proxyAddress.toSs58())
 
         const multisig: Multisig = {
           id: `${multisigAddress.toSs58()}-${proxyAddress.toSs58()}-${chain.squidIds.chainData}`,

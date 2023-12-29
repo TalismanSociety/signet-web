@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
-import {
-  InjectedAccount,
-  accountsState,
-  extensionAllowedState,
-  extensionInitiatedState,
-  extensionLoadingState,
-} from './index'
+import { accountsState, extensionAllowedState, extensionInitiatedState, extensionLoadingState } from './index'
 import { web3AccountsSubscribe, web3Enable } from '@polkadot/extension-dapp'
 import toast from 'react-hot-toast'
 import { uniqBy } from 'lodash'
@@ -103,26 +97,6 @@ export const ExtensionWatcher = () => {
     setExtensionInitiated,
     subscribed,
   ])
-
-  // useEffect(() => {
-  //   const getA0IdResolutions = async (accounts: InjectedAccount[]) => {
-  //     const updatedAccountsDetails = await Promise.all(
-  //       accounts.map(async account => {
-  //         const a0id = await azeroResolver(account.address)
-  //         if (a0id) return { ...account, a0Id: a0id }
-  //         return account
-  //       })
-  //     )
-  //     return updatedAccountsDetails
-  //   }
-  //   if (accounts.length > 0) {
-  //     getA0IdResolutions(accounts)
-  //       .then(accountsWithAnyA0Id => {
-  //         setAccounts(accountsWithAnyA0Id)
-  //       })
-  //       .catch(err => console.error(err))
-  //   }
-  // }, [accounts, setAccounts])
 
   return null
 }
