@@ -26,7 +26,9 @@ const SelectChain = (props: {
         <p css={{ marginTop: 16, textAlign: 'center' }}>Select the chain for your Vault</p>
       </div>
       <Select
+        className="w-full max-w-[260px] [&>button]:!bg-gray-700"
         placeholder="Select account"
+        backgroundColor="rgb(47,47,47)"
         value={props.chain.squidIds.chainData}
         onChange={value => props.setChain(props.chains.find(chain => chain.squidIds.chainData === value) as Chain)}
         {...props}
@@ -46,8 +48,7 @@ const SelectChain = (props: {
                 <img src={chain.logo} alt={chain.chainName} />
               </div>
             }
-            headlineText={chain.chainName}
-            supportingText={chain.isTestnet ? 'Testnet' : ''}
+            headlineText={`${chain.chainName}${chain.isTestnet ? ' Testnet' : ''}`}
           />
         ))}
       </Select>

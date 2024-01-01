@@ -2,7 +2,7 @@ import { Chain } from '.'
 
 export const supportedChains: Chain[] = [
   {
-    squidIds: { chainData: 'polkadot', txHistory: 'polkadot' },
+    squidIds: { chainData: 'polkadot' },
     genesisHash: '0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3',
     chainName: 'Polkadot',
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/v3/assets/chains/polkadot.svg',
@@ -50,7 +50,7 @@ export const supportedChains: Chain[] = [
     ss58Prefix: 0,
   },
   {
-    squidIds: { chainData: 'kusama', txHistory: 'kusama' },
+    squidIds: { chainData: 'kusama' },
     genesisHash: '0xb0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe',
     chainName: 'Kusama',
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/v3/assets/chains/kusama.svg',
@@ -98,7 +98,7 @@ export const supportedChains: Chain[] = [
     ss58Prefix: 2,
   },
   {
-    squidIds: { chainData: 'polkadot-asset-hub', txHistory: 'statemint' },
+    squidIds: { chainData: 'polkadot-asset-hub' },
     genesisHash: '0x68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f',
     chainName: 'Polkadot Asset Hub',
     nativeToken: {
@@ -136,7 +136,7 @@ export const supportedChains: Chain[] = [
     ss58Prefix: 0,
   },
   {
-    squidIds: { chainData: 'kusama-asset-hub', txHistory: 'statemine' },
+    squidIds: { chainData: 'kusama-asset-hub' },
     genesisHash: '0x48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a',
     chainName: 'Kusama Asset Hub',
     nativeToken: {
@@ -177,7 +177,7 @@ export const supportedChains: Chain[] = [
     ss58Prefix: 2,
   },
   // {
-  //   squidIds: { chainData: 'hydradx', txHistory: 'hydradx' },
+  //   squidIds: { chainData: 'hydradx' },
   //   genesisHash: '0xafdc188f45c71dacbaa0b62e16a91f726c7b8699a9748cdf715459de6b7f366d',
   //   chainName: 'HydraDX',
   //   nativeToken: {
@@ -202,52 +202,28 @@ export const supportedChains: Chain[] = [
   //   isTestnet: false,
   //   ss58Prefix: 63,
   // },
+  // {
+  //   squidIds: { chainData: 'aleph-zero' },
+  //   genesisHash: '0x70255b4d28de0fc4e1a193d7e175ad1ccef431598211c55538f1018651a0344e',
+  //   chainName: 'Aleph Zero',
+  //   nativeToken: {
+  //     id: 'aleph-zero-substrate-native-azero',
+  //   },
+  //   subscanUrl: 'https://alephzero.subscan.io/',
+  //   rpcs: [
+  //     {
+  //       "url": "wss://aleph-zero-rpc.dwellir.com"
+  //     },
+  //     {
+  //       "url": "wss://ws.azero.dev"
+  //     }
+  //   ],
+  //   logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/v3/assets/chains/aleph-zero.svg',
+  //   isTestnet: false,
+  //   ss58Prefix: 42,
+  // },
   {
-    squidIds: { chainData: 'westend-testnet', txHistory: 'westend' },
-    genesisHash: '0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e',
-    chainName: 'Westend',
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/v3/assets/chains/westend-testnet.svg',
-    isTestnet: true,
-    subscanUrl: 'https://westend.subscan.io/',
-    nativeToken: {
-      id: 'westend-testnet-substrate-native-wnd',
-    },
-    rpcs: [
-      {
-        url: 'wss://westend-rpc.polkadot.io',
-      },
-      {
-        url: 'wss://rpc.ibp.network/westend',
-      },
-      {
-        url: 'wss://rpc.dotters.network/westend',
-      },
-      {
-        url: 'wss://westend.api.onfinality.io/public-ws',
-      },
-      {
-        url: 'wss://westend-rpc.blockops.network/ws',
-      },
-      {
-        url: 'wss://westend-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://westend-rpc-tn.dwellir.com',
-      },
-      {
-        url: 'wss://rpc-westend.luckyfriday.io',
-      },
-      {
-        url: 'wss://westend.public.curie.radiumblock.co/ws',
-      },
-      {
-        url: 'wss://wnd-rpc.stakeworld.io',
-      },
-    ],
-    ss58Prefix: 42,
-  },
-  {
-    squidIds: { chainData: 'rococo-testnet', txHistory: 'rococo' },
+    squidIds: { chainData: 'rococo-testnet' },
     genesisHash: '0x6408de7737c59c238890533af25896a2c20608d8b380bb01029acb392781063e',
     chainName: 'Rococo',
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/v3/assets/chains/rococo-testnet.svg',
@@ -265,6 +241,26 @@ export const supportedChains: Chain[] = [
       },
     ],
     ss58Prefix: 42,
+  },
+  {
+    squidIds: { chainData: 'shibuya-testnet' },
+    genesisHash: '0xddb89973361a170839f80f152d2e9e38a376a5a7eccefcade763f46a8e567019',
+    chainName: 'Shibuya',
+    nativeToken: {
+      id: 'shibuya-testnet-substrate-native-sby',
+    },
+    subscanUrl: 'https://shibuya.subscan.io/',
+    rpcs: [
+      {
+        url: 'wss://shibuya-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://rpc.shibuya.astar.network',
+      },
+    ],
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/v3/assets/chains/shibuya-testnet.svg',
+    isTestnet: true,
+    ss58Prefix: 5,
   },
 ]
 
