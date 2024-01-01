@@ -272,7 +272,8 @@ export const globalStyle = (theme: Theme) => {
     /* width */
     ::-webkit-scrollbar {
       width: 6px;
-      padding: 2px;
+      padding: 4px;
+      height: 6px;
     }
 
     /* Track */

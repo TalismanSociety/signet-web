@@ -235,15 +235,14 @@ export const chainTokensByIdQuery = graphQLSelectorFamily({
       }
     }
   `,
-  variables: id => {
-    return { id }
-  },
+  variables: id => ({ id }),
   mapResponse: res => {
     // by default, these tokens don't have a fully filled chain property
     // so we need to add it
     return res.chainById.tokens.map((item: { data: { chain: { id: string } } }) => {
-      const chain = supportedChains.find(c => c.squidIds.chainData === item.data.chain.id)
-      if (!chain) throw new Error(`chain ${res.tokenById.data.chainId} not found in supported chains`)
+      const chain = supportedChains.find(c => c.squidIds.chainData === item?.data?.chain.id)
+      console.error(`chain ${res.tokenById?.data?.chainId ?? item?.data?.chain.id} not found in supported chains`)
+      if (!chain) return null
       return { ...item.data, chain }
     }) as BaseToken[]
   },
@@ -256,9 +255,11 @@ export const allChainTokensSelector = selector({
     const multisigs = get(activeMultisigsState)
 
     const entries: [string, BaseToken[]][] = await Promise.all(
-      multisigs.map(({ chain }) => [chain.squidIds.chainData, get(chainTokensByIdQuery(chain.squidIds.chainData))])
+      multisigs
+        .filter(({ chain }) => chain !== undefined)
+        .map(({ chain }) => [chain.squidIds.chainData, get(chainTokensByIdQuery(chain.squidIds.chainData))])
     )
-    return new Map(entries)
+    return new Map(entries.filter(([tokens]) => !!tokens[0]))
   },
   dangerouslyAllowMutability: true, // pjs wsprovider mutates itself to track connection msg stats
 })
