@@ -1,9 +1,10 @@
-import { Identicon, Tooltip } from '@talismn/ui'
+import { Identicon } from '@talismn/ui'
 import { Chain } from '@domains/chains'
 import { Address } from '@util/addresses'
 import { NameAndAddress } from './NameAndAddress'
 import { Copy } from '@talismn/icons'
 import { copyToClipboard } from '@domains/common'
+import AddressTooltip from '../AddressTooltip'
 
 type Props = {
   chain?: Chain
@@ -48,7 +49,9 @@ export const AccountDetails: React.FC<Props> = ({
   )
 
   return withAddressTooltip ? (
-    <Tooltip content={<p css={{ fontSize: 12 }}>{address.toSs58(chain)}</p>}>{accountDetailsUI}</Tooltip>
+    <AddressTooltip name={name} address={address.toSs58(chain)} chain={chain}>
+      {accountDetailsUI}
+    </AddressTooltip>
   ) : (
     accountDetailsUI
   )

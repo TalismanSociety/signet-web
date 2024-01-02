@@ -10,7 +10,6 @@ import Assets, { TokenAugmented } from './Assets'
 import Transactions from './Transactions'
 import { Layout } from '../Layout'
 import { css } from '@emotion/css'
-import BetaNotice from './BetaNotice'
 import { changingMultisigConfigState, useUpdateMultisigConfig } from '../../domains/offchain-data'
 import { selectedAccountState } from '../../domains/auth'
 import VaultOverview from './VaultOverview'
@@ -132,7 +131,6 @@ const Overview = () => {
         </div>
         <Transactions />
       </div>
-      <BetaNotice />
       <TxMetadataWatcher />
     </Layout>
   )

@@ -586,7 +586,7 @@ export const extrinsicToDecoded = (
       type: TransactionType.Advanced,
       recipients: [],
     },
-    description: defaultName ?? `${extrinsic.method.section}.${extrinsic.method.method}`,
+    description: metadata?.description ?? defaultName ?? `${extrinsic.method.section}.${extrinsic.method.method}`,
   }
 }
 

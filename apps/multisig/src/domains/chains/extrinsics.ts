@@ -12,7 +12,7 @@ import { web3FromAddress } from '@polkadot/extension-dapp'
 import type { Call, ExtrinsicPayload, Timepoint } from '@polkadot/types/interfaces'
 import { assert, compactToU8a, u8aConcat, u8aEq } from '@polkadot/util'
 import { Address } from '@util/addresses'
-import { makeTransactionID } from '@util/misc'
+import { decodeSubstrateError, getErrorString, makeTransactionID } from '@util/misc'
 import BN from 'bn.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
@@ -21,6 +21,7 @@ import { allRawPendingTransactionsSelector, rawPendingTransactionsDependency } f
 import { Chain, isSubstrateAssetsToken, isSubstrateNativeToken, isSubstrateTokensToken, tokenByIdQuery } from './tokens'
 import { useInsertTxMetadata } from '../offchain-data/metadata'
 import { selectedAccountState } from '../auth'
+import { captureException } from '@sentry/react'
 
 export const buildTransferExtrinsic = (api: ApiPromise, to: Address, balance: Balance) => {
   if (isSubstrateNativeToken(balance.token)) {
@@ -433,7 +434,10 @@ export const useApproveAsMulti = (
             if (result.status.isFinalized) {
               result.events.forEach(async ({ event: { method } }): Promise<void> => {
                 if (method === 'ExtrinsicFailed') {
-                  onFailure(JSON.stringify(result.toHuman()))
+                  const errorModule = (result.toHuman() as any)?.dispatchError?.Module
+                  const errorMessage = decodeSubstrateError(errorModule, apiLoadable.contents)
+                  captureException({ result: result.toHuman(), errorMessage })
+                  onFailure(errorMessage || JSON.stringify(result.toHuman()))
                 }
                 if (method === 'ExtrinsicSuccess') {
                   // if there's a description, it means we want to post to the metadata service
@@ -465,7 +469,9 @@ export const useApproveAsMulti = (
           }
         )
         .catch(e => {
-          onFailure(JSON.stringify(e))
+          // probably not substrate error
+          captureException(e)
+          onFailure(getErrorString(e))
         })
     },
     [
@@ -474,6 +480,7 @@ export const useApproveAsMulti = (
       extensionAddress,
       hash,
       multisig,
+      apiLoadable.contents,
       setRawPendingTransactionDependency,
       insertTxMetadata,
     ]
