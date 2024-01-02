@@ -9,6 +9,7 @@ import { activeMultisigsState } from '@domains/multisig'
 import { activeTeamsState } from '../domains/offchain-data'
 import { Navigate } from 'react-router-dom'
 import BetaNotice from './Overview/BetaNotice'
+import { useDevMode } from '../domains/common/useDevMode'
 
 export const Layout: React.FC<
   React.PropsWithChildren & { selected?: string; requiresMultisig?: boolean; hideSideBar?: boolean }
@@ -16,6 +17,7 @@ export const Layout: React.FC<
   const multisigs = useRecoilValue(activeMultisigsState)
   const activeTeams = useRecoilValue(activeTeamsState)
   const navigate = useNavigate()
+  const devMode = useDevMode()
 
   return (
     <div
@@ -88,6 +90,7 @@ export const Layout: React.FC<
                         name: 'Dapps',
                         icon: <Globe />,
                         onClick: () => navigate('/dapps'),
+                        hidden: !devMode,
                       },
                       {
                         name: 'Call data',

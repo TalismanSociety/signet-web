@@ -6,7 +6,15 @@ import { ReactNode } from 'react'
 import { useWindowSize } from 'react-use'
 
 type Props = {
-  sections: { name: string; options: { name: string; icon: ReactNode; onClick?: () => void }[] }[]
+  sections: {
+    name: string
+    options: {
+      name: string
+      icon: ReactNode
+      onClick?: () => void
+      hidden?: boolean
+    }[]
+  }[]
   selected?: string
 }
 const Sidebar = (props: Props) => {
@@ -19,25 +27,27 @@ const Sidebar = (props: Props) => {
         <div className="w-full flex flex-col" key={name}>
           <p className="hidden lg:block uppercase text-[12px] mb-[8px]">{name}</p>
           <div className="grid gap-[12px]">
-            {options.map(({ name, icon, onClick }) => (
-              <div
-                key={name}
-                onClick={onClick}
-                className={clsx(
-                  'w-full flex gap-[8px] items-center duration-300 cursor-pointer hover:brightness-125',
-                  props.selected === name && 'text-offWhite'
-                )}
-              >
-                <IconButton
+            {options
+              .filter(({ hidden }) => !hidden)
+              .map(({ name, icon, onClick }) => (
+                <div
                   key={name}
-                  contentColor={name === props.selected ? theme.color.offWhite : theme.color.lightGrey}
-                  className="lg:[&>svg]:w-[20px] lg:[&>svg]:h-[20px] lg:!w-[32px] lg:!h-[32px]"
+                  onClick={onClick}
+                  className={clsx(
+                    'w-full flex gap-[8px] items-center duration-300 cursor-pointer hover:brightness-125',
+                    props.selected === name && 'text-offWhite'
+                  )}
                 >
-                  {icon}
-                </IconButton>
-                {width > size.md && <span>{name}</span>}
-              </div>
-            ))}
+                  <IconButton
+                    key={name}
+                    contentColor={name === props.selected ? theme.color.offWhite : theme.color.lightGrey}
+                    className="lg:[&>svg]:w-[20px] lg:[&>svg]:h-[20px] lg:!w-[32px] lg:!h-[32px]"
+                  >
+                    {icon}
+                  </IconButton>
+                  {width > size.md && <span>{name}</span>}
+                </div>
+              ))}
           </div>
         </div>
       ))}
