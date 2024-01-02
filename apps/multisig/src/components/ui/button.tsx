@@ -39,13 +39,13 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, children, loading, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, loading, children, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button'
     return (
       <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
         {loading ? (
-          <div className="absolute left-[4px]">
-            <CircularProgressIndicator size={20} />
+          <div className="absolute left-[4px] top-1/2 -translate-y-1/2">
+            <CircularProgressIndicator size={16} />
           </div>
         ) : null}
         {children}

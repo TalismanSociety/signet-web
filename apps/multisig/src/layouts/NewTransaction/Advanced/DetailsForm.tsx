@@ -20,7 +20,7 @@ export const DetailsForm = (props: {
         maxWidth: 623,
       }}
     >
-      <NewTransactionHeader icon={<List />}>Advanced</NewTransactionHeader>
+      <NewTransactionHeader icon={<List />}>Custom call data</NewTransactionHeader>
       <TextInput
         leadingLabel="Transaction Description"
         css={{ fontSize: '16px !important' }}

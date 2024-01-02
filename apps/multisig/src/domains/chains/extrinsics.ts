@@ -430,7 +430,6 @@ export const useApproveAsMulti = (
             if (!result || !result.status) {
               return
             }
-
             if (result.status.isFinalized) {
               result.events.forEach(async ({ event: { method } }): Promise<void> => {
                 if (method === 'ExtrinsicFailed') {
