@@ -12,6 +12,8 @@ import Vote from '../layouts/NewTransaction/Vote'
 import Advanced from '../layouts/NewTransaction/Advanced'
 import Staking from '../layouts/Staking'
 import { Dapps } from '../layouts/Dapps'
+import { SignetConnect } from '../layouts/Connect'
+import { Sign } from '../layouts/Sign'
 
 const router = createBrowserRouter([
   {
@@ -87,6 +89,22 @@ const router = createBrowserRouter([
     element: (
       <RequireAuth requireSignIn>
         <AddressBook />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/connect',
+    element: (
+      <RequireAuth requireSignIn>
+        <SignetConnect />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/sign',
+    element: (
+      <RequireAuth requireSignIn>
+        <Sign />
       </RequireAuth>
     ),
   },

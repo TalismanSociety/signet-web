@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/react'
 import { SignedInAccount } from '../auth'
 import { Variables, request } from 'graphql-request'
 
@@ -20,6 +21,15 @@ export const requestSignetBackend = async <TData = any, TVariables extends Varia
     const data = await request<TData>(`${HASURA_ENDPOINT}/v1/graphql`, query, variables, headers)
     return { data }
   } catch (error) {
+    captureException(error, {
+      extra: {
+        hasuraEndpoint: HASURA_ENDPOINT,
+        query,
+        variables,
+        signer,
+        hasJwtToken: signer?.jwtToken !== undefined,
+      },
+    })
     return { error }
   }
 }
