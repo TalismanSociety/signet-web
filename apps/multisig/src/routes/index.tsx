@@ -14,6 +14,7 @@ import Staking from '../layouts/Staking'
 import { Dapps } from '../layouts/Dapps'
 import { SignetConnect } from '../layouts/Connect'
 import { Sign } from '../layouts/Sign'
+import SmartContracts from '../layouts/SmartContracts'
 
 const router = createBrowserRouter([
   {
@@ -105,6 +106,14 @@ const router = createBrowserRouter([
     element: (
       <RequireAuth requireSignIn>
         <Sign />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/smart-contracts/*',
+    element: (
+      <RequireAuth requireSignIn>
+        <SmartContracts />
       </RequireAuth>
     ),
   },

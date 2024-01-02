@@ -4,6 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@util/tailwindcss'
 import { CircularProgressIndicator } from '@talismn/ui'
+import { Link, LinkProps } from 'react-router-dom'
 
 const buttonVariants = cva(
   'relative inline-flex items-center justify-center whitespace-nowrap rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
@@ -31,18 +32,19 @@ const buttonVariants = cva(
   }
 )
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+type AnchorInterface = LinkProps & { asLink: true; asChild?: undefined }
+type ButtonInterface = React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean; asLink?: false }
+
+export type ButtonProps = (VariantProps<typeof buttonVariants> & (AnchorInterface | ButtonInterface)) & {
   loading?: boolean
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, loading, children, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button'
+const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, asLink = false, loading, children, ...props }, ref) => {
+    const Comp = asLink ? Link : asChild ? Slot : 'button'
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
+      // @ts-ignore
+      <Comp className={cn(asLink ? 'w-max' : '', buttonVariants({ variant, size, className }))} ref={ref} {...props}>
         {loading ? (
           <div className="absolute left-[4px] top-1/2 -translate-y-1/2">
             <CircularProgressIndicator size={16} />

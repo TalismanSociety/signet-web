@@ -3,6 +3,7 @@ import { IconButton } from '@talismn/ui'
 import { size } from '@util/breakpoints'
 import clsx from 'clsx'
 import { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { useWindowSize } from 'react-use'
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
       name: string
       icon: ReactNode
       onClick?: () => void
+      href?: string
       hidden?: boolean
     }[]
   }[]
@@ -29,25 +31,41 @@ const Sidebar = (props: Props) => {
           <div className="grid gap-[12px]">
             {options
               .filter(({ hidden }) => !hidden)
-              .map(({ name, icon, onClick }) => (
-                <div
-                  key={name}
-                  onClick={onClick}
-                  className={clsx(
-                    'w-full flex gap-[8px] items-center duration-300 cursor-pointer hover:brightness-125',
-                    props.selected === name && 'text-offWhite'
-                  )}
-                >
-                  <IconButton
+              .map(({ name, icon, onClick, href }) => {
+                const ui = (
+                  <div className="w-full flex gap-[8px] items-center duration-300 cursor-pointer hover:brightness-125">
+                    <IconButton
+                      key={name}
+                      contentColor={name === props.selected ? theme.color.offWhite : theme.color.lightGrey}
+                      className="lg:[&>svg]:w-[20px] lg:[&>svg]:h-[20px] lg:!w-[32px] lg:!h-[32px]"
+                    >
+                      {icon}
+                    </IconButton>
+                    {width > size.md && <span>{name}</span>}
+                  </div>
+                )
+
+                if (href) {
+                  return (
+                    <Link key={name} to={href}>
+                      {ui}
+                    </Link>
+                  )
+                }
+
+                return (
+                  <div
                     key={name}
-                    contentColor={name === props.selected ? theme.color.offWhite : theme.color.lightGrey}
-                    className="lg:[&>svg]:w-[20px] lg:[&>svg]:h-[20px] lg:!w-[32px] lg:!h-[32px]"
+                    onClick={onClick}
+                    className={clsx(
+                      'w-full flex gap-[8px] items-center duration-300 cursor-pointer hover:brightness-125',
+                      props.selected === name && 'text-offWhite'
+                    )}
                   >
-                    {icon}
-                  </IconButton>
-                  {width > size.md && <span>{name}</span>}
-                </div>
-              ))}
+                    {ui}
+                  </div>
+                )
+              })}
           </div>
         </div>
       ))}
