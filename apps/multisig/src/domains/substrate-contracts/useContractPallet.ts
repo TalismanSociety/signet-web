@@ -1,18 +1,13 @@
 import { ApiPromise } from '@polkadot/api'
 import { useMemo } from 'react'
 
-type Output = {
-  loading: boolean
-  supported?: boolean
-  getContractInfo: (address: string) => Promise<any>
-}
-export const useContractPallet = (api?: ApiPromise): Output => {
+export const useContractPallet = (api?: ApiPromise) => {
   return useMemo(() => {
     if (!api)
       return {
         loading: true,
         getContractInfo: async () => {
-          console.warn('getContractInfo is called before api is ready')
+          throw new Error('getContractInfo is called before api is ready')
         },
       }
 
