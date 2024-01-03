@@ -5,7 +5,7 @@ import { web3AccountsSubscribe, web3Enable } from '@polkadot/extension-dapp'
 import toast from 'react-hot-toast'
 import { uniqBy } from 'lodash'
 import { Address } from '@util/addresses'
-import { azeroResolver } from '@util/azeroid'
+import { getAzeroId } from '@util/azeroid'
 
 export const ExtensionWatcher = () => {
   // extensionAllowed is used to trigger web3Enable call
@@ -61,7 +61,7 @@ export const ExtensionWatcher = () => {
           const address = Address.fromSs58(account.address)
           if (!address) throw Error("Can't parse address from web3AccountsSubscribe!")
           //may utilize Address instead of string in the future
-          const a0Id = await azeroResolver(account.address)
+          const a0Id = await getAzeroId(account.address)
           if (a0Id) return { ...account, address, a0Id }
           return { ...account, address }
         })

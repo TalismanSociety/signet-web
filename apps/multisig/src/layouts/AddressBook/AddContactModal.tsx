@@ -5,7 +5,7 @@ import { useInput } from '@hooks/useInput'
 import { Address } from '@util/addresses'
 import { useAddressBook, useCreateContact } from '../../domains/offchain-data'
 import { useSelectedMultisig } from '../../domains/multisig'
-import { azeroResolverToAddress } from '@util/azeroid'
+import { getAddressFromAzeroId } from '@util/azeroid'
 
 type Props = {
   onClose?: () => void
@@ -48,7 +48,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
       addressInput.value.slice(-6).toLowerCase().includes('.azero') ||
       addressInput.value.slice(-6).toLowerCase().includes('.tzero')
     ) {
-      azeroResolverToAddress(addressInput.value).then(res => {
+      getAddressFromAzeroId(addressInput.value).then(res => {
         if (res) {
           setResolvedAddress(res)
         }

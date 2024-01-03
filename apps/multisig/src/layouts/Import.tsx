@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useRecoilState, useSetRecoilState } from 'recoil'
-import { azeroResolver } from '@util/azeroid'
+import { getAzeroId } from '@util/azeroid'
 
 /** @deprecated since the intro of a backend, vaults are automatically imported and you don't have to import via link */
 const Import = () => {
@@ -101,7 +101,7 @@ const Import = () => {
           return
         }
 
-        const azeroID = await azeroResolver(proxyAddress.toSs58())
+        const azeroID = await getAzeroId(proxyAddress.toSs58())
 
         const multisig: Multisig = {
           id: `${multisigAddress.toSs58()}-${proxyAddress.toSs58()}-${chain.squidIds.chainData}`,

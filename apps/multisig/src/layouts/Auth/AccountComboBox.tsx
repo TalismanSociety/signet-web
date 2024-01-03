@@ -19,7 +19,7 @@ const AccountRow = ({ account }: { account: InjectedAccount }) => {
       <p css={({ color }) => ({ marginTop: 4, color: color.lightGrey })}>
         <span css={{ width: '100%' }}>{account.meta.name}</span>{' '}
         <span css={({ color }) => ({ color: color.offWhite })}>
-          ({account.a0Id ? account.a0Id.toUpperCase() : account.address.toShortSs58()})
+          ({account.a0Id ? account.a0Id : account.address.toShortSs58()})
         </span>
       </p>
     </div>

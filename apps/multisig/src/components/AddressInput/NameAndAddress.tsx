@@ -10,14 +10,18 @@ export const NameAndAddress: React.FC<{
   nameOrAddressOnly?: boolean
   breakLine?: boolean
 }> = ({ address, name, a0Id, chain, a0IdAndAddress, nameOrAddressOnly, breakLine }) => {
+  // const primaryValue = name ?? a0Id ?? address.toShortSs58(chain)
+  // const hasSecondaryValue = name || a0Id
+  // const secondaryValue = hasSecondaryValue ? (name ? a0Id : undefined) ?? address.toShortSs58(chain) : undefined
+
   if (!name && !a0Id)
     return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{address.toShortSs58(chain)}</p>
 
   if (a0Id)
     return (
-      <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>
-        {a0Id.toUpperCase()}
-        {a0IdAndAddress ? `   ${address.toShortSs58(chain)}` : null}
+      <p className="mt-[6px]">
+        <span className="text-offWhite">{a0Id}</span>
+        {a0IdAndAddress ? <>&nbsp;{address.toShortSs58(chain)}</> : null}
       </p>
     )
 

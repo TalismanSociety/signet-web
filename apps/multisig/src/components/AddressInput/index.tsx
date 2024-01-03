@@ -6,7 +6,7 @@ import { Chain } from '@domains/chains'
 import { useOnClickOutside } from '@domains/common/useOnClickOutside'
 import { SelectedAddress } from './SelectedAddressPill'
 import { AccountDetails } from './AccountDetails'
-import { azeroResolverToAddress, azeroResolver } from '@util/azeroid'
+import { getAddressFromAzeroId, getAzeroId, isAzeroId, useAzeroId } from '@util/azeroid'
 
 export type AddressWithName = {
   address: Address
@@ -57,16 +57,15 @@ const AddressInput: React.FC<Props> = ({
     | undefined
   >(undefined)
 
+  // const { loading, resolvingFor, setResolvedFor, resolvingAddress, azeroId } = useAzeroId("")
+
   useEffect(() => {
     if (value !== undefined && value === '') setAddress(undefined)
   }, [value])
 
   useEffect(() => {
-    if (
-      input &&
-      (input.slice(-6).toLowerCase().includes('.azero') || input.slice(-6).toLowerCase().includes('.tzero'))
-    ) {
-      azeroResolverToAddress(input).then(res => {
+    if (input && isAzeroId(input)) {
+      getAddressFromAzeroId(input).then(res => {
         if (res) {
           if (res) {
             setResolvedAddress({
@@ -79,7 +78,7 @@ const AddressInput: React.FC<Props> = ({
       })
     }
     if (input && Address.fromSs58(input)) {
-      azeroResolver(input).then(res => {
+      getAzeroId(input).then(res => {
         if (res) {
           setResolvedAddress({
             address: input,

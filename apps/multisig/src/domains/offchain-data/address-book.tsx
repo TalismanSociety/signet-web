@@ -7,7 +7,7 @@ import { requestSignetBackend } from './hasura'
 import { Address } from '@util/addresses'
 import toast from 'react-hot-toast'
 import { isEqual } from 'lodash'
-import { azeroResolver } from '@util/azeroid'
+import { getAzeroId } from '@util/azeroid'
 
 const ADDRESSES_QUERY = gql`
   query Addresses($teamId: uuid!) {
@@ -111,7 +111,17 @@ export const useCreateContact = () => {
 
         // dont need to update cache if there's a conflict since no update will be made in backend
         if (!conflict) {
-          addresses = [...addresses, { id, name, teamId, address }]
+          const resolveContactA0Ids = addresses
+          if (resolveContactA0Ids) {
+            addresses = await Promise.all(
+              resolveContactA0Ids.map(async entry => {
+                const resolvedA0Id = await getAzeroId(entry.address.toSs58())
+                return { ...entry, a0Id: resolvedA0Id }
+              })
+            )
+          }
+          const resolvedA0Id = await getAzeroId(address.toSs58())
+          addresses = [...addresses, { id, name, teamId, address, a0Id: resolvedA0Id }]
           setAddressBookByTeamId({ ...addressBookByTeamId, [teamId]: addresses })
         }
         // inform caller that contact was created
@@ -222,11 +232,8 @@ export const AddressBookWatcher = () => {
         if (resolveContactA0Ids) {
           newAddressBookByTeamId[selectedMultisig.id] = await Promise.all(
             resolveContactA0Ids.map(async entry => {
-              const resolvedA0Id = await azeroResolver(entry.address.toSs58())
-              if (resolvedA0Id) {
-                return { ...entry, a0Id: resolvedA0Id.toUpperCase() } as Contact
-              }
-              return entry
+              const resolvedA0Id = await getAzeroId(entry.address.toSs58())
+              return { ...entry, a0Id: resolvedA0Id }
             })
           )
         }

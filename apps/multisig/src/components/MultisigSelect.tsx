@@ -13,7 +13,7 @@ type Props = {
 }
 
 const ShortedAzeroId = (azeroId: string) => {
-  const [prefix, suffix] = azeroId.toUpperCase().split('.')
+  const [prefix, suffix] = azeroId.split('.')
   if (prefix && prefix.length > 6) {
     return `${prefix.slice(0, 6)}...${suffix}`
   } else {

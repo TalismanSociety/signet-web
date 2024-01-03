@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom'
 const Header = () => {
   const navigate = useNavigate()
   const [selectedMultisig, setSelectedMultisig] = useSelectedMultisig()
-  const activeMultisigs = useRecoilValue(activeMultisigsState)
+  const activeMultisigs = useRecoilValue(activeMultisigsState) //update this with azeroIds to show in multisig select
   const selectedAccount = useRecoilValue(selectedAccountState)
   const extensionAccounts = useRecoilValue(accountsState)
 

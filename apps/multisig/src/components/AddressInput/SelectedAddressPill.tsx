@@ -44,7 +44,7 @@ export const SelectedAddress = ({
           backgroundColor: color.surface,
         })}
       >
-        <AccountDetails address={address} a0Id={a0Id} a0IdAndAddress={true} chain={chain} name={name} disableCopy />
+        <AccountDetails address={address} a0Id={a0Id} a0IdAndAddress chain={chain} name={name} disableCopy />
       </div>
       <div className="close-icon" css={{ opacity: 0.6, height: 20, paddingRight: 8 }}>
         <X size={20} />

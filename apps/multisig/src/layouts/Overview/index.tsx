@@ -17,9 +17,9 @@ import VaultOverview from './VaultOverview'
 import { useToast } from '../../components/ui/use-toast'
 
 // import { Address } from '@util/addresses'
-import { selectedMulisigA0IDState } from '@domains/multisig'
+import { selectedMultisigA0IDState } from '@domains/multisig'
 // import { SupportedChainId, resolveAddressToDomain } from '@azns/resolver-core'
-import { azeroResolver } from '@util/azeroid'
+import { getAzeroId } from '@util/azeroid'
 
 const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
@@ -27,7 +27,7 @@ const Overview = () => {
   const changingMultisigConfig = useRecoilValue(changingMultisigConfigState)
   const { updateMultisigConfig } = useUpdateMultisigConfig()
   const { toast, dismiss } = useToast()
-  const [selectedMultisigA0ID, setSelectedMultisigA0ID] = useRecoilState(selectedMulisigA0IDState)
+  const [selectedMultisigA0ID, setSelectedMultisigA0ID] = useRecoilState(selectedMultisigA0IDState)
 
   // TODO: consider migrating to top level so it works regardless of page?
   const detectChangeAndAutoUpdate = useCallback(async () => {
@@ -111,7 +111,7 @@ const Overview = () => {
   useEffect(() => () => dismiss(), [dismiss])
 
   useEffect(() => {
-    azeroResolver(selectedMultisig.proxyAddress.toSs58())
+    getAzeroId(selectedMultisig.proxyAddress.toSs58())
       .then(z0Id => {
         console.log('Result: ', z0Id)
         // const { primaryDomain } = result
