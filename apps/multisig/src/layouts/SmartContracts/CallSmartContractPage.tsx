@@ -78,7 +78,7 @@ export const CallSmartContractPage: React.FC = () => {
           {writeMethods.length > 0 ? (
             <Popover open={openMethod} onOpenChange={setOpenMethod}>
               <PopoverTrigger asChild>
-                <Button className="w-full h-16 px-[16px]" variant="secondary">
+                <Button className="w-full h-16 px-[20px]" variant="secondary">
                   <div className="flex items-center justify-between w-full">
                     <p>{selectedMethod?.label}</p>
                     <ChevronDown />
@@ -87,15 +87,15 @@ export const CallSmartContractPage: React.FC = () => {
               </PopoverTrigger>
               <PopoverContent>
                 <Command>
-                  <CommandInput placeholder="Search methods" />
+                  <CommandInput placeholder="Search methods..." />
                   <CommandSeparator />
                   <CommandList>
                     <CommandEmpty>No methods found</CommandEmpty>
-                    <CommandGroup className="p-[8px]">
+                    <CommandGroup>
                       {writeMethods.map(({ label, docs }, index) => (
                         <CommandItem
                           key={label}
-                          className="rounded-[8px] flex flex-col text-left items-start py-[8px] px-[12px] text-ellipsis overflow-hidden whitespace-nowrap w-full"
+                          className="flex flex-col text-left items-start text-ellipsis overflow-hidden whitespace-nowrap w-full"
                           value={`${index}`}
                           onSelect={() => {
                             setMethodIndex(+index)

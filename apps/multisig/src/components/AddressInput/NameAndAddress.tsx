@@ -18,6 +18,8 @@ export const NameAndAddress: React.FC<{
         flexDirection: breakLine ? 'column' : 'row',
         alignItems: breakLine ? 'flex-start' : 'center',
         marginTop: breakLine ? 0 : 4,
+        overflow: 'hidden',
+        width: '100%',
       }}
     >
       <p
@@ -26,11 +28,10 @@ export const NameAndAddress: React.FC<{
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          maxWidth: 120,
           width: '100%',
         })}
       >
-        {name}
+        {name}asdasdsadsdasdsad
       </p>
       {!nameOrAddressOnly && (
         <p css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>{address.toShortSs58(chain)}</p>

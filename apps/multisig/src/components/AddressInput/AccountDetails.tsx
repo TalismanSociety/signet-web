@@ -29,7 +29,7 @@ export const AccountDetails: React.FC<Props> = ({
 }) => {
   const { copy } = useCopied()
   const accountDetailsUI = (
-    <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div className="flex items-center gap-[8px] w-full overflow-hidden">
       <Identicon size={identiconSize} value={address.toSs58(chain)} />
       <NameAndAddress
         address={address}
@@ -40,7 +40,7 @@ export const AccountDetails: React.FC<Props> = ({
       />
       {!disableCopy && (
         <div
-          css={({ color }) => ({ color: color.lightGrey, height: 16, cursor: 'pointer' })}
+          className="text-gray-200 h-[16px] cursor-pointer"
           onClick={() => copy(address.toSs58(chain), 'Address copied!')}
         >
           <Copy size={16} />
