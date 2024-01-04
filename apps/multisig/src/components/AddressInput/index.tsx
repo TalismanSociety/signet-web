@@ -6,7 +6,7 @@ import { Chain } from '@domains/chains'
 import { useOnClickOutside } from '@domains/common/useOnClickOutside'
 import { SelectedAddress } from './SelectedAddressPill'
 import { AccountDetails } from './AccountDetails'
-import { getAddressFromAzeroId, getAzeroId, isAzeroId, useAzeroId } from '@util/azeroid'
+import { useAzeroId } from '@util/azeroid'
 
 export type AddressWithName = {
   address: Address
@@ -23,6 +23,7 @@ type Props = {
   defaultAddress?: Address
   value?: string
   onChange: (address: Address | undefined, input: string) => void
+  onUpdateAzeroId?: (id: string | undefined) => void
   addresses?: AddressWithName[]
   chain?: Chain
   leadingLabel?: string
@@ -35,6 +36,7 @@ type Props = {
  */
 const AddressInput: React.FC<Props> = ({
   onChange,
+  onUpdateAzeroId,
   value,
   defaultAddress,
   addresses = [],
@@ -49,44 +51,20 @@ const AddressInput: React.FC<Props> = ({
   const [address, setAddress] = useState(defaultAddress ?? (value ? Address.fromSs58(value) || undefined : undefined))
   const [contact, setContact] = useState<AddressWithName | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
-  const [resolvedAddress, setResolvedAddress] = useState<
-    | {
-        address: string
-        a0Id: string
-      }
-    | undefined
-  >(undefined)
+  const [resolvedAddress, setResolvedAddress] = useState<{ address: string; azeroId: string } | undefined>(undefined)
+  const { loading, address: addressFromAzero, azeroId } = useAzeroId(input, {})
 
   useEffect(() => {
     if (value !== undefined && value === '') setAddress(undefined)
   }, [value])
 
   useEffect(() => {
-    if (input && isAzeroId(input)) {
-      getAddressFromAzeroId(input).then(res => {
-        if (res) {
-          if (res) {
-            setResolvedAddress({
-              address: res,
-              a0Id: input,
-            })
-            setQuerying(false)
-          }
-        }
-      })
+    if (loading === false && azeroId && addressFromAzero) {
+      setResolvedAddress({ address: addressFromAzero, azeroId })
+      if (onUpdateAzeroId) onUpdateAzeroId(azeroId)
+      setQuerying(false)
     }
-    if (input && Address.fromSs58(input)) {
-      getAzeroId(input).then(res => {
-        if (res) {
-          setResolvedAddress({
-            address: input,
-            a0Id: res,
-          })
-          setQuerying(false)
-        }
-      })
-    }
-  }, [input])
+  }, [addressFromAzero, azeroId, input, loading, onUpdateAzeroId])
 
   const blur = () => {
     setExpanded(false)
@@ -129,7 +107,9 @@ const AddressInput: React.FC<Props> = ({
     handleQueryChange('')
     setContact(undefined)
     setAddress(undefined)
+    if (onUpdateAzeroId) onUpdateAzeroId(undefined)
     setQuerying(false)
+    setResolvedAddress(undefined)
   }
 
   const filteredAddresses = useMemo(() => {
@@ -160,14 +140,14 @@ const AddressInput: React.FC<Props> = ({
       if (parsedInputAddress)
         return {
           address: parsedInputAddress,
-          a0Id: resolvedAddress?.a0Id || undefined,
+          a0Id: resolvedAddress?.azeroId || undefined,
         }
       if (resolvedAddress !== undefined) {
         const resolvedA0IdAddress = Address.fromSs58(resolvedAddress.address)
         if (resolvedA0IdAddress) {
           return {
             address: resolvedA0IdAddress,
-            a0Id: resolvedAddress.a0Id,
+            a0Id: resolvedAddress.azeroId,
           }
         }
       }
@@ -176,12 +156,13 @@ const AddressInput: React.FC<Props> = ({
     return undefined
   }, [query, resolvedAddress])
 
+  console.log('validRawInputAddress: ', validRawInputAddress) //fix this bug
   return (
     <div css={{ width: '100%', position: 'relative' }} ref={containerRef}>
       {controlledSelectedInput && (
         <SelectedAddress
           address={address}
-          a0Id={resolvedAddress?.a0Id}
+          a0Id={resolvedAddress?.azeroId}
           chain={chain}
           name={contact?.name}
           onClear={handleClearInput}

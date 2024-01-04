@@ -31,6 +31,7 @@ enum Step {
 const SendAction = () => {
   const [step, setStep] = useState(Step.Details)
   const [name, setName] = useState('')
+  const [a0Id, setA0Id] = useState<string | undefined>()
   const [destinationAddress, setDestinationAddress] = useState<Address | undefined>()
   const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic<'promise'> | undefined>()
   const tokens = useRecoilValueLoadable(selectedMultisigChainTokensState)
@@ -93,14 +94,14 @@ const SendAction = () => {
         decoded: {
           type: TransactionType.Transfer,
           recipients: [
-            { address: destinationAddress, balance: { amount: amountBn || new BN(0), token: selectedToken } },
+            { address: destinationAddress, a0Id, balance: { amount: amountBn || new BN(0), token: selectedToken } },
           ],
           yaml: '',
         },
         callData: extrinsic.method.toHex(),
       }
     }
-  }, [selectedToken, extrinsic, destinationAddress, defaultName, multisig, amountBn])
+  }, [selectedToken, extrinsic, destinationAddress, defaultName, multisig, amountBn, a0Id])
   const signer = useNextTransactionSigner(t?.approvals)
   const hash = extrinsic?.registry.hash(extrinsic.method.toU8a()).toHex()
   const {
@@ -124,6 +125,8 @@ const SendAction = () => {
             setSelectedToken={setSelectedToken}
             name={name}
             setName={setName}
+            a0Id={a0Id}
+            setA0Id={setA0Id}
           />
 
           <SideSheet

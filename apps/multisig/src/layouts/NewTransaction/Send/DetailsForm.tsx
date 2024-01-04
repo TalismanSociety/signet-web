@@ -15,6 +15,8 @@ export const DetailsForm = (props: {
   amount: string
   name: string
   setName: (n: string) => void
+  a0Id?: string
+  setA0Id?: (id?: string) => void
   selectedToken: BaseToken | undefined
   setSelectedToken: (t: BaseToken) => void
   tokens: BaseToken[]
@@ -39,7 +41,12 @@ export const DetailsForm = (props: {
         />
       </div>
       <div css={({ color }) => ({ color: color.offWhite, marginTop: 24 })}>
-        <AddressInput onChange={props.setDestinationAddress} addresses={addresses} leadingLabel="Recipient" />
+        <AddressInput
+          onUpdateAzeroId={props.setA0Id}
+          onChange={props.setDestinationAddress}
+          addresses={addresses}
+          leadingLabel="Recipient"
+        />
       </div>
       <div css={({ color }) => ({ color: color.offWhite, marginTop: 24, marginBottom: 24 })}>
         <TextInput

@@ -10,9 +10,9 @@ export const NameAndAddress: React.FC<{
   nameOrAddressOnly?: boolean
   breakLine?: boolean
 }> = ({ address, name, a0Id, chain, a0IdAndAddress, nameOrAddressOnly, breakLine }) => {
-  // const primaryValue = name ?? a0Id ?? address.toShortSs58(chain)
-  // const hasSecondaryValue = name || a0Id
-  // const secondaryValue = hasSecondaryValue ? (name ? a0Id : undefined) ?? address.toShortSs58(chain) : undefined
+  const primaryValue = name ?? a0Id ?? address.toShortSs58(chain)
+  const hasSecondaryValue = name || a0Id
+  const secondaryValue = hasSecondaryValue ? (name ? a0Id : undefined) ?? address.toShortSs58(chain) : undefined
 
   if (!name && !a0Id)
     return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{address.toShortSs58(chain)}</p>
@@ -41,14 +41,14 @@ export const NameAndAddress: React.FC<{
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          maxWidth: 120,
+          maxWidth: 140,
           width: '100%',
         })}
       >
-        {name}
+        {primaryValue}
       </p>
-      {!nameOrAddressOnly && (
-        <p css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>{address.toShortSs58(chain)}</p>
+      {!!secondaryValue && !nameOrAddressOnly && (
+        <p css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>{secondaryValue}</p>
       )}
     </div>
   )
