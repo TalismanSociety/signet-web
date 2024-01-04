@@ -6,17 +6,13 @@ import { useSelectedMultisig } from '@domains/multisig'
 import { useApi } from '@domains/chains/pjs-api'
 import { CircularProgressIndicator } from '@talismn/ui'
 import { Address } from '@util/addresses'
-import {
-  parseContractBundle,
-  useContractPallet,
-  ParsedContractBundle,
-  SubstrateContractFromPallet,
-} from '@domains/substrate-contracts'
+import { parseContractBundle, useContractPallet, SubstrateContractFromPallet } from '@domains/substrate-contracts'
 import { StatusMessage } from '@components/StatusMessage'
 import { useToast } from '@components/ui/use-toast'
 import { useAddSmartContract, useSmartContracts } from '@domains/offchain-data'
 import { getErrorString } from '@util/misc'
 import { useNavigate } from 'react-router-dom'
+import { Abi } from '@polkadot/api-contract'
 
 export const AddContractPage: React.FC = () => {
   const navigate = useNavigate()
@@ -27,10 +23,11 @@ export const AddContractPage: React.FC = () => {
 
   const [name, setName] = useState('')
   const [contractAddress, setContractAddress] = useState('')
-  const [contractBundle, setContractBundle] = useState('')
   const [validContract, setValidContract] = useState<SubstrateContractFromPallet | false>()
   const [parsedContractAddress, setParsedContractAddress] = useState<Address | false>()
-  const [validContractBundle, setValidContractBundle] = useState<ParsedContractBundle | false>()
+  const [abi, setAbi] = useState<Abi>()
+  const [abiString, setAbiString] = useState('')
+  const [abiError, setAbiError] = useState<string>()
 
   const { contracts, contractsByAddress, loading: loadingAddedContracts } = useSmartContracts()
   const { addContract, loading: addingContract } = useAddSmartContract()
@@ -64,16 +61,15 @@ export const AddContractPage: React.FC = () => {
   )
 
   const handleContractBundleChange = (value: string) => {
-    setContractBundle(value)
+    setAbiString(value)
+    setAbiError(undefined)
+    setAbi(undefined)
 
-    try {
-      const json = JSON.parse(value)
-      const contract = parseContractBundle(json)
-      setValidContractBundle(contract)
-    } catch (e) {
-      setValidContractBundle(false)
-    } finally {
-    }
+    if (value === '') return
+    const { abi, error } = parseContractBundle(value)
+    console.log(abi, error)
+    if (abi) setAbi(abi)
+    if (error) setAbiError(error)
   }
 
   const contractExists = useMemo(
@@ -99,10 +95,10 @@ export const AddContractPage: React.FC = () => {
 
   const handleAddContract = useCallback(async () => {
     // this should be blocked by button but we're adding here for type safety
-    if (!name || !parsedContractAddress || !validContractBundle) return
+    if (!name || !parsedContractAddress || !abi) return
 
     try {
-      const contract = await addContract(parsedContractAddress, name, selectedMultisig.id, validContractBundle)
+      const contract = await addContract(parsedContractAddress, name, selectedMultisig.id, abi, abiString)
       toast({
         title: 'Contract added!',
         description: `You may now interact with ${name}`,
@@ -114,10 +110,13 @@ export const AddContractPage: React.FC = () => {
         description: getErrorString(e, 120),
       })
     }
-  }, [addContract, name, navigate, parsedContractAddress, selectedMultisig.id, toast, validContractBundle])
+  }, [abi, abiString, addContract, name, navigate, parsedContractAddress, selectedMultisig.id, toast])
 
   if (loading || (contracts === undefined && loadingAddedContracts)) return <CircularProgressIndicator />
   if (!supported) return <p>Smart contracts not supported on this network.</p>
+
+  const codeHashMismatch =
+    validContract && abi && validContract.codeHash !== (abi.json as { source?: { hash?: string } }).source?.hash
 
   return (
     <div>
@@ -142,33 +141,26 @@ export const AddContractPage: React.FC = () => {
         />
         <div className="w-full">
           <Textarea
-            value={contractBundle}
+            value={abiString}
             onChange={e => handleContractBundleChange(e.target.value)}
             label="Contract Bundle"
             placeholder="Enter contract bundle (content in .contract file)"
             className="!min-h-[220px] text-[14px] placeholder:text-[18px]"
           />
-          {contractBundle.length > 0 && !validContractBundle && (
+          {abiError && <StatusMessage type="error" message={abiError} className="mt-[8px]" />}
+          {codeHashMismatch && (
             <StatusMessage
               type="error"
-              message="The contract bundle is invalid. Please check the JSON format and try again."
               className="mt-[8px]"
+              message="The code hash does not match code hash of contract address."
             />
-          )}
-          {validContractBundle && validContract && validContract.codeHash !== validContractBundle.source.hash && (
-            <StatusMessage type="error" message="The code hash does not match code hash of contract address." />
           )}
         </div>
 
         <Button
           className="mt-[24px]"
           disabled={
-            !validContract ||
-            !parsedContractAddress ||
-            !validContractBundle ||
-            validContract.codeHash !== validContractBundle.source.hash ||
-            contractExists ||
-            addingContract
+            !validContract || !parsedContractAddress || !abi || codeHashMismatch || contractExists || addingContract
           }
           loading={addingContract}
           onClick={handleAddContract}

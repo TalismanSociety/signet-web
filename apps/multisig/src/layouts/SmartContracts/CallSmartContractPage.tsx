@@ -1,23 +1,11 @@
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
+import { ContractMessageForm } from '@components/ContractMessageForm'
 import { StatusMessage } from '@components/StatusMessage'
-import { Button } from '@components/ui/button'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from '@components/ui/command'
-import { Popover, PopoverContent } from '@components/ui/popover'
 import { useApi } from '@domains/chains/pjs-api'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useSmartContracts } from '@domains/offchain-data'
 import { useContractPallet } from '@domains/substrate-contracts'
-import { PopoverTrigger } from '@radix-ui/react-popover'
-import { ChevronDown } from '@talismn/icons'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 
 export const CallSmartContractPage: React.FC = () => {
@@ -26,16 +14,9 @@ export const CallSmartContractPage: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const { api } = useApi(selectedMultisig?.chain.rpcs)
   const { loading: loadingPallet, supported } = useContractPallet(api)
-  const [methodIndex, setMethodIndex] = useState(0)
-  const [openMethod, setOpenMethod] = useState(false)
 
   const contract = useMemo(() => contracts?.find(({ id }) => id === smartContractId), [contracts, smartContractId])
-
-  const writeMethods = useMemo(() => contract?.abi.spec.messages.filter(({ mutates }) => mutates), [contract])
-
-  const selectedMethod = useMemo(() => {
-    return writeMethods?.[methodIndex] ?? writeMethods?.[0]
-  }, [methodIndex, writeMethods])
+  const writeMethods = useMemo(() => contract?.abi.messages.filter(({ isMutating }) => isMutating), [contract])
 
   // param not provided, invalid url
   if (!smartContractId) return <Navigate to="smart-contracts" />
@@ -73,52 +54,11 @@ export const CallSmartContractPage: React.FC = () => {
 
       <div className="mt-[32px] flex flex-col gap-[16px] items-start w-full">
         <h4 className="font-semibold text-offWhite">Call details</h4>
-        <div className="w-full">
-          <p className="text-[14px] mb-[4px]">Message to send</p>
-          {writeMethods.length > 0 ? (
-            <Popover open={openMethod} onOpenChange={setOpenMethod}>
-              <PopoverTrigger asChild>
-                <Button className="w-full h-16 px-[20px]" variant="secondary">
-                  <div className="flex items-center justify-between w-full">
-                    <p>{selectedMethod?.label}</p>
-                    <ChevronDown />
-                  </div>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent>
-                <Command>
-                  <CommandInput placeholder="Search methods..." />
-                  <CommandSeparator />
-                  <CommandList>
-                    <CommandEmpty>No methods found</CommandEmpty>
-                    <CommandGroup>
-                      {writeMethods.map(({ label, docs }, index) => (
-                        <CommandItem
-                          key={label}
-                          className="flex flex-col text-left items-start text-ellipsis overflow-hidden whitespace-nowrap w-full"
-                          value={`${index}`}
-                          onSelect={() => {
-                            setMethodIndex(+index)
-                            setOpenMethod(false)
-                          }}
-                        >
-                          <p className="text-offWhite text-[14px]">{label}</p>
-                          {docs?.[0] && (
-                            <p className="text-[12px] text-gray-200 text-ellipsis overflow-hidden whitespace-nowrap w-full">
-                              {docs.join('')}
-                            </p>
-                          )}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          ) : (
-            <p>The contract has no callable functions.</p>
-          )}
-        </div>
+        {writeMethods.length > 0 ? (
+          <ContractMessageForm messages={writeMethods} onChange={console.log} chain={selectedMultisig.chain} />
+        ) : (
+          <p>The contract has no callable functions.</p>
+        )}
       </div>
     </div>
   )

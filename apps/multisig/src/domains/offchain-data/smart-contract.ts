@@ -6,8 +6,9 @@ import { gql } from 'graphql-request'
 import { requestSignetBackend } from './hasura'
 import { Address } from '@util/addresses'
 import { isEqual } from 'lodash'
-import { parseContractBundle, ParsedContractBundle } from '@domains/substrate-contracts'
+import { parseContractBundle } from '@domains/substrate-contracts'
 import { captureException } from '@sentry/react'
+import { Abi } from '@polkadot/api-contract'
 
 const SMART_CONTRACTS_QUERY = gql`
   query Contracts($teamId: uuid!) {
@@ -24,7 +25,7 @@ const SMART_CONTRACTS_QUERY = gql`
 export type SmartContract = {
   id: string
   name: string
-  abi: ParsedContractBundle
+  abi: Abi
   address: Address
   teamId: string
 }
@@ -78,7 +79,7 @@ export const useAddSmartContract = () => {
   const [smartContractsByTeamId, setSmartContractsByTeamId] = useRecoilState(smartContractsByTeamIdState)
 
   const addContract = useCallback(
-    async (address: Address, name: string, teamId: string, abi: ParsedContractBundle) => {
+    async (address: Address, name: string, teamId: string, abi: Abi, abiString: string) => {
       if (!selectedAccount) throw new Error('Unauthorised!')
       try {
         setLoading(true)
@@ -94,7 +95,7 @@ export const useAddSmartContract = () => {
             address: address.toSs58(),
             name,
             teamId,
-            abi: abi.raw,
+            abi: abiString,
           },
           selectedAccount
         )
@@ -204,13 +205,13 @@ export const SmartContractsWatcher = () => {
         if (!newSmartContractsByTeamId[selectedMultisig.id]) newSmartContractsByTeamId[selectedMultisig.id] = []
 
         // parse each smart contract so we have better types and utility functions from classes
-        data.smart_contract.forEach(({ id, abi, name, address, team_id }) => {
+        data.smart_contract.forEach(({ id, abi: abiString, name, address, team_id }) => {
           try {
             const parsedAddress = Address.fromSs58(address)
-            const parsedAbi = parseContractBundle(JSON.parse(abi))
+            const { abi } = parseContractBundle(JSON.parse(abiString))
 
             if (!parsedAddress) throw new Error(`Failed to parse address for contract ${id}: ${address}`)
-            if (!parsedAbi) throw new Error(`Failed to parse contract bundle for ${id}: ${abi}`)
+            if (!abi) throw new Error(`Failed to parse contract bundle for ${id}: ${abiString}`)
 
             const smartContractsOfTeam = newSmartContractsByTeamId[team_id] ?? []
             const conflict = smartContractsOfTeam.find(contact => contact.address.isEqual(parsedAddress))
@@ -218,7 +219,7 @@ export const SmartContractsWatcher = () => {
             if (conflict) return
 
             // add contract to in memory cache
-            smartContractsOfTeam.push({ id, name, teamId: team_id, abi: parsedAbi, address: parsedAddress })
+            smartContractsOfTeam.push({ id, name, teamId: team_id, abi, address: parsedAddress })
             newSmartContractsByTeamId[team_id] = smartContractsOfTeam
           } catch (e) {
             console.error('Failed to parse contact:')

@@ -1,7 +1,7 @@
 import { Layout } from '../Layout'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { SmartContractsDashboard } from './SmartContractsDashboard'
-import { Button } from '../../components/ui/button'
+import { Button } from '@components/ui/button'
 import { ChevronLeft } from '@talismn/icons'
 import { AddContractPage } from './AddContractPage'
 import { CallSmartContractPage } from './CallSmartContractPage'
@@ -11,12 +11,13 @@ const SubpageWrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
     <div className="flex flex-col">
       <Button className="gap-[8px]" size="lg" variant="secondary" asLink to="/smart-contracts">
         <ChevronLeft size={16} />
-        <p className="mt-[3px]">Back</p>
+        <p className="mt-[3px] leading-[1]">Back</p>
       </Button>
     </div>
     {children}
   </div>
 )
+
 export const SmartContracts: React.FC = () => (
   <Layout selected="Smart Contracts" requiresMultisig>
     <Routes>

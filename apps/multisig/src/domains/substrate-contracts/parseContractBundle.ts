@@ -1,21 +1,9 @@
-import { ParsedContractBundle } from './contracts.types'
-import { isValidContractBundle } from './isValidContractBundle'
+import { Abi } from '@polkadot/api-contract'
 
-export const parseContractBundle = (bundle: any): ParsedContractBundle | false => {
-  const isValid = isValidContractBundle(bundle)
-  if (!isValid) return false
-
-  return {
-    source: {
-      hash: bundle.source.hash,
-    },
-    contract: {
-      name: bundle.contract.name,
-    },
-    spec: {
-      messages: bundle.spec.messages ?? [],
-      constructors: bundle.spec.constructors ?? [],
-    },
-    raw: JSON.stringify(bundle),
+export const parseContractBundle = (abiString: string): { abi?: Abi; error?: string } => {
+  try {
+    return { abi: new Abi(abiString) }
+  } catch (e) {
+    return { error: (e as Error).message }
   }
 }
