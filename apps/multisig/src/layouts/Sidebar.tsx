@@ -1,6 +1,7 @@
 import { useTheme } from '@emotion/react'
 import { IconButton } from '@talismn/ui'
 import { size } from '@util/breakpoints'
+import { cn } from '@util/tailwindcss'
 import clsx from 'clsx'
 import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
@@ -32,11 +33,17 @@ const Sidebar = (props: Props) => {
             {options
               .filter(({ hidden }) => !hidden)
               .map(({ name, icon, onClick, href }) => {
+                const selected = props.selected === name
                 const ui = (
-                  <div className="w-full flex gap-[8px] items-center duration-300 cursor-pointer hover:brightness-125">
+                  <div
+                    className={cn(
+                      'w-full flex gap-[8px] items-center duration-300 cursor-pointer hover:brightness-125',
+                      selected ? 'text-offWhite' : 'text-gray-200'
+                    )}
+                  >
                     <IconButton
                       key={name}
-                      contentColor={name === props.selected ? theme.color.offWhite : theme.color.lightGrey}
+                      contentColor={selected ? theme.color.offWhite : theme.color.lightGrey}
                       className="lg:[&>svg]:w-[20px] lg:[&>svg]:h-[20px] lg:!w-[32px] lg:!h-[32px]"
                     >
                       {icon}

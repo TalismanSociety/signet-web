@@ -1,6 +1,6 @@
 import { useAugmentedBalances } from '@domains/balances'
 import { DUMMY_MULTISIG_ID, useSelectedMultisig } from '@domains/multisig'
-import { TxMetadataWatcher, getAllChangeAttempts } from '@domains/offchain-data/metadata'
+import { getAllChangeAttempts } from '@domains/offchain-data/metadata'
 import { toMultisigAddress } from '@util/addresses'
 import { device } from '@util/breakpoints'
 import { useCallback, useEffect } from 'react'
@@ -131,7 +131,6 @@ const Overview = () => {
         </div>
         <Transactions />
       </div>
-      <TxMetadataWatcher />
     </Layout>
   )
 }

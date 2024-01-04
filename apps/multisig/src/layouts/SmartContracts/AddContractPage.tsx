@@ -4,29 +4,45 @@ import { Button } from '@components/ui/button'
 import { useCallback, useMemo, useState } from 'react'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useApi } from '@domains/chains/pjs-api'
-import { useContractPallet } from '@domains/substrate-contracts/useContractPallet'
 import { CircularProgressIndicator } from '@talismn/ui'
 import { Address } from '@util/addresses'
-import { CheckCircle, XCircle } from '@talismn/icons'
-import { ParsedContractBundle, SubstrateContractFromPallet } from '@domains/substrate-contracts/contracts.types'
-import { parseContractBundle } from '@domains/substrate-contracts/isValidContractBundle'
+import {
+  parseContractBundle,
+  useContractPallet,
+  ParsedContractBundle,
+  SubstrateContractFromPallet,
+} from '@domains/substrate-contracts'
+import { StatusMessage } from '@components/StatusMessage'
+import { useToast } from '@components/ui/use-toast'
+import { useAddSmartContract, useSmartContracts } from '@domains/offchain-data'
+import { getErrorString } from '@util/misc'
+import { useNavigate } from 'react-router-dom'
 
 export const AddContractPage: React.FC = () => {
+  const navigate = useNavigate()
   const [selectedMultisig] = useSelectedMultisig()
   const { api } = useApi(selectedMultisig?.chain.rpcs)
   const { loading, supported, getContractInfo } = useContractPallet(api)
   const [checkingAddress, setCheckingAddress] = useState(false)
 
+  const [name, setName] = useState('')
   const [contractAddress, setContractAddress] = useState('')
   const [contractBundle, setContractBundle] = useState('')
   const [validContract, setValidContract] = useState<SubstrateContractFromPallet | false>()
+  const [parsedContractAddress, setParsedContractAddress] = useState<Address | false>()
   const [validContractBundle, setValidContractBundle] = useState<ParsedContractBundle | false>()
+
+  const { contactsByAddress, loading: loadingAddedContracts } = useSmartContracts()
+  const { addContract, loading: addingContract } = useAddSmartContract()
+
+  const { toast } = useToast()
 
   const handleAddressChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const addressString = e.target.value
       setContractAddress(e.target.value)
       setValidContract(undefined)
+      setParsedContractAddress(undefined)
 
       if (addressString === '') return
       setCheckingAddress(true)
@@ -36,6 +52,7 @@ export const AddContractPage: React.FC = () => {
 
         const contract = await getContractInfo(addressString)
         if (!contract) return
+        setParsedContractAddress(address)
         setValidContract(contract.isSome ? (contract.toHuman() as SubstrateContractFromPallet) : false)
       } catch (e) {
         console.log(e)
@@ -59,34 +76,45 @@ export const AddContractPage: React.FC = () => {
     }
   }
 
+  const contractExists = useMemo(
+    () => parsedContractAddress && !!contactsByAddress[parsedContractAddress.toSs58()],
+    [contactsByAddress, parsedContractAddress]
+  )
+
   const contractAddressSupportingLabel = useMemo(() => {
-    if (checkingAddress)
-      return (
-        <div className="mt-[8px] flex items-center gap-[4px]">
-          <CircularProgressIndicator size={16} />
-          <p className="text-[12px] mt-[2px]">Loading contract...</p>
-        </div>
-      )
-
+    if (contractExists)
+      return <StatusMessage type="error" message="The contract has already been added to your Vault." />
+    if (checkingAddress) return <StatusMessage type="loading" message="Loading contract..." className="mt-[8px]" />
     if (validContract === undefined) return null
-
-    if (validContract)
-      return (
-        <div className="text-green-400 mt-[8px] flex items-center gap-[4px]">
-          <CheckCircle size={16} />
-          <p className="text-[12px] mt-[2px]">Valid contract address.</p>
-        </div>
-      )
-
     return (
-      <div className="text-red-500 mt-[8px] flex items-center gap-[4px]">
-        <XCircle size={16} />
-        <p className="text-[12px] mt-[2px]">The address is not a contract on this chain.</p>
-      </div>
+      <StatusMessage
+        type={validContract ? 'success' : 'error'}
+        message={validContract ? 'Valid contract address.' : 'The address is not a contract on this chain.'}
+        className="mt-[8px]"
+      />
     )
-  }, [checkingAddress, validContract])
+  }, [checkingAddress, contractExists, validContract])
 
-  if (loading) return <CircularProgressIndicator />
+  const handleAddContract = useCallback(async () => {
+    // this should be blocked by button but we're adding here for type safety
+    if (!name || !parsedContractAddress || !validContractBundle) return
+
+    try {
+      const contract = await addContract(parsedContractAddress, name, selectedMultisig.id, validContractBundle)
+      toast({
+        title: 'Contract added!',
+        description: `You may now interact with ${name}`,
+      })
+      navigate(`/smart-contracts/call/${contract.id}`)
+    } catch (e) {
+      toast({
+        title: 'Error adding contract',
+        description: getErrorString(e, 120),
+      })
+    }
+  }, [addContract, name, navigate, parsedContractAddress, selectedMultisig.id, toast, validContractBundle])
+
+  if (loading || loadingAddedContracts) return <CircularProgressIndicator />
   if (!supported) return <p>Smart contracts not supported on this network.</p>
 
   return (
@@ -97,7 +125,12 @@ export const AddContractPage: React.FC = () => {
       <div className="mt-[24px] flex flex-col gap-[16px] items-start">
         <h4 className="font-semibold text-offWhite">Contract details</h4>
 
-        <Input label="Contract Name" placeholder="e.g. Protocol Token" />
+        <Input
+          value={name}
+          onChange={e => setName(e.target.value)}
+          label="Contract Name"
+          placeholder="e.g. Protocol Token"
+        />
         <Input
           value={contractAddress}
           onChange={handleAddressChange}
@@ -114,22 +147,29 @@ export const AddContractPage: React.FC = () => {
             className="!min-h-[220px] text-[14px] placeholder:text-[18px]"
           />
           {contractBundle.length > 0 && !validContractBundle && (
-            <p className="text-red-400 text-[12px] mt-[8px]">
-              The contract bundle is invalid. Please check the JSON format and try again.
-            </p>
+            <StatusMessage
+              type="error"
+              message="The contract bundle is invalid. Please check the JSON format and try again."
+              className="mt-[8px]"
+            />
           )}
           {validContractBundle && validContract && validContract.codeHash !== validContractBundle.source.hash && (
-            <p className="text-red-400 text-[12px] mt-[8px]">
-              The code hash does not match code hash of contract address.
-            </p>
+            <StatusMessage type="error" message="The code hash does not match code hash of contract address." />
           )}
         </div>
 
         <Button
           className="mt-[24px]"
           disabled={
-            !validContract || !validContractBundle || validContract.codeHash !== validContractBundle.source.hash
+            !validContract ||
+            !parsedContractAddress ||
+            !validContractBundle ||
+            validContract.codeHash !== validContractBundle.source.hash ||
+            contractExists ||
+            addingContract
           }
+          loading={addingContract}
+          onClick={handleAddContract}
         >
           Add Contract
         </Button>

@@ -15,4 +15,5 @@ export type ParsedContractBundle = {
     messages: any[]
     constructors: any[]
   }
+  raw: string
 }

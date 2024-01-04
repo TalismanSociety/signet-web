@@ -22,7 +22,7 @@ import RelayEnvironment, { chainDataSquidEnvKey } from './graphql/relay-environm
 import router from './routes'
 import { supportedChains } from '@domains/chains'
 import { AccountWatcher } from '@domains/auth'
-import { AddressBookWatcher, TeamsWatcher } from '@domains/offchain-data'
+import { OffchainDataWatcher } from '@domains/offchain-data/offchain-watcher'
 import { ActiveMultisigWatcher, PendingTransactionsWatcher } from './domains/multisig'
 import { NomPoolsWatcher } from './domains/staking'
 import { ValidatorsWatcher } from './domains/staking/ValidatorsWatcher'
@@ -61,8 +61,7 @@ const App: React.FC = () => (
             <BalancesWatcher />
             <ExtensionWatcher />
             <AccountWatcher />
-            <TeamsWatcher />
-            <AddressBookWatcher />
+            <OffchainDataWatcher />
             <NomPoolsWatcher />
             <ValidatorsWatcher />
             <ActiveMultisigWatcher />

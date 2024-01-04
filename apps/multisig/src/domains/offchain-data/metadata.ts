@@ -144,7 +144,7 @@ export const TxMetadataWatcher = () => {
   }, [pendingTransactions])
 
   const fetchMetadata = useCallback(async () => {
-    if (!teams || !signedInAccount) return
+    if (!teams || !signedInAccount || teams.length === 0) return
 
     if (!initiated || shouldFetchData) {
       setLoading(true)

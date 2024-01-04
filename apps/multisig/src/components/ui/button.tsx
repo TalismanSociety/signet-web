@@ -7,11 +7,12 @@ import { CircularProgressIndicator } from '@talismn/ui'
 import { Link, LinkProps } from 'react-router-dom'
 
 const buttonVariants = cva(
-  'relative inline-flex items-center justify-center whitespace-nowrap rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-40',
+  'relative inline-flex items-center justify-center whitespace-nowrap rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed',
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        default:
+          'bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-100 disabled:bg-gray-800 disabled:text-gray-400',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         outline: 'border border-offWhite text-offWhite hover:bg-offWhite hover:text-gray-800',
         secondary: 'bg-gray-800 text-gray-300 hover:bg-gray-500',

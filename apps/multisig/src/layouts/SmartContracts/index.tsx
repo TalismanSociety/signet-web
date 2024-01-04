@@ -1,9 +1,10 @@
 import { Layout } from '../Layout'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { SmartContractsDashboard } from './SmartContractsDashboard'
 import { Button } from '../../components/ui/button'
 import { ChevronLeft } from '@talismn/icons'
 import { AddContractPage } from './AddContractPage'
+import { CallSmartContractPage } from './CallSmartContractPage'
 
 const SubpageWrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex flex-col px-[8%] py-[32px] gap-[24px] flex-1">
@@ -21,6 +22,14 @@ export const SmartContracts: React.FC = () => (
     <Routes>
       <Route index path="/" element={<SmartContractsDashboard />} />
       <Route
+        path="add"
+        element={
+          <SubpageWrapper>
+            <AddContractPage />
+          </SubpageWrapper>
+        }
+      />
+      <Route
         path="deploy"
         element={
           <SubpageWrapper>
@@ -29,13 +38,14 @@ export const SmartContracts: React.FC = () => (
         }
       />
       <Route
-        path="add"
+        path="call/:smartContractId"
         element={
           <SubpageWrapper>
-            <AddContractPage />
+            <CallSmartContractPage />
           </SubpageWrapper>
         }
       />
+      <Route path="*" element={<Navigate to="/smart-contracts" />} />
     </Routes>
   </Layout>
 )

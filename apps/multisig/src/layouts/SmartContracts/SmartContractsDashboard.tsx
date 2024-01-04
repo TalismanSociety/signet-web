@@ -1,8 +1,8 @@
-import { Button } from '../../components/ui/button'
+import { Button } from '@components/ui/button'
 import { useCallback } from 'react'
-import { useSelectedMultisig } from '../../domains/multisig'
-import { useApi } from '../../domains/chains/pjs-api'
-import { useContractPallet } from '../../domains/substrate-contracts/useContractPallet'
+import { useSelectedMultisig } from '@domains/multisig'
+import { useApi } from '@domains/chains/pjs-api'
+import { useContractPallet } from '@domains/substrate-contracts'
 import { CircularProgressIndicator } from '@talismn/ui'
 
 const Header: React.FC<{ loading: boolean; supported?: boolean }> = ({ loading, supported }) => (
