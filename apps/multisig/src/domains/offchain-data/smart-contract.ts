@@ -66,8 +66,8 @@ export const useSmartContracts = () => {
   if (selectedMultisig.id === DUMMY_MULTISIG_ID) return { contacts: [], contactsByAddress: {}, loading: false }
 
   return {
-    contacts: smartContractsByTeamId[selectedMultisig.id],
-    contactsByAddress: smartContractsByTeamIdMap[selectedMultisig.id] ?? {},
+    contracts: smartContractsByTeamId[selectedMultisig.id],
+    contractsByAddress: smartContractsByTeamIdMap[selectedMultisig.id] ?? {},
     loading,
   }
 }

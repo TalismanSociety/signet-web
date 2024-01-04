@@ -32,7 +32,7 @@ export const AddContractPage: React.FC = () => {
   const [parsedContractAddress, setParsedContractAddress] = useState<Address | false>()
   const [validContractBundle, setValidContractBundle] = useState<ParsedContractBundle | false>()
 
-  const { contactsByAddress, loading: loadingAddedContracts } = useSmartContracts()
+  const { contracts, contractsByAddress, loading: loadingAddedContracts } = useSmartContracts()
   const { addContract, loading: addingContract } = useAddSmartContract()
 
   const { toast } = useToast()
@@ -55,7 +55,7 @@ export const AddContractPage: React.FC = () => {
         setParsedContractAddress(address)
         setValidContract(contract.isSome ? (contract.toHuman() as SubstrateContractFromPallet) : false)
       } catch (e) {
-        console.log(e)
+        console.error(e)
       } finally {
         setCheckingAddress(false)
       }
@@ -77,13 +77,15 @@ export const AddContractPage: React.FC = () => {
   }
 
   const contractExists = useMemo(
-    () => parsedContractAddress && !!contactsByAddress[parsedContractAddress.toSs58()],
-    [contactsByAddress, parsedContractAddress]
+    () => parsedContractAddress && !!contractsByAddress?.[parsedContractAddress.toSs58()],
+    [contractsByAddress, parsedContractAddress]
   )
 
   const contractAddressSupportingLabel = useMemo(() => {
     if (contractExists)
-      return <StatusMessage type="error" message="The contract has already been added to your Vault." />
+      return (
+        <StatusMessage className="mt-[8px]" type="error" message="The contract has already been added to your Vault." />
+      )
     if (checkingAddress) return <StatusMessage type="loading" message="Loading contract..." className="mt-[8px]" />
     if (validContract === undefined) return null
     return (
@@ -114,7 +116,7 @@ export const AddContractPage: React.FC = () => {
     }
   }, [addContract, name, navigate, parsedContractAddress, selectedMultisig.id, toast, validContractBundle])
 
-  if (loading || loadingAddedContracts) return <CircularProgressIndicator />
+  if (loading || (contracts === undefined && loadingAddedContracts)) return <CircularProgressIndicator />
   if (!supported) return <p>Smart contracts not supported on this network.</p>
 
   return (

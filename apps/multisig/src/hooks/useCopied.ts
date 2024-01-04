@@ -1,16 +1,21 @@
 import { useCallback, useEffect, useState } from 'react'
-import { copyToClipboard } from '../domains/common'
+import { useToast } from '@components/ui/use-toast'
 
 const useCopied = (duration = 1000) => {
   const [copied, setCopied] = useState(false)
+  const { toast } = useToast()
 
   const copy = useCallback(
-    (text: string, toast: string) => {
+    (text: string, title = 'Copied!', description = text) => {
       if (copied) return
-      copyToClipboard(text, toast)
+      navigator.clipboard.writeText(text)
+      toast({
+        title,
+        description,
+      })
       setCopied(true)
     },
-    [copied]
+    [copied, toast]
   )
 
   useEffect(() => {

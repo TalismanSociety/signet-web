@@ -3,8 +3,8 @@ import { Chain } from '@domains/chains'
 import { Address } from '@util/addresses'
 import { NameAndAddress } from './NameAndAddress'
 import { Copy } from '@talismn/icons'
-import { copyToClipboard } from '@domains/common'
 import AddressTooltip from '../AddressTooltip'
+import useCopied from '@hooks/useCopied'
 
 type Props = {
   chain?: Chain
@@ -27,6 +27,7 @@ export const AccountDetails: React.FC<Props> = ({
   withAddressTooltip,
   breakLine,
 }) => {
+  const { copy } = useCopied()
   const accountDetailsUI = (
     <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <Identicon size={identiconSize} value={address.toSs58(chain)} />
@@ -40,7 +41,7 @@ export const AccountDetails: React.FC<Props> = ({
       {!disableCopy && (
         <div
           css={({ color }) => ({ color: color.lightGrey, height: 16, cursor: 'pointer' })}
-          onClick={() => copyToClipboard(address.toSs58(chain), 'Address copied to clipboard')}
+          onClick={() => copy(address.toSs58(chain), 'Address copied!')}
         >
           <Copy size={16} />
         </div>

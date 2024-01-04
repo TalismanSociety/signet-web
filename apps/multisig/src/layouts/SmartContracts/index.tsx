@@ -7,8 +7,8 @@ import { AddContractPage } from './AddContractPage'
 import { CallSmartContractPage } from './CallSmartContractPage'
 
 const SubpageWrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <div className="flex flex-col px-[8%] py-[32px] gap-[24px] flex-1">
-    <div className="flex flex-col mb-[16px]">
+  <div className="flex flex-col pl-[0px] lg:px-[4%] py-[16px] gap-[16px] flex-1 overflow-auto">
+    <div className="flex flex-col">
       <Button className="gap-[8px]" size="lg" variant="secondary" asLink to="/smart-contracts">
         <ChevronLeft size={16} />
         <p className="mt-[3px]">Back</p>
