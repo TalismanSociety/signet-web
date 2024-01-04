@@ -1,5 +1,6 @@
 import { SupportedChainId, resolveAddressToDomain, resolveDomainToAddress } from '@azns/resolver-core'
 import { useEffect, useState, useCallback } from 'react'
+import { Address } from '@util/addresses'
 
 export const getAzeroId = async (address: string) => {
   // const address = '5HTHJfRWtpt3mkQ2FEz6K72fLBj4xfXh4BKrK1zSKbv1CUj6'
@@ -13,7 +14,6 @@ export const getAzeroId = async (address: string) => {
   ])
   if (azero.error) console.error('AzeroID error', azero.error)
   if (tzero.error) console.error('TzeroID error', tzero.error)
-  console.log('Resolved: ', azero.primaryDomain?.toUpperCase(), tzero.primaryDomain?.toUpperCase())
   return azero.primaryDomain?.toUpperCase() ?? tzero.primaryDomain?.toUpperCase()
 }
 export const getAddressFromAzeroId = async (domain: string) => {
@@ -27,7 +27,7 @@ export const getAddressFromAzeroId = async (domain: string) => {
   ])
   if (azero.error) console.error('getAddressFromAzeroId AzeroID error', azero.error)
   if (tzero.error) console.error('getAddressFromAzeroId TzeroID error', tzero.error)
-  return azero.address?.toUpperCase() ?? tzero.address?.toUpperCase()
+  return azero.address ?? tzero.address
 }
 
 // azero ids should always end with .azero or .tzero unless I'm missing some edge case here
@@ -83,8 +83,9 @@ export const useAzeroId = (anything: string, options?: { resolveDomainOnly?: boo
   }, [anything])
 
   useEffect(() => {
+    // makes sure anything conforms to either AzeroId or Address
     // dont need to fetch again if we've already resolved for given input
-    if (anything === resolved || loading) return
+    if ((isAzeroId(anything) || Address.fromSs58(anything)) && (anything === resolved || loading)) return
     handleResolve()
   }, [anything, handleResolve, loading, resolved])
 

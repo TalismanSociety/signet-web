@@ -57,8 +57,6 @@ const AddressInput: React.FC<Props> = ({
     | undefined
   >(undefined)
 
-  // const { loading, resolvingFor, setResolvedFor, resolvingAddress, azeroId } = useAzeroId("")
-
   useEffect(() => {
     if (value !== undefined && value === '') setAddress(undefined)
   }, [value])
@@ -89,12 +87,6 @@ const AddressInput: React.FC<Props> = ({
       })
     }
   }, [input])
-
-  // console.log("Adrress inpu: ", addresses)
-  console.log('address input: ', address)
-  console.log('input: ', input)
-  // console.log("a0Id: ", a0Id)
-  console.log('resolvedAddress: ', resolvedAddress)
 
   const blur = () => {
     setExpanded(false)
@@ -183,13 +175,6 @@ const AddressInput: React.FC<Props> = ({
 
     return undefined
   }, [query, resolvedAddress])
-
-  console.log('validRawInputAddress: ', validRawInputAddress)
-  console.log('!querying && validRawInputAddress: ', !querying && validRawInputAddress)
-  console.log('!querying && validRawInputAddress boolean: ', !querying && validRawInputAddress ? true : false)
-  console.log('!querying: ', !querying)
-  console.log('validRawInputAddress: ', validRawInputAddress ? true : false)
-  console.log('controlledSelectedInput: ', controlledSelectedInput)
 
   return (
     <div css={{ width: '100%', position: 'relative' }} ref={containerRef}>

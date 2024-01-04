@@ -113,15 +113,11 @@ const Overview = () => {
   useEffect(() => {
     getAzeroId(selectedMultisig.proxyAddress.toSs58())
       .then(z0Id => {
-        console.log('Result: ', z0Id)
-        // const { primaryDomain } = result
         if (z0Id) setSelectedMultisigA0ID(z0Id)
       })
       .catch(error => {
         console.error('AZERO.ID Resolution Error: ', error)
       })
-    // }
-    console.log('accountAZEROID: ', selectedMultisigA0ID)
   }, [selectedMultisig.proxyAddress, selectedMultisigA0ID, setSelectedMultisigA0ID])
 
   const augmentedTokens: TokenAugmented[] = useAugmentedBalances()

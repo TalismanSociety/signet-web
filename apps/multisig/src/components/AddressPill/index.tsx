@@ -4,7 +4,17 @@ import { Identicon } from '@talismn/ui'
 import { Address } from '@util/addresses'
 import AddressTooltip from '../AddressTooltip'
 
-const AddressPill = ({ address, chain, name }: { address: Address; chain: Chain; name?: string }) => {
+const AddressPill = ({
+  address,
+  a0Id,
+  chain,
+  name,
+}: {
+  address: Address
+  a0Id?: string
+  chain: Chain
+  name?: string
+}) => {
   const ss58Address = address.toSs58(chain)
   return (
     <AddressTooltip address={address} chain={chain} name={name}>
@@ -35,7 +45,7 @@ const AddressPill = ({ address, chain, name }: { address: Address; chain: Chain;
             textOverflow: 'ellipsis',
           })}
         >
-          {name ?? address.toShortSs58(chain)}
+          {a0Id ?? name ?? address.toShortSs58(chain)}
         </p>
       </div>
     </AddressTooltip>

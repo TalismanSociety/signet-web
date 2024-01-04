@@ -190,6 +190,7 @@ export interface Balance {
 
 export interface TransactionRecipient {
   address: Address
+  a0Id?: string
   balance: Balance
 }
 

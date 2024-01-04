@@ -55,8 +55,6 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
   }, [accounts, onSelect, selectedAccount])
 
   if (!selectedAccount) return null
-
-  console.log('filtered accounts: ', filteredAccounts)
   return (
     <div ref={ref} css={{ position: 'relative', width: '100%' }}>
       <div

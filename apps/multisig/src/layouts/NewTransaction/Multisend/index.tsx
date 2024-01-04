@@ -88,6 +88,7 @@ const MultiSend = () => {
           // recipients: [{ address: destination, balance: { amount: amountBn || new BN(0), token: selectedToken } }],
           recipients: sends.map(send => ({
             address: send.address,
+            a0Id: send.a0Id,
             balance: { amount: send.amountBn, token: send.token },
           })),
           yaml: '',

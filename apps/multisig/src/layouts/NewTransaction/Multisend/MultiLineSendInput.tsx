@@ -15,7 +15,14 @@ import FileUploadButton from '@components/FileUploadButton'
 import BN from 'bn.js'
 import { Button, Tooltip } from '@talismn/ui'
 import { Info, ToggleLeft, ToggleRight } from '@talismn/icons'
+import { resolveAzeroId } from '@util/azeroid'
 
+type PrepRow = {
+  row: string
+  address: string | undefined
+  azeroId: string | undefined
+  amount: string | undefined
+}
 type Props = {
   label?: string
   token?: BaseToken
@@ -37,13 +44,11 @@ const theme = createTheme({
   styles: [{ tag: tags.content, color: 'var(--color-offWhite)' }],
 })
 
-/* try to find an address and amount from given string and perform required formatting */
-const findAddressAndAmount = (
-  row: string,
-  parseAmount: (amount: string) => BN
+const parseRecipientAndAmount = (
+  row: string
 ): {
-  data?: { a0Id?: string; address: Address; addressString: string; amount: string; amountBn: BN }
-  error?: string
+  addressString?: string
+  amount?: string
 } => {
   // try format "address, amount"
   let [address, amount] = row.split(',')
@@ -68,12 +73,32 @@ const findAddressAndAmount = (
     ;[address, amount] = row.split('=')
   }
 
+  const trimmedAddress = address?.trim()
+  const trimmedAmount = amount?.trim()
+
+  return {
+    addressString: trimmedAddress,
+    amount: trimmedAmount,
+  }
+}
+
+/* try to find an address and amount from given string and perform required formatting */
+const findAddressAndAmount = (
+  row: PrepRow,
+  parseAmount: (amount: string) => BN
+): {
+  data?: { a0Id?: string; address: Address; addressString: string; amount: string; amountBn: BN }
+  error?: string
+} => {
+  // try format "address, amount"
+  const { address, azeroId, amount } = row
+
   if (!address || !amount) return { error: 'Invalid Row' }
 
   const trimmedAddress = address.trim()
   const trimmedAmount = amount.trim()
 
-  const parsedAddress = Address.fromSs58(trimmedAddress)
+  const parsedAddress = Address.fromSs58(address)
   const invalidAmount = trimmedAmount === '' || isNaN(+trimmedAmount)
   if (!parsedAddress && invalidAmount) return { error: 'Invalid Row' }
   if (!parsedAddress) return { error: 'Invalid Address' }
@@ -81,7 +106,7 @@ const findAddressAndAmount = (
 
   return {
     data: {
-      a0Id: undefined,
+      a0Id: azeroId,
       address: parsedAddress,
       addressString: trimmedAddress,
       amount: trimmedAmount,
@@ -104,6 +129,7 @@ export const MultiLineSendInput: React.FC<Props> = ({
   const [importedFromCsv, setImportedFromCsv] = useState(false)
   const [value, setValue] = useState('')
   const tokenPrices = useRecoilValueLoadable(tokenPriceState(token))
+  const [rows, setRows] = useState<PrepRow[]>([])
 
   // the native onBlur/onFocus of CodeMiror is a bit buggy, so we use this custom hook to detect blur
   const codeMirrorRef = useRef<ReactCodeMirrorRef>(null)
@@ -139,12 +165,24 @@ export const MultiLineSendInput: React.FC<Props> = ({
   /* pre-process every row for validations later */
   const formattedRows = useMemo(
     () =>
-      value.split('\n').map(row => ({
+      rows.map(row => ({
         input: row,
         validRow: findAddressAndAmount(row, parseAmount),
       })),
-    [parseAmount, value]
+    [parseAmount, rows]
   )
+
+  const processesAnyAzeroId = useMemo(async () => {
+    return await Promise.all(
+      value.split('\n').map(async row => {
+        const { addressString, amount } = parseRecipientAndAmount(row)
+        const azeroId = addressString
+          ? await resolveAzeroId(addressString)
+          : { row, address: undefined, azeroId: undefined }
+        return { row, amount, ...azeroId }
+      })
+    )
+  }, [value])
 
   /**
    * A formatted string that is displayed in the CodeMirror editor.
@@ -156,9 +194,9 @@ export const MultiLineSendInput: React.FC<Props> = ({
     return formattedRows
       .map(({ validRow: { data, error }, input }) => {
         // for invalid rows, we allow empty line for grouping, otherwise we warn user of invalid row
-        if (error || !data) return input === '' ? '' : `${error ?? 'Invalid Row'}: ${input}`
+        if (error || !data) return input.row === '' ? '' : `${error ?? 'Invalid Row'}: ${input}`
         const addressToFormat = token ? data.address.toSs58(token.chain) : data.addressString
-        let formattedString = shortenAddress(addressToFormat, 'short')
+        let formattedString = data.a0Id ?? shortenAddress(addressToFormat, 'short')
 
         if (!token) return `${formattedString}, ${data.amount}`
 
@@ -179,7 +217,7 @@ export const MultiLineSendInput: React.FC<Props> = ({
   const invalidRows = useMemo(() => {
     const indexes: number[] = []
     formattedRows.forEach(({ validRow: { data, error }, input }, i) => {
-      if ((!data || error) && input !== '') indexes.push(i + 1)
+      if ((!data || error) && input.row !== '') indexes.push(i + 1)
     })
     return indexes
   }, [formattedRows])
@@ -192,6 +230,7 @@ export const MultiLineSendInput: React.FC<Props> = ({
         ({ validRow: { data } }) =>
           ({
             address: data!.address,
+            a0Id: data!.a0Id,
             amountBn: data!.amountBn,
             token,
           }!)
@@ -206,12 +245,16 @@ export const MultiLineSendInput: React.FC<Props> = ({
     const rows = textValue.split('\n')
     const values: string[] = []
 
-    rows.forEach(row => {
+    rows.forEach(async row => {
       const rowValues = row.split(',')
       const [addressCol, amountCol] = rowValues
 
       // skip rows that don't have address or amount
-      const { data } = findAddressAndAmount(`${addressCol}, ${amountCol}`, parseAmount)
+      const { addressString, amount } = parseRecipientAndAmount(`${addressCol}, ${amountCol}`)
+      const azeroId = addressString
+        ? await resolveAzeroId(addressString)
+        : { row, address: undefined, azeroId: undefined }
+      const { data } = findAddressAndAmount({ row, amount, ...azeroId }, parseAmount)
       values.push(`${data?.addressString ?? addressCol}, ${data?.amount ?? amountCol}`)
     })
 
@@ -224,6 +267,14 @@ export const MultiLineSendInput: React.FC<Props> = ({
   useEffect(() => {
     if (validRows) onChange(validRows, invalidRows)
   }, [invalidRows, onChange, validRows])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let result = await processesAnyAzeroId
+      if (result) setRows(result)
+    }
+    fetchData()
+  }, [processesAnyAzeroId])
 
   return (
     <div>

@@ -100,7 +100,12 @@ const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
                   {i + 1} of {recipients.length}
                 </span>
               </div>
-              <AddressPill name={contactByAddress[address.toSs58()]?.name} address={address} chain={t.multisig.chain} />
+              <AddressPill
+                name={contactByAddress[address.toSs58()]?.name}
+                a0Id={recipients[0]?.a0Id}
+                address={address}
+                chain={t.multisig.chain}
+              />
               <div css={{ marginLeft: 'auto' }}>
                 <AmountRow balance={balance} />
               </div>
@@ -266,6 +271,7 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
           >
             <AddressPill
               name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
+              a0Id={recipients[0]?.a0Id}
               address={recipients[0]?.address as Address}
               chain={t.multisig.chain}
             />
