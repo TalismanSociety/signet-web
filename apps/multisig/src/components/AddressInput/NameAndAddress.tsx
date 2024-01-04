@@ -31,7 +31,7 @@ export const NameAndAddress: React.FC<{
           width: '100%',
         })}
       >
-        {name}asdasdsadsdasdsad
+        {name}
       </p>
       {!nameOrAddressOnly && (
         <p css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>{address.toShortSs58(chain)}</p>
