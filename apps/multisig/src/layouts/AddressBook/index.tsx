@@ -16,6 +16,7 @@ import { copyToClipboard } from '@domains/common'
 import { useInput } from '@hooks/useInput'
 import { Multisig, useSelectedMultisig } from '@domains/multisig'
 import Logomark from '../../components/Logomark'
+import { AddressTooltip } from '@components/AddressTooltip'
 
 const Header: React.FC<{ onAddContact: () => void; vaultName: string }> = ({ onAddContact, vaultName }) => (
   <div css={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
@@ -59,38 +60,46 @@ const ContactRow: React.FC<{ contact: Contact; multisig: Multisig }> = ({ contac
   const address = contact.address.toSs58(multisig.chain)
   const { deleteContact, deleting } = useDeleteContact()
   return (
-    <div
+    <AddressTooltip
+      address={contact.address}
+      name={contact.name}
+      a0Id={contact.a0Id}
+      chain={multisig.chain}
       key={contact.id}
-      css={({ color }) => ({
-        borderRadius: 16,
-        display: 'flex',
-        padding: 16,
-        backgroundColor: color.surface,
-        justifyContent: 'space-between',
-      })}
     >
-      <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Identicon value={address} size={32} />
-        <div>
-          <p css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>{contact.name}</p>
-          <p css={{ fontSize: 12 }}>{contact.a0Id ?? contact.address.toShortSs58(multisig.chain)}</p>
-        </div>
-      </div>
       <div
+        key={contact.id}
         css={({ color }) => ({
+          borderRadius: 16,
           display: 'flex',
-          alignItems: 'center',
-          button: { color: color.lightGrey },
+          padding: 16,
+          backgroundColor: color.surface,
+          justifyContent: 'space-between',
         })}
       >
-        <IconButton onClick={() => copyToClipboard(address, 'Address copied!')}>
-          <Copy size={16} />
-        </IconButton>
-        <IconButton onClick={() => deleteContact(contact.id)} disabled={deleting}>
-          {deleting ? <CircularProgressIndicator size={16} /> : <Trash size={16} />}
-        </IconButton>
+        <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Identicon value={address} size={32} />
+          <div>
+            <p css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>{contact.name}</p>
+            <p css={{ fontSize: 12 }}>{contact.a0Id ?? contact.address.toShortSs58(multisig.chain)}</p>
+          </div>
+        </div>
+        <div
+          css={({ color }) => ({
+            display: 'flex',
+            alignItems: 'center',
+            button: { color: color.lightGrey },
+          })}
+        >
+          <IconButton onClick={() => copyToClipboard(address, 'Address copied!')}>
+            <Copy size={16} />
+          </IconButton>
+          <IconButton onClick={() => deleteContact(contact.id)} disabled={deleting}>
+            {deleting ? <CircularProgressIndicator size={16} /> : <Trash size={16} />}
+          </IconButton>
+        </div>
       </div>
-    </div>
+    </AddressTooltip>
   )
 }
 
@@ -137,9 +146,7 @@ export const AddressBook: React.FC = () => {
                 }}
               >
                 {filteredContacts.map(contact => (
-                  <Tooltip content={<p css={{ fontSize: 12 }}>{contact.address.toSs58(selectedMultisig.chain)}</p>}>
-                    {<ContactRow key={contact.id} contact={contact} multisig={selectedMultisig} />}
-                  </Tooltip>
+                  <ContactRow contact={contact} multisig={selectedMultisig} />
                 ))}
               </div>
             </div>

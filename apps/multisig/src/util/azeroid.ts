@@ -91,3 +91,7 @@ export const useAzeroId = (anything: string, options?: { resolveDomainOnly?: boo
 
   return { error, loading, resolvedFor, setResolvedFor, ...resolved }
 }
+
+export const toAzeroDomainUrl = (azeroId: string) => {
+  return `https://${azeroId}.id`
+}

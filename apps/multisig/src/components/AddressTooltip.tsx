@@ -5,10 +5,11 @@ import { Tooltip } from './ui/tooltip'
 import { useToast } from './ui/use-toast'
 import { useEffect, useState } from 'react'
 import { cn } from '../util/tailwindcss'
+import { toAzeroDomainUrl } from '@util/azeroid'
 
 export const AddressTooltip: React.FC<
-  React.PropsWithChildren & { address: Address | string; chain: Chain; name?: string }
-> = ({ children, address: _address, chain, name }) => {
+  React.PropsWithChildren & { address: Address | string; chain: Chain; name?: string; a0Id?: string }
+> = ({ children, address: _address, chain, name, a0Id }) => {
   const address = typeof _address === 'string' ? (Address.fromSs58(_address) as Address) : _address
   const ss58Address = address.toSs58(chain)
   const { toast } = useToast()
@@ -38,16 +39,30 @@ export const AddressTooltip: React.FC<
       content={
         <div className="p-3 cursor-default" onClick={e => e.stopPropagation()}>
           <div className="flex items-center gap-[8px] mb-2">
-            <p className="text-gray-100 text-[14px] mt-2">{name ?? 'Unknown Address'}</p>
+            <p className="text-gray-100 text-[14px] mt-2">{a0Id ?? name ?? 'Unknown Address'}</p>
+
             <a
-              className="cursor-pointer hover:text-offWhite"
+              className="cursor-pointer hover:text-offWhite flex items-center"
               onClick={handleCopy}
               href={address.toSubscanUrl(chain)}
               target="_blank"
               rel="noreferrer"
             >
+              <p className="text-gray-300 text-[14px] mt-2 px-2">{'Subscan'}</p>
               <ExternalLink size={16} />
             </a>
+            {a0Id && (
+              <a
+                className="cursor-pointer hover:text-offWhite flex items-center"
+                onClick={handleCopy}
+                href={toAzeroDomainUrl(a0Id)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <p className="text-gray-300 text-[14px] mt-2 px-2">{'Azero'}</p>
+                <ExternalLink size={16} />
+              </a>
+            )}
           </div>
           <div className="flex items-center justify-between gap-4 p-3 bg-gray-500 rounded-[6px]">
             <p className="text-[12px] mt-2">{ss58Address}</p>
