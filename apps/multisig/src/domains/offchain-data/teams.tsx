@@ -7,6 +7,7 @@ import { Address, toMultisigAddress } from '@util/addresses'
 import { Chain, supportedChains } from '../chains'
 import toast from 'react-hot-toast'
 import { Multisig, selectedMultisigIdState, useUpsertMultisig } from '../multisig'
+import { getAzeroId } from '@util/azeroid'
 
 type RawTeam = {
   id: string
@@ -156,7 +157,14 @@ export const TeamsWatcher: React.FC = () => {
           validTeams.push(team)
 
           // sync teams from backend to multisigs list
-          upsertMultisig(team.toMultisig())
+          const multisig = team.toMultisig()
+          const azeroID = await getAzeroId(multisig.proxyAddress.toSs58())
+          console.log('aoId backedn: ', azeroID)
+          if (azeroID) {
+            upsertMultisig({ ...multisig, azeroID } as Multisig)
+          } else {
+            upsertMultisig(multisig)
+          }
         }
 
         setTeamsBySigner(teamsBySigner => ({
@@ -237,7 +245,13 @@ export const useCreateTeamOnHasura = () => {
         const { team, error } = parseTeam(createdTeam)
         if (!team || error) return { error: error ?? 'Failed to store team data.' }
 
-        upsertMultisig(team.toMultisig())
+        const multisig = team.toMultisig()
+        const azeroID = await getAzeroId(multisig.proxyAddress.toSs58())
+        if (azeroID) {
+          upsertMultisig({ ...multisig, azeroID } as Multisig)
+        } else {
+          upsertMultisig(multisig)
+        }
         setTeamsBySigner(teamsBySigner => {
           const newTeamsBySigner = { ...teamsBySigner }
           // update team for every signed in accounts
@@ -306,7 +320,12 @@ export const useUpdateMultisigConfig = () => {
           toast.error('Failed to save multisig config change.')
         }
       }
-      upsertMultisig(newMultisig)
+      const azeroID = await getAzeroId(newMultisig.proxyAddress.toSs58())
+      if (azeroID) {
+        upsertMultisig({ ...newMultisig, azeroID } as Multisig)
+      } else {
+        upsertMultisig(newMultisig)
+      }
     },
     [upsertMultisig]
   )

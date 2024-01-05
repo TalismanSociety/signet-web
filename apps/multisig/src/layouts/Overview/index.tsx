@@ -4,7 +4,7 @@ import { TxMetadataWatcher, getAllChangeAttempts } from '@domains/offchain-data/
 import { toMultisigAddress } from '@util/addresses'
 import { device } from '@util/breakpoints'
 import { useCallback, useEffect } from 'react'
-import { useRecoilValue, useRecoilState } from 'recoil'
+import { useRecoilValue } from 'recoil'
 
 import Assets, { TokenAugmented } from './Assets'
 import Transactions from './Transactions'
@@ -16,18 +16,12 @@ import { selectedAccountState } from '../../domains/auth'
 import VaultOverview from './VaultOverview'
 import { useToast } from '../../components/ui/use-toast'
 
-// import { Address } from '@util/addresses'
-import { selectedMultisigA0IDState } from '@domains/multisig'
-// import { SupportedChainId, resolveAddressToDomain } from '@azns/resolver-core'
-import { getAzeroId } from '@util/azeroid'
-
 const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const signedInAccount = useRecoilValue(selectedAccountState)
   const changingMultisigConfig = useRecoilValue(changingMultisigConfigState)
   const { updateMultisigConfig } = useUpdateMultisigConfig()
   const { toast, dismiss } = useToast()
-  const [selectedMultisigA0ID, setSelectedMultisigA0ID] = useRecoilState(selectedMultisigA0IDState)
 
   // TODO: consider migrating to top level so it works regardless of page?
   const detectChangeAndAutoUpdate = useCallback(async () => {
@@ -109,16 +103,6 @@ const Overview = () => {
   }, [changingMultisigConfig, detectChangeAndAutoUpdate, selectedMultisig.id, selectedMultisig.proxies])
 
   useEffect(() => () => dismiss(), [dismiss])
-
-  useEffect(() => {
-    getAzeroId(selectedMultisig.proxyAddress.toSs58())
-      .then(z0Id => {
-        if (z0Id) setSelectedMultisigA0ID(z0Id)
-      })
-      .catch(error => {
-        console.error('AZERO.ID Resolution Error: ', error)
-      })
-  }, [selectedMultisig.proxyAddress, selectedMultisigA0ID, setSelectedMultisigA0ID])
 
   const augmentedTokens: TokenAugmented[] = useAugmentedBalances()
   return (

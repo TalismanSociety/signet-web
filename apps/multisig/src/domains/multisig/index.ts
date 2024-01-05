@@ -54,12 +54,6 @@ export const multisigsState = atom<Multisig[]>({
   effects_UNSTABLE: [persistAtom],
 })
 
-export const selectedMultisigA0IDState = atom<string | null>({
-  key: 'SelectedMultiSigA0ID',
-  default: '',
-  effects_UNSTABLE: [persistAtom],
-})
-
 // Map of call hashes to their metadata.
 // todo: use the date to clear out really old metadata from this cache
 export const txOffchainMetadataState = atom<{ [key: string]: [TxOffchainMetadata, Date] }>({
@@ -79,7 +73,6 @@ export const activeMultisigsState = selector({
   get: ({ get }) => {
     const multisigs = get(multisigsState)
     const selectedAccount = get(selectedAccountState)
-    // const mulisigA0ID = get(multisigA0IDState)
 
     if (!selectedAccount) return []
     return multisigs.filter(multisig => {
@@ -93,10 +86,7 @@ export const selectedMultisigState = selector({
   get: ({ get }) => {
     const multisigs = get(activeMultisigsState)
     const selectedMultisigId = get(selectedMultisigIdState)
-    const selectedMulisigA0ID = get(selectedMultisigA0IDState)
-    const selectedMultisig =
-      multisigs.find(multisig => multisig.id === selectedMultisigId) ?? multisigs[0] ?? DUMMY_MULTISIG
-    return { ...selectedMultisig, azeroID: selectedMulisigA0ID } as Multisig
+    return multisigs.find(multisig => multisig.id === selectedMultisigId) ?? multisigs[0] ?? DUMMY_MULTISIG
   },
 })
 

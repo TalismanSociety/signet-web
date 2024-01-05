@@ -5,20 +5,12 @@ import truncateMiddle from 'truncate-middle'
 import { Multisig } from '@domains/multisig'
 import { copyToClipboard } from '@domains/common'
 import { Link } from 'react-router-dom'
+import { ShortedAzeroId } from '@util/azeroid'
 
 type Props = {
   multisigs: Multisig[]
   selectedMultisig: Multisig
   onChange: (multisig: Multisig) => void
-}
-
-const ShortedAzeroId = (azeroId: string) => {
-  const [prefix, suffix] = azeroId.split('.')
-  if (prefix && prefix.length > 6) {
-    return `${prefix.slice(0, 6)}...${suffix}`
-  } else {
-    return azeroId
-  }
 }
 
 const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; selected?: boolean }> = ({

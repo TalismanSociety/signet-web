@@ -99,3 +99,12 @@ export const useAzeroId = (anything: string, options: { resolveDomainOnly?: bool
 export const toAzeroDomainUrl = (azeroId: string) => {
   return `https://${azeroId}.id`
 }
+
+export const ShortedAzeroId = (azeroId: string) => {
+  const [prefix, suffix] = azeroId.split('.')
+  if (prefix && prefix.length > 6) {
+    return `${prefix.slice(0, 6)}...${suffix}`
+  } else {
+    return azeroId
+  }
+}
