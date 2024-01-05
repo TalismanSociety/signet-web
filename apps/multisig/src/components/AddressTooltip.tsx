@@ -1,5 +1,5 @@
 import { Check, Copy, ExternalLink } from '@talismn/icons'
-import { Chain } from '../domains/chains'
+import { Chain, filteredSupportedChains } from '../domains/chains'
 import { Address } from '../util/addresses'
 import { Tooltip } from './ui/tooltip'
 import { useToast } from './ui/use-toast'
@@ -44,7 +44,7 @@ export const AddressTooltip: React.FC<
             <a
               className="cursor-pointer hover:text-offWhite flex items-center"
               onClick={handleCopy}
-              href={address.toSubscanUrl(chain)}
+              href={address.toSubscanUrl(chain ?? (filteredSupportedChains[0] as Chain))}
               target="_blank"
               rel="noreferrer"
             >

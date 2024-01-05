@@ -63,7 +63,7 @@ const AdvancedAction = () => {
   } = useApproveAsMulti(signer?.address, hash, null, multisig)
 
   return (
-    <Layout selected="Advanced" requiresMultisig>
+    <Layout selected="Call data" requiresMultisig>
       <div css={{ display: 'flex', flex: 1, flexDirection: 'column', padding: '32px 8%' }}>
         {step === Step.Details || step === Step.Review ? (
           <DetailsForm

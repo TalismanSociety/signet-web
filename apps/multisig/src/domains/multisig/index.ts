@@ -466,8 +466,7 @@ export const extrinsicToDecoded = (
           type: TransactionType.Transfer,
           recipients,
         },
-        description:
-          metadata?.description ?? defaultName ?? `Send to ${recipients[0]!.address.toShortSs58(multisig.chain)}`,
+        description: metadata?.description ?? `Send to ${recipients[0]!.address.toShortSs58(multisig.chain)}`,
       }
     }
 
@@ -484,7 +483,7 @@ export const extrinsicToDecoded = (
               type: TransactionType.MultiSend,
               recipients: recipients as TransactionRecipient[],
             },
-            description: metadata?.description ?? defaultName ?? `Send to ${recipients.length} recipients`,
+            description: metadata?.description ?? `Send to ${recipients.length} recipients`,
           }
         }
       }
@@ -516,7 +515,7 @@ export const extrinsicToDecoded = (
               threshold: changeConfigDetails.newThreshold,
             },
           },
-          description: metadata?.description ?? defaultName ?? 'Change multisig config',
+          description: metadata?.description ?? 'Change multisig config',
         }
       }
     }
@@ -555,7 +554,7 @@ export const extrinsicToDecoded = (
                 token,
               },
             },
-            description: metadata?.description ?? defaultName ?? `Vote on referendum #${poll_index}`,
+            description: metadata?.description ?? `Vote on referendum #${poll_index}`,
           }
         }
       }
@@ -575,7 +574,7 @@ export const extrinsicToDecoded = (
               validators,
             },
           },
-          description: metadata?.description ?? defaultName ?? `Nominations for Pool #${pool_id}`,
+          description: metadata?.description ?? `Nominations for Pool #${pool_id}`,
         }
       }
     }
@@ -587,7 +586,7 @@ export const extrinsicToDecoded = (
       type: TransactionType.Advanced,
       recipients: [],
     },
-    description: defaultName ?? `${extrinsic.method.section}.${extrinsic.method.method}`,
+    description: metadata?.description ?? defaultName ?? `${extrinsic.method.section}.${extrinsic.method.method}`,
   }
 }
 

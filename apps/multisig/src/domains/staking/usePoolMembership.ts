@@ -16,6 +16,7 @@ export const usePoolMembership = (address: Address, chain: Chain) => {
   const unsub = useRef<VoidFn | null>(null)
 
   const subscribePoolMembership = useCallback(async () => {
+    console.log('Subscribe')
     if (!api || !api.query) return
 
     // nom pool pallet not supported
@@ -43,20 +44,21 @@ export const usePoolMembership = (address: Address, chain: Chain) => {
     unsub.current = u
   }, [address, api, chain])
 
-  useEffect(() => {
-    if (membership !== undefined) return
-
-    subscribePoolMembership()
-  }, [membership, subscribePoolMembership])
-
   // cleanup if address / chain changed
   useEffect(() => {
     if (unsub.current) {
       unsub.current()
       unsub.current = null
     }
+
     setMembership(undefined)
   }, [address, chain])
+
+  useEffect(() => {
+    if (membership !== undefined) return
+
+    subscribePoolMembership()
+  }, [membership, subscribePoolMembership])
 
   return { loading: membership === undefined, membership }
 }

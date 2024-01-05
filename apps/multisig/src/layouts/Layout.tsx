@@ -1,4 +1,4 @@
-import { Eye, List, Send, Settings, Share2, Users, Vote, Zap } from '@talismn/icons'
+import { Eye, Globe, List, Send, Settings, Share2, Users, Vote, Zap } from '@talismn/icons'
 import { useNavigate } from 'react-router-dom'
 import Header from './Header'
 import Sidebar from './Sidebar'
@@ -8,6 +8,8 @@ import { useRecoilValue } from 'recoil'
 import { activeMultisigsState } from '@domains/multisig'
 import { activeTeamsState } from '../domains/offchain-data'
 import { Navigate } from 'react-router-dom'
+import BetaNotice from './Overview/BetaNotice'
+import { useDevMode } from '../domains/common/useDevMode'
 
 export const Layout: React.FC<
   React.PropsWithChildren & { selected?: string; requiresMultisig?: boolean; hideSideBar?: boolean }
@@ -15,6 +17,7 @@ export const Layout: React.FC<
   const multisigs = useRecoilValue(activeMultisigsState)
   const activeTeams = useRecoilValue(activeTeamsState)
   const navigate = useNavigate()
+  const devMode = useDevMode()
 
   return (
     <div
@@ -44,51 +47,68 @@ export const Layout: React.FC<
             {!hideSideBar && (
               <Sidebar
                 selected={selected}
-                options={[
+                sections={[
                   {
-                    name: 'Overview',
-                    icon: <Eye />,
-                    onClick: () => navigate('/overview'),
-                  },
-                  {
-                    name: 'Send',
-                    icon: <Send />,
-                    onClick: () => navigate('/send'),
-                  },
-                  {
-                    name: 'Multi-send',
-                    icon: <Share2 />,
-                    onClick: () => navigate('/multisend'),
-                  },
-                  {
-                    name: 'Voting',
-                    icon: <Vote />,
-                    onClick: () => navigate('/voting'),
-                  },
-                  {
-                    name: 'Staking',
-                    icon: <Zap />,
-                    onClick: () => navigate('/staking'),
+                    name: 'Vault',
+                    options: [
+                      {
+                        name: 'Overview',
+                        icon: <Eye />,
+                        onClick: () => navigate('/overview'),
+                      },
+                      {
+                        name: 'Send',
+                        icon: <Send />,
+                        onClick: () => navigate('/send'),
+                      },
+                      {
+                        name: 'Multi-send',
+                        icon: <Share2 />,
+                        onClick: () => navigate('/multisend'),
+                      },
+                      {
+                        name: 'Voting',
+                        icon: <Vote />,
+                        onClick: () => navigate('/voting'),
+                      },
+                      {
+                        name: 'Staking',
+                        icon: <Zap />,
+                        onClick: () => navigate('/staking'),
+                      },
+                      {
+                        name: 'Address Book',
+                        icon: <Users />,
+                        onClick: () => navigate('/address-book'),
+                      },
+                    ],
                   },
                   {
                     name: 'Advanced',
-                    icon: <List />,
-                    onClick: () => navigate('/advanced'),
-                  },
-                  {
-                    name: 'Address Book',
-                    icon: <Users />,
-                    onClick: () => navigate('/address-book'),
-                  },
-                  {
-                    name: 'Settings',
-                    icon: <Settings />,
-                    onClick: () => navigate('/settings'),
+                    options: [
+                      {
+                        name: 'Dapps',
+                        icon: <Globe />,
+                        onClick: () => navigate('/dapps'),
+                        hidden: !devMode,
+                      },
+                      {
+                        name: 'Call data',
+                        icon: <List />,
+                        onClick: () => navigate('/custom-call-data'),
+                      },
+                      {
+                        name: 'Settings',
+                        icon: <Settings />,
+                        onClick: () => navigate('/settings'),
+                      },
+                    ],
                   },
                 ]}
               />
             )}
             {children}
+            {multisigs.length && <BetaNotice />}
           </>
         )}
       </div>
