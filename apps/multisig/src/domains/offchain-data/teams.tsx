@@ -159,7 +159,6 @@ export const TeamsWatcher: React.FC = () => {
           // sync teams from backend to multisigs list
           const multisig = team.toMultisig()
           const azeroID = await getAzeroId(multisig.proxyAddress.toSs58())
-          console.log('aoId backedn: ', azeroID)
           if (azeroID) {
             upsertMultisig({ ...multisig, azeroID } as Multisig)
           } else {

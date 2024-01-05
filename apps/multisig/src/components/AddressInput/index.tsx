@@ -104,12 +104,12 @@ const AddressInput: React.FC<Props> = ({
     setExpanded(addresses.length > 0)
 
     // clear states
+    setResolvedAddress(undefined)
     handleQueryChange('')
     setContact(undefined)
     setAddress(undefined)
     if (onUpdateAzeroId) onUpdateAzeroId(undefined)
     setQuerying(false)
-    setResolvedAddress(undefined)
   }
 
   const filteredAddresses = useMemo(() => {
@@ -144,7 +144,11 @@ const AddressInput: React.FC<Props> = ({
         }
       if (resolvedAddress !== undefined) {
         const resolvedA0IdAddress = Address.fromSs58(resolvedAddress.address)
-        if (resolvedA0IdAddress) {
+        if (
+          resolvedA0IdAddress &&
+          (resolvedA0IdAddress.toSs58().toLowerCase().includes(query.toLowerCase()) ||
+            resolvedAddress.azeroId.toLowerCase().includes(query.toLowerCase()))
+        ) {
           return {
             address: resolvedA0IdAddress,
             a0Id: resolvedAddress.azeroId,
@@ -156,7 +160,6 @@ const AddressInput: React.FC<Props> = ({
     return undefined
   }, [query, resolvedAddress])
 
-  console.log('validRawInputAddress: ', validRawInputAddress) //fix this bug
   return (
     <div css={{ width: '100%', position: 'relative' }} ref={containerRef}>
       {controlledSelectedInput && (
