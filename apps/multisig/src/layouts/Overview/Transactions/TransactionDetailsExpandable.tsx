@@ -23,6 +23,7 @@ import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import truncateMiddle from 'truncate-middle'
 import { VoteExpandedDetails, VoteTransactionHeader } from './VoteTransactionDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
+import { SmartContractCallExpandedDetails } from '../../../layouts/SmartContracts/SmartContactCallExpandedDetails'
 
 const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
   const { contactByAddress } = useKnownAddresses(t.multisig.id)
@@ -312,6 +313,8 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
             <AdvancedExpendedDetails callData={t.callData} rpcs={t.multisig.chain.rpcs} />
           ) : t.decoded?.type === TransactionType.Vote ? (
             <VoteExpandedDetails t={t} />
+          ) : t.decoded?.type === TransactionType.ContractCall ? (
+            <SmartContractCallExpandedDetails t={t} />
           ) : !t.decoded ? (
             <div css={{ margin: '8px 0', display: 'grid', gap: '8px' }}>
               <p css={{ fontSize: '14px' }}>

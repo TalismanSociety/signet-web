@@ -152,6 +152,7 @@ export enum TransactionType {
   Vote,
   NominateFromNomPool,
   NominateFromStaking,
+  ContractCall,
 }
 
 export interface ChangeConfigDetails {
@@ -203,6 +204,10 @@ export interface TransactionDecoded {
   nominate?: {
     poolId?: number
     validators: string[]
+  }
+  contractCall?: {
+    address: Address
+    data: `0x${string}`
   }
   voteDetails?: VoteDetails & { token: BaseToken }
 }
@@ -574,6 +579,27 @@ export const extrinsicToDecoded = (
             },
           },
           description: metadata?.description ?? `Nominations for Pool #${pool_id}`,
+        }
+      }
+    }
+
+    // Check if it's a Smart Contract call
+    for (const arg of args) {
+      const obj: any = arg.toHuman()
+      if (obj?.section === 'contracts' && obj?.method === 'call') {
+        const { dest, data } = obj.args
+        const address = Address.fromSs58(parseCallAddressArg(dest))
+        if (!address) throw new Error('Contract call destination is not a valid address')
+        return {
+          decoded: {
+            type: TransactionType.ContractCall,
+            recipients: [],
+            contractCall: {
+              address,
+              data,
+            },
+          },
+          description: metadata?.description ?? `Contract call to ${address.toShortSs58(multisig.chain)}`,
         }
       }
     }

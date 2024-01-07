@@ -9,8 +9,10 @@ import { useContractPallet } from '@domains/substrate-contracts'
 import { useContractCall } from '@domains/substrate-contracts/useContractCall'
 import { ContractPromise } from '@polkadot/api-contract'
 import { AbiMessage } from '@polkadot/api-contract/types'
+import { SignSummary } from '../Sign/SignSummary'
 import { useMemo, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
+import { Input } from '@components/ui/input'
 
 export const CallSmartContractPage: React.FC = () => {
   const { smartContractId } = useParams<{ smartContractId: string }>()
@@ -20,6 +22,8 @@ export const CallSmartContractPage: React.FC = () => {
   const { loading: loadingPallet, supported } = useContractPallet(api)
   const [message, setMessage] = useState<AbiMessage>()
   const [args, setArgs] = useState<{ value: any; valid: boolean }[]>([])
+  const [reviewing, setReviewing] = useState(false)
+  const [description, setDescription] = useState('')
 
   const contractDetails = useMemo(() => {
     return contracts?.find(({ id }) => id === smartContractId)
@@ -30,15 +34,15 @@ export const CallSmartContractPage: React.FC = () => {
     return new ContractPromise(api, contractDetails.abiString, contractDetails.address.toSs58(selectedMultisig.chain))
   }, [contractDetails, api, selectedMultisig.chain])
 
-  const writeMethods = useMemo(
-    () => contractDetails?.abi.messages.filter(({ isMutating }) => isMutating),
-    [contractDetails]
-  )
-
   const { isValidCall, simulating, simulationResult, error, contractCallExtrinsic } = useContractCall(
     contract,
     message,
     args
+  )
+
+  const writeMethods = useMemo(
+    () => contractDetails?.abi.messages.filter(({ isMutating }) => isMutating),
+    [contractDetails]
   )
 
   // param not provided, invalid url
@@ -60,7 +64,15 @@ export const CallSmartContractPage: React.FC = () => {
 
   return (
     <div className="w-full">
-      <h1 className="text-[24px]">Make a contract call</h1>
+      <h1 className="text-[24px] mb-[12px]">Make a contract call</h1>
+
+      <Input
+        label="Transaction Description"
+        css={{ label: { fontSize: 14 } }}
+        placeholder={`e.g. "Contract call"`}
+        value={description}
+        onChange={e => setDescription(e.target.value)}
+      />
 
       <div className="mt-[24px]">
         <h4 className="font-semibold text-offWhite">Contract Name</h4>
@@ -74,8 +86,8 @@ export const CallSmartContractPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-[32px] flex flex-col gap-[16px] items-start w-full">
-        <h4 className="font-semibold text-offWhite">Call details</h4>
+      <div className="mt-[32px] flex flex-col items-start w-full">
+        <h4 className="font-semibold text-offWhite mb-[12px]">Call details</h4>
         {writeMethods.length > 0 ? (
           <>
             <ContractMessageForm
@@ -87,7 +99,11 @@ export const CallSmartContractPage: React.FC = () => {
               chain={selectedMultisig.chain}
             />
             <div className="flex w-full flex-col items-start">
-              <Button className="mt-[24px]" disabled={!isValidCall || !contractCallExtrinsic}>
+              <Button
+                className="mt-[24px]"
+                disabled={!isValidCall || !contractCallExtrinsic || !!error || !description}
+                onClick={() => setReviewing(true)}
+              >
                 Review
               </Button>
               {isValidCall && (
@@ -107,6 +123,18 @@ export const CallSmartContractPage: React.FC = () => {
           <p>The contract has no callable functions.</p>
         )}
       </div>
+      {contractCallExtrinsic && (
+        <SignSummary
+          calldata={contractCallExtrinsic.method.toHex()}
+          description={description}
+          onApproved={() => {
+            setReviewing(false)
+          }}
+          onCancel={() => setReviewing(false)}
+          open={reviewing}
+          selectedMultisig={selectedMultisig}
+        />
+      )}
     </div>
   )
 }

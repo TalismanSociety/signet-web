@@ -2,7 +2,13 @@ import { ApiPromise } from '@polkadot/api'
 import { useCallback, useMemo, useState } from 'react'
 import { allChainTokensSelector, decodeCallData, useApproveAsMulti } from '../chains'
 import { Multisig } from './types'
-import { Transaction, TransactionApprovals, extrinsicToDecoded, useNextTransactionSigner } from './index'
+import {
+  Transaction,
+  TransactionApprovals,
+  TxOffchainMetadata,
+  extrinsicToDecoded,
+  useNextTransactionSigner,
+} from './index'
 import { useRecoilValueLoadable } from 'recoil'
 
 // TODO: use this hook in all new transaction
@@ -10,7 +16,8 @@ export const useMultisigExtrinsicFromCalldata = (
   description: string,
   team: Multisig,
   calldata: `0x${string}`,
-  api?: ApiPromise
+  api?: ApiPromise,
+  otherTxMetadata?: TxOffchainMetadata
 ) => {
   const [approving, setApproving] = useState(false)
   const allActiveChainTokens = useRecoilValueLoadable(allChainTokensSelector)
@@ -18,6 +25,7 @@ export const useMultisigExtrinsicFromCalldata = (
   // decode the inner calldata (this is the actual extrinsic, e.g. transfer tokens)
   const innerExtrinsic = useMemo(() => {
     if (!api) return undefined
+
     try {
       const extrinsic = decodeCallData(api, calldata as `0x{string}`)
       if (!extrinsic) return { error: 'Could not decode calldata!', ok: false }
@@ -79,6 +87,7 @@ export const useMultisigExtrinsicFromCalldata = (
         metadata: {
           description: t?.description,
           callData: proxyExtrinsic?.extrinsic.method.toHex(),
+          ...otherTxMetadata,
         },
         onSuccess: r => {
           setApproving(false)
@@ -90,7 +99,7 @@ export const useMultisigExtrinsicFromCalldata = (
         },
       })
     })
-  }, [approveAsMulti, proxyExtrinsic?.extrinsic, t])
+  }, [approveAsMulti, otherTxMetadata, proxyExtrinsic?.extrinsic, t])
 
   return { innerExtrinsic, proxyExtrinsic, hash, approving, approve, t, estimatedFee, ready }
 }
