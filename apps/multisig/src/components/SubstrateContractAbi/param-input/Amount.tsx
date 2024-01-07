@@ -20,12 +20,17 @@ export const AmountParamInput: ParamInputComponent<string> = ({ onChange, arg, p
 
             // unsigned numbers cannot be negative
             if (param.type.type[0] === 'u' && val.isNegative()) return
-            onChange({ valid: !val.isNaN(), value })
+
+            const hasDecimal = value.includes('.')
+            onChange({ valid: !val.isNaN() && !hasDecimal, value })
           } catch (e) {
             onChange({ valid: false, value })
           }
         }}
       />
+      {arg?.value.includes('.') && (
+        <p className="text-red-500 text-[12px] mt-[8px] ml-[4px]">Decimals input is not supported.</p>
+      )}
     </div>
   )
 }

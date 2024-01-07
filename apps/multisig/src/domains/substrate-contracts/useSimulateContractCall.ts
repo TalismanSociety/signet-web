@@ -97,6 +97,7 @@ export const useSimulateContractCall = (contract?: ContractPromise, message?: Ab
     if (result.isOk) {
       // contract level revert will resolve as successful call, make sure call did not revert from contract level
       const outputRes = output?.toHuman()
+      console.log(outputRes)
       if (typeof outputRes === 'object' && outputRes !== null) {
         const error = (outputRes as any)['Ok']?.['Err']
         if (error) return { ...defaultReturnValues, ok: false, error: `Contract Reverted: ${error}` }
