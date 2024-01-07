@@ -5147,6 +5147,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@polkadot/api-contract@npm:10.9.1":
+  version: 10.9.1
+  resolution: "@polkadot/api-contract@npm:10.9.1"
+  dependencies:
+    "@polkadot/api": 10.9.1
+    "@polkadot/api-augment": 10.9.1
+    "@polkadot/types": 10.9.1
+    "@polkadot/types-codec": 10.9.1
+    "@polkadot/types-create": 10.9.1
+    "@polkadot/util": ^12.3.1
+    "@polkadot/util-crypto": ^12.3.1
+    rxjs: ^7.8.1
+    tslib: ^2.5.3
+  checksum: 2a4b4818e5fd4ef1b385a0ad1144d986b449b531c278ccc3a441770c1e95a2fd24cd5da401d56040dcd594254e2a5c2e4a09a9de5827ee8bb951e3aad9558bed
+  languageName: node
+  linkType: hard
+
 "@polkadot/api-derive@npm:10.9.1":
   version: 10.9.1
   resolution: "@polkadot/api-derive@npm:10.9.1"
@@ -6601,6 +6618,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-switch@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@radix-ui/react-switch@npm:1.0.3"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+    "@radix-ui/primitive": 1.0.1
+    "@radix-ui/react-compose-refs": 1.0.1
+    "@radix-ui/react-context": 1.0.1
+    "@radix-ui/react-primitive": 1.0.3
+    "@radix-ui/react-use-controllable-state": 1.0.1
+    "@radix-ui/react-use-previous": 1.0.1
+    "@radix-ui/react-use-size": 1.0.1
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0
+    react-dom: ^16.8 || ^17.0 || ^18.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: de18a802f317804d94315b1035d03a9cabef53317c148027f0f382bc2653723532691b65090596140737bb055e3affff977f5d73fe6caf8c526c6158baa811cc
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-toast@npm:^1.1.5":
   version: 1.1.5
   resolution: "@radix-ui/react-toast@npm:1.1.5"
@@ -6658,7 +6701,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-toggle@npm:1.0.3":
+"@radix-ui/react-toggle@npm:1.0.3, @radix-ui/react-toggle@npm:^1.0.3":
   version: 1.0.3
   resolution: "@radix-ui/react-toggle@npm:1.0.3"
   dependencies:
@@ -10347,13 +10390,16 @@ __metadata:
     "@lezer/highlight": ^1.1.6
     "@playwright/test": ^1.30.0
     "@polkadot/api": 10.9.1
+    "@polkadot/api-contract": ^10.11.2
     "@polkadot/extension-dapp": 0.46.5
     "@radix-ui/react-accordion": ^1.1.2
     "@radix-ui/react-checkbox": ^1.0.4
     "@radix-ui/react-dialog": ^1.0.5
     "@radix-ui/react-popover": ^1.0.7
     "@radix-ui/react-slot": ^1.0.2
+    "@radix-ui/react-switch": ^1.0.3
     "@radix-ui/react-toast": ^1.1.5
+    "@radix-ui/react-toggle": ^1.0.3
     "@radix-ui/react-tooltip": ^1.0.7
     "@ramp-network/ramp-instant-sdk": ^2.5.2
     "@recoiljs/refine": 0.1.1

@@ -1,7 +1,4 @@
 import { Chain } from '@domains/chains'
-import { ApiPromise } from '@polkadot/api'
-import { captureException } from '@sentry/react'
-import BN from 'bn.js'
 
 export function arrayIntersection<T>(arr1: T[], arr2: T[]): T[] {
   let set = new Set(arr2)
@@ -31,17 +28,4 @@ export const getErrorString = (error: unknown, maxLength?: number, tooLongMessag
   if (typeof error === 'string') return shortenErrorMessage(error)
 
   return shortenErrorMessage(JSON.stringify(error))
-}
-
-export const decodeSubstrateError = (errorModule: { index: string; error: string }, api: ApiPromise): string => {
-  try {
-    const error = api.registry.findMetaError({
-      index: new BN(parseInt(errorModule.index)),
-      error: new BN(parseInt(errorModule.error.slice(0, 4))),
-    })
-    return error.docs[0] as string
-  } catch (e) {
-    captureException(e)
-    return ''
-  }
 }

@@ -19,7 +19,7 @@ export const MessageSignature: React.FC<Props> = ({ message, chain, withoutDocs 
         <span className="text-offWhite">
           (
           {message.args.map((arg, index) => (
-            <span className="text-offWhite ">
+            <span className="text-offWhite" key={index}>
               {arg.name}: <span className="text-gray-200">{encodeTypeDef(api.registry, arg.type)}</span>
               {index < message.args.length - 1 && ', '}
             </span>
@@ -27,7 +27,10 @@ export const MessageSignature: React.FC<Props> = ({ message, chain, withoutDocs 
           )
           {!message.isConstructor && message.returnType && (
             <>
-              : <span className="text-orange-500">{encodeTypeDef(api.registry, message.returnType)}</span>
+              :{' '}
+              <span className="text-orange-500">
+                {encodeTypeDef(api.registry, message.returnType).replaceAll(', ', ',').replaceAll(',', ', ')}
+              </span>
             </>
           )}
         </span>

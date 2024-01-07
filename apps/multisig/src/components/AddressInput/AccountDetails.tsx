@@ -30,7 +30,9 @@ export const AccountDetails: React.FC<Props> = ({
   const { copy } = useCopied()
   const accountDetailsUI = (
     <div className="flex items-center gap-[8px] w-full overflow-hidden">
-      <Identicon size={identiconSize} value={address.toSs58(chain)} />
+      <div css={{ minheight: identiconSize, minWidth: identiconSize }}>
+        <Identicon size={identiconSize} value={address.toSs58(chain)} />
+      </div>
       <NameAndAddress
         address={address}
         chain={chain}

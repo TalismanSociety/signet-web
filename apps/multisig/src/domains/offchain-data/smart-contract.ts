@@ -12,7 +12,7 @@ import { Abi } from '@polkadot/api-contract'
 
 const SMART_CONTRACTS_QUERY = gql`
   query Contracts($teamId: uuid!) {
-    smart_contract(where: { team_id: { _eq: $teamId } }, order_by: { name: asc }, limit: 300) {
+    smart_contract(where: { team_id: { _eq: $teamId } }, order_by: { created_at: desc }, limit: 300) {
       id
       abi
       address
@@ -28,6 +28,7 @@ export type SmartContract = {
   abi: Abi
   address: Address
   teamId: string
+  abiString: string
 }
 
 export const smartContractsLoadingState = atom<boolean>({
@@ -106,7 +107,7 @@ export const useAddSmartContract = () => {
           throw error ?? new Error('Unknown error.')
         }
         let smartContracts = smartContractsByTeamId[teamId] ?? []
-        const newContract = { id, name, teamId, address, abi }
+        const newContract = { id, name, teamId, address, abi, abiString }
 
         // contract may be added to inmemory cache via watcher
         const conflict = smartContracts.find(contact => contact.address.isEqual(address))
@@ -219,7 +220,7 @@ export const SmartContractsWatcher = () => {
             if (conflict) return
 
             // add contract to in memory cache
-            smartContractsOfTeam.push({ id, name, teamId: team_id, abi, address: parsedAddress })
+            smartContractsOfTeam.push({ id, name, teamId: team_id, abi, address: parsedAddress, abiString })
             newSmartContractsByTeamId[team_id] = smartContractsOfTeam
           } catch (e) {
             console.error('Failed to parse contact:')

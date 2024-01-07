@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { Button } from './ui/button'
-import { ChevronDown, ToggleLeft, ToggleRight } from '@talismn/icons'
+import { ChevronDown } from '@talismn/icons'
 import {
   Command,
   CommandEmpty,
@@ -14,8 +14,8 @@ import {
 import { AbiMessage } from '@polkadot/api-contract/types'
 import { MessageSignature } from './SubstrateContractAbi/MessageSignature'
 import { Chain } from '@domains/chains'
-import { encodeTypeDef } from '@polkadot/types/create'
 import { useApi } from '@domains/chains/pjs-api'
+import { AbiParamsForm } from './SubstrateContractAbi/Params'
 
 type Props = {
   messages: AbiMessage[]
@@ -27,14 +27,14 @@ export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain
   const [messageIndex, setMessageIndex] = useState(0)
   const [openMethod, setOpenMethod] = useState(false)
   const { api } = useApi(chain.rpcs)
-  const [args, setArgs] = useState<any[]>([])
+  const [args, setArgs] = useState<{ value: any; valid: boolean }[]>([])
 
   const selectedMessage = useMemo(() => messages[messageIndex] ?? messages?.[0], [messageIndex, messages])
 
   useEffect(() => {
     if (!selectedMessage) return
-    onChange(selectedMessage, [])
-  }, [onChange, selectedMessage])
+    onChange(selectedMessage, args)
+  }, [onChange, selectedMessage, args])
 
   if (!selectedMessage) return null
 
@@ -65,9 +65,11 @@ export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain
                       className="flex flex-col text-left items-start text-ellipsis overflow-hidden whitespace-nowrap w-full"
                       value={`${index}`}
                       onSelect={() => {
-                        setMessageIndex(index)
+                        if (index !== messageIndex) {
+                          setArgs([])
+                          setMessageIndex(index)
+                        }
                         setOpenMethod(false)
-                        setArgs([])
                       }}
                     >
                       <MessageSignature message={message} chain={chain} />
@@ -82,27 +84,17 @@ export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain
 
       {/** Render args form for selected message */}
       {api && selectedMessage.args.length > 0 && (
-        <div className="pl-[24px] mt-[16px]">
-          {selectedMessage.args.map((arg, index) => (
-            <div>
-              <p className="text-[14px]">
-                {arg.name}: {encodeTypeDef(api.registry, arg.type)}
-                {arg.type.type === 'bool' ? (
-                  <div
-                    className="cursor-pointer"
-                    onClick={() => {
-                      const oldArgs = [...args]
-                      oldArgs[index] = !oldArgs[index]
-                      setArgs(oldArgs)
-                      onChange(selectedMessage, oldArgs)
-                    }}
-                  >
-                    {args[index] ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
-                  </div>
-                ) : null}
-              </p>
-            </div>
-          ))}
+        <div className="w-full mt-[16px]">
+          <p className="text-[14px] mb-[4px]">Call parameters</p>
+          <div className="p-[12px] border border-gray-700 rounded-[16px]">
+            <AbiParamsForm
+              chain={chain}
+              params={selectedMessage.args}
+              onChange={setArgs}
+              registry={api.registry}
+              value={args}
+            />
+          </div>
         </div>
       )}
     </div>

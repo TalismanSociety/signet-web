@@ -19,7 +19,6 @@ export const NameAndAddress: React.FC<{
         alignItems: breakLine ? 'flex-start' : 'center',
         marginTop: breakLine ? 0 : 4,
         overflow: 'hidden',
-        width: '100%',
       }}
     >
       <p
@@ -28,6 +27,7 @@ export const NameAndAddress: React.FC<{
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
+          maxWidth: 'max-content',
           width: '100%',
         })}
       >

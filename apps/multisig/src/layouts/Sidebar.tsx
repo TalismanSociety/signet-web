@@ -1,11 +1,9 @@
 import { useTheme } from '@emotion/react'
 import { IconButton } from '@talismn/ui'
-import { size } from '@util/breakpoints'
 import { cn } from '@util/tailwindcss'
 import clsx from 'clsx'
 import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { useWindowSize } from 'react-use'
 
 type Props = {
   sections: {
@@ -22,10 +20,9 @@ type Props = {
 }
 const Sidebar = (props: Props) => {
   const theme = useTheme()
-  const width = useWindowSize().width
 
   return (
-    <section className="flex flex-col items-center bg-gray-800 px-[16px] py-[12px] rounded-[16px] gap-[32px] lg:pr-[24px]">
+    <section className="flex flex-col items-center bg-gray-800 p-[12px] rounded-[16px] gap-[32px] lg:pr-[24px] lg:pl-[16px]">
       {props.sections.map(({ name, options }) => (
         <div className="w-full flex flex-col" key={name}>
           <p className="hidden lg:block uppercase text-[12px] mb-[8px]">{name}</p>
@@ -48,7 +45,7 @@ const Sidebar = (props: Props) => {
                     >
                       {icon}
                     </IconButton>
-                    {width > size.md && <span>{name}</span>}
+                    {<span className="hidden lg:block">{name}</span>}
                   </div>
                 )
 
