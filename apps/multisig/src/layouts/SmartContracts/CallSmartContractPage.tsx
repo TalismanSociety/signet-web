@@ -6,7 +6,7 @@ import { useApi } from '@domains/chains/pjs-api'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useSmartContracts } from '@domains/offchain-data'
 import { useContractPallet } from '@domains/substrate-contracts'
-import { useSimulateContractCall } from '@domains/substrate-contracts/useSimulateContractCall'
+import { useContractCall } from '@domains/substrate-contracts/useContractCall'
 import { ContractPromise } from '@polkadot/api-contract'
 import { AbiMessage } from '@polkadot/api-contract/types'
 import { useMemo, useState } from 'react'
@@ -35,7 +35,12 @@ export const CallSmartContractPage: React.FC = () => {
     [contractDetails]
   )
 
-  const { isValidCall, simulating, call, error } = useSimulateContractCall(contract, message, args)
+  const { isValidCall, simulating, simulationResult, error, contractCallExtrinsic } = useContractCall(
+    contract,
+    message,
+    args
+  )
+
   // param not provided, invalid url
   if (!smartContractId) return <Navigate to="smart-contracts" />
 
@@ -82,17 +87,17 @@ export const CallSmartContractPage: React.FC = () => {
               chain={selectedMultisig.chain}
             />
             <div className="flex w-full flex-col items-start">
-              <Button className="mt-[24px]" disabled={!isValidCall || !call}>
+              <Button className="mt-[24px]" disabled={!isValidCall || !contractCallExtrinsic}>
                 Review
               </Button>
               {isValidCall && (
                 <div className="mt-[12px]">
                   {simulating ? (
-                    <StatusMessage type="loading" message="Simulating call..." />
-                  ) : !!call ? (
-                    <StatusMessage type="success" message="Call simulation was successful!" />
+                    <StatusMessage type="loading" message="Simulating call to estimate gas cost..." />
                   ) : !!error ? (
                     <StatusMessage type="error" message={error} />
+                  ) : !!simulationResult ? (
+                    <StatusMessage type="success" message="Call simulation was successful!" />
                   ) : null}
                 </div>
               )}

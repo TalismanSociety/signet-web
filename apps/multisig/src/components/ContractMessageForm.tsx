@@ -23,6 +23,7 @@ type Props = {
   chain: Chain
 }
 
+/** TODO: support payable */
 export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain }) => {
   const [messageIndex, setMessageIndex] = useState(0)
   const [openMethod, setOpenMethod] = useState(false)
