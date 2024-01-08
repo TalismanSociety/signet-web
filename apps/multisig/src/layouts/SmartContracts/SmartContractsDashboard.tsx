@@ -23,11 +23,11 @@ const Header: React.FC<{ loading: boolean; supported?: boolean }> = ({ loading, 
         {supported && (
           <div className="flex items-center gap-[12px]">
             <Button variant="outline" size="lg" asLink to="/smart-contracts/add">
-              Add existing
+              Add contract
             </Button>
-            <Button variant="outline" size="lg" asLink to="/smart-contracts/deploy">
+            {/* <Button variant="outline" size="lg" asLink to="/smart-contracts/deploy">
               Deploy New
-            </Button>
+            </Button> */}
           </div>
         )}
       </div>
@@ -35,7 +35,8 @@ const Header: React.FC<{ loading: boolean; supported?: boolean }> = ({ loading, 
       {loading ? (
         <CircularProgressIndicator />
       ) : supported ? (
-        <p>Interact with existing contracts and deploy new contracts from your Vault.</p>
+        // <p>Interact with existing contracts and deploy new contracts from your Vault.</p>
+        <p>Interact with deployed contracts from your Vault.</p>
       ) : (
         <p>Smart contracts not supported on this network.</p>
       )}
