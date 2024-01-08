@@ -64,16 +64,7 @@ export const CallSmartContractPage: React.FC = () => {
 
   return (
     <div className="w-full">
-      <h1 className="text-[24px] mb-[12px]">Make a contract call</h1>
-
-      <Input
-        label="Transaction Description"
-        css={{ label: { fontSize: 14 } }}
-        placeholder={`e.g. "Contract call"`}
-        value={description}
-        onChange={e => setDescription(e.target.value)}
-      />
-
+      <h1 className="text-[24px]">Make a contract call</h1>
       <div className="mt-[24px]">
         <h4 className="font-semibold text-offWhite">Contract Name</h4>
         <div className="w-max [&>div>div>p]:!text-[16px]">
@@ -98,10 +89,18 @@ export const CallSmartContractPage: React.FC = () => {
               }}
               chain={selectedMultisig.chain}
             />
+            <div className="w-full mt-[24px]">
+              <Input
+                label="Transaction Description (optional)"
+                placeholder={`e.g. "Contract call"`}
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+              />
+            </div>
             <div className="flex w-full flex-col items-start">
               <Button
                 className="mt-[24px]"
-                disabled={!isValidCall || !contractCallExtrinsic || !!error || !description}
+                disabled={!isValidCall || !contractCallExtrinsic || !!error}
                 onClick={() => setReviewing(true)}
               >
                 Review
@@ -126,7 +125,7 @@ export const CallSmartContractPage: React.FC = () => {
       {contractCallExtrinsic && (
         <SignSummary
           calldata={contractCallExtrinsic.method.toHex()}
-          description={description}
+          description={description || `Call ${message?.method}`}
           onApproved={() => {
             setReviewing(false)
           }}

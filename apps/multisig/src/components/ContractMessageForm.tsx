@@ -85,7 +85,7 @@ export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain
 
       {/** Render args form for selected message */}
       {api && selectedMessage.args.length > 0 && (
-        <div className="w-full mt-[16px]">
+        <div className="w-full mt-[16px] pl-[24px]">
           <p className="text-[14px] mb-[4px]">Call parameters</p>
           <div className="p-[12px] border border-gray-700 rounded-[16px]">
             <AbiParamsForm

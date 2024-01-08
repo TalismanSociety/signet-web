@@ -13,7 +13,7 @@ import { Balance, Transaction, TransactionType, calcSumOutgoing, txOffchainMetad
 import useCopied from '@hooks/useCopied'
 import { css } from '@emotion/css'
 import { useTheme } from '@emotion/react'
-import { Check, ChevronRight, Copy, List, Send, Settings, Share2, Unknown, Users } from '@talismn/icons'
+import { Check, ChevronRight, Copy, List, Send, Settings, Share2, Unknown, Users, Vote } from '@talismn/icons'
 import { IconButton } from '@talismn/ui'
 import { Address } from '@util/addresses'
 import { useMemo, useState } from 'react'
@@ -24,6 +24,8 @@ import truncateMiddle from 'truncate-middle'
 import { VoteExpandedDetails, VoteTransactionHeader } from './VoteTransactionDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { SmartContractCallExpandedDetails } from '../../../layouts/SmartContracts/SmartContactCallExpandedDetails'
+import { Accordion, AccordionItem } from '@components/ui/accordion'
+import { AccordionContent, AccordionTrigger } from '@radix-ui/react-accordion'
 
 const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
   const { contactByAddress } = useKnownAddresses(t.multisig.id)
@@ -171,226 +173,246 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
   const { contactByAddress } = useKnownAddresses(t.multisig.id)
 
   const recipients = t.decoded?.recipients || []
+
+  const { name, icon } = useMemo(() => {
+    if (!t.decoded) return { name: 'Unknown Transaction', icon: <Unknown /> }
+
+    switch (t.decoded.type) {
+      case TransactionType.MultiSend:
+        return { name: 'Multi-Send', icon: <Share2 /> }
+      case TransactionType.Transfer:
+        return { name: 'Send', icon: <Send /> }
+      case TransactionType.Advanced:
+        return { name: 'Advanced', icon: <List /> }
+      case TransactionType.ChangeConfig:
+        return { name: 'Change Signer COnfiguration', icon: <Settings /> }
+      case TransactionType.Vote:
+        return { name: 'Vote', icon: <Vote /> }
+      default:
+        return { name: 'Unknown Transaction', icon: <Unknown /> }
+    }
+  }, [t.decoded])
+
   return (
-    <div
-      className={css`
-        display: grid;
-        align-content: center;
-        width: 100%;
-        padding: 8px 24px;
-        border-radius: 16px;
-        background-color: var(--color-backgroundLight);
-        min-height: 56px;
-      `}
-    >
-      <div
-        className={css`
-          display: flex;
-          align-items: center;
-          color: var(--color-offWhite);
-          > svg {
-            color: var(--color-primary);
-            height: 20px;
-            margin-left: 8px;
-          }
-        `}
+    <div className="px-[16px] bg-gray-600 rounded-[16px] max-w-[100%]">
+      <Accordion
+        type="single"
+        collapsible
+        className="max-w-[100%]"
+        defaultValue={t.decoded?.type !== TransactionType.Transfer ? '1' : undefined}
       >
-        {!t.decoded ? (
-          <>
-            <p css={{ marginTop: '4px' }}>Unknown Transaction</p>
-            <Unknown />
-          </>
-        ) : t.decoded.type === TransactionType.MultiSend ? (
-          <>
-            <p css={{ marginTop: '4px' }}>Multi-Send</p>
-            <Share2 />
+        <AccordionItem value="1" className="!border-b-0">
+          <AccordionTrigger className="!py-[16px]">
+            <div className="flex items-center justify-between w-full pr-[8px]">
+              <div className="flex gap-[8px] items-center">
+                <p className="text-offWhite mt-[4px]">{name}</p>
+                <div className="text-primary [&>svg]:h-[20px]">{icon}</div>
+              </div>
+              {/* {extraTriggerContent} */}
+            </div>
             <div
               className={css`
                 display: flex;
-                margin-left: auto;
                 align-items: center;
-                gap: 4px;
-                height: 25px;
-                background-color: var(--color-backgroundLighter);
-                color: var(--color-foreground);
-                border-radius: 12px;
-                padding: 5px 8px;
-                margin-right: 16px;
+                color: var(--color-offWhite);
+                > svg {
+                  color: var(--color-primary);
+                  height: 20px;
+                  margin-left: 8px;
+                }
               `}
             >
+              {!t.decoded ? (
+                <>
+                  <p css={{ marginTop: '4px' }}>Unknown Transaction</p>
+                  <Unknown />
+                </>
+              ) : t.decoded.type === TransactionType.MultiSend ? (
+                <>
+                  <p css={{ marginTop: '4px' }}>Multi-Send</p>
+                  <Share2 />
+                  <div
+                    className={css`
+                      display: flex;
+                      margin-left: auto;
+                      align-items: center;
+                      gap: 4px;
+                      height: 25px;
+                      background-color: var(--color-backgroundLighter);
+                      color: var(--color-foreground);
+                      border-radius: 12px;
+                      padding: 5px 8px;
+                      margin-right: 16px;
+                    `}
+                  >
+                    <div
+                      className={css`
+                        display: flex;
+                        align-items: center;
+                        height: 16px;
+                        width: 16px;
+                        border-radius: 100px;
+                        background-color: var(--color-dim);
+                        svg {
+                          color: var(--color-primary);
+                          height: 8px;
+                        }
+                      `}
+                    >
+                      <Users />
+                    </div>
+                    <p css={{ fontSize: '14px', marginTop: '4px' }}>
+                      {recipients.length} Send{recipients.length !== 1 && 's'}
+                    </p>
+                  </div>
+                </>
+              ) : t.decoded.type === TransactionType.Transfer ? (
+                <>
+                  <p css={{ marginTop: '4px' }}>Send</p>
+                  <Send />
+                </>
+              ) : t.decoded.type === TransactionType.Advanced ? (
+                <>
+                  <p css={{ marginTop: '4px' }}>Advanced</p>
+                  <List />
+                </>
+              ) : t.decoded.type === TransactionType.ChangeConfig ? (
+                <>
+                  <p css={{ marginTop: '4px' }}>Change Signer Configuration</p>
+                  <Settings css={{ marginRight: 'auto' }} />
+                </>
+              ) : t.decoded.type === TransactionType.Vote ? (
+                <VoteTransactionHeader t={t} />
+              ) : null}
+              {t.decoded?.type === TransactionType.Transfer ? (
+                <div
+                  className={css`
+                    color: var(--color-foreground);
+                    margin-right: 16px;
+                    margin-left: auto;
+                  `}
+                >
+                  <AddressPill
+                    name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
+                    address={recipients[0]?.address as Address}
+                    chain={t.multisig.chain}
+                  />
+                </div>
+              ) : null}
+              {/* Show the token amounts being sent in this transaction */}
+              {t.decoded && t.decoded.type !== TransactionType.Advanced && (
+                <div css={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column' }}>
+                  {sumOutgoing.map(b => {
+                    return <AmountRow key={b.token.id} balance={b} />
+                  })}
+                </div>
+              )}
+              {/* Show the collapse btn */}
+              {t.decoded ? (
+                <div css={{ width: '28px', marginLeft: t.decoded.type === TransactionType.Advanced ? 'auto' : '0' }}>
+                  <IconButton
+                    contentColor={`rgb(${theme.offWhite})`}
+                    onClick={() => {
+                      setExpanded(!expanded)
+                    }}
+                    className={css`
+                      ${expanded && 'transform: rotate(90deg);'}
+                    `}
+                  >
+                    <ChevronRight />
+                  </IconButton>
+                </div>
+              ) : null}
+            </div>
+          </AccordionTrigger>
+          <AccordionContent>
+            {t.decoded?.type === TransactionType.MultiSend ? (
+              <MultiSendExpandedDetails t={t} />
+            ) : t.decoded?.type === TransactionType.ChangeConfig ? (
+              <ChangeConfigExpandedDetails t={t} />
+            ) : t.decoded?.type === TransactionType.Advanced ? (
+              <AdvancedExpendedDetails callData={t.callData} rpcs={t.multisig.chain.rpcs} />
+            ) : t.decoded?.type === TransactionType.Vote ? (
+              <VoteExpandedDetails t={t} />
+            ) : t.decoded?.type === TransactionType.ContractCall ? (
+              <SmartContractCallExpandedDetails t={t} />
+            ) : !t.decoded ? (
+              <div css={{ margin: '8px 0', display: 'grid', gap: '8px' }}>
+                <p css={{ fontSize: '14px' }}>
+                  Signet was unable to automatically determine the calldata for this transaction. Perhaps it was created
+                  outside of Signet, or the Signet metadata sharing service is down.
+                </p>
+                <p css={{ fontSize: '14px' }}>
+                  Don't worry though, it's not a problem. Ask someone to share the calldata with you and paste it below,
+                  or approve as-is <b>if and only if</b> you are sure you know what it is doing.
+                </p>
+                <CallDataPasteForm
+                  extrinsic={undefined}
+                  setExtrinsic={e => {
+                    if (!e) return
+                    const expectedHash = t.hash
+                    const extrinsicHash = e.registry.hash(e.method.toU8a()).toHex()
+                    if (expectedHash === extrinsicHash) {
+                      setMetadata({
+                        ...metadata,
+                        [expectedHash]: [
+                          {
+                            callData: e.method.toHex(),
+                            description: `Transaction ${truncateMiddle(expectedHash, 6, 4, '...')}`,
+                          },
+                          new Date(),
+                        ],
+                      })
+                      setExpanded(true)
+                    }
+                  }}
+                />
+                <p css={{ fontSize: '11px' }}>
+                  Call Hash <code>{t.hash}</code>
+                </p>
+              </div>
+            ) : null}
+            {t.callData && (
               <div
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  height: 16px;
-                  width: 16px;
-                  border-radius: 100px;
-                  background-color: var(--color-dim);
-                  svg {
-                    color: var(--color-primary);
-                    height: 8px;
-                  }
-                `}
-              >
-                <Users />
-              </div>
-              <p css={{ fontSize: '14px', marginTop: '4px' }}>
-                {recipients.length} Send{recipients.length !== 1 && 's'}
-              </p>
-            </div>
-          </>
-        ) : t.decoded.type === TransactionType.Transfer ? (
-          <>
-            <p css={{ marginTop: '4px' }}>Send</p>
-            <Send />
-          </>
-        ) : t.decoded.type === TransactionType.Advanced ? (
-          <>
-            <p css={{ marginTop: '4px' }}>Advanced</p>
-            <List />
-          </>
-        ) : t.decoded.type === TransactionType.ChangeConfig ? (
-          <>
-            <p css={{ marginTop: '4px' }}>Change Signer Configuration</p>
-            <Settings css={{ marginRight: 'auto' }} />
-          </>
-        ) : t.decoded.type === TransactionType.Vote ? (
-          <VoteTransactionHeader t={t} />
-        ) : null}
-        {t.decoded?.type === TransactionType.Transfer ? (
-          <div
-            className={css`
-              color: var(--color-foreground);
-              margin-right: 16px;
-              margin-left: auto;
-            `}
-          >
-            <AddressPill
-              name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
-              address={recipients[0]?.address as Address}
-              chain={t.multisig.chain}
-            />
-          </div>
-        ) : null}
-        {/* Show the token amounts being sent in this transaction */}
-        {t.decoded && t.decoded.type !== TransactionType.Advanced && (
-          <div css={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column' }}>
-            {sumOutgoing.map(b => {
-              return <AmountRow key={b.token.id} balance={b} />
-            })}
-          </div>
-        )}
-        {/* Show the collapse btn */}
-        {t.decoded ? (
-          <div css={{ width: '28px', marginLeft: t.decoded.type === TransactionType.Advanced ? 'auto' : '0' }}>
-            <IconButton
-              contentColor={`rgb(${theme.offWhite})`}
-              onClick={() => {
-                setExpanded(!expanded)
-              }}
-              className={css`
-                ${expanded && 'transform: rotate(90deg);'}
-              `}
-            >
-              <ChevronRight />
-            </IconButton>
-          </div>
-        ) : null}
-      </div>
-      <div
-        className={css`
-          .ReactCollapse--collapse {
-            transition: height 300ms;
-          }
-        `}
-      >
-        <Collapse isOpened={expanded || !t.decoded}>
-          {t.decoded?.type === TransactionType.MultiSend ? (
-            <MultiSendExpandedDetails t={t} />
-          ) : t.decoded?.type === TransactionType.ChangeConfig ? (
-            <ChangeConfigExpandedDetails t={t} />
-          ) : t.decoded?.type === TransactionType.Advanced ? (
-            <AdvancedExpendedDetails callData={t.callData} rpcs={t.multisig.chain.rpcs} />
-          ) : t.decoded?.type === TransactionType.Vote ? (
-            <VoteExpandedDetails t={t} />
-          ) : t.decoded?.type === TransactionType.ContractCall ? (
-            <SmartContractCallExpandedDetails t={t} />
-          ) : !t.decoded ? (
-            <div css={{ margin: '8px 0', display: 'grid', gap: '8px' }}>
-              <p css={{ fontSize: '14px' }}>
-                Signet was unable to automatically determine the calldata for this transaction. Perhaps it was created
-                outside of Signet, or the Signet metadata sharing service is down.
-              </p>
-              <p css={{ fontSize: '14px' }}>
-                Don't worry though, it's not a problem. Ask someone to share the calldata with you and paste it below,
-                or approve as-is <b>if and only if</b> you are sure you know what it is doing.
-              </p>
-              <CallDataPasteForm
-                extrinsic={undefined}
-                setExtrinsic={e => {
-                  if (!e) return
-                  const expectedHash = t.hash
-                  const extrinsicHash = e.registry.hash(e.method.toU8a()).toHex()
-                  if (expectedHash === extrinsicHash) {
-                    setMetadata({
-                      ...metadata,
-                      [expectedHash]: [
-                        {
-                          callData: e.method.toHex(),
-                          description: `Transaction ${truncateMiddle(expectedHash, 6, 4, '...')}`,
-                        },
-                        new Date(),
-                      ],
-                    })
-                    setExpanded(true)
-                  }
+                css={{
+                  margin: '8px 0',
+                  display: 'grid',
+                  gap: '16px',
+                  borderTop: '1px solid var(--color-backgroundLighter)',
+                  paddingTop: '16px',
                 }}
-              />
-              <p css={{ fontSize: '11px' }}>
-                Call Hash <code>{t.hash}</code>
-              </p>
-            </div>
-          ) : null}
-          {t.callData && (
-            <div
-              css={{
-                margin: '8px 0',
-                display: 'grid',
-                gap: '16px',
-                borderTop: '1px solid var(--color-backgroundLighter)',
-                paddingTop: '16px',
-              }}
-            >
-              <p>Multisig call data</p>
-              <div css={{ backgroundColor: 'var(--color-grey800)', padding: '16px', borderRadius: '8px' }}>
-                <div css={{ display: 'flex', gap: '18px', alignItems: 'center', justifyContent: 'center' }}>
-                  <p css={{ overflowWrap: 'break-word', maxWidth: '450px' }}>{t.callData}</p>
-                  <IconButton
-                    contentColor={copiedCallData ? `rgb(${theme.primary})` : `rgb(${theme.offWhite})`}
-                    css={{ cursor: 'pointer', pointerEvents: copiedCallData ? 'none' : 'auto' }}
-                    onClick={() => copyCallData(t.callData as string, 'Call data copied to clipboard.')}
-                  >
-                    {copiedCallData ? <Check /> : <Copy />}
-                  </IconButton>
+              >
+                <p>Multisig call data</p>
+                <div css={{ backgroundColor: 'var(--color-grey800)', padding: '16px', borderRadius: '8px' }}>
+                  <div css={{ display: 'flex', gap: '18px', alignItems: 'center', justifyContent: 'center' }}>
+                    <p css={{ overflowWrap: 'break-word', maxWidth: '450px' }}>{t.callData}</p>
+                    <IconButton
+                      contentColor={copiedCallData ? `rgb(${theme.primary})` : `rgb(${theme.offWhite})`}
+                      css={{ cursor: 'pointer', pointerEvents: copiedCallData ? 'none' : 'auto' }}
+                      onClick={() => copyCallData(t.callData as string, 'Call data copied to clipboard.')}
+                    >
+                      {copiedCallData ? <Check /> : <Copy />}
+                    </IconButton>
+                  </div>
+                </div>
+                <p>Call hash</p>
+                <div css={{ backgroundColor: 'var(--color-grey800)', padding: '16px', borderRadius: '8px' }}>
+                  <div css={{ display: 'flex', gap: '18px', alignItems: 'center', justifyContent: 'center' }}>
+                    <p css={{ overflowWrap: 'break-word', maxWidth: '450px' }}>{t.hash}</p>
+                    <IconButton
+                      contentColor={copiedCallHash ? `rgb(${theme.primary})` : `rgb(${theme.offWhite})`}
+                      css={{ cursor: 'pointer', pointerEvents: copiedCallHash ? 'none' : 'auto' }}
+                      onClick={() => copyCallHash(t.hash as string, 'Call hash copied to clipboard.')}
+                    >
+                      {copiedCallHash ? <Check /> : <Copy />}
+                    </IconButton>
+                  </div>
                 </div>
               </div>
-              <p>Call hash</p>
-              <div css={{ backgroundColor: 'var(--color-grey800)', padding: '16px', borderRadius: '8px' }}>
-                <div css={{ display: 'flex', gap: '18px', alignItems: 'center', justifyContent: 'center' }}>
-                  <p css={{ overflowWrap: 'break-word', maxWidth: '450px' }}>{t.hash}</p>
-                  <IconButton
-                    contentColor={copiedCallHash ? `rgb(${theme.primary})` : `rgb(${theme.offWhite})`}
-                    css={{ cursor: 'pointer', pointerEvents: copiedCallHash ? 'none' : 'auto' }}
-                    onClick={() => copyCallHash(t.hash as string, 'Call hash copied to clipboard.')}
-                  >
-                    {copiedCallHash ? <Check /> : <Copy />}
-                  </IconButton>
-                </div>
-              </div>
-            </div>
-          )}
-        </Collapse>
-      </div>
+            )}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   )
 }

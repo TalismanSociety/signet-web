@@ -4,8 +4,19 @@ import { useMemo } from 'react'
 import { hexToU8a, compactAddLength } from '@polkadot/util'
 import { StatusMessage } from '@components/StatusMessage'
 import { useApi } from '@domains/chains/pjs-api'
-import { Abi } from '@polkadot/api-contract'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
+import { cn } from '@util/tailwindcss'
+
+const Row: React.FC<React.PropsWithChildren & { label: string; className?: string }> = ({
+  label,
+  children,
+  className,
+}) => (
+  <div className="w-full">
+    <p className="mb-[4px]">{label}</p>
+    <div className={cn('w-full bg-gray-800 p-[16px] rounded-[8px]', className)}>{children}</div>
+  </div>
+)
 
 export const SmartContractCallExpandedDetails: React.FC<{ t: Transaction }> = ({ t }) => {
   const { api } = useApi(t.multisig.chain.rpcs)
@@ -35,25 +46,29 @@ export const SmartContractCallExpandedDetails: React.FC<{ t: Transaction }> = ({
       </div>
     )
   }
+
   return (
     <div className="w-full grid gap-[16px]">
-      <div className="w-full">
-        <p>Contract</p>
-        <div className="w-full bg-gray-800 py-[8px] p-[16px] rounded-[8px]">
-          <AccountDetails
-            address={contractDetails.address}
-            chain={t.multisig.chain}
-            name={contractDetails.name}
-            withAddressTooltip
-          />
-        </div>
-      </div>
-      <div className="w-full">
-        <p className="mb-[4px]">Message</p>
-        <div className="w-full bg-gray-800 p-[16px] rounded-[8px]">
-          <p>{decodedContractCall.message.method}</p>
-        </div>
-      </div>
+      <Row label="Contracts">
+        <AccountDetails
+          address={contractDetails.address}
+          chain={t.multisig.chain}
+          name={contractDetails.name}
+          withAddressTooltip
+        />
+      </Row>
+      <Row label="Message">
+        <p>{decodedContractCall.message.method}</p>
+      </Row>
+      {decodedContractCall.args.map((val, index) => {
+        const arg = decodedContractCall.message.args[index]
+        if (!arg) return null // impossible
+        return (
+          <Row label={arg.name}>
+            <p className="break-all">{val.toString()}</p>
+          </Row>
+        )
+      })}
     </div>
   )
 }
