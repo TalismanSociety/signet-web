@@ -1,15 +1,17 @@
 import { Button } from '@components/ui/button'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useApi } from '@domains/chains/pjs-api'
 import { useContractPallet } from '@domains/substrate-contracts'
 import { CircularProgressIndicator } from '@talismn/ui'
-import { SmartContract, useSmartContracts } from '@domains/offchain-data'
+import { SmartContract, useDeleteSmartContract, useSmartContracts } from '@domains/offchain-data'
 import { StatusMessage } from '@components/StatusMessage'
 import { Check, Contract, Copy, Trash } from '@talismn/icons'
 import useCopied from '@hooks/useCopied'
 import { useNavigate } from 'react-router-dom'
 import { Tooltip } from '@components/ui/tooltip'
+import Modal from '@components/Modal'
+import { Input } from '@components/ui/input'
 
 const Header: React.FC<{ loading: boolean; supported?: boolean }> = ({ loading, supported }) => (
   <div className="flex flex-col gap-[16px] w-full">
@@ -41,13 +43,13 @@ const Header: React.FC<{ loading: boolean; supported?: boolean }> = ({ loading, 
   </div>
 )
 
-const NoContracts: React.FC<{ onDeploy: () => void; onInteract: () => void }> = ({ onDeploy, onInteract }) => (
+const NoContracts: React.FC<{ onDeploy: () => void; onInteract: () => void }> = () => (
   <div className="flex items-center flex-col justify-center gap-[24px] bg-gray-800 rounded-[12px] w-full px-[16px] py-[32px]">
     <p className="text-center text-[16px]">You have no added smart contracts yet.</p>
   </div>
 )
 
-const ContractRow: React.FC<{ contract: SmartContract }> = ({ contract }) => {
+const ContractRow: React.FC<{ contract: SmartContract; onDelete: () => void }> = ({ contract, onDelete }) => {
   const navigate = useNavigate()
   const [selectedMultisig] = useSelectedMultisig()
   const { copied, copy } = useCopied()
@@ -61,11 +63,15 @@ const ContractRow: React.FC<{ contract: SmartContract }> = ({ contract }) => {
     [contract.address, copy, selectedMultisig.chain]
   )
 
-  const handleDelete = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    // TODO: handle delete
-  }, [])
+  const handleDelete = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      // TODO: handle delete
+      onDelete()
+    },
+    [onDelete]
+  )
 
   const handleSelect = useCallback(() => {
     navigate(`/smart-contracts/call/${contract.id}`)
@@ -104,7 +110,10 @@ export const SmartContractsDashboard: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const { api } = useApi(selectedMultisig?.chain.rpcs)
   const { loading, supported } = useContractPallet(api)
+  const [toDelete, setToDelete] = useState<SmartContract>()
   const handleAddContract = useCallback(() => {}, [])
+  const [deleteConfirmation, setDeleteConfirmation] = useState('')
+  const { deleteSmartContract, deleting } = useDeleteSmartContract()
 
   const { contracts } = useSmartContracts()
 
@@ -119,11 +128,57 @@ export const SmartContractsDashboard: React.FC = () => {
         ) : (
           <div className="grid gap-[16px]">
             {contracts.map(contract => (
-              <ContractRow key={contract.id} contract={contract} />
+              <ContractRow key={contract.id} contract={contract} onDelete={() => setToDelete(contract)} />
             ))}
           </div>
         )
       ) : null}
+      <Modal isOpen={deleting || toDelete !== undefined} width="100%" maxWidth={420} contentLabel="Add new contact">
+        <h1 css={{ fontSize: 20, fontWeight: 700 }}>Delete {toDelete?.name}</h1>
+        <div className="grid gap-[12px]">
+          <p className="mt-[8px] text-[14px]">
+            You are deleting contract <b className="text-offWhite">{toDelete?.name}</b>.
+            <br />
+            <br />
+            Please repeat the name below to confirm you want to delete it.
+          </p>
+          <Input
+            placeholder={toDelete?.name}
+            className="mb-[8px]"
+            value={deleteConfirmation}
+            onChange={e => setDeleteConfirmation(e.target.value)}
+          />
+          <div className="w-full grid gap-[8px]">
+            <Button
+              disabled={deleteConfirmation !== toDelete?.name}
+              type="button"
+              className="w-full"
+              loading={deleting}
+              onClick={async () => {
+                if (!toDelete) return // impossible
+                const deleted = await deleteSmartContract(toDelete.id, toDelete.name)
+                if (deleted) {
+                  setToDelete(undefined)
+                  setDeleteConfirmation('')
+                }
+              }}
+            >
+              <p>Confirm Delete</p>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                if (!deleting) setToDelete(undefined)
+                setDeleteConfirmation('')
+              }}
+            >
+              <p>Cancel</p>
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

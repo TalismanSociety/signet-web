@@ -9,6 +9,7 @@ import { isEqual } from 'lodash'
 import { parseContractBundle } from '@domains/substrate-contracts'
 import { captureException } from '@sentry/react'
 import { Abi } from '@polkadot/api-contract'
+import { useToast } from '@components/ui/use-toast'
 
 const SMART_CONTRACTS_QUERY = gql`
   query Contracts($teamId: uuid!) {
@@ -133,58 +134,66 @@ export const useAddSmartContract = () => {
   return { addContract, loading }
 }
 
-// export const useDeleteSmartContract = () => {
-//   const [deleting, setDeleting] = useState(false)
-//   const selectedAccount = useRecoilValue(selectedAccountState)
-//   const [smartContractsByTeamId, setSmartContractsByTeamId] = useRecoilState(smartContractsByTeamIdState)
+export const useDeleteSmartContract = () => {
+  const [deleting, setDeleting] = useState(false)
+  const selectedAccount = useRecoilValue(selectedAccountState)
+  const [smartContractsByTeamId, setSmartContractsByTeamId] = useRecoilState(smartContractsByTeamIdState)
+  const { toast } = useToast()
 
-//   const deleteContact = useCallback(
-//     async (id: string) => {
-//       if (!selectedAccount) return
-//       try {
-//         setDeleting(true)
-//         const { data, error } = await requestSignetBackend(
-//           gql`
-//             mutation DeleteAddress($id: uuid!) {
-//               delete_address_by_pk(id: $id) {
-//                 id
-//                 team_id
-//               }
-//             }
-//           `,
-//           { id },
-//           selectedAccount
-//         )
+  const deleteSmartContract = useCallback(
+    async (id: string, name: string) => {
+      if (!selectedAccount) return
+      try {
+        setDeleting(true)
+        const { data, error } = await requestSignetBackend(
+          gql`
+            mutation DeleteContract($id: uuid!) {
+              delete_smart_contract_by_pk(id: $id) {
+                id
+                team_id
+              }
+            }
+          `,
+          { id },
+          selectedAccount
+        )
 
-//         const deletedId = data?.delete_address_by_pk?.id
-//         const teamId = data?.delete_address_by_pk?.team_id
-//         if (!deletedId || !teamId || error) {
-//           toast.error('Failed to delete contact, please try again.')
-//           return
-//         }
-//         toast.success(`Contact deleted!`)
+        const deletedId = data?.delete_smart_contract_by_pk?.id
+        const teamId = data?.delete_smart_contract_by_pk?.team_id
+        if (!deletedId || !teamId || error) {
+          console.error(data)
+          toast({
+            title: 'Failed to delete',
+            description: 'Please try again.',
+          })
+          return
+        }
+        toast({
+          title: 'Contract deleted!',
+          description: `${name} has been deleted.`,
+        })
 
-//         let addresses = smartContractsByTeamId[teamId] ?? []
-//         const stillInList = addresses.find(contact => contact.id === id)
+        let contracts = smartContractsByTeamId[teamId] ?? []
+        const stillInList = contracts.find(contract => contract.id === id)
 
-//         if (stillInList) {
-//           addresses = addresses.filter(contact => contact.id !== id)
-//           setSmartContractsByTeamId({ ...smartContractsByTeamId, [teamId]: addresses })
-//         }
+        if (stillInList) {
+          contracts = contracts.filter(contact => contact.id !== id)
+          setSmartContractsByTeamId({ ...smartContractsByTeamId, [teamId]: contracts })
+        }
 
-//         // inform caller that contact was deleted
-//         return true
-//       } catch (e) {
-//         console.error(e)
-//       } finally {
-//         setDeleting(false)
-//       }
-//     },
-//     [selectedAccount, setSmartContractsByTeamId, smartContractsByTeamId]
-//   )
+        // inform caller that contact was deleted
+        return true
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setDeleting(false)
+      }
+    },
+    [selectedAccount, setSmartContractsByTeamId, smartContractsByTeamId, toast]
+  )
 
-//   return { deleteContact, deleting }
-// }
+  return { deleteSmartContract, deleting }
+}
 
 export const SmartContractsWatcher = () => {
   const selectedAccount = useRecoilValue(selectedAccountState)
