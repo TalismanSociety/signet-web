@@ -43,7 +43,7 @@ const Header: React.FC<{ loading: boolean; supported?: boolean }> = ({ loading, 
   </div>
 )
 
-const NoContracts: React.FC<{ onDeploy: () => void; onInteract: () => void }> = () => (
+const NoContracts: React.FC = () => (
   <div className="flex items-center flex-col justify-center gap-[24px] bg-gray-800 rounded-[12px] w-full px-[16px] py-[32px]">
     <p className="text-center text-[16px]">You have no added smart contracts yet.</p>
   </div>
@@ -111,7 +111,6 @@ export const SmartContractsDashboard: React.FC = () => {
   const { api } = useApi(selectedMultisig?.chain.rpcs)
   const { loading, supported } = useContractPallet(api)
   const [toDelete, setToDelete] = useState<SmartContract>()
-  const handleAddContract = useCallback(() => {}, [])
   const [deleteConfirmation, setDeleteConfirmation] = useState('')
   const { deleteSmartContract, deleting } = useDeleteSmartContract()
 
@@ -124,7 +123,7 @@ export const SmartContractsDashboard: React.FC = () => {
         contracts === undefined ? (
           <StatusMessage type="loading" message="Loading your contracts..." />
         ) : contracts.length === 0 ? (
-          <NoContracts onDeploy={handleAddContract} onInteract={() => {}} />
+          <NoContracts />
         ) : (
           <div className="grid gap-[16px]">
             {contracts.map(contract => (
@@ -134,10 +133,21 @@ export const SmartContractsDashboard: React.FC = () => {
         )
       ) : null}
       <Modal isOpen={deleting || toDelete !== undefined} width="100%" maxWidth={420} contentLabel="Add new contact">
-        <h1 css={{ fontSize: 20, fontWeight: 700 }}>Delete {toDelete?.name}</h1>
-        <div className="grid gap-[12px]">
+        <h1 css={{ fontSize: 20, fontWeight: 700 }}>Delete Smart Contract</h1>
+        <form
+          className="grid gap-[12px]"
+          onSubmit={async e => {
+            e.preventDefault()
+            if (!toDelete) return // impossible
+            const deleted = await deleteSmartContract(toDelete.id, toDelete.name)
+            if (deleted) {
+              setToDelete(undefined)
+              setDeleteConfirmation('')
+            }
+          }}
+        >
           <p className="mt-[8px] text-[14px]">
-            You are deleting contract <b className="text-offWhite">{toDelete?.name}</b>.
+            You are deleting <b className="text-offWhite">{toDelete?.name}</b> from Signet.
             <br />
             <br />
             Please repeat the name below to confirm you want to delete it.
@@ -148,23 +158,7 @@ export const SmartContractsDashboard: React.FC = () => {
             value={deleteConfirmation}
             onChange={e => setDeleteConfirmation(e.target.value)}
           />
-          <div className="w-full grid gap-[8px]">
-            <Button
-              disabled={deleteConfirmation !== toDelete?.name}
-              type="button"
-              className="w-full"
-              loading={deleting}
-              onClick={async () => {
-                if (!toDelete) return // impossible
-                const deleted = await deleteSmartContract(toDelete.id, toDelete.name)
-                if (deleted) {
-                  setToDelete(undefined)
-                  setDeleteConfirmation('')
-                }
-              }}
-            >
-              <p>Confirm Delete</p>
-            </Button>
+          <div className="w-full grid grid-cols-2 gap-[16px]">
             <Button
               type="button"
               variant="outline"
@@ -176,8 +170,16 @@ export const SmartContractsDashboard: React.FC = () => {
             >
               <p>Cancel</p>
             </Button>
+            <Button
+              disabled={deleteConfirmation !== toDelete?.name}
+              type="submit"
+              className="w-full"
+              loading={deleting}
+            >
+              <p>Confirm Delete</p>
+            </Button>
           </div>
-        </div>
+        </form>
       </Modal>
     </div>
   )
