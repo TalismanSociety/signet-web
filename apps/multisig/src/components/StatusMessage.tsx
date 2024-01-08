@@ -36,7 +36,7 @@ export const StatusMessage: React.FC<Props> = ({ type, message, className }) => 
 
   return (
     <div className={cn('flex items-center gap-[4px]', color, className)}>
-      {icon}
+      <div className="min-w-[16px] min-h-[16px]">{icon}</div>
       <p className="text-[12px] leading-[1] mt-[3px] ">{message}</p>
     </div>
   )

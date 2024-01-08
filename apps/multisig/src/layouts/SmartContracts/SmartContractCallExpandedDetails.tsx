@@ -6,6 +6,8 @@ import { StatusMessage } from '@components/StatusMessage'
 import { useApi } from '@domains/chains/pjs-api'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { cn } from '@util/tailwindcss'
+import { useKnownAddresses } from '@hooks/useKnownAddresses'
+import { Address } from '@util/addresses'
 
 const Row: React.FC<React.PropsWithChildren & { label: string; className?: string }> = ({
   label,
@@ -18,9 +20,19 @@ const Row: React.FC<React.PropsWithChildren & { label: string; className?: strin
   </div>
 )
 
+const IS_ADDRESS: Record<string, boolean> = {
+  AccountId: true,
+  Address: true,
+  LookupSource: true,
+  MultiAddress: true,
+}
 export const SmartContractCallExpandedDetails: React.FC<{ t: Transaction }> = ({ t }) => {
   const { api } = useApi(t.multisig.chain.rpcs)
   const { contract, contractDetails, loading } = useContractByAddress(t.decoded?.contractCall?.address, api)
+  const { contactByAddress } = useKnownAddresses(t.multisig.id, {
+    includeContracts: true,
+    includeSelectedMultisig: true,
+  })
 
   const decodedContractCall = useMemo(() => {
     if (!contract || !t.decoded?.contractCall) return undefined
@@ -63,8 +75,22 @@ export const SmartContractCallExpandedDetails: React.FC<{ t: Transaction }> = ({
       {decodedContractCall.args.map((val, index) => {
         const arg = decodedContractCall.message.args[index]
         if (!arg) return null // impossible
+
+        if (IS_ADDRESS[arg.type.type]) {
+          const address = Address.fromSs58(val.toString())
+          if (address)
+            return (
+              <Row key={index} label={arg.name}>
+                <AccountDetails
+                  address={address}
+                  name={contactByAddress?.[address.toSs58()]?.name}
+                  withAddressTooltip
+                />
+              </Row>
+            )
+        }
         return (
-          <Row label={arg.name}>
+          <Row key={index} label={arg.name}>
             <p className="break-all">{val.toString()}</p>
           </Row>
         )

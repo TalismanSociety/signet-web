@@ -300,57 +300,59 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            {t.decoded?.type === TransactionType.MultiSend ? (
-              <MultiSendExpandedDetails t={t} />
-            ) : t.decoded?.type === TransactionType.ChangeConfig ? (
-              <ChangeConfigExpandedDetails t={t} />
-            ) : t.decoded?.type === TransactionType.Advanced ? (
-              <AdvancedExpendedDetails callData={t.callData} rpcs={t.multisig.chain.rpcs} />
-            ) : t.decoded?.type === TransactionType.Vote ? (
-              <VoteExpandedDetails t={t} />
-            ) : t.decoded?.type === TransactionType.ContractCall ? (
-              <SmartContractCallExpandedDetails t={t} />
-            ) : !t.decoded ? (
-              <div css={{ margin: '8px 0', display: 'grid', gap: '8px' }}>
-                <p css={{ fontSize: '14px' }}>
-                  Signet was unable to automatically determine the calldata for this transaction. Perhaps it was created
-                  outside of Signet, or the Signet metadata sharing service is down.
-                </p>
-                <p css={{ fontSize: '14px' }}>
-                  Don't worry though, it's not a problem. Ask someone to share the calldata with you and paste it below,
-                  or approve as-is <b>if and only if</b> you are sure you know what it is doing.
-                </p>
-                <CallDataPasteForm
-                  extrinsic={undefined}
-                  setExtrinsic={e => {
-                    if (!e) return
-                    const expectedHash = t.hash
-                    const extrinsicHash = e.registry.hash(e.method.toU8a()).toHex()
-                    if (expectedHash === extrinsicHash) {
-                      setMetadata({
-                        ...metadata,
-                        [expectedHash]: [
-                          {
-                            callData: e.method.toHex(),
-                            description: `Transaction ${truncateMiddle(expectedHash, 6, 4, '...')}`,
-                          },
-                          new Date(),
-                        ],
-                      })
-                    }
-                  }}
-                />
-                <p css={{ fontSize: '11px' }}>
-                  Call Hash <code>{t.hash}</code>
-                </p>
-              </div>
-            ) : null}
-            {(t.callData !== undefined || t.hash !== undefined) && (
-              <div className="border-t border-gray-500 pt-[16px] mt-[16px] max-w-[100%] overflow-hidden flex flex-col gap-[16px]">
-                {t.callData !== undefined && <CopyPasteBox label="Multisig call data" content={t.callData} />}
-                {t.hash !== undefined && <CopyPasteBox label="Call hash" content={t.hash} />}
-              </div>
-            )}
+            <div className="grid gap-[16px]">
+              {t.decoded?.type === TransactionType.MultiSend ? (
+                <MultiSendExpandedDetails t={t} />
+              ) : t.decoded?.type === TransactionType.ChangeConfig ? (
+                <ChangeConfigExpandedDetails t={t} />
+              ) : t.decoded?.type === TransactionType.Advanced ? (
+                <AdvancedExpendedDetails callData={t.callData} rpcs={t.multisig.chain.rpcs} />
+              ) : t.decoded?.type === TransactionType.Vote ? (
+                <VoteExpandedDetails t={t} />
+              ) : t.decoded?.type === TransactionType.ContractCall ? (
+                <SmartContractCallExpandedDetails t={t} />
+              ) : !t.decoded ? (
+                <div className="grid gap-[8px]">
+                  <p className="text-[14px]">
+                    Signet was unable to automatically determine the calldata for this transaction. Perhaps it was
+                    created outside of Signet, or the Signet metadata sharing service is down.
+                    <br />
+                    <br />
+                    Don't worry though, it's not a problem. Ask someone to share the calldata with you and paste it
+                    below, or approve as-is <b>if and only if</b> you are sure you know what it is doing.
+                  </p>
+                  <CallDataPasteForm
+                    extrinsic={undefined}
+                    setExtrinsic={e => {
+                      if (!e) return
+                      const expectedHash = t.hash
+                      const extrinsicHash = e.registry.hash(e.method.toU8a()).toHex()
+                      if (expectedHash === extrinsicHash) {
+                        setMetadata({
+                          ...metadata,
+                          [expectedHash]: [
+                            {
+                              callData: e.method.toHex(),
+                              description: `Transaction ${truncateMiddle(expectedHash, 6, 4, '...')}`,
+                            },
+                            new Date(),
+                          ],
+                        })
+                      }
+                    }}
+                  />
+                  <p className="!text-[12px]">
+                    Call Hash <code>{t.hash}</code>
+                  </p>
+                </div>
+              ) : null}
+              {(t.callData !== undefined || t.hash !== undefined) && (
+                <div className="border-t border-gray-500 pt-[16px] max-w-[100%] overflow-hidden flex flex-col gap-[16px]">
+                  {t.callData !== undefined && <CopyPasteBox label="Multisig call data" content={t.callData} />}
+                  {t.hash !== undefined && <CopyPasteBox label="Call hash" content={t.hash} />}
+                </div>
+              )}
+            </div>
           </AccordionContent>
         </AccordionItem>
       </Accordion>

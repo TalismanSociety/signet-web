@@ -11,10 +11,11 @@ import { ContractPromise } from '@polkadot/api-contract'
 import { AbiMessage } from '@polkadot/api-contract/types'
 import { SignSummary } from '../Sign/SignSummary'
 import { useMemo, useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Input } from '@components/ui/input'
 
 export const CallSmartContractPage: React.FC = () => {
+  const navigate = useNavigate()
   const { smartContractId } = useParams<{ smartContractId: string }>()
   const { loading, contracts } = useSmartContracts()
   const [selectedMultisig] = useSelectedMultisig()
@@ -128,6 +129,7 @@ export const CallSmartContractPage: React.FC = () => {
           description={description || `Call ${message?.method}`}
           onApproved={() => {
             setReviewing(false)
+            navigate('/')
           }}
           onCancel={() => setReviewing(false)}
           open={reviewing}

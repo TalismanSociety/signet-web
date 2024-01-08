@@ -2,7 +2,7 @@ import { Identicon } from '@talismn/ui'
 import { Chain } from '@domains/chains'
 import { Address } from '@util/addresses'
 import { NameAndAddress } from './NameAndAddress'
-import { Copy } from '@talismn/icons'
+import { Check, Copy } from '@talismn/icons'
 import AddressTooltip from '../AddressTooltip'
 import useCopied from '@hooks/useCopied'
 
@@ -27,7 +27,7 @@ export const AccountDetails: React.FC<Props> = ({
   withAddressTooltip,
   breakLine,
 }) => {
-  const { copy } = useCopied()
+  const { copy, copied } = useCopied()
   const accountDetailsUI = (
     <div className="flex items-center gap-[8px] w-full overflow-hidden">
       <div css={{ minheight: identiconSize, minWidth: identiconSize }}>
@@ -45,7 +45,7 @@ export const AccountDetails: React.FC<Props> = ({
           className="text-gray-200 h-[16px] cursor-pointer"
           onClick={() => copy(address.toSs58(chain), 'Address copied!')}
         >
-          <Copy size={16} />
+          {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
         </div>
       )}
     </div>

@@ -17,7 +17,11 @@ export const useContractCall = (contract?: ContractPromise, message?: AbiMessage
     if (!fn) return undefined
 
     const { gasRequired, storageDeposit } = simulationResult
-    return fn({ gasLimit: gasRequired, storageDepositLimit: storageDeposit.asCharge }, ...validatedArgs)
+    try {
+      return fn({ gasLimit: gasRequired, storageDepositLimit: storageDeposit.asCharge }, ...validatedArgs)
+    } catch (e) {
+      return undefined
+    }
   }, [contract, isValidCall, message, simulationResult, validatedArgs])
 
   return { contractCallExtrinsic, isValidCall, simulating, simulationResult, error }
