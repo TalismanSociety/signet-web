@@ -13,19 +13,18 @@ import { Balance, Transaction, TransactionType, calcSumOutgoing, txOffchainMetad
 import useCopied from '@hooks/useCopied'
 import { css } from '@emotion/css'
 import { useTheme } from '@emotion/react'
-import { Check, ChevronRight, Copy, List, Send, Settings, Share2, Unknown, Users, Vote } from '@talismn/icons'
+import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote } from '@talismn/icons'
 import { IconButton } from '@talismn/ui'
 import { Address } from '@util/addresses'
 import { useMemo, useState } from 'react'
 import AceEditor from 'react-ace'
-import { Collapse } from 'react-collapse'
 import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import truncateMiddle from 'truncate-middle'
-import { VoteExpandedDetails, VoteTransactionHeader } from './VoteTransactionDetails'
+import { VoteExpandedDetails, VoteTransactionHeaderContent } from './VoteTransactionDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { SmartContractCallExpandedDetails } from '../../../layouts/SmartContracts/SmartContactCallExpandedDetails'
-import { Accordion, AccordionItem } from '@components/ui/accordion'
-import { AccordionContent, AccordionTrigger } from '@radix-ui/react-accordion'
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from '@components/ui/accordion'
+import { AccountDetails } from '@components/AddressInput/AccountDetails'
 
 const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
   const { contactByAddress } = useKnownAddresses(t.multisig.id)
@@ -163,16 +162,62 @@ function AdvancedExpendedDetails({ callData, rpcs }: { callData: `0x${string}` |
   )
 }
 
+const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) => {
+  const { contactByAddress } = useKnownAddresses(t.multisig.id, {
+    includeSelectedMultisig: true,
+    includeContracts: true,
+  })
+  const recipients = t.decoded?.recipients || []
+
+  if (!t.decoded) return null
+
+  if (t.decoded.type === TransactionType.Transfer)
+    return (
+      <div
+        className={css`
+          color: var(--color-foreground);
+          margin-right: 16px;
+          margin-left: auto;
+        `}
+      >
+        <AddressPill
+          name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
+          address={recipients[0]?.address as Address}
+          chain={t.multisig.chain}
+        />
+      </div>
+    )
+
+  if (t.decoded.type === TransactionType.MultiSend)
+    return (
+      <div className="flex items-center justify-end gap-[4px] py-[2px] px-[8px] bg-gray-800 rounded-[12px]">
+        <Users size={12} className="text-primary" />
+        <p className="text-[14px] mt-[4px] text-offWhite">
+          {recipients.length} Send{recipients.length > 1 && 's'}
+        </p>
+      </div>
+    )
+
+  if (t.decoded.type === TransactionType.Vote) return <VoteTransactionHeaderContent t={t} />
+
+  if (t.decoded.type === TransactionType.ContractCall && t.decoded.contractCall)
+    return (
+      <AccountDetails
+        address={t.decoded.contractCall.address}
+        chain={t.multisig.chain}
+        name={contactByAddress[t.decoded.contractCall.address.toSs58()]?.name}
+        withAddressTooltip
+      />
+    )
+
+  return null
+}
 const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
   const theme = useTheme()
-  const [expanded, setExpanded] = useState(t.decoded?.type !== TransactionType.Transfer)
   const [metadata, setMetadata] = useRecoilState(txOffchainMetadataState)
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
   const { copied: copiedCallData, copy: copyCallData } = useCopied()
   const { copied: copiedCallHash, copy: copyCallHash } = useCopied()
-  const { contactByAddress } = useKnownAddresses(t.multisig.id)
-
-  const recipients = t.decoded?.recipients || []
 
   const { name, icon } = useMemo(() => {
     if (!t.decoded) return { name: 'Unknown Transaction', icon: <Unknown /> }
@@ -185,9 +230,11 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
       case TransactionType.Advanced:
         return { name: 'Advanced', icon: <List /> }
       case TransactionType.ChangeConfig:
-        return { name: 'Change Signer COnfiguration', icon: <Settings /> }
+        return { name: 'Change Signer Configuration', icon: <Settings /> }
       case TransactionType.Vote:
         return { name: 'Vote', icon: <Vote /> }
+      case TransactionType.ContractCall:
+        return { name: 'Contract call', icon: <Contract /> }
       default:
         return { name: 'Unknown Transaction', icon: <Unknown /> }
     }
@@ -202,127 +249,22 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
         defaultValue={t.decoded?.type !== TransactionType.Transfer ? '1' : undefined}
       >
         <AccordionItem value="1" className="!border-b-0">
-          <AccordionTrigger className="!py-[16px]">
+          <AccordionTrigger className="!py-[16px] w-full">
             <div className="flex items-center justify-between w-full pr-[8px]">
               <div className="flex gap-[8px] items-center">
                 <p className="text-offWhite mt-[4px]">{name}</p>
                 <div className="text-primary [&>svg]:h-[20px]">{icon}</div>
               </div>
-              {/* {extraTriggerContent} */}
-            </div>
-            <div
-              className={css`
-                display: flex;
-                align-items: center;
-                color: var(--color-offWhite);
-                > svg {
-                  color: var(--color-primary);
-                  height: 20px;
-                  margin-left: 8px;
-                }
-              `}
-            >
-              {!t.decoded ? (
-                <>
-                  <p css={{ marginTop: '4px' }}>Unknown Transaction</p>
-                  <Unknown />
-                </>
-              ) : t.decoded.type === TransactionType.MultiSend ? (
-                <>
-                  <p css={{ marginTop: '4px' }}>Multi-Send</p>
-                  <Share2 />
-                  <div
-                    className={css`
-                      display: flex;
-                      margin-left: auto;
-                      align-items: center;
-                      gap: 4px;
-                      height: 25px;
-                      background-color: var(--color-backgroundLighter);
-                      color: var(--color-foreground);
-                      border-radius: 12px;
-                      padding: 5px 8px;
-                      margin-right: 16px;
-                    `}
-                  >
-                    <div
-                      className={css`
-                        display: flex;
-                        align-items: center;
-                        height: 16px;
-                        width: 16px;
-                        border-radius: 100px;
-                        background-color: var(--color-dim);
-                        svg {
-                          color: var(--color-primary);
-                          height: 8px;
-                        }
-                      `}
-                    >
-                      <Users />
-                    </div>
-                    <p css={{ fontSize: '14px', marginTop: '4px' }}>
-                      {recipients.length} Send{recipients.length !== 1 && 's'}
-                    </p>
+              <div className="flex items-center gap-[8px]">
+                <TransactionDetailsHeaderContent t={t} />
+                {t.decoded && t.decoded.type !== TransactionType.Advanced && (
+                  <div className="flex items-end flex-col">
+                    {sumOutgoing.map(b => (
+                      <AmountRow key={b.token.id} balance={b} />
+                    ))}
                   </div>
-                </>
-              ) : t.decoded.type === TransactionType.Transfer ? (
-                <>
-                  <p css={{ marginTop: '4px' }}>Send</p>
-                  <Send />
-                </>
-              ) : t.decoded.type === TransactionType.Advanced ? (
-                <>
-                  <p css={{ marginTop: '4px' }}>Advanced</p>
-                  <List />
-                </>
-              ) : t.decoded.type === TransactionType.ChangeConfig ? (
-                <>
-                  <p css={{ marginTop: '4px' }}>Change Signer Configuration</p>
-                  <Settings css={{ marginRight: 'auto' }} />
-                </>
-              ) : t.decoded.type === TransactionType.Vote ? (
-                <VoteTransactionHeader t={t} />
-              ) : null}
-              {t.decoded?.type === TransactionType.Transfer ? (
-                <div
-                  className={css`
-                    color: var(--color-foreground);
-                    margin-right: 16px;
-                    margin-left: auto;
-                  `}
-                >
-                  <AddressPill
-                    name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
-                    address={recipients[0]?.address as Address}
-                    chain={t.multisig.chain}
-                  />
-                </div>
-              ) : null}
-              {/* Show the token amounts being sent in this transaction */}
-              {t.decoded && t.decoded.type !== TransactionType.Advanced && (
-                <div css={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column' }}>
-                  {sumOutgoing.map(b => {
-                    return <AmountRow key={b.token.id} balance={b} />
-                  })}
-                </div>
-              )}
-              {/* Show the collapse btn */}
-              {t.decoded ? (
-                <div css={{ width: '28px', marginLeft: t.decoded.type === TransactionType.Advanced ? 'auto' : '0' }}>
-                  <IconButton
-                    contentColor={`rgb(${theme.offWhite})`}
-                    onClick={() => {
-                      setExpanded(!expanded)
-                    }}
-                    className={css`
-                      ${expanded && 'transform: rotate(90deg);'}
-                    `}
-                  >
-                    <ChevronRight />
-                  </IconButton>
-                </div>
-              ) : null}
+                )}
+              </div>
             </div>
           </AccordionTrigger>
           <AccordionContent>
@@ -363,7 +305,6 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
                           new Date(),
                         ],
                       })
-                      setExpanded(true)
                     }
                   }}
                 />

@@ -1,6 +1,6 @@
 import { Transaction, TransactionType } from '@domains/multisig'
 import { css } from '@emotion/css'
-import { ExternalLink, Vote } from '@talismn/icons'
+import { ExternalLink } from '@talismn/icons'
 import AmountRow from '@components/AmountRow'
 import { createConvictionsOpts } from '../../NewTransaction/Vote/ConvictionsDropdown'
 import { VoteDetails } from '../../../domains/referenda'
@@ -34,7 +34,7 @@ const VotePill: React.FC<{ details: VoteDetails['details'] }> = ({ details }) =>
   </div>
 )
 
-export const VoteTransactionHeader: React.FC<Props> = ({ t }) => {
+export const VoteTransactionHeaderContent: React.FC<Props> = ({ t }) => {
   if (t.decoded?.type !== TransactionType.Vote || !t.decoded.voteDetails) return null
 
   const { details, token } = t.decoded.voteDetails
@@ -42,9 +42,7 @@ export const VoteTransactionHeader: React.FC<Props> = ({ t }) => {
   if (!details.Standard) return null
 
   return (
-    <>
-      <p css={{ marginTop: '4px' }}>Vote</p>
-      <Vote css={{ marginRight: 'auto' }} />
+    <div className="flex items-center">
       <div css={{ marginRight: '8px' }}>
         <VotePill details={details} />
       </div>
@@ -54,7 +52,7 @@ export const VoteTransactionHeader: React.FC<Props> = ({ t }) => {
           token,
         }}
       />
-    </>
+    </div>
   )
 }
 

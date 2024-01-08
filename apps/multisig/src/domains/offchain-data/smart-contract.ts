@@ -65,7 +65,7 @@ export const useSmartContracts = () => {
   const smartContractsByTeamIdMap = useRecoilValue(smartContractsByTeamIdMapState)
   const [selectedMultisig] = useSelectedMultisig()
 
-  if (selectedMultisig.id === DUMMY_MULTISIG_ID) return { contacts: [], contactsByAddress: {}, loading: false }
+  if (selectedMultisig.id === DUMMY_MULTISIG_ID) return { contracts: [], contractsByAddress: {}, loading: false }
 
   return {
     contracts: smartContractsByTeamId[selectedMultisig.id],

@@ -4,14 +4,19 @@ import { accountsState } from '../domains/extension'
 import { addressBookByTeamIdState } from '../domains/offchain-data'
 import { useMemo } from 'react'
 import { useSelectedMultisig } from '@domains/multisig'
+import { useSmartContracts } from '../domains/offchain-data/smart-contract'
 
 export const useKnownAddresses = (
   teamId?: string,
-  { includeSelectedMultisig = false }: { includeSelectedMultisig?: boolean } = {}
+  {
+    includeSelectedMultisig = false,
+    includeContracts = false,
+  }: { includeSelectedMultisig?: boolean; includeContracts?: boolean } = {}
 ): { addresses: AddressWithName[]; contactByAddress: Record<string, AddressWithName> } => {
   const extensionAccounts = useRecoilValue(accountsState)
   const addressBookByTeamId = useRecoilValue(addressBookByTeamIdState)
   const [multisig] = useSelectedMultisig()
+  const { contracts } = useSmartContracts()
 
   const extensionContacts: AddressWithName[] = extensionAccounts.map(({ address, meta }) => ({
     address,
@@ -75,10 +80,23 @@ export const useKnownAddresses = (
       ]
     }
 
+    if (includeContracts && contracts) {
+      list = [
+        ...list,
+        ...contracts.map(({ address, name }) => ({
+          address,
+          name,
+          type: 'Smart Contract',
+        })),
+      ]
+    }
+
     return list
   }, [
     addressBookContacts,
+    contracts,
     extensionContacts,
+    includeContracts,
     includeSelectedMultisig,
     multisig.multisigAddress,
     multisig.name,
