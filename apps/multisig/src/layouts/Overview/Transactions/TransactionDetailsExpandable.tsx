@@ -10,21 +10,56 @@ import MemberRow from '@components/MemberRow'
 import { Rpc, decodeCallData } from '@domains/chains'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
 import { Balance, Transaction, TransactionType, calcSumOutgoing, txOffchainMetadataState } from '@domains/multisig'
-import useCopied from '@hooks/useCopied'
 import { css } from '@emotion/css'
 import { useTheme } from '@emotion/react'
 import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote } from '@talismn/icons'
-import { IconButton } from '@talismn/ui'
 import { Address } from '@util/addresses'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import AceEditor from 'react-ace'
 import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import truncateMiddle from 'truncate-middle'
 import { VoteExpandedDetails, VoteTransactionHeaderContent } from './VoteTransactionDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
-import { SmartContractCallExpandedDetails } from '../../../layouts/SmartContracts/SmartContactCallExpandedDetails'
+import { SmartContractCallExpandedDetails } from '../../SmartContracts/SmartContractCallExpandedDetails'
 import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from '@components/ui/accordion'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
+
+const CopyPasteBox: React.FC<{ content: string; label: string }> = ({ content, label }) => {
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    if (copied) {
+      setTimeout(() => {
+        setCopied(false)
+      }, 2000)
+    }
+  }, [copied])
+
+  const handleCopy = () => {
+    if (copied) return
+    navigator.clipboard.writeText(content)
+    setCopied(true)
+  }
+  return (
+    <div className="flex flex-col gap-[16]">
+      <p className="ml-[8px] mb-[8px]">{label}</p>
+      <div className="p-[16px] gap-[16px] flex items-center w-full overflow-hidden justify-between bg-gray-800 rounded-[16px]">
+        <p className="break-all text-[14px]" style={{ wordBreak: 'break-all' }}>
+          {content}
+        </p>
+        {copied ? (
+          <div className="text-green-500">
+            <Check size={20} className="min-w-[20px]" />
+          </div>
+        ) : (
+          <div className="hover:text-offWhite cursor-pointer" onClick={handleCopy}>
+            <Copy size={20} className="min-w-[20px]" />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
   const { contactByAddress } = useKnownAddresses(t.multisig.id)
@@ -213,11 +248,8 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
   return null
 }
 const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
-  const theme = useTheme()
   const [metadata, setMetadata] = useRecoilState(txOffchainMetadataState)
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
-  const { copied: copiedCallData, copy: copyCallData } = useCopied()
-  const { copied: copiedCallHash, copy: copyCallHash } = useCopied()
 
   const { name, icon } = useMemo(() => {
     if (!t.decoded) return { name: 'Unknown Transaction', icon: <Unknown /> }
@@ -313,42 +345,10 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
                 </p>
               </div>
             ) : null}
-            {t.callData && (
-              <div
-                css={{
-                  margin: '8px 0',
-                  display: 'grid',
-                  gap: '16px',
-                  borderTop: '1px solid var(--color-backgroundLighter)',
-                  paddingTop: '16px',
-                }}
-              >
-                <p>Multisig call data</p>
-                <div css={{ backgroundColor: 'var(--color-grey800)', padding: '16px', borderRadius: '8px' }}>
-                  <div css={{ display: 'flex', gap: '18px', alignItems: 'center', justifyContent: 'center' }}>
-                    <p css={{ overflowWrap: 'break-word', maxWidth: '450px' }}>{t.callData}</p>
-                    <IconButton
-                      contentColor={copiedCallData ? `rgb(${theme.primary})` : `rgb(${theme.offWhite})`}
-                      css={{ cursor: 'pointer', pointerEvents: copiedCallData ? 'none' : 'auto' }}
-                      onClick={() => copyCallData(t.callData as string, 'Call data copied to clipboard.')}
-                    >
-                      {copiedCallData ? <Check /> : <Copy />}
-                    </IconButton>
-                  </div>
-                </div>
-                <p>Call hash</p>
-                <div css={{ backgroundColor: 'var(--color-grey800)', padding: '16px', borderRadius: '8px' }}>
-                  <div css={{ display: 'flex', gap: '18px', alignItems: 'center', justifyContent: 'center' }}>
-                    <p css={{ overflowWrap: 'break-word', maxWidth: '450px' }}>{t.hash}</p>
-                    <IconButton
-                      contentColor={copiedCallHash ? `rgb(${theme.primary})` : `rgb(${theme.offWhite})`}
-                      css={{ cursor: 'pointer', pointerEvents: copiedCallHash ? 'none' : 'auto' }}
-                      onClick={() => copyCallHash(t.hash as string, 'Call hash copied to clipboard.')}
-                    >
-                      {copiedCallHash ? <Check /> : <Copy />}
-                    </IconButton>
-                  </div>
-                </div>
+            {(t.callData !== undefined || t.hash !== undefined) && (
+              <div className="border-t border-gray-500 pt-[16px] mt-[16px] max-w-[100%] overflow-hidden flex flex-col gap-[16px]">
+                {t.callData !== undefined && <CopyPasteBox label="Multisig call data" content={t.callData} />}
+                {t.hash !== undefined && <CopyPasteBox label="Call hash" content={t.hash} />}
               </div>
             )}
           </AccordionContent>

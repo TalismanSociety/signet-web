@@ -49,7 +49,7 @@ export const SmartContractCallExpandedDetails: React.FC<{ t: Transaction }> = ({
 
   return (
     <div className="w-full grid gap-[16px]">
-      <Row label="Contracts">
+      <Row label="Contract">
         <AccountDetails
           address={contractDetails.address}
           chain={t.multisig.chain}
