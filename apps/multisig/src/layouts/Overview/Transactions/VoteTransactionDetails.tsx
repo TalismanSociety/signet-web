@@ -114,7 +114,7 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
         </div>
         <div>
           <p>Conviction</p>
-          <div>{convictionsOptions[details.Standard.vote.conviction]?.headlineText ?? 'Unknown'}</div>
+          <p>{convictionsOptions[details.Standard.vote.conviction]?.headlineText ?? 'Unknown'}</p>
         </div>
       </div>
     </div>

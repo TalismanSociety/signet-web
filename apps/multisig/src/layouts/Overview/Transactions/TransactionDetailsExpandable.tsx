@@ -272,13 +272,64 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
     }
   }, [t.decoded])
 
+  const transactionDetails = useMemo(() => {
+    switch (t.decoded?.type) {
+      case TransactionType.MultiSend:
+        return <MultiSendExpandedDetails t={t} />
+      case TransactionType.ChangeConfig:
+        return <ChangeConfigExpandedDetails t={t} />
+      case TransactionType.Advanced:
+        return <AdvancedExpendedDetails callData={t.callData} rpcs={t.multisig.chain.rpcs} />
+      case TransactionType.Vote:
+        return <VoteExpandedDetails t={t} />
+      case TransactionType.ContractCall:
+        return <SmartContractCallExpandedDetails t={t} />
+      default:
+        return t.decoded ? null : (
+          <div className="grid gap-[8px]">
+            <p className="text-[14px]">
+              Signet was unable to automatically determine the calldata for this transaction. Perhaps it was created
+              outside of Signet, or the Signet metadata sharing service is down.
+              <br />
+              <br />
+              Don't worry though, it's not a problem. Ask someone to share the calldata with you and paste it below, or
+              approve as-is <b>if and only if</b> you are sure you know what it is doing.
+            </p>
+            <CallDataPasteForm
+              extrinsic={undefined}
+              setExtrinsic={e => {
+                if (!e) return
+                const expectedHash = t.hash
+                const extrinsicHash = e.registry.hash(e.method.toU8a()).toHex()
+                if (expectedHash === extrinsicHash) {
+                  setMetadata({
+                    ...metadata,
+                    [expectedHash]: [
+                      {
+                        callData: e.method.toHex(),
+                        description: `Transaction ${truncateMiddle(expectedHash, 6, 4, '...')}`,
+                      },
+                      new Date(),
+                    ],
+                  })
+                }
+              }}
+            />
+            <p className="!text-[12px]">
+              Call Hash <code>{t.hash}</code>
+            </p>
+          </div>
+        )
+    }
+  }, [metadata, setMetadata, t])
+
   return (
     <div className="px-[16px] bg-gray-600 rounded-[16px] max-w-[100%]">
       <Accordion
         type="single"
         collapsible
         className="max-w-[100%]"
-        defaultValue={t.decoded?.type !== TransactionType.Transfer ? '1' : undefined}
+        defaultValue={transactionDetails === null ? undefined : '1'}
       >
         <AccordionItem value="1" className="!border-b-0">
           <AccordionTrigger className="!py-[16px] w-full">
@@ -289,7 +340,7 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
               </div>
               <div className="flex items-center gap-[8px]">
                 <TransactionDetailsHeaderContent t={t} />
-                {t.decoded && t.decoded.type !== TransactionType.Advanced && (
+                {t.decoded && t.decoded.type !== TransactionType.Advanced && sumOutgoing.length > 0 && (
                   <div className="flex items-end flex-col">
                     {sumOutgoing.map(b => (
                       <AmountRow key={b.token.id} balance={b} />
@@ -301,51 +352,7 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
           </AccordionTrigger>
           <AccordionContent>
             <div className="grid gap-[16px]">
-              {t.decoded?.type === TransactionType.MultiSend ? (
-                <MultiSendExpandedDetails t={t} />
-              ) : t.decoded?.type === TransactionType.ChangeConfig ? (
-                <ChangeConfigExpandedDetails t={t} />
-              ) : t.decoded?.type === TransactionType.Advanced ? (
-                <AdvancedExpendedDetails callData={t.callData} rpcs={t.multisig.chain.rpcs} />
-              ) : t.decoded?.type === TransactionType.Vote ? (
-                <VoteExpandedDetails t={t} />
-              ) : t.decoded?.type === TransactionType.ContractCall ? (
-                <SmartContractCallExpandedDetails t={t} />
-              ) : !t.decoded ? (
-                <div className="grid gap-[8px]">
-                  <p className="text-[14px]">
-                    Signet was unable to automatically determine the calldata for this transaction. Perhaps it was
-                    created outside of Signet, or the Signet metadata sharing service is down.
-                    <br />
-                    <br />
-                    Don't worry though, it's not a problem. Ask someone to share the calldata with you and paste it
-                    below, or approve as-is <b>if and only if</b> you are sure you know what it is doing.
-                  </p>
-                  <CallDataPasteForm
-                    extrinsic={undefined}
-                    setExtrinsic={e => {
-                      if (!e) return
-                      const expectedHash = t.hash
-                      const extrinsicHash = e.registry.hash(e.method.toU8a()).toHex()
-                      if (expectedHash === extrinsicHash) {
-                        setMetadata({
-                          ...metadata,
-                          [expectedHash]: [
-                            {
-                              callData: e.method.toHex(),
-                              description: `Transaction ${truncateMiddle(expectedHash, 6, 4, '...')}`,
-                            },
-                            new Date(),
-                          ],
-                        })
-                      }
-                    }}
-                  />
-                  <p className="!text-[12px]">
-                    Call Hash <code>{t.hash}</code>
-                  </p>
-                </div>
-              ) : null}
+              {transactionDetails}
               {(t.callData !== undefined || t.hash !== undefined) && (
                 <div className="border-t border-gray-500 pt-[16px] max-w-[100%] overflow-hidden flex flex-col gap-[16px]">
                   {t.callData !== undefined && <CopyPasteBox label="Multisig call data" content={t.callData} />}
