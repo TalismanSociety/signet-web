@@ -54,7 +54,7 @@ export const AccountDetails: React.FC<Props> = ({
     </div>
   )
 
-  return withAddressTooltip ? (
+  return withAddressTooltip && chain ? (
     <AddressTooltip name={name} address={address.toSs58(chain)} chain={chain}>
       {accountDetailsUI}
     </AddressTooltip>
