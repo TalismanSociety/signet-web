@@ -241,8 +241,10 @@ export const chainTokensByIdQuery = graphQLSelectorFamily({
     // so we need to add it
     return res.chainById.tokens.map((item: { data: { chain: { id: string } } }) => {
       const chain = supportedChains.find(c => c.squidIds.chainData === item?.data?.chain.id)
-      console.error(`chain ${res.tokenById?.data?.chainId ?? item?.data?.chain.id} not found in supported chains`)
-      if (!chain) return null
+      if (!chain) {
+        console.error(`chain ${res.tokenById?.data?.chainId ?? item?.data?.chain.id} not found in supported chains`)
+        return null
+      }
       return { ...item.data, chain }
     }) as BaseToken[]
   },
