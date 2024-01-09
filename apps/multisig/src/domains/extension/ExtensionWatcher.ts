@@ -5,7 +5,6 @@ import { web3AccountsSubscribe, web3Enable } from '@polkadot/extension-dapp'
 import toast from 'react-hot-toast'
 import { uniqBy } from 'lodash'
 import { Address } from '@util/addresses'
-import { getAzeroId } from '@util/azeroid'
 
 export const ExtensionWatcher = () => {
   // extensionAllowed is used to trigger web3Enable call
@@ -55,17 +54,12 @@ export const ExtensionWatcher = () => {
     if (!extensionsDetected || subscribed) return
 
     setSubscribed(true)
-    web3AccountsSubscribe(async accounts => {
-      const uniqueAccounts = await Promise.all(
-        uniqBy(accounts, account => account.address).map(async account => {
-          const address = Address.fromSs58(account.address)
-          if (!address) throw Error("Can't parse address from web3AccountsSubscribe!")
-          //may utilize Address instead of string in the future
-          const a0Id = await getAzeroId(account.address)
-          if (a0Id) return { ...account, address, a0Id }
-          return { ...account, address }
-        })
-      )
+    web3AccountsSubscribe(accounts => {
+      const uniqueAccounts = uniqBy(accounts, account => account.address).map(account => {
+        const address = Address.fromSs58(account.address)
+        if (!address) throw Error("Can't parse address from web3AccountsSubscribe!")
+        return { ...account, address }
+      })
 
       setAccounts(uniqueAccounts)
 

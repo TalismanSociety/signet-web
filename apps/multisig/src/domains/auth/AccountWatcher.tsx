@@ -6,7 +6,6 @@ import { useCallback, useEffect } from 'react'
 export const AccountWatcher: React.FC = () => {
   const [authTokenBook, setAuthTokenBook] = useRecoilState(authTokenBookState)
   const [selectedAccount, setSelectedAccount] = useRecoilState(selectedAddressState)
-
   const extensionInitiated = useRecoilValue(extensionInitiatedState)
 
   const extensionAllowed = useRecoilValue(extensionAllowedState)
