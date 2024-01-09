@@ -141,7 +141,7 @@ const Settings = () => {
               loading={changed && apiLoadable.state === 'loading'}
               onClick={handleApplyChanges}
             >
-              Apply Changes
+              Review
             </Button>
           </div>
         ) : (

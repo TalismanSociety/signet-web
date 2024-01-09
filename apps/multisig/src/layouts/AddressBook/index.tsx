@@ -117,7 +117,7 @@ export const AddressBook: React.FC = () => {
   return (
     <Layout selected="Address Book" requiresMultisig>
       <div css={{ display: 'flex', flex: 1, padding: '32px 8%' }}>
-        <div css={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 520 }}>
+        <div css={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 680 }}>
           <Header onAddContact={() => setIsModalOpen(true)} vaultName={selectedMultisig.name} />
           {contacts === undefined ? (
             <EyeOfSauronProgressIndicator />

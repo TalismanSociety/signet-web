@@ -108,6 +108,7 @@ const Import = () => {
           proxyAddress,
           signers,
           threshold: thresholdNumber,
+          users: [],
         }
         setMultisigs([...multisigs, multisig])
         setSelectedMultisigId(multisig.id)

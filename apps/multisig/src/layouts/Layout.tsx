@@ -1,4 +1,4 @@
-import { Contract, Eye, Globe, List, Send, Settings, Share2, Users, Vote, Zap } from '@talismn/icons'
+import { Contract, Eye, Globe, List, Send, Settings, Share2, UserPlus, Users, Vote, Zap } from '@talismn/icons'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import Footer from './Footer'
@@ -99,6 +99,11 @@ export const Layout: React.FC<
                         name: 'Call data',
                         icon: <List />,
                         href: '/custom-call-data',
+                      },
+                      {
+                        name: 'Collaborators',
+                        icon: <UserPlus />,
+                        href: '/collaborators',
                       },
                       {
                         name: 'Settings',

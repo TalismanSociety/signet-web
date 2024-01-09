@@ -14,6 +14,12 @@ type RawTeam = {
   multisig_config: any
   proxied_address: string
   chain: string
+  users: {
+    user: {
+      id: string
+      identifier: string
+    }
+  }[]
 }
 
 export class Team {
@@ -26,7 +32,8 @@ export class Team {
     },
     public chain: Chain,
     public proxiedAddress: Address,
-    public delegateeAddress: Address
+    public delegateeAddress: Address,
+    public users: { id: string; address: Address }[] = []
   ) {}
 
   toMultisig(): Multisig {
@@ -38,7 +45,16 @@ export class Team {
       signers: this.multisigConfig.signers,
       threshold: this.multisigConfig.threshold,
       chain: this.chain,
+      users: this.users,
     }
+  }
+
+  isCollaborator(address: Address): boolean {
+    return this.users.some(user => user.address.isEqual(address))
+  }
+
+  isSigner(address: Address): boolean {
+    return this.multisigConfig.signers.some(signer => signer.isEqual(address))
   }
 }
 
@@ -68,6 +84,14 @@ const TEAM_BY_SIGNER_QUERY = gql`
       chain
       multisig_config
       proxied_address
+      users(where: { role: { _eq: "collaborator" } }) {
+        user_id
+        user {
+          id
+          identifier
+          identifier
+        }
+      }
     }
   }
 `
@@ -116,6 +140,18 @@ const parseTeam = (rawTeam: RawTeam): { team?: Team; error?: string } => {
     // not a valid vault if no delegateeAddress, a signet vault consists of 1 multisig that is proxy to another acc
     if (!delegateeAddress) return { error: `Missing multisig config / delegatee address in ${rawTeam.id}` }
 
+    const users: { id: string; address: Address }[] = []
+    // parse users
+    for (const rawUser of rawTeam.users) {
+      const rawAddress = rawUser.user.identifier
+      const address = Address.fromSs58(rawAddress)
+      if (!address) {
+        console.error(`Invalid user address: ${rawAddress} in ${rawTeam.id}`)
+        continue
+      }
+      users.push({ id: rawUser.user.id, address })
+    }
+
     return {
       team: new Team(
         rawTeam.id,
@@ -126,7 +162,8 @@ const parseTeam = (rawTeam: RawTeam): { team?: Team; error?: string } => {
         },
         chain,
         proxiedAddress,
-        delegateeAddress
+        delegateeAddress,
+        users
       ),
     }
   } catch (e) {

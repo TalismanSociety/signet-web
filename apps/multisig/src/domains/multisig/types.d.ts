@@ -9,6 +9,7 @@ export interface Multisig {
   proxyAddress: Address
   signers: Address[]
   threshold: number
+  users: { id: string; address: Address }[]
 }
 
 export type ProxyDefinition = {

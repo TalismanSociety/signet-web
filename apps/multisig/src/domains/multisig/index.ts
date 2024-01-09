@@ -46,6 +46,7 @@ const DUMMY_MULTISIG: Multisig = {
   threshold: 0,
   multisigAddress: new Address(new Uint8Array(32)),
   proxyAddress: new Address(new Uint8Array(32)),
+  users: [],
 }
 
 export const multisigsState = atom<Multisig[]>({
