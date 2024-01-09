@@ -112,7 +112,7 @@ export const VaultOverview: React.FC = () => {
         <div
           css={{
             display: 'grid',
-            gridTemplateColumns: '5fr 4fr',
+            gridTemplateColumns: '50% 40%',
             gap: '0px 8px',
             marginTop: 24,
           }}

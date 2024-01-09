@@ -10,19 +10,56 @@ import MemberRow from '@components/MemberRow'
 import { Rpc, decodeCallData } from '@domains/chains'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
 import { Balance, Transaction, TransactionType, calcSumOutgoing, txOffchainMetadataState } from '@domains/multisig'
-import useCopied from '@hooks/useCopied'
 import { css } from '@emotion/css'
 import { useTheme } from '@emotion/react'
-import { Check, ChevronRight, Copy, List, Send, Settings, Share2, Unknown, Users } from '@talismn/icons'
-import { IconButton } from '@talismn/ui'
+import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote } from '@talismn/icons'
 import { Address } from '@util/addresses'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import AceEditor from 'react-ace'
-import { Collapse } from 'react-collapse'
 import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import truncateMiddle from 'truncate-middle'
-import { VoteExpandedDetails, VoteTransactionHeader } from './VoteTransactionDetails'
+import { VoteExpandedDetails, VoteTransactionHeaderContent } from './VoteTransactionDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
+import { SmartContractCallExpandedDetails } from '../../SmartContracts/SmartContractCallExpandedDetails'
+import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from '@components/ui/accordion'
+import { AccountDetails } from '@components/AddressInput/AccountDetails'
+
+const CopyPasteBox: React.FC<{ content: string; label: string }> = ({ content, label }) => {
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    if (copied) {
+      setTimeout(() => {
+        setCopied(false)
+      }, 2000)
+    }
+  }, [copied])
+
+  const handleCopy = () => {
+    if (copied) return
+    navigator.clipboard.writeText(content)
+    setCopied(true)
+  }
+  return (
+    <div className="flex flex-col gap-[16]">
+      <p className="ml-[8px] mb-[8px]">{label}</p>
+      <div className="p-[16px] gap-[16px] flex items-center w-full overflow-hidden justify-between bg-gray-800 rounded-[16px]">
+        <p className="break-all text-[14px]" style={{ wordBreak: 'break-all' }}>
+          {content}
+        </p>
+        {copied ? (
+          <div className="text-green-500">
+            <Check size={20} className="min-w-[20px]" />
+          </div>
+        ) : (
+          <div className="hover:text-offWhite cursor-pointer" onClick={handleCopy}>
+            <Copy size={20} className="min-w-[20px]" />
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
   const { contactByAddress } = useKnownAddresses(t.multisig.id)
@@ -160,234 +197,172 @@ function AdvancedExpendedDetails({ callData, rpcs }: { callData: `0x${string}` |
   )
 }
 
+const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) => {
+  const { contactByAddress } = useKnownAddresses(t.multisig.id, {
+    includeSelectedMultisig: true,
+    includeContracts: true,
+  })
+  const recipients = t.decoded?.recipients || []
+
+  if (!t.decoded) return null
+
+  if (t.decoded.type === TransactionType.Transfer)
+    return (
+      <div
+        className={css`
+          color: var(--color-foreground);
+          margin-right: 16px;
+          margin-left: auto;
+        `}
+      >
+        <AddressPill
+          name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
+          address={recipients[0]?.address as Address}
+          chain={t.multisig.chain}
+        />
+      </div>
+    )
+
+  if (t.decoded.type === TransactionType.MultiSend)
+    return (
+      <div className="flex items-center justify-end gap-[4px] py-[2px] px-[8px] bg-gray-800 rounded-[12px]">
+        <Users size={12} className="text-primary" />
+        <p className="text-[14px] mt-[4px] text-offWhite">
+          {recipients.length} Send{recipients.length > 1 && 's'}
+        </p>
+      </div>
+    )
+
+  if (t.decoded.type === TransactionType.Vote) return <VoteTransactionHeaderContent t={t} />
+
+  if (t.decoded.type === TransactionType.ContractCall && t.decoded.contractCall)
+    return (
+      <AccountDetails
+        address={t.decoded.contractCall.address}
+        chain={t.multisig.chain}
+        name={contactByAddress[t.decoded.contractCall.address.toSs58()]?.name}
+        withAddressTooltip
+      />
+    )
+
+  return null
+}
 const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
-  const theme = useTheme()
-  const [expanded, setExpanded] = useState(t.decoded?.type !== TransactionType.Transfer)
   const [metadata, setMetadata] = useRecoilState(txOffchainMetadataState)
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
-  const { copied: copiedCallData, copy: copyCallData } = useCopied()
-  const { copied: copiedCallHash, copy: copyCallHash } = useCopied()
-  const { contactByAddress } = useKnownAddresses(t.multisig.id)
 
-  const recipients = t.decoded?.recipients || []
-  return (
-    <div
-      className={css`
-        display: grid;
-        align-content: center;
-        width: 100%;
-        padding: 8px 24px;
-        border-radius: 16px;
-        background-color: var(--color-backgroundLight);
-        min-height: 56px;
-      `}
-    >
-      <div
-        className={css`
-          display: flex;
-          align-items: center;
-          color: var(--color-offWhite);
-          > svg {
-            color: var(--color-primary);
-            height: 20px;
-            margin-left: 8px;
-          }
-        `}
-      >
-        {!t.decoded ? (
-          <>
-            <p css={{ marginTop: '4px' }}>Unknown Transaction</p>
-            <Unknown />
-          </>
-        ) : t.decoded.type === TransactionType.MultiSend ? (
-          <>
-            <p css={{ marginTop: '4px' }}>Multi-Send</p>
-            <Share2 />
-            <div
-              className={css`
-                display: flex;
-                margin-left: auto;
-                align-items: center;
-                gap: 4px;
-                height: 25px;
-                background-color: var(--color-backgroundLighter);
-                color: var(--color-foreground);
-                border-radius: 12px;
-                padding: 5px 8px;
-                margin-right: 16px;
-              `}
-            >
-              <div
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  height: 16px;
-                  width: 16px;
-                  border-radius: 100px;
-                  background-color: var(--color-dim);
-                  svg {
-                    color: var(--color-primary);
-                    height: 8px;
-                  }
-                `}
-              >
-                <Users />
-              </div>
-              <p css={{ fontSize: '14px', marginTop: '4px' }}>
-                {recipients.length} Send{recipients.length !== 1 && 's'}
-              </p>
-            </div>
-          </>
-        ) : t.decoded.type === TransactionType.Transfer ? (
-          <>
-            <p css={{ marginTop: '4px' }}>Send</p>
-            <Send />
-          </>
-        ) : t.decoded.type === TransactionType.Advanced ? (
-          <>
-            <p css={{ marginTop: '4px' }}>Advanced</p>
-            <List />
-          </>
-        ) : t.decoded.type === TransactionType.ChangeConfig ? (
-          <>
-            <p css={{ marginTop: '4px' }}>Change Signer Configuration</p>
-            <Settings css={{ marginRight: 'auto' }} />
-          </>
-        ) : t.decoded.type === TransactionType.Vote ? (
-          <VoteTransactionHeader t={t} />
-        ) : null}
-        {t.decoded?.type === TransactionType.Transfer ? (
-          <div
-            className={css`
-              color: var(--color-foreground);
-              margin-right: 16px;
-              margin-left: auto;
-            `}
-          >
-            <AddressPill
-              name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
-              address={recipients[0]?.address as Address}
-              chain={t.multisig.chain}
+  const { name, icon } = useMemo(() => {
+    if (!t.decoded) return { name: 'Unknown Transaction', icon: <Unknown /> }
+
+    switch (t.decoded.type) {
+      case TransactionType.MultiSend:
+        return { name: 'Multi-Send', icon: <Share2 /> }
+      case TransactionType.Transfer:
+        return { name: 'Send', icon: <Send /> }
+      case TransactionType.Advanced:
+        return { name: 'Advanced', icon: <List /> }
+      case TransactionType.ChangeConfig:
+        return { name: 'Change Signer Configuration', icon: <Settings /> }
+      case TransactionType.Vote:
+        return { name: 'Vote', icon: <Vote /> }
+      case TransactionType.ContractCall:
+        return { name: 'Contract call', icon: <Contract /> }
+      default:
+        return { name: 'Unknown Transaction', icon: <Unknown /> }
+    }
+  }, [t.decoded])
+
+  const transactionDetails = useMemo(() => {
+    switch (t.decoded?.type) {
+      case TransactionType.MultiSend:
+        return <MultiSendExpandedDetails t={t} />
+      case TransactionType.ChangeConfig:
+        return <ChangeConfigExpandedDetails t={t} />
+      case TransactionType.Advanced:
+        return <AdvancedExpendedDetails callData={t.callData} rpcs={t.multisig.chain.rpcs} />
+      case TransactionType.Vote:
+        return <VoteExpandedDetails t={t} />
+      case TransactionType.ContractCall:
+        return <SmartContractCallExpandedDetails t={t} />
+      default:
+        return t.decoded ? null : (
+          <div className="grid gap-[8px]">
+            <p className="text-[14px]">
+              Signet was unable to automatically determine the calldata for this transaction. Perhaps it was created
+              outside of Signet, or the Signet metadata sharing service is down.
+              <br />
+              <br />
+              Don't worry though, it's not a problem. Ask someone to share the calldata with you and paste it below, or
+              approve as-is <b>if and only if</b> you are sure you know what it is doing.
+            </p>
+            <CallDataPasteForm
+              extrinsic={undefined}
+              setExtrinsic={e => {
+                if (!e) return
+                const expectedHash = t.hash
+                const extrinsicHash = e.registry.hash(e.method.toU8a()).toHex()
+                if (expectedHash === extrinsicHash) {
+                  setMetadata({
+                    ...metadata,
+                    [expectedHash]: [
+                      {
+                        callData: e.method.toHex(),
+                        description: `Transaction ${truncateMiddle(expectedHash, 6, 4, '...')}`,
+                      },
+                      new Date(),
+                    ],
+                  })
+                }
+              }}
             />
+            <p className="!text-[12px]">
+              Call Hash <code>{t.hash}</code>
+            </p>
           </div>
-        ) : null}
-        {/* Show the token amounts being sent in this transaction */}
-        {t.decoded && t.decoded.type !== TransactionType.Advanced && (
-          <div css={{ display: 'flex', alignItems: 'flex-end', flexDirection: 'column' }}>
-            {sumOutgoing.map(b => {
-              return <AmountRow key={b.token.id} balance={b} />
-            })}
-          </div>
-        )}
-        {/* Show the collapse btn */}
-        {t.decoded ? (
-          <div css={{ width: '28px', marginLeft: t.decoded.type === TransactionType.Advanced ? 'auto' : '0' }}>
-            <IconButton
-              contentColor={`rgb(${theme.offWhite})`}
-              onClick={() => {
-                setExpanded(!expanded)
-              }}
-              className={css`
-                ${expanded && 'transform: rotate(90deg);'}
-              `}
-            >
-              <ChevronRight />
-            </IconButton>
-          </div>
-        ) : null}
-      </div>
-      <div
-        className={css`
-          .ReactCollapse--collapse {
-            transition: height 300ms;
-          }
-        `}
+        )
+    }
+  }, [metadata, setMetadata, t])
+
+  return (
+    <div className="px-[16px] bg-gray-600 rounded-[16px] max-w-[100%]">
+      <Accordion
+        type="single"
+        collapsible
+        className="max-w-[100%]"
+        defaultValue={transactionDetails === null ? undefined : '1'}
       >
-        <Collapse isOpened={expanded || !t.decoded}>
-          {t.decoded?.type === TransactionType.MultiSend ? (
-            <MultiSendExpandedDetails t={t} />
-          ) : t.decoded?.type === TransactionType.ChangeConfig ? (
-            <ChangeConfigExpandedDetails t={t} />
-          ) : t.decoded?.type === TransactionType.Advanced ? (
-            <AdvancedExpendedDetails callData={t.callData} rpcs={t.multisig.chain.rpcs} />
-          ) : t.decoded?.type === TransactionType.Vote ? (
-            <VoteExpandedDetails t={t} />
-          ) : !t.decoded ? (
-            <div css={{ margin: '8px 0', display: 'grid', gap: '8px' }}>
-              <p css={{ fontSize: '14px' }}>
-                Signet was unable to automatically determine the calldata for this transaction. Perhaps it was created
-                outside of Signet, or the Signet metadata sharing service is down.
-              </p>
-              <p css={{ fontSize: '14px' }}>
-                Don't worry though, it's not a problem. Ask someone to share the calldata with you and paste it below,
-                or approve as-is <b>if and only if</b> you are sure you know what it is doing.
-              </p>
-              <CallDataPasteForm
-                extrinsic={undefined}
-                setExtrinsic={e => {
-                  if (!e) return
-                  const expectedHash = t.hash
-                  const extrinsicHash = e.registry.hash(e.method.toU8a()).toHex()
-                  if (expectedHash === extrinsicHash) {
-                    setMetadata({
-                      ...metadata,
-                      [expectedHash]: [
-                        {
-                          callData: e.method.toHex(),
-                          description: `Transaction ${truncateMiddle(expectedHash, 6, 4, '...')}`,
-                        },
-                        new Date(),
-                      ],
-                    })
-                    setExpanded(true)
-                  }
-                }}
-              />
-              <p css={{ fontSize: '11px' }}>
-                Call Hash <code>{t.hash}</code>
-              </p>
-            </div>
-          ) : null}
-          {t.callData && (
-            <div
-              css={{
-                margin: '8px 0',
-                display: 'grid',
-                gap: '16px',
-                borderTop: '1px solid var(--color-backgroundLighter)',
-                paddingTop: '16px',
-              }}
-            >
-              <p>Multisig call data</p>
-              <div css={{ backgroundColor: 'var(--color-grey800)', padding: '16px', borderRadius: '8px' }}>
-                <div css={{ display: 'flex', gap: '18px', alignItems: 'center', justifyContent: 'center' }}>
-                  <p css={{ overflowWrap: 'break-word', maxWidth: '450px' }}>{t.callData}</p>
-                  <IconButton
-                    contentColor={copiedCallData ? `rgb(${theme.primary})` : `rgb(${theme.offWhite})`}
-                    css={{ cursor: 'pointer', pointerEvents: copiedCallData ? 'none' : 'auto' }}
-                    onClick={() => copyCallData(t.callData as string, 'Call data copied to clipboard.')}
-                  >
-                    {copiedCallData ? <Check /> : <Copy />}
-                  </IconButton>
-                </div>
+        <AccordionItem value="1" className="!border-b-0">
+          <AccordionTrigger className="!py-[16px] w-full">
+            <div className="flex items-center justify-between w-full pr-[8px]">
+              <div className="flex gap-[8px] items-center">
+                <p className="text-offWhite mt-[4px]">{name}</p>
+                <div className="text-primary [&>svg]:h-[20px]">{icon}</div>
               </div>
-              <p>Call hash</p>
-              <div css={{ backgroundColor: 'var(--color-grey800)', padding: '16px', borderRadius: '8px' }}>
-                <div css={{ display: 'flex', gap: '18px', alignItems: 'center', justifyContent: 'center' }}>
-                  <p css={{ overflowWrap: 'break-word', maxWidth: '450px' }}>{t.hash}</p>
-                  <IconButton
-                    contentColor={copiedCallHash ? `rgb(${theme.primary})` : `rgb(${theme.offWhite})`}
-                    css={{ cursor: 'pointer', pointerEvents: copiedCallHash ? 'none' : 'auto' }}
-                    onClick={() => copyCallHash(t.hash as string, 'Call hash copied to clipboard.')}
-                  >
-                    {copiedCallHash ? <Check /> : <Copy />}
-                  </IconButton>
-                </div>
+              <div className="flex items-center gap-[8px]">
+                <TransactionDetailsHeaderContent t={t} />
+                {t.decoded && t.decoded.type !== TransactionType.Advanced && sumOutgoing.length > 0 && (
+                  <div className="flex items-end flex-col">
+                    {sumOutgoing.map(b => (
+                      <AmountRow key={b.token.id} balance={b} />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-          )}
-        </Collapse>
-      </div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="grid gap-[16px]">
+              {transactionDetails}
+              {(t.callData !== undefined || t.hash !== undefined) && (
+                <div className="border-t border-gray-500 pt-[16px] max-w-[100%] overflow-hidden flex flex-col gap-[16px]">
+                  {t.callData !== undefined && <CopyPasteBox label="Multisig call data" content={t.callData} />}
+                  {t.hash !== undefined && <CopyPasteBox label="Call hash" content={t.hash} />}
+                </div>
+              )}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   )
 }

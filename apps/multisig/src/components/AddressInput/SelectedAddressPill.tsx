@@ -40,6 +40,7 @@ export const SelectedAddress = ({
           borderRadius: 8,
           pointerEvents: 'none',
           backgroundColor: color.surface,
+          overflow: 'hidden',
         })}
       >
         <AccountDetails address={address} chain={chain} name={name} disableCopy />

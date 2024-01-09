@@ -1,6 +1,6 @@
 import { useAugmentedBalances } from '@domains/balances'
 import { DUMMY_MULTISIG_ID, useSelectedMultisig } from '@domains/multisig'
-import { TxMetadataWatcher, getAllChangeAttempts } from '@domains/offchain-data/metadata'
+import { getAllChangeAttempts } from '@domains/offchain-data/metadata'
 import { toMultisigAddress } from '@util/addresses'
 import { device } from '@util/breakpoints'
 import { useCallback, useEffect } from 'react'
@@ -117,7 +117,7 @@ const Overview = () => {
             'overview-assets';
           flex: 1;
           @media ${device.md} {
-            grid-template-columns: 45fr 55fr;
+            grid-template-columns: 45% 55%;
             grid-template-areas: 'overview-assets transactions';
           }
           @media ${device.lg} {
@@ -125,13 +125,12 @@ const Overview = () => {
           }
         `}
       >
-        <div css={{ gridArea: 'overview-assets', display: 'flex', flexDirection: 'column', gap: 16, height: '100%' }}>
+        <div className="flex flex-col gap-[16px] h-full" css={{ gridArea: 'overview-assets' }}>
           <VaultOverview />
           <Assets augmentedTokens={augmentedTokens} />
         </div>
         <Transactions />
       </div>
-      <TxMetadataWatcher />
     </Layout>
   )
 }

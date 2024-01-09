@@ -192,9 +192,7 @@ const AddressInput: React.FC<Props> = ({
                   breakLine={compact}
                   identiconSize={compact ? 32 : 24}
                 />
-                <p css={({ color }) => ({ fontSize: 14, fontWeight: 700, textAlign: 'right', color: color.lightGrey })}>
-                  {contact.type}
-                </p>
+                <p className="whitespace-nowrap text-[14px] font-bold text-right text-gray-200">{contact.type}</p>
               </div>
             ))
           ) : !querying && validRawInputAddress ? (

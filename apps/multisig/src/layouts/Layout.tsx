@@ -1,5 +1,4 @@
-import { Eye, Globe, List, Send, Settings, Share2, Users, Vote, Zap } from '@talismn/icons'
-import { useNavigate } from 'react-router-dom'
+import { Contract, Eye, Globe, List, Send, Settings, Share2, Users, Vote, Zap } from '@talismn/icons'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import Footer from './Footer'
@@ -16,7 +15,6 @@ export const Layout: React.FC<
 > = ({ children, selected, requiresMultisig, hideSideBar }) => {
   const multisigs = useRecoilValue(activeMultisigsState)
   const activeTeams = useRecoilValue(activeTeamsState)
-  const navigate = useNavigate()
   const devMode = useDevMode()
 
   return (
@@ -54,32 +52,32 @@ export const Layout: React.FC<
                       {
                         name: 'Overview',
                         icon: <Eye />,
-                        onClick: () => navigate('/overview'),
+                        href: '/overview',
                       },
                       {
                         name: 'Send',
                         icon: <Send />,
-                        onClick: () => navigate('/send'),
+                        href: '/send',
                       },
                       {
                         name: 'Multi-send',
                         icon: <Share2 />,
-                        onClick: () => navigate('/multisend'),
+                        href: '/multisend',
                       },
                       {
                         name: 'Voting',
                         icon: <Vote />,
-                        onClick: () => navigate('/voting'),
+                        href: '/voting',
                       },
                       {
                         name: 'Staking',
                         icon: <Zap />,
-                        onClick: () => navigate('/staking'),
+                        href: '/staking',
                       },
                       {
                         name: 'Address Book',
                         icon: <Users />,
-                        onClick: () => navigate('/address-book'),
+                        href: '/address-book',
                       },
                     ],
                   },
@@ -89,18 +87,23 @@ export const Layout: React.FC<
                       {
                         name: 'Dapps',
                         icon: <Globe />,
-                        onClick: () => navigate('/dapps'),
+                        href: '/dapps',
                         hidden: !devMode,
+                      },
+                      {
+                        name: 'Smart Contracts',
+                        icon: <Contract />,
+                        href: '/smart-contracts',
                       },
                       {
                         name: 'Call data',
                         icon: <List />,
-                        onClick: () => navigate('/custom-call-data'),
+                        href: '/custom-call-data',
                       },
                       {
                         name: 'Settings',
                         icon: <Settings />,
-                        onClick: () => navigate('/settings'),
+                        href: '/settings',
                       },
                     ],
                   },

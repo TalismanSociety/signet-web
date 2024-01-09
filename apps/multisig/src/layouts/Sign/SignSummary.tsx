@@ -15,6 +15,12 @@ type Props = {
   onCancel: () => void
   open: boolean
 }
+
+/**
+ * Takes a call data hex (e.g. extrinsic.method.toHex()) and wrap it in a proxy call
+ * Also handles submitting the approval transaction
+ * TODO: make this generic
+ **/
 export const SignSummary: React.FC<Props> = ({
   selectedMultisig,
   calldata,

@@ -12,7 +12,7 @@ import { web3FromAddress } from '@polkadot/extension-dapp'
 import type { Call, ExtrinsicPayload, Timepoint } from '@polkadot/types/interfaces'
 import { assert, compactToU8a, u8aConcat, u8aEq } from '@polkadot/util'
 import { Address } from '@util/addresses'
-import { decodeSubstrateError, getErrorString, makeTransactionID } from '@util/misc'
+import { getErrorString, makeTransactionID } from '@util/misc'
 import BN from 'bn.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
@@ -433,10 +433,15 @@ export const useApproveAsMulti = (
             if (result.status.isFinalized) {
               result.events.forEach(async ({ event: { method } }): Promise<void> => {
                 if (method === 'ExtrinsicFailed') {
-                  const errorModule = (result.toHuman() as any)?.dispatchError?.Module
-                  const errorMessage = decodeSubstrateError(errorModule, apiLoadable.contents)
+                  let errorMessage
+                  if (result.dispatchError && apiLoadable.state === 'hasValue') {
+                    const substrateError = apiLoadable.contents.registry.findMetaError(result.dispatchError.asModule)
+                    errorMessage = substrateError.docs.join('')
+                    console.error(substrateError)
+                  }
+                  if (!errorMessage) errorMessage = JSON.stringify(result.toHuman())
                   captureException({ result: result.toHuman(), errorMessage })
-                  onFailure(errorMessage || JSON.stringify(result.toHuman()))
+                  onFailure(errorMessage)
                 }
                 if (method === 'ExtrinsicSuccess') {
                   // if there's a description, it means we want to post to the metadata service
@@ -479,7 +484,8 @@ export const useApproveAsMulti = (
       extensionAddress,
       hash,
       multisig,
-      apiLoadable.contents,
+      apiLoadable.state,
+      apiLoadable.contents.registry,
       setRawPendingTransactionDependency,
       insertTxMetadata,
     ]

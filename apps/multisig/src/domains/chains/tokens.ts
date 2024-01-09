@@ -208,7 +208,6 @@ export type Rpc = {
 export type Chain = {
   squidIds: {
     chainData: string
-    txHistory: string
   }
   genesisHash: string
   chainName: string
