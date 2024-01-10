@@ -1,9 +1,11 @@
-import { useMemo } from 'react'
-import { Button, TextInput } from '@talismn/ui'
-import Modal from '@components/Modal'
-import { useInput } from '@hooks/useInput'
+import { useCallback, useState } from 'react'
 import { Address } from '@util/addresses'
-import { useAddressBook } from '@domains/offchain-data'
+import { Button } from '@components/ui/button'
+import { useSelectedMultisig } from '@domains/multisig'
+import AddressInput from '@components/AddressInput'
+import { useKnownAddresses } from '@hooks/useKnownAddresses'
+import Modal from '@components/Modal'
+import { useAddCollaborator } from '@domains/offchain-data'
 
 type Props = {
   onClose?: () => void
@@ -11,82 +13,64 @@ type Props = {
 }
 
 export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const addressInput = useInput('')
+  const [selectedMultisig] = useSelectedMultisig()
+  const [address, setAddress] = useState<Address | undefined>()
+  const { addresses } = useKnownAddresses(selectedMultisig.id)
+  const { addCollaborator, adding } = useAddCollaborator()
 
-  const { contactsByAddress } = useAddressBook()
-
-  const handleClose = () => {
-    // if (creating) return
-    addressInput.onChange('')
+  const handleClose = useCallback(() => {
+    if (adding) return
+    setAddress(undefined)
     onClose?.()
-  }
+  }, [adding, onClose])
 
-  const parsedAddress = useMemo(() => {
-    try {
-      return Address.fromSs58(addressInput.value)
-    } catch (e) {
-      return false
-    }
-  }, [addressInput.value])
-
-  const handleCreateContact = async () => {
-    if (!parsedAddress) return
+  const handleCreateContact = useCallback(async () => {
+    if (!address) return
     // TODO: handle add to db
-    // if (created) handleClose()
-  }
+    const added = await addCollaborator(address)
+    if (added) handleClose()
+  }, [addCollaborator, address, handleClose])
 
-  const disabled = !parsedAddress
-  const conflict = parsedAddress ? !!contactsByAddress[parsedAddress.toSs58()] : false
+  const disabled = !address
+  const isCollaboratorConflict = address ? selectedMultisig.isCollaborator(address) : false
+  const isSignerConflict = address ? selectedMultisig.isSigner(address) : false
+  const conflict = isCollaboratorConflict || isSignerConflict
 
   return (
-    <Modal isOpen={isOpen ?? false} width="100%" maxWidth={420} contentLabel="Add new contact">
-      <h1 css={{ fontSize: 20, fontWeight: 700 }}>Add new collaborator</h1>
-      <p css={{ marginTop: 8 }}>
+    <Modal
+      className="!overflow-visible"
+      isOpen={isOpen ?? false}
+      width="100%"
+      maxWidth={420}
+      contentLabel="Add new collaborator"
+    >
+      <h1 className="text-[20px] font-bold">Add new collaborator</h1>
+      <p className="mt-[8px]">
         Collaborators can draft transaction and read data in your vault (e.g. transaction description).
       </p>
-      <form css={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <TextInput
-          placeholder="Address"
-          leadingLabel="Address"
-          {...addressInput}
-          leadingSupportingText={
-            conflict ? (
-              <p
-                css={({ color }) => ({
-                  color: color.lightGrey,
-                  fontSize: 14,
-                  marginLeft: 12,
-                })}
-              >
-                Address already exists in address book.
-              </p>
-            ) : null
-          }
-        />
-        <div
-          css={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 8,
-            button: {
-              height: 56,
-              p: { marginTop: 4 },
-            },
-          }}
-        >
-          <Button type="button" variant="outlined" css={{ width: '100%' }} onClick={handleClose}>
+      <div className="mt-[24px] flex flex-col gap-[24px]">
+        <div className="w-full">
+          <AddressInput onChange={setAddress} addresses={addresses} />
+          {conflict ? (
+            <p className="text-red-500 text-[12px] ml-[12px] mt-[4px]">
+              {isCollaboratorConflict
+                ? 'Already added as collaborator.'
+                : isSignerConflict
+                ? 'Signers cannot be added as collaborator.'
+                : null}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="grid grid-cols-2 gap-[8px]">
+          <Button type="button" variant="outline" disabled={adding} onClick={handleClose}>
             <p>Cancel</p>
           </Button>
-          <Button
-            css={{ width: '100%' }}
-            disabled={disabled || conflict}
-            // loading={creating}
-            onClick={handleCreateContact}
-          >
+          <Button disabled={disabled || conflict || adding} loading={adding} onClick={handleCreateContact}>
             <p>Save</p>
           </Button>
         </div>
-      </form>
+      </div>
     </Modal>
   )
 }

@@ -15,6 +15,7 @@ type AuthTokenBook = Record<string, string | { accessToken: string; id: string }
 export type SignedInAccount = {
   jwtToken: string
   injected: InjectedAccount
+  id: string
 }
 
 // store selected address in local storage
@@ -123,7 +124,6 @@ export const useSignIn = () => {
 
           const verifyData = await verifyRes.json()
 
-          console.log(verifyData)
           auth = {
             accessToken: verifyData?.accessToken,
             id: verifyData?.id,

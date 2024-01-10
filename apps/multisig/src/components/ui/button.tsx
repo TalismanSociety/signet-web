@@ -51,7 +51,7 @@ const Button = React.forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPro
             <CircularProgressIndicator size={16} />
           </div>
         ) : null}
-        {children}
+        {typeof children === 'string' ? <span className="mt-[2px] text-inherit">{children}</span> : children}
       </Comp>
     )
   }

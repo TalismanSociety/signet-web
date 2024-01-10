@@ -4,7 +4,6 @@ import Sidebar from './Sidebar'
 import Footer from './Footer'
 import { EyeOfSauronProgressIndicator } from '@talismn/ui'
 import { useRecoilValue } from 'recoil'
-import { activeMultisigsState } from '@domains/multisig'
 import { activeTeamsState } from '../domains/offchain-data'
 import { Navigate } from 'react-router-dom'
 import BetaNotice from './Overview/BetaNotice'
@@ -13,7 +12,6 @@ import { useDevMode } from '../domains/common/useDevMode'
 export const Layout: React.FC<
   React.PropsWithChildren & { selected?: string; requiresMultisig?: boolean; hideSideBar?: boolean }
 > = ({ children, selected, requiresMultisig, hideSideBar }) => {
-  const multisigs = useRecoilValue(activeMultisigsState)
   const activeTeams = useRecoilValue(activeTeamsState)
   const devMode = useDevMode()
 
@@ -31,9 +29,9 @@ export const Layout: React.FC<
     >
       <Header />
       <div css={{ display: 'flex', flex: 1, gap: 16 }}>
-        {requiresMultisig && (!activeTeams || multisigs.length === 0) ? (
+        {requiresMultisig && (!activeTeams || activeTeams.length === 0) ? (
           // loading multisigs from backend
-          !activeTeams ? (
+          activeTeams === undefined ? (
             <div css={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
               <EyeOfSauronProgressIndicator />
             </div>
@@ -116,7 +114,7 @@ export const Layout: React.FC<
               />
             )}
             {children}
-            {multisigs.length && <BetaNotice />}
+            {!!activeTeams?.length && <BetaNotice />}
           </>
         )}
       </div>

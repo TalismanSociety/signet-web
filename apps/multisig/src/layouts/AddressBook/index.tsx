@@ -21,7 +21,7 @@ const Header: React.FC<{ onAddContact: () => void; vaultName: string }> = ({ onA
   <div css={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
     <div>
       <div css={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <h2 css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>Address Book</h2>
+        <h2 className="text-offWhite text-[24px] mt-[4px] font-bold">Address Book</h2>
         <Tooltip
           content={
             <p css={{ maxWidth: 350 }}>

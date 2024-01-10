@@ -16,7 +16,6 @@ export const usePoolMembership = (address: Address, chain: Chain) => {
   const unsub = useRef<VoidFn | null>(null)
 
   const subscribePoolMembership = useCallback(async () => {
-    console.log('Subscribe')
     if (!api || !api.query) return
 
     // nom pool pallet not supported

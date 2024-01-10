@@ -9,7 +9,7 @@ export interface Multisig {
   proxyAddress: Address
   signers: Address[]
   threshold: number
-  users: { id: string; address: Address }[]
+  collaborators: { id: string; address: Address }[]
 }
 
 export type ProxyDefinition = {
@@ -26,4 +26,6 @@ export type ProxyDefinition = {
 export type MultisigWithExtraData = {
   proxies?: ProxyDefinition[]
   allProxies?: ProxyDefinition[]
+  isCollaborator: (address: Address) => boolean
+  isSigner: (address: Address) => boolean
 } & Multisig

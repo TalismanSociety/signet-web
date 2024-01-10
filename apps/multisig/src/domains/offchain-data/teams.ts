@@ -1,12 +1,14 @@
 import { gql } from 'graphql-request'
-import { atom, selector, useRecoilValue, useSetRecoilState } from 'recoil'
+import { atom, selector, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { SignedInAccount, selectedAccountState } from '../auth'
 import { useCallback, useEffect, useState } from 'react'
 import { requestSignetBackend } from './hasura'
 import { Address, toMultisigAddress } from '@util/addresses'
 import { Chain, supportedChains } from '../chains'
 import toast from 'react-hot-toast'
-import { Multisig, selectedMultisigIdState, useUpsertMultisig } from '../multisig'
+import { Multisig, selectedMultisigIdState, useSelectedMultisig } from '../multisig'
+import { useToast } from '@components/ui/use-toast'
+import { getErrorString } from '@util/misc'
 
 type RawTeam = {
   id: string
@@ -14,7 +16,7 @@ type RawTeam = {
   multisig_config: any
   proxied_address: string
   chain: string
-  users: {
+  collaborators: {
     user: {
       id: string
       identifier: string
@@ -22,7 +24,13 @@ type RawTeam = {
   }[]
 }
 
+type Collaborator = {
+  id: string
+  address: Address
+}
+
 export class Team {
+  collaborators: Collaborator[] = []
   constructor(
     public id: string,
     public name: string,
@@ -33,8 +41,10 @@ export class Team {
     public chain: Chain,
     public proxiedAddress: Address,
     public delegateeAddress: Address,
-    public users: { id: string; address: Address }[] = []
-  ) {}
+    collaborators: Collaborator[] = []
+  ) {
+    this.collaborators = collaborators
+  }
 
   toMultisig(): Multisig {
     return {
@@ -45,34 +55,73 @@ export class Team {
       signers: this.multisigConfig.signers,
       threshold: this.multisigConfig.threshold,
       chain: this.chain,
-      users: this.users,
+      collaborators: this.collaborators,
     }
   }
 
-  isCollaborator(address: Address): boolean {
-    return this.users.some(user => user.address.isEqual(address))
+  /** @deprecated this is only for backward compatibility, we're switching to use Team only */
+  get asMultisig(): Multisig {
+    return this.toMultisig()
   }
 
   isSigner(address: Address): boolean {
     return this.multisigConfig.signers.some(signer => signer.isEqual(address))
   }
+
+  isCollaborator(id: string): boolean {
+    return this.collaborators.some(collaborator => collaborator.id === id)
+  }
+
+  isEqual(team: Team): boolean {
+    return (
+      this.id === team.id &&
+      this.name === team.name &&
+      this.proxiedAddress.isEqual(team.proxiedAddress) &&
+      this.chain.chainName === team.chain.chainName &&
+      this.multisigConfig.threshold === team.multisigConfig.threshold &&
+      this.multisigConfig.signers.length === team.multisigConfig.signers.length &&
+      this.multisigConfig.signers.every(signer => team.multisigConfig.signers.some(s => s.isEqual(signer))) &&
+      this.collaborators.length === team.collaborators.length &&
+      this.collaborators.every(collaborator => team.collaborators.some(c => c.id === collaborator.id))
+    )
+  }
 }
 
-export const teamsBySignerState = atom<Record<string, Team[]>>({
-  key: 'teamsBySigner',
-  default: {},
+/** a list of all teams known to all signed in users */
+export const teamsState = atom<Team[] | undefined>({
+  key: 'teams',
+  default: undefined,
   dangerouslyAllowMutability: true,
+})
+
+export const selectedTeamState = selector({
+  key: 'selectedTeam',
+  get: ({ get }) => {
+    const selectedMultisigId = get(selectedMultisigIdState)
+    const teams = get(teamsState)
+    return teams?.find(team => team.id === selectedMultisigId)
+  },
 })
 
 export const activeTeamsState = selector({
   key: 'activeTeams',
   get: ({ get }) => {
     const selectedAccount = get(selectedAccountState)
-    const teamsBySigner = get(teamsBySignerState)
+    const teams = get(teamsState)
 
     if (!selectedAccount) return []
 
-    return teamsBySigner[selectedAccount.injected.address.toSs58()]
+    if (!teams) return undefined
+
+    // find all teams where the user is a collaborator or a signer
+    return teams
+      .map(team => ({
+        ...team,
+        asMultisig: team.toMultisig(),
+        isSigner: team.isSigner(selectedAccount.injected.address),
+        isCollaborator: team.isCollaborator(selectedAccount.id),
+      }))
+      .filter(team => team.isSigner || team.isCollaborator)
   },
 })
 
@@ -84,7 +133,7 @@ const TEAM_BY_SIGNER_QUERY = gql`
       chain
       multisig_config
       proxied_address
-      users(where: { role: { _eq: "collaborator" } }) {
+      collaborators: users(where: { role: { _eq: "collaborator" } }) {
         user_id
         user {
           id
@@ -140,16 +189,17 @@ const parseTeam = (rawTeam: RawTeam): { team?: Team; error?: string } => {
     // not a valid vault if no delegateeAddress, a signet vault consists of 1 multisig that is proxy to another acc
     if (!delegateeAddress) return { error: `Missing multisig config / delegatee address in ${rawTeam.id}` }
 
-    const users: { id: string; address: Address }[] = []
-    // parse users
-    for (const rawUser of rawTeam.users) {
+    const collaborators: Collaborator[] = []
+
+    // parse collaborators
+    for (const rawUser of rawTeam.collaborators) {
       const rawAddress = rawUser.user.identifier
       const address = Address.fromSs58(rawAddress)
       if (!address) {
         console.error(`Invalid user address: ${rawAddress} in ${rawTeam.id}`)
         continue
       }
-      users.push({ id: rawUser.user.id, address })
+      collaborators.push({ id: rawUser.user.id, address })
     }
 
     return {
@@ -163,7 +213,7 @@ const parseTeam = (rawTeam: RawTeam): { team?: Team; error?: string } => {
         chain,
         proxiedAddress,
         delegateeAddress,
-        users
+        collaborators
       ),
     }
   } catch (e) {
@@ -173,16 +223,16 @@ const parseTeam = (rawTeam: RawTeam): { team?: Team; error?: string } => {
 }
 
 export const TeamsWatcher: React.FC = () => {
+  const [teams, setTeams] = useRecoilState(teamsState)
   const selectedAccount = useRecoilValue(selectedAccountState)
-  const setTeamsBySigner = useSetRecoilState(teamsBySignerState)
-  const upsertMultisig = useUpsertMultisig()
 
   const fetchTeams = useCallback(
     async (account: SignedInAccount) => {
       const { data, error } = await requestSignetBackend<{ team: RawTeam[] }>(TEAM_BY_SIGNER_QUERY, {}, account)
 
       if (data?.team) {
-        const validTeams: Team[] = []
+        let changed = false
+        const validTeams: Team[] = [...(teams ?? [])]
         // parse and validate each team from raw json to Team
         for (const rawTeam of data.team) {
           const { team, error } = parseTeam(rawTeam)
@@ -190,21 +240,22 @@ export const TeamsWatcher: React.FC = () => {
             console.error(error ?? 'Failed to parse team')
             continue
           }
+
+          const exist = validTeams.findIndex(t => t.id === team.id)
+          if (exist >= 0) {
+            const oldTeam = validTeams[exist]
+            if (oldTeam?.isEqual(team)) continue
+            validTeams.splice(exist, 1)
+          }
+          changed = true
           validTeams.push(team)
-
-          // sync teams from backend to multisigs list
-          upsertMultisig(team.toMultisig())
         }
-
-        setTeamsBySigner(teamsBySigner => ({
-          ...teamsBySigner,
-          [account.injected.address.toSs58()]: validTeams,
-        }))
+        if (changed) setTeams(validTeams)
       } else {
         toast.error(error?.message || `Failed to fetch teams for ${account.injected.address.toSs58()}`)
       }
     },
-    [setTeamsBySigner, upsertMultisig]
+    [setTeams, teams]
   )
 
   useEffect(() => {
@@ -226,8 +277,7 @@ export const TeamsWatcher: React.FC = () => {
 export const useCreateTeamOnHasura = () => {
   const signer = useRecoilValue(selectedAccountState)
   const [creatingTeam, setCreatingTeam] = useState(false)
-  const setTeamsBySigner = useSetRecoilState(teamsBySignerState)
-  const upsertMultisig = useUpsertMultisig()
+  const setTeams = useSetRecoilState(teamsState)
   const setSelectedMultisigId = useSetRecoilState(selectedMultisigIdState)
 
   const createTeam = useCallback(
@@ -274,15 +324,12 @@ export const useCreateTeamOnHasura = () => {
         const { team, error } = parseTeam(createdTeam)
         if (!team || error) return { error: error ?? 'Failed to store team data.' }
 
-        upsertMultisig(team.toMultisig())
-        setTeamsBySigner(teamsBySigner => {
-          const newTeamsBySigner = { ...teamsBySigner }
-          // update team for every signed in accounts
-          team.multisigConfig.signers.forEach(signer => {
-            const teams = newTeamsBySigner[signer.toSs58()]
-            if (teams) newTeamsBySigner[signer.toSs58()] = [...teams, team]
-          })
-          return newTeamsBySigner
+        setTeams(teams => {
+          const newTeams = [...(teams ?? [])]
+          const exist = newTeams.findIndex(t => t.id === team.id)
+          if (exist >= 0) newTeams.splice(exist, 1)
+          newTeams.push(team)
+          return newTeams
         })
         setSelectedMultisigId(team.id)
         return { team }
@@ -293,7 +340,7 @@ export const useCreateTeamOnHasura = () => {
         setCreatingTeam(false)
       }
     },
-    [creatingTeam, setSelectedMultisigId, setTeamsBySigner, signer, upsertMultisig]
+    [creatingTeam, setSelectedMultisigId, setTeams, signer]
   )
 
   return { createTeam, creatingTeam }
@@ -305,7 +352,7 @@ export const changingMultisigConfigState = atom<boolean>({
 })
 
 export const useUpdateMultisigConfig = () => {
-  const upsertMultisig = useUpsertMultisig()
+  const setTeams = useSetRecoilState(teamsState)
 
   const updateMultisigConfig = useCallback(
     async (newMultisig: Multisig, signedInAs: SignedInAccount | null) => {
@@ -343,10 +390,71 @@ export const useUpdateMultisigConfig = () => {
           toast.error('Failed to save multisig config change.')
         }
       }
-      upsertMultisig(newMultisig)
+
+      const newTeam = parseTeam({
+        chain: newMultisig.chain.squidIds.chainData,
+        collaborators: newMultisig.collaborators.map(collaborator => ({
+          user: {
+            id: collaborator.id,
+            identifier: collaborator.address.toSs58(),
+          },
+        })),
+        id: newMultisig.id,
+        multisig_config: {},
+        name: newMultisig.name,
+        proxied_address: newMultisig.proxyAddress.toSs58(),
+      })
+
+      setTeams(teams => {
+        if (!teams || !newTeam.team) return teams
+        const newTeams = [...teams]
+        const teamIndex = newTeams.findIndex(team => team.id === newMultisig.id)
+        if (teamIndex >= 0) newTeams[teamIndex] = newTeam.team
+
+        return newTeams
+      })
     },
-    [upsertMultisig]
+    [setTeams]
   )
 
   return { updateMultisigConfig }
+}
+
+export const useAddCollaborator = () => {
+  const [adding, setAdding] = useState(false)
+  const signedInAs = useRecoilValue(selectedAccountState)
+  const [selectedMultisig] = useSelectedMultisig()
+  const { toast } = useToast()
+
+  const addCollaborator = useCallback(
+    async (address: Address) => {
+      // this shouldnt happen
+      if (!signedInAs) {
+        toast({
+          title: 'Failed to add collaborator',
+          description: 'Unauthorized',
+        })
+        return false
+      }
+      try {
+        setAdding(true)
+        toast({
+          title: 'Added collaborator',
+          description: `Added ${address.toShortSs58(selectedMultisig.chain)} as collaborator`,
+        })
+        return true
+      } catch (e) {
+        toast({
+          title: 'Failed to add collaborator',
+          description: getErrorString(e),
+        })
+        return false
+      } finally {
+        setAdding(false)
+      }
+    },
+    [selectedMultisig.chain, signedInAs, toast]
+  )
+
+  return { addCollaborator, adding, selectedMultisig }
 }

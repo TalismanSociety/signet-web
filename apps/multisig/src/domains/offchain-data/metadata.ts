@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { atom, useRecoilState, useRecoilValue } from 'recoil'
 import { ChangeConfigDetails, aggregatedMultisigsState, pendingTransactionsState } from '../multisig'
-import { activeTeamsState, teamsBySignerState } from './teams'
+import { activeTeamsState, teamsState } from './teams'
 import { gql } from 'graphql-request'
 import { requestSignetBackend } from './hasura'
 import { SignedInAccount, selectedAccountState } from '../auth'
@@ -206,21 +206,19 @@ export const TxMetadataWatcher = () => {
 // handles inserting tx metadata to db, as well as fast insert into cache
 export const useInsertTxMetadata = () => {
   const [txMetadataByTeamId, setTxMetadataByTeamId] = useRecoilState(txMetadataByTeamIdState)
-  const teamsBySigner = useRecoilValue(teamsBySignerState)
+  const teams = useRecoilValue(teamsState)
 
   const insertMetadata = useCallback(
     async (
-      signedInAccount: SignedInAccount,
+      signedInAccount: SignedInAccount, // TODO: attach this to graphql request
       multisig: Multisig,
       other: Pick<
         TxMetadata,
         'callData' | 'changeConfigDetails' | 'description' | 'timepointHeight' | 'timepointIndex'
       > & { hash: string; extrinsicId: string }
     ) => {
-      const activeTeams = teamsBySigner[signedInAccount.injected.address.toSs58()]
-
       // make sure multisig is stored in db
-      if (!activeTeams || !activeTeams.find(team => team.id === multisig.id)) return
+      if (!teams || !teams.find(team => team.id === multisig.id)) return
 
       const newTxMetadataByTeamId: TxMetadataByTeamId = {}
       Object.entries(txMetadataByTeamId).forEach(([teamId, txMetadata]) => {
@@ -266,7 +264,7 @@ export const useInsertTxMetadata = () => {
           toast.error('Failed to POST tx metadata sharing service. See console for more info.')
         })
     },
-    [setTxMetadataByTeamId, teamsBySigner, txMetadataByTeamId]
+    [setTxMetadataByTeamId, teams, txMetadataByTeamId]
   )
 
   return insertMetadata
