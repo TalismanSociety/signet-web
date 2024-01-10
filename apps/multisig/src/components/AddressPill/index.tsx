@@ -17,7 +17,7 @@ const AddressPill = ({
 }) => {
   const ss58Address = address.toSs58(chain)
   return (
-    <AddressTooltip address={address} chain={chain} name={name}>
+    <AddressTooltip address={address} chain={chain} name={name} a0Id={a0Id}>
       <div
         className={css`
           display: flex;
@@ -45,7 +45,7 @@ const AddressPill = ({
             textOverflow: 'ellipsis',
           })}
         >
-          {a0Id ?? name ?? address.toShortSs58(chain)}
+          {name ?? a0Id ?? address.toShortSs58(chain)}
         </p>
       </div>
     </AddressTooltip>

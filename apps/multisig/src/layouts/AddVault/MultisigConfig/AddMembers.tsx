@@ -9,6 +9,7 @@ import { useRecoilValue } from 'recoil'
 import { AddMemberInput } from '../../../components/AddMemberInput'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 
+// [fix]: this is where to fix the last error
 const AddMembers = (props: {
   setAddedAccounts: React.Dispatch<React.SetStateAction<Address[]>>
   augmentedAccounts: AugmentedAccount[]

@@ -102,7 +102,7 @@ const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
               </div>
               <AddressPill
                 name={contactByAddress[address.toSs58()]?.name}
-                a0Id={recipients[0]?.a0Id}
+                a0Id={recipients[i]?.a0Id}
                 address={address}
                 chain={t.multisig.chain}
               />
