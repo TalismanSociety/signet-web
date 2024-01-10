@@ -1,6 +1,6 @@
 import { Chain } from '@domains/chains'
 import { Address } from '@util/addresses'
-import { ShortedAzeroId } from '@util/azeroid'
+import { isAzeroId } from '@util/azeroid'
 
 export const NameAndAddress: React.FC<{
   address: Address
@@ -18,18 +18,36 @@ export const NameAndAddress: React.FC<{
   if (!name && !a0Id)
     return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{address.toShortSs58(chain)}</p>
 
-  if (a0Id && a0IdAndAddress) {
-    if (name) {
-      ;<p className="mt-[6px]">
-        <span className="text-offWhite">{name}</span>
-        {a0IdAndAddress ? <>&nbsp;{address.toShortSs58(chain)}</> : null}
-      </p>
-    }
+  if (name && secondaryValue && isAzeroId(secondaryValue) && a0IdAndAddress) {
     return (
-      <p className="mt-[6px]">
-        <span className="text-offWhite">{ShortedAzeroId(a0Id)}</span>
-        {a0IdAndAddress ? <>&nbsp;{address.toShortSs58(chain)}</> : null}
-      </p>
+      <div
+        css={{
+          display: 'flex',
+          gap: breakLine ? 0 : 8,
+          flexDirection: breakLine ? 'column' : 'row',
+          alignItems: breakLine ? 'flex-start' : 'center',
+          marginTop: breakLine ? 0 : 4,
+        }}
+      >
+        <p
+          css={({ color }) => ({
+            color: color.offWhite,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: 140,
+            width: '100%',
+          })}
+        >
+          {name}
+        </p>
+        {!!secondaryValue && !nameOrAddressOnly && (
+          <p css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>
+            {a0Id}
+            <>&nbsp;&nbsp;{address.toShortSs58(chain)}</>
+          </p>
+        )}
+      </div>
     )
   }
 
@@ -57,6 +75,9 @@ export const NameAndAddress: React.FC<{
       </p>
       {!!secondaryValue && !nameOrAddressOnly && (
         <p css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>{secondaryValue}</p>
+      )}
+      {name && secondaryValue && isAzeroId(secondaryValue) && (
+        <p css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>{}</p>
       )}
     </div>
   )

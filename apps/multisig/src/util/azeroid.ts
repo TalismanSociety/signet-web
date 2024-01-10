@@ -43,7 +43,8 @@ export const resolveAzeroId = async (addressOrAzeroId: string, resolveAzeroIdOnl
     azeroId = addressOrAzeroId
     // add resolveAddressOnly option if required
     address = (await getAddressFromAzeroId(azeroId)) ?? undefined
-  } else {
+    // reduce ws calls and disconnections
+  } else if (Address.fromSs58(addressOrAzeroId)) {
     address = addressOrAzeroId
     // dont need to resolve azero ID if we only need the address
     if (!resolveAzeroIdOnly) azeroId = (await getAzeroId(address)) ?? undefined
