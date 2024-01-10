@@ -1,5 +1,6 @@
 import { Chain } from '@domains/chains'
 import { Address } from '@util/addresses'
+import { ShortedAzeroId } from '@util/azeroid'
 
 export const NameAndAddress: React.FC<{
   address: Address
@@ -17,13 +18,20 @@ export const NameAndAddress: React.FC<{
   if (!name && !a0Id)
     return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{address.toShortSs58(chain)}</p>
 
-  if (a0Id)
+  if (a0Id && a0IdAndAddress) {
+    if (name) {
+      ;<p className="mt-[6px]">
+        <span className="text-offWhite">{name}</span>
+        {a0IdAndAddress ? <>&nbsp;{address.toShortSs58(chain)}</> : null}
+      </p>
+    }
     return (
       <p className="mt-[6px]">
-        <span className="text-offWhite">{a0Id}</span>
+        <span className="text-offWhite">{ShortedAzeroId(a0Id)}</span>
         {a0IdAndAddress ? <>&nbsp;{address.toShortSs58(chain)}</> : null}
       </p>
     )
+  }
 
   return (
     <div

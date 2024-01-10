@@ -8,6 +8,9 @@ import { useSelectedMultisig } from '../domains/multisig'
 import { Address } from '../util/addresses'
 import { Chain } from '../domains/chains'
 import { AccountDetails } from './AddressInput/AccountDetails'
+import { atom, useRecoilState } from 'recoil'
+import persist from '@domains/persist'
+import { getAzeroId } from '@util/azeroid'
 
 type Props = {
   accounts: InjectedAccount[]
@@ -15,13 +18,25 @@ type Props = {
   onSelect?: (account: InjectedAccount) => void
 }
 
+type MemberAzeroIdMap = {
+  [key: string]: string | undefined
+}
+
+const accountsAzeroIdState = atom<MemberAzeroIdMap>({
+  key: 'accountsAzeroIdState',
+  default: {},
+  effects_UNSTABLE: [persist],
+})
+
 const AccountRow = ({
   account,
   onSelect,
+  a0Id,
   chain,
 }: {
   account: InjectedAccount
   onSelect: (account: InjectedAccount) => void
+  a0Id?: string
   chain?: Chain
 }) => (
   <div
@@ -40,7 +55,14 @@ const AccountRow = ({
       },
     })}
   >
-    <AccountDetails identiconSize={32} address={account.address} name={account.meta.name} breakLine disableCopy />
+    <AccountDetails
+      identiconSize={32}
+      a0Id={a0Id}
+      address={account.address}
+      name={account.meta.name}
+      breakLine
+      disableCopy
+    />
   </div>
 )
 
@@ -52,6 +74,21 @@ const AccountSwitcher: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
   const [query, setQuery] = useState('')
   const [accountToSignIn, setAccountToSignIn] = useState<InjectedAccount>()
   useOnClickOutside(ref.current, () => setExpanded(false))
+  const [accountsAzeroIds, setAccountsAzeroIds] = useRecoilState(accountsAzeroIdState)
+
+  useEffect(() => {
+    async function getMemberAzeroIds(accounts: InjectedAccount[]) {
+      let memberAzeroIdMap: MemberAzeroIdMap = {}
+      for (const account of accounts) {
+        const stringAddress = account.address.toSs58()
+        if (stringAddress) {
+          memberAzeroIdMap = { ...memberAzeroIdMap, [stringAddress]: await getAzeroId(stringAddress) }
+        }
+      }
+      setAccountsAzeroIds(memberAzeroIdMap)
+    }
+    getMemberAzeroIds(accounts)
+  }, [accounts, setAccountsAzeroIds])
 
   // cannot close if signing in
   const actualExpanded = expanded || accountToSignIn
@@ -115,6 +152,7 @@ const AccountSwitcher: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
         <div css={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 8, width: 154 }}>
           <AccountDetails
             identiconSize={32}
+            a0Id={accountsAzeroIds[selectedAccount.address.toSs58()]}
             address={selectedAccount.address}
             name={selectedAccount.meta.name}
             chain={multisig.chain}
@@ -201,6 +239,7 @@ const AccountSwitcher: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
                   <AccountRow
                     key={acc.address.toSs58()}
                     account={acc}
+                    a0Id={accountsAzeroIds[acc.address.toSs58()]}
                     onSelect={handleSelectAccount}
                     chain={multisig.chain}
                   />
