@@ -233,6 +233,7 @@ const AddressInput: React.FC<Props> = ({
                   disableCopy
                   breakLine={compact}
                   identiconSize={compact ? 32 : 24}
+                  limitDisplayWidth={true}
                 />
                 <p css={({ color }) => ({ fontSize: 14, fontWeight: 700, textAlign: 'right', color: color.lightGrey })}>
                   {contact.type}

@@ -17,6 +17,7 @@ type Props = {
   withAddressTooltip?: boolean
   identiconSize?: number
   breakLine?: boolean
+  limitDisplayWidth?: boolean
 }
 
 export const AccountDetails: React.FC<Props> = ({
@@ -30,6 +31,7 @@ export const AccountDetails: React.FC<Props> = ({
   identiconSize = 24,
   withAddressTooltip,
   breakLine,
+  limitDisplayWidth,
 }) => {
   const accountDetailsUI = (
     <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -42,6 +44,7 @@ export const AccountDetails: React.FC<Props> = ({
         a0IdAndAddress={a0IdAndAddress}
         nameOrAddressOnly={nameOrAddressOnly}
         breakLine={breakLine}
+        limitDisplayWidth={limitDisplayWidth}
       />
       {!disableCopy && (
         <div

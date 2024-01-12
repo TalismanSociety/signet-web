@@ -10,7 +10,8 @@ export const NameAndAddress: React.FC<{
   a0IdAndAddress?: boolean
   nameOrAddressOnly?: boolean
   breakLine?: boolean
-}> = ({ address, name, a0Id, chain, a0IdAndAddress, nameOrAddressOnly, breakLine }) => {
+  limitDisplayWidth?: boolean
+}> = ({ address, name, a0Id, chain, a0IdAndAddress, nameOrAddressOnly, breakLine, limitDisplayWidth }) => {
   const primaryValue = name ?? a0Id ?? address.toShortSs58(chain)
   const hasSecondaryValue = name || a0Id
   const secondaryValue = hasSecondaryValue ? (name ? a0Id : undefined) ?? address.toShortSs58(chain) : undefined
@@ -42,9 +43,9 @@ export const NameAndAddress: React.FC<{
           {name}
         </p>
         {!!secondaryValue && !nameOrAddressOnly && (
-          <div className="w-60">
+          <div className={`${limitDisplayWidth ? 'w-60' : null}`}>
             <p className="overflow-auto" css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>
-              {a0Id}
+              {a0Id ? ShortedAzeroId(a0Id) : null}
               <>&nbsp;&nbsp;{address.toShortSs58(chain)}</>
             </p>
           </div>
