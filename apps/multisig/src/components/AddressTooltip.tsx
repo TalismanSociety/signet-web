@@ -8,10 +8,10 @@ import { cn } from '../util/tailwindcss'
 import { toAzeroDomainUrl } from '@util/azeroid'
 
 export const AddressTooltip: React.FC<
-  React.PropsWithChildren & { address: Address | string; chain: Chain; name?: string; a0Id?: string }
+  React.PropsWithChildren & { address: Address | string; chain?: Chain; name?: string; a0Id?: string }
 > = ({ children, address: _address, chain, name, a0Id }) => {
   const address = typeof _address === 'string' ? (Address.fromSs58(_address) as Address) : _address
-  const ss58Address = address.toSs58(chain)
+  const ss58Address = chain ? address.toSs58(chain) : address.toSs58()
   const { toast } = useToast()
   const [copied, setCopied] = useState(false)
 
@@ -22,7 +22,7 @@ export const AddressTooltip: React.FC<
     setCopied(true)
     toast({
       title: 'Address copied!',
-      description: <p className="text-[12px]">{address.toShortSs58(chain)}</p>,
+      description: <p className="text-[12px]">{chain ? address.toSs58(chain) : address.toSs58()}</p>,
     })
   }
 

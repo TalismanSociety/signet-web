@@ -18,6 +18,7 @@ const AddMembers = (props: {
   const selectedAccount = useRecoilValue(selectedAccountState)
   const { addresses: knownAddresses } = useKnownAddresses()
 
+  console.log('known addresses: ', knownAddresses)
   const selectedAugmentedAccount = selectedAccount
     ? props.augmentedAccounts.find(a => a.address.isEqual(selectedAccount.injected.address))
     : undefined

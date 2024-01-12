@@ -4,6 +4,7 @@ import { Address } from '@util/addresses'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { AddMemberInput } from '@components/AddMemberInput'
 import toast from 'react-hot-toast'
+import AddressTooltip from '@components/AddressTooltip'
 
 type Props = {
   editable?: boolean
@@ -13,7 +14,7 @@ type Props = {
 }
 
 export const SignersSettings: React.FC<Props> = ({ editable, members, multisig, onChange }) => {
-  const { addresses: knownAddresses, contactByAddress } = useKnownAddresses(multisig.id)
+  const { addresses: knownAddresses, contactByAddress, accountsAzeroIds } = useKnownAddresses(multisig.id)
 
   const handleRemove = (address: Address) => {
     const newMembers = members.filter(m => !m.isEqual(address))
@@ -41,6 +42,7 @@ export const SignersSettings: React.FC<Props> = ({ editable, members, multisig, 
           <Member
             chain={multisig.chain}
             key={addressString}
+            a0Id={accountsAzeroIds[addressString]}
             m={{
               address: m,
               nickname: contact?.name,

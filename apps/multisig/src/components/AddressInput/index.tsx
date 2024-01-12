@@ -52,7 +52,8 @@ const AddressInput: React.FC<Props> = ({
   const [contact, setContact] = useState<AddressWithName | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
   const [resolvedAddress, setResolvedAddress] = useState<{ address: string; azeroId: string } | undefined>(undefined)
-  const { loading, address: addressFromAzero, azeroId } = useAzeroId(input, {})
+  const query = useMemo(() => value ?? input, [value, input])
+  const { loading, address: addressFromAzero, azeroId } = useAzeroId(query, {})
 
   useEffect(() => {
     if (value !== undefined && value === '') setAddress(undefined)
@@ -72,8 +73,6 @@ const AddressInput: React.FC<Props> = ({
   }
 
   useOnClickOutside(containerRef.current, blur)
-
-  const query = value ?? input
 
   // input displays a non editable pill that shows selected contact's name, address and identicon
   const controlledSelectedInput = address !== undefined
@@ -156,7 +155,6 @@ const AddressInput: React.FC<Props> = ({
         }
       }
     } catch (e) {}
-
     return undefined
   }, [query, resolvedAddress])
 

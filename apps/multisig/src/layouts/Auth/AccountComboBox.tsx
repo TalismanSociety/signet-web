@@ -3,7 +3,8 @@ import { Identicon } from '@talismn/ui'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronVertical, Search } from '@talismn/icons'
 import { useOnClickOutside } from '../../domains/common/useOnClickOutside'
-import { Tooltip } from '@talismn/ui'
+import { useAddressAzeroIdMap } from '@hooks/useAddressAzeroIdsMap'
+import AddressTooltip from '@components/AddressTooltip'
 
 type Props = {
   accounts: InjectedAccount[]
@@ -14,15 +15,17 @@ type Props = {
 const AccountRow = ({ account }: { account: InjectedAccount }) => {
   const addressString = account.address.toSs58()
   return (
-    <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <Identicon size={24} value={addressString} />
-      <p css={({ color }) => ({ marginTop: 4, color: color.lightGrey })}>
-        <span css={{ width: '100%' }}>{account.meta.name}</span>{' '}
-        <span css={({ color }) => ({ color: color.offWhite })}>
-          ({account.a0Id ? account.a0Id : account.address.toShortSs58()})
-        </span>
-      </p>
-    </div>
+    <AddressTooltip address={account.address} a0Id={account.a0Id}>
+      <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Identicon size={24} value={addressString} />
+        <p css={({ color }) => ({ marginTop: 4, color: color.lightGrey })}>
+          <span css={{ width: '100%' }}>{account.meta.name}</span>{' '}
+          <span css={({ color }) => ({ color: color.offWhite })}>
+            ({account.a0Id ? account.a0Id : account.address.toShortSs58()})
+          </span>
+        </p>
+      </div>
+    </AddressTooltip>
   )
 }
 
@@ -30,16 +33,32 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
   const [expanded, setExpanded] = useState(false)
   const ref = useRef(null)
   const [query, setQuery] = useState('')
+  const addresses = accounts.map(account => account.address)
+  const accountsAzeroIds = useAddressAzeroIdMap(addresses)
+
   useOnClickOutside(ref.current, () => setExpanded(false))
 
   const filteredAccounts = useMemo(() => {
-    return accounts.filter(acc => {
-      const isSelectedAccount = selectedAccount?.address.isEqual(acc.address)
-      const isQueryMatch =
-        !query || `${acc.meta.name} ${acc.address.toSs58()}`.toLowerCase().includes(query.toLowerCase())
-      return !isSelectedAccount && isQueryMatch
-    })
-  }, [query, accounts, selectedAccount])
+    return accounts
+      .filter(acc => {
+        const isSelectedAccount = selectedAccount?.address.isEqual(acc.address)
+        const isQueryMatch =
+          !query || `${acc.meta.name} ${acc.address.toSs58()}`.toLowerCase().includes(query.toLowerCase())
+        return !isSelectedAccount && isQueryMatch
+      })
+      .map(acc => {
+        return { ...acc, a0Id: accountsAzeroIds[acc.address.toSs58()] }
+      })
+  }, [query, accounts, selectedAccount, accountsAzeroIds])
+
+  // const filteredAccounts = useMemo(() => {
+  //   return accounts.filter(acc => {
+  //     const isSelectedAccount = selectedAccount?.address.isEqual(acc.address)
+  //     const isQueryMatch =
+  //       !query || `${acc.meta.name} ${acc.address.toSs58()}`.toLowerCase().includes(query.toLowerCase())
+  //     return !isSelectedAccount && isQueryMatch
+  //   })
+  // }, [query, accounts, selectedAccount])
 
   useEffect(() => {
     if (!expanded && query.length > 0) setQuery('')
@@ -79,9 +98,9 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
         })}
         onClick={() => setExpanded(!expanded)}
       >
-        <Tooltip content={<p css={{ fontSize: 12 }}>{selectedAccount.address.toSs58()}</p>}>
-          <AccountRow account={selectedAccount} />
-        </Tooltip>
+        {/* <Tooltip content={<p css={{ fontSize: 12 }}>{selectedAccount.address.toSs58()}</p>}> */}
+        <AccountRow account={selectedAccount} />
+        {/* </Tooltip> */}
         <div
           css={({ color }) => ({
             height: 'max-content',
@@ -151,9 +170,9 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
                   onSelect?.(acc)
                 }}
               >
-                <Tooltip content={<p css={{ fontSize: 12 }}>{selectedAccount.address.toSs58()}</p>}>
-                  <AccountRow account={acc} />
-                </Tooltip>
+                {/* <Tooltip content={<p css={{ fontSize: 12 }}>{selectedAccount.address.toSs58()}</p>}> */}
+                <AccountRow account={acc} />
+                {/* </Tooltip> */}
               </div>
             ))}
           </div>

@@ -1,6 +1,6 @@
 import { Chain } from '@domains/chains'
 import { Address } from '@util/addresses'
-import { isAzeroId } from '@util/azeroid'
+import { ShortedAzeroId, isAzeroId } from '@util/azeroid'
 
 export const NameAndAddress: React.FC<{
   address: Address
@@ -42,10 +42,12 @@ export const NameAndAddress: React.FC<{
           {name}
         </p>
         {!!secondaryValue && !nameOrAddressOnly && (
-          <p css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>
-            {a0Id}
-            <>&nbsp;&nbsp;{address.toShortSs58(chain)}</>
-          </p>
+          <div className="w-60">
+            <p className="overflow-auto" css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>
+              {a0Id}
+              <>&nbsp;&nbsp;{address.toShortSs58(chain)}</>
+            </p>
+          </div>
         )}
       </div>
     )

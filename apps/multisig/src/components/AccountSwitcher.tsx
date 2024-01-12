@@ -1,4 +1,4 @@
-import { InjectedAccount } from '@domains/extension'
+import { InjectedAccount, AddressAzeroIdMap, accountsAzeroIdState } from '@domains/extension'
 import { CircularProgressIndicator, Identicon } from '@talismn/ui'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronVertical, Search } from '@talismn/icons'
@@ -8,8 +8,7 @@ import { useSelectedMultisig } from '../domains/multisig'
 import { Address } from '../util/addresses'
 import { Chain } from '../domains/chains'
 import { AccountDetails } from './AddressInput/AccountDetails'
-import { atom, useRecoilState } from 'recoil'
-import persist from '@domains/persist'
+import { useRecoilState } from 'recoil'
 import { getAzeroId } from '@util/azeroid'
 
 type Props = {
@@ -17,16 +16,6 @@ type Props = {
   selectedAccount?: InjectedAccount
   onSelect?: (account: InjectedAccount) => void
 }
-
-type MemberAzeroIdMap = {
-  [key: string]: string | undefined
-}
-
-const accountsAzeroIdState = atom<MemberAzeroIdMap>({
-  key: 'accountsAzeroIdState',
-  default: {},
-  effects_UNSTABLE: [persist],
-})
 
 const AccountRow = ({
   account,
@@ -62,6 +51,7 @@ const AccountRow = ({
       name={account.meta.name}
       breakLine
       disableCopy
+      withAddressTooltip
     />
   </div>
 )
@@ -78,7 +68,7 @@ const AccountSwitcher: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
 
   useEffect(() => {
     async function getMemberAzeroIds(accounts: InjectedAccount[]) {
-      let memberAzeroIdMap: MemberAzeroIdMap = {}
+      let memberAzeroIdMap: AddressAzeroIdMap = {}
       for (const account of accounts) {
         const stringAddress = account.address.toSs58()
         if (stringAddress) {
@@ -158,6 +148,7 @@ const AccountSwitcher: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
             chain={multisig.chain}
             breakLine
             disableCopy
+            withAddressTooltip
           />
         </div>
         <div

@@ -55,6 +55,7 @@ export const resolveAzeroId = async (addressOrAzeroId: string, resolveAzeroIdOnl
 }
 
 export const useAzeroId = (anything: string, options: { resolveDomainOnly?: boolean }) => {
+  const [oldValue, setOldValue] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<unknown>()
   const [resolvedFor, setResolvedFor] = useState<string>()
@@ -78,21 +79,18 @@ export const useAzeroId = (anything: string, options: { resolveDomainOnly?: bool
 
   // invalidate loading state when `anything` is changed, so the next effect can be unblocked and trigger another fetch
   useEffect(() => {
+    if (oldValue !== anything) setOldValue(anything)
     setLoading(false)
-  }, [anything])
+  }, [anything, oldValue])
 
   useEffect(() => {
-    if (
-      // makes sure anything conforms to either AzeroId or Address
-      !(isAzeroId(anything) || Address.fromSs58(anything)) ||
-      // dont need to fetch again if we've already resolved for given input
-      anything === resolved.address ||
-      anything === resolved.azeroId ||
-      loading
-    )
-      return
+    if (oldValue === anything) return
+    // makes sure anything conforms to either AzeroId or Address
+    if (!(isAzeroId(anything) || Address.fromSs58(anything))) return
+    // dont need to fetch again if we've already resolved for given input
+    if (anything === resolved.address || anything === resolved.azeroId || loading) return
     handleResolve()
-  }, [anything, handleResolve, loading, resolved])
+  }, [anything, handleResolve, loading, resolved, oldValue])
 
   return { error, loading, resolvedFor, ...resolved }
 }

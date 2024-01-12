@@ -1,19 +1,40 @@
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useRecoilState } from 'recoil'
 import { AddressWithName } from '../components/AddressInput'
-import { accountsState } from '../domains/extension'
+import { InjectedAccount, AddressAzeroIdMap, accountsAzeroIdState, accountsState } from '../domains/extension'
 import { addressBookByTeamIdState } from '../domains/offchain-data'
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
+import { getAzeroId } from '@util/azeroid'
 
 export const useKnownAddresses = (
   teamId?: string
-): { addresses: AddressWithName[]; contactByAddress: Record<string, AddressWithName> } => {
+): {
+  addresses: AddressWithName[]
+  contactByAddress: Record<string, AddressWithName>
+  accountsAzeroIds: AddressAzeroIdMap
+} => {
   const extensionAccounts = useRecoilValue(accountsState)
   const addressBookByTeamId = useRecoilValue(addressBookByTeamIdState)
+  const [accountsAzeroIds, setAccountsAzeroIds] = useRecoilState(accountsAzeroIdState)
 
-  const extensionContacts: AddressWithName[] = extensionAccounts.map(({ address, meta }) => ({
+  useEffect(() => {
+    async function getMemberAzeroIds(accounts: InjectedAccount[]) {
+      let memberAzeroIdMap: AddressAzeroIdMap = {}
+      for (const account of accounts) {
+        const stringAddress = account.address.toSs58()
+        if (stringAddress) {
+          memberAzeroIdMap = { ...memberAzeroIdMap, [stringAddress]: await getAzeroId(stringAddress) }
+        }
+      }
+      setAccountsAzeroIds(memberAzeroIdMap)
+    }
+    getMemberAzeroIds(extensionAccounts)
+  }, [extensionAccounts, setAccountsAzeroIds])
+
+  const extensionContacts: AddressWithName[] = extensionAccounts.map(({ address, meta, a0Id }) => ({
     address,
     name: meta.name ?? '',
     type: 'Extension',
+    a0Id: a0Id ?? accountsAzeroIds[address.toSs58()],
     extensionName: meta.name,
   }))
 
@@ -66,5 +87,5 @@ export const useKnownAddresses = (
     }, {} as Record<string, AddressWithName>)
   }, [combinedList])
 
-  return { addresses: combinedList, contactByAddress }
+  return { addresses: combinedList, contactByAddress, accountsAzeroIds }
 }
