@@ -5,10 +5,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { requestSignetBackend } from './hasura'
 import { Address, toMultisigAddress } from '@util/addresses'
 import { Chain, supportedChains } from '../chains'
-import toast from 'react-hot-toast'
 import { Multisig, selectedMultisigIdState, useSelectedMultisig } from '../multisig'
 import { useToast } from '@components/ui/use-toast'
 import { getErrorString } from '@util/misc'
+import { captureException } from '@sentry/react'
 
 type RawTeam = {
   id: string
@@ -225,6 +225,7 @@ const parseTeam = (rawTeam: RawTeam): { team?: Team; error?: string } => {
 export const TeamsWatcher: React.FC = () => {
   const [teams, setTeams] = useRecoilState(teamsState)
   const selectedAccount = useRecoilValue(selectedAccountState)
+  const { toast } = useToast()
 
   const fetchTeams = useCallback(
     async (account: SignedInAccount) => {
@@ -252,10 +253,13 @@ export const TeamsWatcher: React.FC = () => {
         }
         if (changed) setTeams(validTeams)
       } else {
-        toast.error(error?.message || `Failed to fetch teams for ${account.injected.address.toSs58()}`)
+        toast({
+          title: 'Failed to get vaults',
+          description: error?.message || 'Please try again later.',
+        })
       }
     },
-    [setTeams, teams]
+    [setTeams, teams, toast]
   )
 
   useEffect(() => {
@@ -353,6 +357,7 @@ export const changingMultisigConfigState = atom<boolean>({
 
 export const useUpdateMultisigConfig = () => {
   const setTeams = useSetRecoilState(teamsState)
+  const { toast } = useToast()
 
   const updateMultisigConfig = useCallback(
     async (newMultisig: Multisig, signedInAs: SignedInAccount | null) => {
@@ -387,7 +392,9 @@ export const useUpdateMultisigConfig = () => {
           if (res.error) throw new Error(res.error)
         } catch (e) {
           console.error(e)
-          toast.error('Failed to save multisig config change.')
+          toast({
+            title: 'Failed to save multisig config change.',
+          })
         }
       }
 
@@ -414,7 +421,7 @@ export const useUpdateMultisigConfig = () => {
         return newTeams
       })
     },
-    [setTeams]
+    [setTeams, toast]
   )
 
   return { updateMultisigConfig }
@@ -491,6 +498,7 @@ export const useAddCollaborator = () => {
         })
         return true
       } catch (e) {
+        captureException(e)
         toast({
           title: 'Failed to add collaborator',
           description: getErrorString(e),
@@ -504,4 +512,90 @@ export const useAddCollaborator = () => {
   )
 
   return { addCollaborator, adding, selectedMultisig }
+}
+
+export const useDeleteCollaborator = () => {
+  const signedInAs = useRecoilValue(selectedAccountState)
+  const [deleting, setDeleting] = useState(false)
+  const [teams, setTeams] = useRecoilState(teamsState)
+  const { toast } = useToast()
+
+  const deleteCollaborator = useCallback(
+    async (teamId: string, userId: string) => {
+      // this shouldnt happen
+      if (!signedInAs) {
+        toast({
+          title: 'Failed to add collaborator',
+          description: 'Unauthorized',
+        })
+        return false
+      }
+
+      if (!teams) return false
+      const team = teams.find(team => team.id === teamId)
+      if (!team) return false
+
+      const user = team.collaborators.find(collaborator => collaborator.id === userId)
+      if (!user) return false
+
+      try {
+        setDeleting(true)
+        const res = await requestSignetBackend(
+          gql`
+            mutation DeleteCollaborator($teamId: uuid!, $userId: uuid!) {
+              delete_team_user_role_by_pk(team_id: $teamId, user_id: $userId) {
+                team_id
+                user_id
+              }
+            }
+          `,
+          {
+            teamId,
+            userId,
+          },
+          signedInAs
+        )
+
+        if (res.error) throw new Error(res.error)
+
+        if (res.data?.delete_team_user_role_by_pk?.team_id !== teamId) {
+          throw new Error('Failed to delete collaborator')
+        }
+
+        toast({
+          title: 'Deleted collaborator',
+          description: `Removed ${user.address.toShortSs58(team.chain)} as collaborator`,
+        })
+
+        // update in memory cache for instant UI feedback
+        setTeams(teams => {
+          const newTeams = [...(teams ?? [])]
+          if (!newTeams) return newTeams
+
+          const teamIndex = newTeams.findIndex(team => team.id === teamId)
+          if (teamIndex >= 0) {
+            const newTeam = newTeams[teamIndex]
+            if (!newTeam) return newTeams // this shouldnt happen, only for type safety
+
+            newTeam.collaborators = newTeam.collaborators.filter(collaborator => collaborator.id !== userId)
+            newTeams[teamIndex] = newTeam
+          }
+
+          return newTeams
+        })
+      } catch (e) {
+        captureException(e, { extra: { teamId, userId } })
+        toast({
+          title: 'Failed to delete collaborator',
+          description: getErrorString(e),
+        })
+        return false
+      } finally {
+        setDeleting(false)
+      }
+    },
+    [setTeams, signedInAs, teams, toast]
+  )
+
+  return { deleting, deleteCollaborator }
 }
