@@ -5,7 +5,7 @@ import truncateMiddle from 'truncate-middle'
 import { Multisig } from '@domains/multisig'
 import { copyToClipboard } from '@domains/common'
 import { Link } from 'react-router-dom'
-import { ShortedAzeroId } from '@util/azeroid'
+import { ShortenAzeroId } from '@util/azeroid'
 
 type Props = {
   multisigs: Multisig[]
@@ -84,7 +84,7 @@ const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; select
       </p>
       <div css={{ display: 'flex', gap: 4 }}>
         <p css={{ fontSize: 12, marginTop: 2 }}>
-          {multisig.azeroID ? ShortedAzeroId(multisig.azeroID) : multisig.proxyAddress.toShortSs58(multisig.chain)}
+          {multisig.azeroID ? ShortenAzeroId(multisig.azeroID) : multisig.proxyAddress.toShortSs58(multisig.chain)}
         </p>
         {!disableCopy && (
           <Copy

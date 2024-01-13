@@ -4,7 +4,6 @@ import { Address } from '@util/addresses'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { AddMemberInput } from '@components/AddMemberInput'
 import toast from 'react-hot-toast'
-import AddressTooltip from '@components/AddressTooltip'
 
 type Props = {
   editable?: boolean
