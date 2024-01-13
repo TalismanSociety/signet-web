@@ -424,6 +424,7 @@ export const useAddCollaborator = () => {
   const [adding, setAdding] = useState(false)
   const signedInAs = useRecoilValue(selectedAccountState)
   const [selectedMultisig] = useSelectedMultisig()
+  const setTeams = useSetRecoilState(teamsState)
   const { toast } = useToast()
 
   const addCollaborator = useCallback(
@@ -438,9 +439,55 @@ export const useAddCollaborator = () => {
       }
       try {
         setAdding(true)
+        const res = await requestSignetBackend(
+          gql`
+            mutation AddNewCollaborator($collaborator: AddCollaboratorInput!) {
+              addCollaborator(collaborator: $collaborator) {
+                success
+                userId
+                error
+              }
+            }
+          `,
+          {
+            collaborator: {
+              address: address.toSs58(),
+              team_id: selectedMultisig.id,
+            },
+          },
+          signedInAs
+        )
+
+        if (res.data?.addCollaborator?.error) {
+          toast({
+            title: 'Failed to add collaborator',
+            description: res.data?.addCollaborator?.error,
+          })
+          return false
+        }
+
+        if (res.error) throw new Error(res.error)
+
         toast({
           title: 'Added collaborator',
           description: `Added ${address.toShortSs58(selectedMultisig.chain)} as collaborator`,
+        })
+
+        // update in memory cache for instant UI feedback
+        setTeams(teams => {
+          const newTeams = [...(teams ?? [])]
+          if (!newTeams) return newTeams
+
+          const teamIndex = newTeams.findIndex(team => team.id === selectedMultisig.id)
+          if (teamIndex >= 0) {
+            const newTeam = newTeams[teamIndex]
+            if (!newTeam) return newTeams // this shouldnt happen, only for type safety
+
+            newTeam.collaborators = [...newTeam.collaborators, { id: res.data?.addCollaborator?.userId, address }]
+            newTeams[teamIndex] = newTeam
+          }
+
+          return newTeams
         })
         return true
       } catch (e) {
@@ -453,7 +500,7 @@ export const useAddCollaborator = () => {
         setAdding(false)
       }
     },
-    [selectedMultisig.chain, signedInAs, toast]
+    [selectedMultisig.chain, selectedMultisig.id, setTeams, signedInAs, toast]
   )
 
   return { addCollaborator, adding, selectedMultisig }

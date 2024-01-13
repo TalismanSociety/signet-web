@@ -3,10 +3,16 @@ import { useSelectedMultisig } from '@domains/multisig'
 import { useState } from 'react'
 import { Layout } from '../../layouts/Layout'
 import { AddCollaboratorModal } from './AddCollaboratorModal'
+import { AccountDetails } from '@components/AddressInput/AccountDetails'
+import { useKnownAddresses } from '@hooks/useKnownAddresses'
+import { Trash } from '@talismn/icons'
+import { Tooltip } from '@components/ui/tooltip'
 
 export const Collaborators: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const [showAddModal, setShowAddModal] = useState(false)
+  const { contactByAddress } = useKnownAddresses(selectedMultisig.id, { includeContracts: true })
+
   return (
     <Layout selected="Collaborators" requiresMultisig>
       <div className="flex flex-col py-[32px] px-[8%] gap-[32px] flex-1">
@@ -27,7 +33,18 @@ export const Collaborators: React.FC = () => {
                 Your vault does not have any collaborator yet.
               </div>
             ) : (
-              <div>{selectedMultisig.collaborators.map(({ address }) => address.toSs58())}</div>
+              <div className="grid gap-[12px]">
+                {selectedMultisig.collaborators.map(({ id, address }) => (
+                  <div className="w-full bg-gray-900 p-[16px] rounded-[12px] flex items-center justify-between">
+                    <AccountDetails key={id} address={address} name={contactByAddress?.[address.toSs58()]?.name} />
+                    <Tooltip content="Remove collaborator">
+                      <Button size="icon" variant="ghost">
+                        <Trash size={16} />
+                      </Button>
+                    </Tooltip>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>

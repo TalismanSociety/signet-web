@@ -66,7 +66,7 @@ export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <Button type="button" variant="outline" disabled={adding} onClick={handleClose}>
             <p>Cancel</p>
           </Button>
-          <Button disabled={disabled || conflict || adding} loading={adding} onClick={handleCreateContact}>
+          <Button disabled={disabled || adding} loading={adding} onClick={handleCreateContact}>
             <p>Save</p>
           </Button>
         </div>
