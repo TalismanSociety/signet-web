@@ -104,9 +104,10 @@ const TransactionSummaryRow = ({
           alignItems: 'center',
           gap: '12px',
           color: 'var(--color-offWhite)',
+          overflow: 'hidden',
         }}
       >
-        <p>{t.description}</p>
+        <p className="whitespace-nowrap overflow-hidden text-ellipsis mr-[4px]">{t.description}</p>
         {combinedView ? (
           <div css={{ display: 'flex', alignItems: 'center' }}>
             <img css={{ height: 16 }} src={t.multisig.chain.logo} alt={t.multisig.chain.chainName} />

@@ -1,23 +1,28 @@
 import { Button } from '@components/ui/button'
+import { Checkbox } from '@components/ui/checkbox'
 import { selectedAccountState } from '@domains/auth'
 import { multisigDepositTotalSelector, tokenPriceState } from '@domains/chains'
 import { accountsState } from '@domains/extension'
 import { Balance, Transaction, TransactionType, usePendingTransactions, useSelectedMultisig } from '@domains/multisig'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
+import { cn } from '@util/tailwindcss'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 
 export const SignerCta: React.FC<{
+  canReject?: boolean
   onApprove: Function
-  onSaveDraft: Function
   onCancel: Function
+  onReject: Function
+  onSaveDraft: Function
   readyToExecute: boolean
+  rejecting: boolean
   fee?: Balance
   t: Transaction
   loading: boolean
-}> = ({ onApprove, onCancel, onSaveDraft, fee, loading, readyToExecute, t }) => {
+}> = ({ canReject, onApprove, onCancel, onReject, onSaveDraft, fee, loading, readyToExecute, rejecting, t }) => {
   const extensionAccounts = useRecoilValue(accountsState)
   const [asDraft, setAsDraft] = useState(false)
   const { transactions: pendingTransactions, loading: pendingLoading } = usePendingTransactions()
@@ -36,8 +41,9 @@ export const SignerCta: React.FC<{
   }, [asDraft, onApprove, onSaveDraft])
 
   const handleToggleAsDraft = useCallback(() => {
+    if (loading) return
     setAsDraft(asDraft => (isCreating ? !asDraft : false))
-  }, [isCreating])
+  }, [isCreating, loading])
 
   const missingExecutionCallData = useMemo(() => readyToExecute && !t.callData, [readyToExecute, t.callData])
 
@@ -56,15 +62,15 @@ export const SignerCta: React.FC<{
   }, [t])
 
   const canApproveAsChangeConfig = useMemo(() => {
-    if (t.decoded?.type !== TransactionType.ChangeConfig) return true
+    if (t.decoded?.type !== TransactionType.ChangeConfig || !t.rawPending) return true
     const otherTx = pendingTransactions.filter(tx => tx.decoded?.type !== TransactionType.ChangeConfig)
     return !pendingLoading && otherTx.length === 0 && pendingTransactions.length <= 1
-  }, [pendingLoading, pendingTransactions, t.decoded?.type])
+  }, [pendingLoading, pendingTransactions, t.decoded?.type, t.rawPending])
 
   const warningMessage = useMemo(() => {
     if (missingExecutionCallData) return 'Cannot execute transaction without calldata'
     if (!connectedAccountCanApprove) return 'All connected extension accounts have already signed this transaction'
-    if (t.decoded?.type === TransactionType.ChangeConfig) {
+    if (t.decoded?.type === TransactionType.ChangeConfig && t.rawPending) {
       if (pendingLoading) return <Skeleton.Surface className="h-[16px] w-[60px]" />
       if (!canApproveAsChangeConfig)
         return `You must execute or cancel all pending transactions (${
@@ -80,6 +86,7 @@ export const SignerCta: React.FC<{
     pendingLoading,
     pendingTransactions.length,
     t.decoded?.type,
+    t.rawPending,
   ])
 
   const reserveComponent = useMemo(() => {
@@ -131,31 +138,49 @@ export const SignerCta: React.FC<{
               {reserveComponent}
             </div>
           )}
+          {isCreating && (
+            <div className="flex items-center justify-end w-full mt-[12px]">
+              <Checkbox checked={asDraft} onCheckedChange={handleToggleAsDraft} disabled={loading} />
+              <p
+                className={cn(
+                  'mt-[3px] ml-[8px] text-offWhite select-none',
+                  loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
+                )}
+                onClick={handleToggleAsDraft}
+              >
+                Save as Draft
+              </p>
+            </div>
+          )}
         </div>
       )}
+
       <div className="grid grid-cols-2 gap-[12px] w-full">
-        <Button variant="outline" className="w-full" onClick={() => onCancel()}>
-          Cancel
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => (t.rawPending ? onReject() : onCancel())}
+          disabled={t.rawPending ? rejecting || !canReject : false}
+          loading={rejecting}
+        >
+          {t.rawPending ? (canReject ? 'Reject' : 'Only originator can reject') : 'Cancel'}
         </Button>
         <div className="w-full flex items-center flex-col justify-center">
           <Button
             className="w-full"
             onClick={handleApprove}
             disabled={
-              missingExecutionCallData || !connectedAccountCanApprove || !canApproveAsChangeConfig || !fee || loading
+              missingExecutionCallData ||
+              !connectedAccountCanApprove ||
+              !canApproveAsChangeConfig ||
+              !fee ||
+              loading ||
+              rejecting
             }
             loading={loading}
           >
             {asDraft ? 'Save as Draft' : readyToExecute ? 'Approve & Execute' : 'Approve'}
           </Button>
-          {isCreating && (
-            <p
-              className="text-center underline text-offWhite mt-[8px] cursor-pointer hover:text-gray-200 select-none"
-              onClick={handleToggleAsDraft}
-            >
-              {asDraft ? 'Approve now' : 'Save as Draft'}
-            </p>
-          )}
         </div>
       </div>
     </div>
@@ -195,6 +220,18 @@ export const CollaboratorCta: React.FC<{
     )
   }
 
+  if (t.rawPending)
+    return (
+      <div className="grid grid-cols-2 gap-[12px] w-full">
+        <Button className="w-full" onClick={() => onCancel()} variant="outline">
+          Cancel
+        </Button>
+        <Button className="w-full" disabled>
+          You're not a signer.
+        </Button>
+      </div>
+    )
+
   return (
     <div className="grid grid-cols-2 gap-[12px] w-full">
       <Button className="w-full" onClick={() => onCancel()} variant="outline">
@@ -208,15 +245,30 @@ export const CollaboratorCta: React.FC<{
 }
 
 export const TransactionSidesheetFooter: React.FC<{
+  canReject?: boolean
   fee?: Balance
   readyToExecute: boolean
   t: Transaction
   onCancel: Function
   onApprove: Function
   onDeleteDraft: Function
+  onReject: Function
   onSaveDraft: Function
   loading: boolean
-}> = ({ onApprove, onCancel, onDeleteDraft, onSaveDraft, fee, loading, readyToExecute, t }) => {
+  rejecting: boolean
+}> = ({
+  canReject,
+  onApprove,
+  onCancel,
+  onDeleteDraft,
+  onReject,
+  onSaveDraft,
+  fee,
+  loading,
+  readyToExecute,
+  rejecting,
+  t,
+}) => {
   const [selectedMultisig] = useSelectedMultisig()
   const signer = useRecoilValue(selectedAccountState)
 
@@ -239,11 +291,14 @@ export const TransactionSidesheetFooter: React.FC<{
 
   return (
     <SignerCta
+      canReject={canReject}
       fee={fee}
       loading={loading}
+      rejecting={rejecting}
       onApprove={onApprove}
       onSaveDraft={onSaveDraft}
       onCancel={onCancel}
+      onReject={onReject}
       readyToExecute={readyToExecute}
       t={t}
     />

@@ -418,7 +418,7 @@ export const extrinsicToDecoded = (
   multisig: Multisig,
   extrinsic: SubmittableExtrinsic<'promise'>,
   chainTokens: BaseToken[],
-  metadata?: TxMetadata | null,
+  metadata?: Partial<TxMetadata> | null,
   defaultName?: string
 ): { decoded: TransactionDecoded; description: string } | 'not_ours' => {
   try {
@@ -466,7 +466,7 @@ export const extrinsicToDecoded = (
         const recipients: (TransactionRecipient | null)[] = obj.args.calls.map((call: any) =>
           callToTransactionRecipient(call, chainTokens)
         )
-        if (!recipients.includes(null) && recipients.length > 1) {
+        if (!recipients.includes(null) && recipients.length >= 1) {
           return {
             decoded: {
               type: TransactionType.MultiSend,

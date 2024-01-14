@@ -28,7 +28,8 @@ export const CallDataPasteForm = (props: {
         if (props.extrinsic) return
 
         try {
-          const extrinsic = decodeCallData(apiLoadable.contents, event.clipboardData.getData('text') as `0x{string}`)
+          const calldata = event.clipboardData.getData('text') as `0x{string}`
+          const extrinsic = decodeCallData(apiLoadable.contents, calldata)
           if (!extrinsic) throw Error('extrinsic should be loaded, did you try to set before loading was ready?')
           props.setExtrinsic(extrinsic)
         } catch (error) {

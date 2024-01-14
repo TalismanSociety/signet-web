@@ -1,4 +1,4 @@
-import { ApiPromise } from '@polkadot/api'
+import { ApiPromise, SubmittableResult } from '@polkadot/api'
 import { useCallback, useMemo, useState } from 'react'
 import { allChainTokensSelector, decodeCallData, useApproveAsMulti, useAsMulti } from '../chains'
 import { Multisig } from './types'
@@ -21,7 +21,7 @@ export const useMultisigExtrinsicFromCalldata = (
   team: Multisig,
   calldata: `0x${string}`,
   api?: ApiPromise,
-  otherTxMetadata?: TxOffchainMetadata,
+  otherTxMetadata?: Pick<TxOffchainMetadata, 'changeConfigDetails'>,
   submittedTx?: Transaction
 ) => {
   const [approving, setApproving] = useState(false)
@@ -53,9 +53,11 @@ export const useMultisigExtrinsicFromCalldata = (
     return { ok: true, extrinsic: proxyExtrinsic }
   }, [api, innerExtrinsic?.error, innerExtrinsic?.extrinsic, submittedTx, team.proxyAddress.bytes])
 
-  const hash = proxyExtrinsic?.extrinsic
-    ? proxyExtrinsic?.extrinsic?.registry.hash(proxyExtrinsic.extrinsic.method.toU8a()).toHex()
-    : undefined
+  const hash =
+    submittedTx?.hash ??
+    (proxyExtrinsic?.extrinsic
+      ? proxyExtrinsic?.extrinsic?.registry.hash(proxyExtrinsic.extrinsic.method.toU8a()).toHex()
+      : undefined)
 
   const t: Transaction | undefined = useMemo(() => {
     if (submittedTx) return submittedTx
@@ -64,7 +66,7 @@ export const useMultisigExtrinsicFromCalldata = (
     const curChainTokens = allActiveChainTokens.contents.get(team.chain.squidIds.chainData)
 
     if (!proxyExtrinsic?.extrinsic || !curChainTokens) return undefined
-    const decoded = extrinsicToDecoded(team, proxyExtrinsic?.extrinsic, curChainTokens)
+    const decoded = extrinsicToDecoded(team, proxyExtrinsic?.extrinsic, curChainTokens, otherTxMetadata)
 
     // only for type safety, this should not happen because proxy address is crafted on the spot
     if (decoded === 'not_ours') return undefined
@@ -86,6 +88,7 @@ export const useMultisigExtrinsicFromCalldata = (
     allActiveChainTokens.contents,
     team,
     proxyExtrinsic?.extrinsic,
+    otherTxMetadata,
     hash,
     description,
   ])
@@ -97,8 +100,17 @@ export const useMultisigExtrinsicFromCalldata = (
   }, [team.threshold, t])
 
   const signer = useNextTransactionSigner(t?.approvals)
-  const { approveAsMulti, estimatedFee, ready } = useApproveAsMulti(signer?.address, hash, null, t?.multisig)
-  const { asMulti } = useAsMulti(
+  const {
+    approveAsMulti,
+    estimatedFee: approveFee,
+    ready: approveReady,
+  } = useApproveAsMulti(signer?.address, hash, null, t?.multisig)
+
+  const {
+    asMulti,
+    estimatedFee: asMultiFee,
+    ready: asMultiReady,
+  } = useAsMulti(
     signer?.address,
     api && t?.callData ? decodeCallData(api, t?.callData) : undefined,
     t?.rawPending?.onChainMultisig.when,
@@ -106,28 +118,57 @@ export const useMultisigExtrinsicFromCalldata = (
   )
 
   const approve = useCallback(async () => {
-    await new Promise((resolve, reject) => {
-      // this should not happen because if !extrinsic the summary would not be open
-      if (!proxyExtrinsic?.extrinsic || !t) return
-
+    return await new Promise<{ result: SubmittableResult; executed: boolean }>((resolve, reject) => {
+      if (!t?.callData) return reject(new Error('No call data'))
       setApproving(true)
-      approveAsMulti({
-        metadata: {
-          description: t?.description,
-          callData: proxyExtrinsic?.extrinsic.method.toHex(),
-          ...otherTxMetadata,
-        },
-        onSuccess: r => {
-          setApproving(false)
-          resolve(r)
-        },
-        onFailure: e => {
-          reject(e)
-          setApproving(false)
-        },
-      })
-    })
-  }, [approveAsMulti, otherTxMetadata, proxyExtrinsic?.extrinsic, t])
 
-  return { innerExtrinsic, proxyExtrinsic, hash, approving, approve, t, estimatedFee, ready, readyToExecute }
+      // approve tx if not ready to execute
+      if (!readyToExecute) {
+        approveAsMulti({
+          metadata: {
+            description: t?.description,
+            callData: t.callData,
+            ...otherTxMetadata,
+          },
+          onSuccess: r => {
+            setApproving(false)
+            resolve({ result: r, executed: false })
+          },
+          onFailure: e => {
+            reject(e)
+            setApproving(false)
+          },
+        })
+      } else {
+        // execute tx since it already has enough approvals
+        if (!asMultiReady) {
+          setApproving(false)
+          console.error("attempt to call asMulti before it's ready")
+          return reject(new Error('Please try again later.'))
+        }
+        asMulti({
+          onSuccess(r) {
+            setApproving(false)
+            resolve({ result: r, executed: true })
+          },
+          onFailure(e) {
+            setApproving(false)
+            reject(e)
+          },
+        })
+      }
+    })
+  }, [approveAsMulti, asMulti, asMultiReady, otherTxMetadata, readyToExecute, t])
+
+  return {
+    innerExtrinsic,
+    proxyExtrinsic,
+    hash,
+    approving,
+    approve,
+    t,
+    estimatedFee: readyToExecute ? asMultiFee : approveFee,
+    ready: readyToExecute ? asMultiReady : approveReady,
+    readyToExecute,
+  }
 }

@@ -11,9 +11,8 @@ import { validatorsState } from '@domains/staking/ValidatorsWatcher'
 import { useConsts } from '@domains/chains/ConstsWatcher'
 import { useToast } from '@components/ui/use-toast'
 import { useNominateTransaction } from '../../domains/staking/useNominateTransaction'
-import TransactionSummarySideSheet from '../Overview/Transactions/TransactionSummarySideSheet'
-import { ValidatorsRotationSummaryDetails } from './ValidatorsRotationSummaryDetails'
 import { useNavigate } from 'react-router-dom'
+import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
 
 const NominationCard: React.FC<Nomination & { onClick: () => void; disabled?: boolean; icon?: React.ReactNode }> = ({
   address,
@@ -125,12 +124,7 @@ export const ValidatorsRotation: React.FC<{
   }, [added, deleted, nominations])
 
   const description = `Nominate Validators from Pool #${pool?.id}`
-  const { approveAsMulti, transaction, estimatedFee, ready } = useNominateTransaction(
-    address,
-    description,
-    newNominations,
-    pool
-  )
+  const { extrinsic } = useNominateTransaction(address, description, newNominations, pool)
 
   const nothingChanged = deletedNominations.length === 0 && added.length === 0
 
@@ -321,51 +315,26 @@ export const ValidatorsRotation: React.FC<{
           Review
         </Button>
       </div>
-      <TransactionSummarySideSheet
-        canCancel
-        cancelButtonTextOverride="Back"
-        onApprove={() =>
-          new Promise(async (resolve, reject) => {
-            if (!transaction) return
-
-            approveAsMulti({
-              onSuccess: () => {
-                toast({
-                  title: 'Transaction Successful!',
-                  description: 'Your transaction has been sent and is waiting for approvals from multisig.',
-                })
-                navigate('/overview')
-                resolve()
-              },
-              onFailure: e => {
-                setReviewing(false)
-                toast({ title: 'Transaction failed', description: 'Please try again.', variant: 'destructive' })
-                console.error(e)
-                reject()
-              },
-              metadata: {
-                callData: transaction?.calldata,
-                description,
-              },
+      {extrinsic && (
+        <TransactionSidesheet
+          calldata={extrinsic.method.toHex()}
+          description={description}
+          open={reviewing}
+          onApproveFailed={e => {
+            setReviewing(false)
+            console.error(e)
+            toast({
+              title: 'Failed to approve transaction',
+              description: e.message,
             })
-          })
-        }
-        onCancel={async () => setReviewing(false)}
-        onClose={() => setReviewing(false)}
-        open={reviewing}
-        fee={ready ? estimatedFee : undefined}
-        t={transaction}
-        transactionDetails={
-          <ValidatorsRotationSummaryDetails
-            chain={multisig.chain}
-            currentNominations={nominations.map(({ address }) => address)}
-            newNominations={newNominations}
-            poolId={pool?.id}
-            hash={transaction?.hash}
-            callData={transaction?.calldata}
-          />
-        }
-      />
+          }}
+          onApproved={() => {
+            toast({ title: 'Transaction successful' })
+            navigate('/overview')
+          }}
+          onClose={() => setReviewing(false)}
+        />
+      )}
     </>
   )
 }

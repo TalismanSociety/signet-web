@@ -12,6 +12,7 @@ import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import { Layout } from '../../Layout'
 import { DetailsForm } from './DetailsForm'
 import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { useToast } from '@components/ui/use-toast'
 
 enum Step {
   Details,
@@ -29,6 +30,7 @@ const SendAction = () => {
   const multisig = useRecoilValue(selectedMultisigState)
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.rpcs))
   const navigate = useNavigate()
+  const { toast } = useToast()
 
   const defaultName = name || `Send ${selectedToken?.symbol || 'Token'}`
 
@@ -68,7 +70,21 @@ const SendAction = () => {
 
   const handleApproved = useCallback(() => {
     navigate('/overview')
-  }, [navigate])
+    toast({
+      title: 'Transaction successful!',
+    })
+  }, [navigate, toast])
+
+  const handleFailed = useCallback(
+    (err: Error) => {
+      setStep(Step.Details)
+      toast({
+        title: 'Transaction failed',
+        description: err.message,
+      })
+    },
+    [toast]
+  )
 
   return (
     <Layout selected="Send" requiresMultisig>
@@ -94,6 +110,7 @@ const SendAction = () => {
               open={step === Step.Review}
               onClose={() => setStep(Step.Details)}
               onApproved={handleApproved}
+              onApproveFailed={handleFailed}
             />
           )}
           {/* <SideSheet

@@ -8,14 +8,19 @@ import { TransactionSidesheetApprovals } from './TransactionSidesheetApprovals'
 import { TransactionSidesheetFooter } from './TransactionSidesheetFooter'
 import { useApi } from '@domains/chains/pjs-api'
 import { useMultisigExtrinsicFromCalldata } from '@domains/multisig/useMultisigExtrinsicFromCalldata'
+import { useCancelAsMulti } from '@domains/chains'
+import { getErrorString } from '@util/misc'
+import { SubmittableResult } from '@polkadot/api'
 
 type TransactionSidesheetProps = {
+  onApproved?: (res: { result: SubmittableResult; executed: boolean }) => void
+  onApproveFailed?: (err: Error) => void
   onClose?: () => void
-  onApproved?: () => void
+  onRejected?: (res: { ok: boolean; error?: string }) => void
   open?: boolean
   description: string
   calldata: `0x${string}`
-  otherTxMetadata?: TxOffchainMetadata
+  otherTxMetadata?: Pick<TxOffchainMetadata, 'changeConfigDetails'>
   t?: Transaction
 }
 
@@ -24,33 +29,72 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   calldata,
   otherTxMetadata,
   onApproved,
+  onApproveFailed,
   onClose,
+  onRejected,
   open,
   t: submittedTx,
 }) => {
   const [loading, setLoading] = useState(false)
+  const [rejecting, setRejecting] = useState(false)
   const [selectedMultisig] = useSelectedMultisig()
   const { api } = useApi(selectedMultisig.chain.rpcs)
-  const { approve, approving, estimatedFee, proxyExtrinsic, ready, readyToExecute, t } =
-    useMultisigExtrinsicFromCalldata(description, selectedMultisig, calldata, api, otherTxMetadata, submittedTx)
+  const { approve, approving, estimatedFee, readyToExecute, t } = useMultisigExtrinsicFromCalldata(
+    description,
+    selectedMultisig,
+    calldata,
+    api,
+    otherTxMetadata,
+    submittedTx
+  )
+  const { cancelAsMulti, canCancel: canReject } = useCancelAsMulti(t)
 
-  const handleClose = useCallback(() => {
+  const handleClose = useCallback(async () => {
     if (loading) return
     onClose?.()
+    return
   }, [loading, onClose])
 
   const handleApprove = useCallback(async () => {
-    if (readyToExecute) {
-      // TODO: execute transaction
-    } else {
-      // TODO: approve transaction
+    setLoading(true)
+    try {
+      const r = await approve()
+      onApproved?.(r)
+    } catch (e) {
+      if (e === 'Cancelled') return
+      onApproveFailed?.(e instanceof Error ? e : new Error(getErrorString(e)))
+    } finally {
+      setLoading(false)
     }
-    onApproved?.()
-  }, [onApproved, readyToExecute])
+  }, [approve, onApproveFailed, onApproved])
+
+  const handleReject = useCallback(async () => {
+    if (!canReject) return
+
+    // reject transaction
+    setRejecting(true)
+    try {
+      await cancelAsMulti({
+        onSuccess: () => {
+          onRejected?.({ ok: true })
+          setRejecting(false)
+        },
+        onFailure: err => {
+          setRejecting(false)
+          if (err === 'Cancelled') return
+          onRejected?.({ ok: false, error: err })
+        },
+      })
+    } catch (e) {
+      onRejected?.({ ok: false, error: getErrorString(e) })
+      setRejecting(false)
+    }
+  }, [canReject, cancelAsMulti, onRejected])
 
   const handleSaveDraft = useCallback(() => {
     setLoading(true)
     try {
+      console.log('Saved draft')
     } catch (e) {
     } finally {
       setLoading(false)
@@ -95,12 +139,15 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
               <TransactionSidesheetFooter
                 onApprove={handleApprove}
                 onCancel={handleClose}
+                onReject={handleReject}
                 onDeleteDraft={handleDeleteDraft}
                 onSaveDraft={handleSaveDraft}
                 readyToExecute={readyToExecute}
+                rejecting={rejecting}
                 t={t}
                 fee={estimatedFee}
                 loading={loading || approving}
+                canReject={canReject}
               />
             )}
           </div>

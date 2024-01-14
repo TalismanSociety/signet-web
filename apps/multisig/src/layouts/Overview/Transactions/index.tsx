@@ -1,35 +1,19 @@
-import { decodeCallData, useApproveAsMulti, useAsMulti, useCancelAsMulti } from '@domains/chains'
-import { pjsApiSelector } from '@domains/chains/pjs-api'
-import { rawPendingTransactionsDependency, useAddressIsProxyDelegatee } from '@domains/chains/storage-getters'
-import {
-  Transaction,
-  TransactionType,
-  selectedMultisigState,
-  useNextTransactionSigner,
-  usePendingTransactions,
-  useSelectedMultisig,
-} from '@domains/multisig'
+import { rawPendingTransactionsDependency } from '@domains/chains/storage-getters'
+import { Transaction, selectedMultisigState, usePendingTransactions } from '@domains/multisig'
 import { unknownConfirmedTransactionsState, useConfirmedTransactions } from '@domains/tx-history'
 import { css } from '@emotion/css'
-import { CircularProgressIndicator, EyeOfSauronProgressIndicator, SideSheet } from '@talismn/ui'
-import { toMultisigAddress } from '@util/addresses'
+import { CircularProgressIndicator, EyeOfSauronProgressIndicator } from '@talismn/ui'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { toast } from 'react-hot-toast'
+import { useEffect, useMemo, useState } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 
-import { FullScreenDialogContents, FullScreenDialogTitle } from './FullScreenSummary'
 import TransactionSummaryRow from './TransactionSummaryRow'
 import { groupTransactionsByDay } from './utils'
-import { changingMultisigConfigState, useUpdateMultisigConfig } from '@domains/offchain-data/teams'
-import { selectedAccountState } from '@domains/auth/index'
-import TransactionDetailsExpandable from './TransactionDetailsExpandable'
-import { useNominations } from '@domains/staking/useNominations'
-import { useNomPoolOf } from '@domains/staking/useNomPool'
-import { ValidatorsRotationSummaryDetails } from '../../Staking/ValidatorsRotationSummaryDetails'
+import { changingMultisigConfigState } from '@domains/offchain-data/teams'
 import { makeTransactionID } from '@util/misc'
 import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { useToast } from '@components/ui/use-toast'
 
 enum Mode {
   Pending,
@@ -45,42 +29,20 @@ function extractHash(url: string) {
   return parts[txIndex + 1]
 }
 
-const TransactionsList = ({ nominations, transactions }: { nominations?: string[]; transactions: Transaction[] }) => {
+const TransactionsList = ({ transactions }: { transactions: Transaction[] }) => {
   let location = useLocation().pathname
   const navigate = useNavigate()
   const groupedTransactions = useMemo(() => {
     return groupTransactionsByDay(transactions)
   }, [transactions])
-  const selectedAccount = useRecoilValue(selectedAccountState)
   const _selectedMultisig = useRecoilValue(selectedMultisigState)
   const openTransaction = useMemo(
     () => transactions.find(t => t.hash === extractHash(location)),
     [transactions, location]
   )
   const multisig = openTransaction?.multisig || _selectedMultisig
-  const nextSigner = useNextTransactionSigner(openTransaction?.approvals)
-  const { approveAsMulti, estimatedFee: approveAsMultiEstimatedFee } = useApproveAsMulti(
-    nextSigner?.address,
-    openTransaction?.hash,
-    openTransaction?.rawPending?.onChainMultisig.when,
-    multisig
-  )
-  const { addressIsProxyDelegatee } = useAddressIsProxyDelegatee(multisig.chain)
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(openTransaction?.multisig.chain.rpcs || []))
-  const maybeCallData =
-    (apiLoadable.state === 'hasValue' &&
-      openTransaction?.callData &&
-      decodeCallData(apiLoadable.contents, openTransaction.callData)) ||
-    undefined
-  const { asMulti, estimatedFee: asMultiEstimatedFee } = useAsMulti(
-    nextSigner?.address,
-    maybeCallData,
-    openTransaction?.rawPending?.onChainMultisig.when,
-    multisig
-  )
-  const { cancelAsMulti, canCancel } = useCancelAsMulti(openTransaction)
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
-  const { updateMultisigConfig } = useUpdateMultisigConfig()
+  const { toast } = useToast()
   const setChangingMultisigConfig = useSetRecoilState(changingMultisigConfigState)
   const setUnknownTransactions = useSetRecoilState(unknownConfirmedTransactionsState)
 
@@ -97,39 +59,6 @@ const TransactionsList = ({ nominations, transactions }: { nominations?: string[
       navigate('/overview')
     }
   }, [location, openTransaction, navigate])
-
-  const readyToExecute = useMemo(() => {
-    const nApprovals = Object.values(openTransaction?.approvals || {}).filter(a => a).length
-    const threshold = multisig.threshold
-    return nApprovals >= threshold - 1
-  }, [openTransaction, multisig.threshold])
-
-  const detailsSelector = useCallback(
-    (transaction?: Transaction) => {
-      if (!transaction) return null
-      if (transaction.decoded) {
-        // find the component for the relevant transaction type
-        switch (transaction.decoded.type) {
-          case TransactionType.NominateFromNomPool:
-            return (
-              <ValidatorsRotationSummaryDetails
-                currentNominations={nominations ?? []}
-                newNominations={transaction.decoded.nominate?.validators ?? []}
-                chain={transaction.multisig.chain}
-                hash={transaction.hash}
-                callData={transaction.callData}
-                poolId={transaction.decoded.nominate?.poolId}
-              />
-            )
-          default:
-            ;<TransactionDetailsExpandable t={transaction} />
-        }
-      }
-
-      return <TransactionDetailsExpandable t={transaction} />
-    },
-    [nominations]
-  )
 
   return (
     <div
@@ -160,125 +89,35 @@ const TransactionsList = ({ nominations, transactions }: { nominations?: string[
               description={openTransaction?.description ?? ''}
               open={!!openTransaction}
               t={openTransaction}
+              onApproved={({ result, executed }) => {
+                if (executed) {
+                  setChangingMultisigConfig(false)
+                  setUnknownTransactions(prev => [
+                    ...prev,
+                    makeTransactionID(multisig.chain, result.blockNumber?.toNumber() ?? 0, result.txIndex ?? 0),
+                  ])
+                }
+              }}
+              onApproveFailed={e => {
+                console.error(e)
+                navigate('/overview')
+                toast({
+                  title: 'Failed to approve transaction',
+                  description: e.message,
+                })
+              }}
               onClose={() => navigate('/overview')}
+              onRejected={({ error }) => {
+                navigate('/overview')
+                if (error) {
+                  console.error(error)
+                  toast({
+                    title: 'Failed to reject transaction',
+                    description: error,
+                  })
+                }
+              }}
             />
-            // <SideSheet
-            //   onRequestDismiss={() => {
-            //     navigate('/overview')
-            //   }}
-            //   onClose={() => {
-            //     navigate('/overview')
-            //   }}
-            //   title={<FullScreenDialogTitle t={openTransaction} />}
-            //   css={{
-            //     header: {
-            //       margin: '32px 48px',
-            //     },
-            //     height: '100vh',
-            //     background: 'var(--color-grey800)',
-            //     maxWidth: '781px',
-            //     minWidth: '700px',
-            //     width: '100%',
-            //     padding: '0 !important',
-            //   }}
-            //   open={!!openTransaction}
-            // >
-            //   <FullScreenDialogContents
-            //     canCancel={canCancel}
-            //     readyToExecute={readyToExecute}
-            //     fee={readyToExecute ? asMultiEstimatedFee : approveAsMultiEstimatedFee}
-            //     t={openTransaction}
-            //     transactionDetails={detailsSelector(openTransaction)}
-            //     onApprove={() =>
-            //       new Promise((resolve, reject) => {
-            //         if (readyToExecute) {
-            //           // cache selected account in case it changes while executing
-            //           const signedInAs = selectedAccount
-
-            //           // pause config change detection while updating
-            //           if (openTransaction?.decoded?.changeConfigDetails) setChangingMultisigConfig(true)
-
-            //           asMulti({
-            //             onSuccess: async r => {
-            //               // Handle execution of the multisig configuration change
-            //               if (openTransaction?.decoded?.changeConfigDetails) {
-            //                 const expectedNewMultisigAddress = toMultisigAddress(
-            //                   openTransaction.decoded.changeConfigDetails.signers,
-            //                   openTransaction.decoded.changeConfigDetails.threshold
-            //                 )
-            //                 const { isProxyDelegatee } = await addressIsProxyDelegatee(
-            //                   multisig.proxyAddress,
-            //                   expectedNewMultisigAddress
-            //                 )
-            //                 if (isProxyDelegatee) {
-            //                   const newMultisig = {
-            //                     ...multisig,
-            //                     multisigAddress: expectedNewMultisigAddress,
-            //                     threshold: openTransaction.decoded.changeConfigDetails.threshold,
-            //                     signers: openTransaction.decoded.changeConfigDetails.signers,
-            //                   }
-            //                   await updateMultisigConfig(newMultisig, signedInAs)
-            //                   toast.success('Multisig settings updated.', { duration: 5000 })
-            //                 } else {
-            //                   toast.error(
-            //                     'It appears there was an issue updating your multisig configuration. Please check the transaction output.'
-            //                   )
-            //                 }
-            //               } else {
-            //                 toast.success('Transaction executed.', { duration: 5000, position: 'bottom-right' })
-            //               }
-            //               setChangingMultisigConfig(false)
-            //               setUnknownTransactions(prev => [
-            //                 ...prev,
-            //                 makeTransactionID(multisig.chain, r.blockNumber?.toNumber() ?? 0, r.txIndex ?? 0),
-            //               ])
-            //               navigate('/overview')
-            //               resolve()
-            //             },
-            //             onFailure: e => {
-            //               navigate('/overview')
-            //               toast.error(`Failed to execute transaction: ${JSON.stringify(e)}`)
-            //               console.error(e)
-            //               setChangingMultisigConfig(false)
-            //               reject()
-            //             },
-            //           })
-            //         } else {
-            //           approveAsMulti({
-            //             onSuccess: () => {
-            //               navigate('/overview')
-            //               toast.success('Transaction approved.', { duration: 5000, position: 'bottom-right' })
-            //               resolve()
-            //             },
-            //             onFailure: e => {
-            //               navigate('/overview')
-            //               toast.error('Failed to approve transaction.')
-            //               console.error(e)
-            //               reject()
-            //             },
-            //           })
-            //         }
-            //       })
-            //     }
-            //     onCancel={() =>
-            //       new Promise((resolve, reject) => {
-            //         cancelAsMulti({
-            //           onSuccess: () => {
-            //             navigate('/overview')
-            //             toast.success('Transaction cancelled.', { duration: 5000, position: 'bottom-right' })
-            //             resolve()
-            //           },
-            //           onFailure: e => {
-            //             navigate('/overview')
-            //             toast.error('Failed to cancel transaction.')
-            //             console.error(e)
-            //             reject()
-            //           },
-            //         })
-            //       })
-            //     }
-            //   />
-            // </SideSheet>
           }
         />
       </Routes>
@@ -290,9 +129,6 @@ const Transactions = () => {
   const { transactions: pendingTransactions, loading: pendingLoading } = usePendingTransactions()
   const { transactions: confirmedTransactions, loading: confirmedLoading } = useConfirmedTransactions()
   const unknownConfirmedTransactions = useRecoilValue(unknownConfirmedTransactionsState)
-  const [multisig] = useSelectedMultisig()
-  const pool = useNomPoolOf(multisig.proxyAddress)
-  const { nominations: nomPoolNominations } = useNominations(multisig.chain, pool?.pool.stash.toSs58(multisig.chain))
 
   const [mode, setMode] = useState(Mode.Pending)
   return (
@@ -352,10 +188,7 @@ const Transactions = () => {
               <EyeOfSauronProgressIndicator />
             </div>
           ) : (
-            <TransactionsList
-              nominations={nomPoolNominations?.map(({ address }) => address)}
-              transactions={mode === Mode.Pending ? pendingTransactions : confirmedTransactions}
-            />
+            <TransactionsList transactions={mode === Mode.Pending ? pendingTransactions : confirmedTransactions} />
           )}
         </motion.div>
       </AnimatePresence>

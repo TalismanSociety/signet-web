@@ -2,14 +2,15 @@ import { TextInput } from '@talismn/ui'
 import { Layout } from '../Layout'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@components/ui/button'
-import { MessageService } from '../../domains/connect/MessageService'
+import { MessageService } from '@domains/connect/MessageService'
 import clsx from 'clsx'
 import { atom, useRecoilValue } from 'recoil'
-import { useSelectedMultisig } from '../../domains/multisig'
-import { decodeCallData } from '../../domains/chains'
-import { useApi } from '../../domains/chains/pjs-api'
+import { useSelectedMultisig } from '@domains/multisig'
+import { decodeCallData } from '@domains/chains'
+import { useApi } from '@domains/chains/pjs-api'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
-import { CallSummary } from './CallSummary'
+import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { useToast } from '@components/ui/use-toast'
 
 const isValidUrl = (url: string) => {
   try {
@@ -44,6 +45,7 @@ export const Dapps: React.FC = () => {
 
   const [selectedMultisig] = useSelectedMultisig()
   const { api } = useApi(selectedMultisig.chain.rpcs)
+  const { toast } = useToast()
 
   const isUrlValid = isValidUrl(url)
 
@@ -161,14 +163,32 @@ export const Dapps: React.FC = () => {
           </div>
         )}
       </div>
-      <CallSummary
-        dappUrl={url}
-        innerExtrinsic={txRequest?.innerExtrinsic}
-        onComplete={result => {
-          setTxRequest(undefined)
-          txRequest?.res(result)
-        }}
-      />
+      {txRequest && (
+        <TransactionSidesheet
+          description={`Transaction from ${url}`}
+          open
+          onClose={() => setTxRequest(undefined)}
+          calldata={txRequest.innerExtrinsic.method.toHex()}
+          onApproveFailed={e => {
+            toast({
+              title: 'Failed to approve transaction',
+              description: e.message,
+            })
+          }}
+          onApproved={({ result }) => {
+            toast({ title: 'Transaction successful' })
+            txRequest?.res({
+              ok: true,
+              receipt: {
+                txHash: result.txHash.toHex(),
+                blockNumber: result.blockNumber?.toNumber(),
+                txIndex: result.txIndex,
+              },
+            })
+            setTxRequest(undefined)
+          }}
+        />
+      )}
     </Layout>
   )
 }

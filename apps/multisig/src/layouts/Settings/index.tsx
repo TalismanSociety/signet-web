@@ -15,8 +15,9 @@ import { pjsApiSelector } from '@domains/chains/pjs-api'
 import { useRecoilValueLoadable } from 'recoil'
 import { toMultisigAddress } from '@util/addresses'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
-import { SettingsSideSheet } from './SettingsSideSheet'
 import { ProxiesSettings } from './ProxiesSettings'
+import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { useToast } from '@components/ui/use-toast'
 
 export const BackButton = () => {
   const theme = useTheme()
@@ -48,6 +49,8 @@ const Settings = () => {
 
   const newMultisigAddress = toMultisigAddress(newMembers, newThreshold)
   const hasAny = multisig.proxies?.find(p => p.proxyType === 'Any') !== undefined
+  const { toast } = useToast()
+  const navigate = useNavigate()
 
   const changed = useMemo(() => {
     return !newMultisigAddress.isEqual(multisig.multisigAddress)
@@ -69,8 +72,7 @@ const Settings = () => {
       api.tx.proxy.addProxy(newMultisigAddress.bytes, 'Any', 0),
       api.tx.proxy.removeProxy(multisig.multisigAddress.bytes, 'Any', 0),
     ])
-    const proxyCall = api.tx.proxy.proxy(multisig.proxyAddress.bytes, null, batchCall)
-    setExtrinsic(proxyCall)
+    setExtrinsic(batchCall)
   }
 
   useEffect(() => {
@@ -167,14 +169,31 @@ const Settings = () => {
           </div>
         )}
       </div>
-      <SettingsSideSheet
-        members={newMembers}
-        threshold={newThreshold}
-        multisig={multisig}
-        open={extrinsic !== undefined}
-        extrinsic={extrinsic}
-        onClose={() => setExtrinsic(undefined)}
-      />
+      {extrinsic && (
+        <TransactionSidesheet
+          calldata={extrinsic.method.toHex()}
+          description="Change Signer Configuration"
+          open={extrinsic !== undefined}
+          onClose={() => setExtrinsic(undefined)}
+          otherTxMetadata={{
+            changeConfigDetails: {
+              newMembers,
+              newThreshold,
+            },
+          }}
+          onApproved={() => {
+            toast({ title: 'Transaction successful' })
+            navigate('/overview')
+          }}
+          onApproveFailed={e => {
+            console.error(e)
+            toast({
+              title: 'Transaction failed',
+              description: e.message,
+            })
+          }}
+        />
+      )}
     </Layout>
   )
 }

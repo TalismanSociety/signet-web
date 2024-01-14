@@ -12,7 +12,7 @@ import { pjsApiSelector } from '@domains/chains/pjs-api'
 import { Balance, Transaction, TransactionType, calcSumOutgoing, txOffchainMetadataState } from '@domains/multisig'
 import { css } from '@emotion/css'
 import { useTheme } from '@emotion/react'
-import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote } from '@talismn/icons'
+import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote, Zap } from '@talismn/icons'
 import { Address } from '@util/addresses'
 import { useEffect, useMemo, useState } from 'react'
 import AceEditor from 'react-ace'
@@ -23,6 +23,7 @@ import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { SmartContractCallExpandedDetails } from '../../SmartContracts/SmartContractCallExpandedDetails'
 import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from '@components/ui/accordion'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
+import { ValidatorsRotationHeader } from '../../../layouts/Staking/ValidatorsRotationSummaryDetails'
 
 const CopyPasteBox: React.FC<{ content: string; label: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
@@ -245,6 +246,9 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
       />
     )
 
+  if (t.decoded.type === TransactionType.NominateFromNomPool || t.decoded.type === TransactionType.NominateFromStaking)
+    return <ValidatorsRotationHeader t={t} />
+
   return null
 }
 const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
@@ -267,6 +271,10 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
         return { name: 'Vote', icon: <Vote /> }
       case TransactionType.ContractCall:
         return { name: 'Contract call', icon: <Contract /> }
+      case TransactionType.NominateFromNomPool:
+        return { name: 'Staking (Nom Pool)', icon: <Zap /> }
+      case TransactionType.NominateFromStaking:
+        return { name: `Staking`, icon: <Zap /> }
       default:
         return { name: 'Unknown Transaction', icon: <Unknown /> }
     }
