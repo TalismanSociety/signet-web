@@ -12,7 +12,7 @@ import { AbiMessage } from '@polkadot/api-contract/types'
 import { useMemo, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Input } from '@components/ui/input'
-import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 
 export const CallSmartContractPage: React.FC = () => {

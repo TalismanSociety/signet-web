@@ -12,7 +12,7 @@ import { useConsts } from '@domains/chains/ConstsWatcher'
 import { useToast } from '@components/ui/use-toast'
 import { useNominateTransaction } from '../../domains/staking/useNominateTransaction'
 import { useNavigate } from 'react-router-dom'
-import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { TransactionSidesheet } from '@components/TransactionSidesheet'
 
 const NominationCard: React.FC<Nomination & { onClick: () => void; disabled?: boolean; icon?: React.ReactNode }> = ({
   address,

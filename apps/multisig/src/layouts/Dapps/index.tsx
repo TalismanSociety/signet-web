@@ -9,7 +9,7 @@ import { useSelectedMultisig } from '@domains/multisig'
 import { decodeCallData } from '@domains/chains'
 import { useApi } from '@domains/chains/pjs-api'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
-import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 
 const isValidUrl = (url: string) => {

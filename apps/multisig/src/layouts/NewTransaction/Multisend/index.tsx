@@ -13,7 +13,7 @@ import MultiSendForm from './MultiSendForm'
 import { Layout } from '../../Layout'
 import { NewTransactionHeader } from '../NewTransactionHeader'
 import { Share2 } from '@talismn/icons'
-import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 
 enum Step {

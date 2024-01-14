@@ -12,7 +12,7 @@ import TransactionSummaryRow from './TransactionSummaryRow'
 import { groupTransactionsByDay } from './utils'
 import { changingMultisigConfigState } from '@domains/offchain-data/teams'
 import { makeTransactionID } from '@util/misc'
-import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 
 enum Mode {

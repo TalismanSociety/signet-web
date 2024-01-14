@@ -11,7 +11,7 @@ import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 
 import { Layout } from '../../Layout'
 import { DetailsForm } from './DetailsForm'
-import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 
 enum Step {

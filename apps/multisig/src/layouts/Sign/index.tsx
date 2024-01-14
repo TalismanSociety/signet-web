@@ -11,7 +11,7 @@ import { TextInput } from '@talismn/ui'
 import { authTokenBookState, selectedAddressState } from '@domains/auth'
 import { XCircle } from '@talismn/icons'
 import { TransactionDetailsDialog } from './TransactionDetailsDialog'
-import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 
 const Wrapper: React.FC<React.PropsWithChildren & { source?: string }> = ({ children, source }) => (

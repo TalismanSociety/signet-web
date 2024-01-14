@@ -14,7 +14,7 @@ import { SplitVoteParams } from '@domains/referenda'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
 import { useNavigate } from 'react-router-dom'
 import { Layout } from '../../Layout'
-import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 
 const VoteAction: React.FC = () => {

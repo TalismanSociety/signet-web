@@ -16,7 +16,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { toMultisigAddress } from '@util/addresses'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { ProxiesSettings } from './ProxiesSettings'
-import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
+import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 
 export const BackButton = () => {
