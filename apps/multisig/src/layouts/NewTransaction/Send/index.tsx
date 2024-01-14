@@ -113,64 +113,6 @@ const SendAction = () => {
               onApproveFailed={handleFailed}
             />
           )}
-          {/* <SideSheet
-            onRequestDismiss={() => {
-              setStep(Step.Details)
-            }}
-            onClose={() => {
-              setStep(Step.Details)
-            }}
-            title={<FullScreenDialogTitle t={t} />}
-            css={{
-              header: {
-                margin: '32px 48px',
-              },
-              height: '100vh',
-              background: 'var(--color-grey800)',
-              maxWidth: '781px',
-              minWidth: '700px',
-              width: '100%',
-              padding: '0 !important',
-            }}
-            open={step === Step.Review}
-          >
-            <FullScreenDialogContents
-              t={t}
-              fee={approveAsMultiReady ? estimatedFee : undefined}
-              canCancel={true}
-              cancelButtonTextOverride="Back"
-              onApprove={() =>
-                new Promise((resolve, reject) => {
-                  if (!hash || !extrinsic) {
-                    toast.error("Couldn't get hash or extrinsic")
-                    return
-                  }
-                  approveAsMulti({
-                    metadata: {
-                      description: defaultName,
-                      callData: extrinsic.method.toHex(),
-                    },
-                    onSuccess: () => {
-                      navigate('/overview')
-                      toast.success('Transaction successful!', { duration: 5000, position: 'bottom-right' })
-                      resolve()
-                    },
-                    onFailure: e => {
-                      navigate('/overview')
-                      toast.error('Transaction failed')
-                      console.error(e)
-                      reject()
-                    },
-                  })
-                })
-              }
-              onCancel={() => {
-                setStep(Step.Details)
-                return Promise.resolve()
-              }}
-              transactionDetails={t ? <TransactionDetailsExpandable t={t} /> : null}
-            />
-          </SideSheet> */}
         </div>
       </div>
     </Layout>
