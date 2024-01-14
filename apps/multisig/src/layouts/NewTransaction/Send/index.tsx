@@ -1,27 +1,17 @@
-import { BaseToken, buildTransferExtrinsic, useApproveAsMulti } from '@domains/chains'
+import { BaseToken, buildTransferExtrinsic } from '@domains/chains'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
-import {
-  Transaction,
-  TransactionApprovals,
-  TransactionType,
-  selectedMultisigChainTokensState,
-  selectedMultisigState,
-  useNextTransactionSigner,
-} from '@domains/multisig'
+import { selectedMultisigChainTokensState, selectedMultisigState } from '@domains/multisig'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
-import { SideSheet } from '@talismn/ui'
 import { Address } from '@util/addresses'
 import BN from 'bn.js'
 import Decimal from 'decimal.js'
-import { useEffect, useMemo, useState } from 'react'
-import toast from 'react-hot-toast'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 
-import { FullScreenDialogContents, FullScreenDialogTitle } from '../../Overview/Transactions/FullScreenSummary'
 import { Layout } from '../../Layout'
 import { DetailsForm } from './DetailsForm'
-import TransactionDetailsExpandable from '../../Overview/Transactions/TransactionDetailsExpandable'
+import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
 
 enum Step {
   Details,
@@ -69,45 +59,16 @@ const SendAction = () => {
           token: selectedToken,
         }
         const innerExtrinsic = buildTransferExtrinsic(apiLoadable.contents, destinationAddress, balance)
-        const extrinsic = apiLoadable.contents.tx.proxy.proxy(multisig.proxyAddress.bytes, null, innerExtrinsic)
-        setExtrinsic(extrinsic)
+        setExtrinsic(innerExtrinsic)
       } catch (error) {
         console.error(error)
       }
     }
   }, [destinationAddress, selectedToken, apiLoadable, amountBn, multisig])
 
-  const t: Transaction | undefined = useMemo(() => {
-    if (selectedToken && extrinsic && destinationAddress) {
-      const hash = extrinsic.registry.hash(extrinsic.method.toU8a()).toHex()
-      return {
-        date: new Date(),
-        hash,
-        description: defaultName,
-        chain: multisig.chain,
-        multisig,
-        approvals: multisig.signers.reduce((acc, key) => {
-          acc[key.toPubKey()] = false
-          return acc
-        }, {} as TransactionApprovals),
-        decoded: {
-          type: TransactionType.Transfer,
-          recipients: [
-            { address: destinationAddress, balance: { amount: amountBn || new BN(0), token: selectedToken } },
-          ],
-          yaml: '',
-        },
-        callData: extrinsic.method.toHex(),
-      }
-    }
-  }, [selectedToken, extrinsic, destinationAddress, defaultName, multisig, amountBn])
-  const signer = useNextTransactionSigner(t?.approvals)
-  const hash = extrinsic?.registry.hash(extrinsic.method.toU8a()).toHex()
-  const {
-    approveAsMulti,
-    estimatedFee,
-    ready: approveAsMultiReady,
-  } = useApproveAsMulti(signer?.address, hash, null, t?.multisig)
+  const handleApproved = useCallback(() => {
+    navigate('/overview')
+  }, [navigate])
 
   return (
     <Layout selected="Send" requiresMultisig>
@@ -126,7 +87,16 @@ const SendAction = () => {
             setName={setName}
           />
 
-          <SideSheet
+          {extrinsic && (
+            <TransactionSidesheet
+              description={name || defaultName}
+              calldata={extrinsic.method.toHex()}
+              open={step === Step.Review}
+              onClose={() => setStep(Step.Details)}
+              onApproved={handleApproved}
+            />
+          )}
+          {/* <SideSheet
             onRequestDismiss={() => {
               setStep(Step.Details)
             }}
@@ -183,7 +153,7 @@ const SendAction = () => {
               }}
               transactionDetails={t ? <TransactionDetailsExpandable t={t} /> : null}
             />
-          </SideSheet>
+          </SideSheet> */}
         </div>
       </div>
     </Layout>

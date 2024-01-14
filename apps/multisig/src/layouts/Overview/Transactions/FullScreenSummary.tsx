@@ -76,13 +76,28 @@ const Approvals = ({ t }: { t: Transaction }) => {
   )
 }
 
-export const FullScreenDialogTitle = ({ t, showPill }: { t?: Transaction; showPill?: boolean }) => {
+export const FullScreenDialogTitle = ({ t }: { t?: Transaction }) => {
+  const pill = useMemo(() => {
+    if (!t) return null
+    if (t.executedAt)
+      return (
+        <Pill type={PillType.Executed}>
+          <p className="text-[12px] mt-[3px]">Executed</p>
+        </Pill>
+      )
+
+    if (t.rawPending)
+      return (
+        <Pill type={PillType.Pending}>
+          <p className="text-[12px] mt-[3px]">Pending</p>
+        </Pill>
+      )
+
+    return null
+  }, [t])
+
   if (!t) return null
 
-  const pillType =
-    Object.values(t.approvals).filter(Boolean).length === Object.values(t.approvals).length
-      ? PillType.Executed
-      : PillType.Pending
   return (
     <div
       className={css`
@@ -97,11 +112,7 @@ export const FullScreenDialogTitle = ({ t, showPill }: { t?: Transaction; showPi
       `}
     >
       <h2>Transaction Summary</h2>
-      {showPill && (
-        <Pill type={pillType}>
-          <p css={{ fontSize: '12px', marginTop: '3px' }}>{pillType === PillType.Executed ? 'Executed' : 'Pending'}</p>
-        </Pill>
-      )}
+      {pill}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { ApiPromise } from '@polkadot/api'
 import { useCallback, useMemo, useState } from 'react'
-import { allChainTokensSelector, decodeCallData, useApproveAsMulti } from '../chains'
+import { allChainTokensSelector, decodeCallData, useApproveAsMulti, useAsMulti } from '../chains'
 import { Multisig } from './types'
 import {
   Transaction,
@@ -11,20 +11,25 @@ import {
 } from './index'
 import { useRecoilValueLoadable } from 'recoil'
 
+/**
+ * @param submittedTx calldata, description and otherTxMetadata are ignored if this is provided
+ * @returns
+ */
 // TODO: use this hook in all new transaction
 export const useMultisigExtrinsicFromCalldata = (
   description: string,
   team: Multisig,
   calldata: `0x${string}`,
   api?: ApiPromise,
-  otherTxMetadata?: TxOffchainMetadata
+  otherTxMetadata?: TxOffchainMetadata,
+  submittedTx?: Transaction
 ) => {
   const [approving, setApproving] = useState(false)
   const allActiveChainTokens = useRecoilValueLoadable(allChainTokensSelector)
 
   // decode the inner calldata (this is the actual extrinsic, e.g. transfer tokens)
   const innerExtrinsic = useMemo(() => {
-    if (!api) return undefined
+    if (!api || submittedTx) return undefined
 
     try {
       const extrinsic = decodeCallData(api, calldata as `0x{string}`)
@@ -34,10 +39,11 @@ export const useMultisigExtrinsicFromCalldata = (
       if (error instanceof Error) return { error: `Invalid calldata: ${error.message}`, ok: false }
       else return { error: `Invalid calldata: unknown error`, ok: false }
     }
-  }, [api, calldata])
+  }, [api, calldata, submittedTx])
 
   // the proxy extrinsic that wraps the inner extrinsic
   const proxyExtrinsic = useMemo(() => {
+    if (submittedTx) return undefined
     if (!api) return undefined
     if (!api.tx.proxy?.proxy) return { ok: false, error: 'Proxy module not supported on this chain.' }
     if (!innerExtrinsic?.extrinsic)
@@ -45,13 +51,15 @@ export const useMultisigExtrinsicFromCalldata = (
 
     const proxyExtrinsic = api.tx.proxy.proxy(team.proxyAddress.bytes, null, innerExtrinsic.extrinsic)
     return { ok: true, extrinsic: proxyExtrinsic }
-  }, [api, innerExtrinsic, team.proxyAddress.bytes])
+  }, [api, innerExtrinsic?.error, innerExtrinsic?.extrinsic, submittedTx, team.proxyAddress.bytes])
 
   const hash = proxyExtrinsic?.extrinsic
     ? proxyExtrinsic?.extrinsic?.registry.hash(proxyExtrinsic.extrinsic.method.toU8a()).toHex()
     : undefined
 
   const t: Transaction | undefined = useMemo(() => {
+    if (submittedTx) return submittedTx
+
     if (allActiveChainTokens.state !== 'hasValue') return undefined
     const curChainTokens = allActiveChainTokens.contents.get(team.chain.squidIds.chainData)
 
@@ -72,10 +80,30 @@ export const useMultisigExtrinsicFromCalldata = (
       decoded: decoded.decoded,
       callData: proxyExtrinsic?.extrinsic.method.toHex(),
     }
-  }, [allActiveChainTokens.state, allActiveChainTokens.contents, team, proxyExtrinsic?.extrinsic, hash, description])
+  }, [
+    submittedTx,
+    allActiveChainTokens.state,
+    allActiveChainTokens.contents,
+    team,
+    proxyExtrinsic?.extrinsic,
+    hash,
+    description,
+  ])
+
+  const readyToExecute = useMemo(() => {
+    if (!t) return team.threshold === 1
+    const approvals = Object.values(t.approvals).filter(a => a).length
+    return approvals >= team.threshold - 1
+  }, [team.threshold, t])
 
   const signer = useNextTransactionSigner(t?.approvals)
   const { approveAsMulti, estimatedFee, ready } = useApproveAsMulti(signer?.address, hash, null, t?.multisig)
+  const { asMulti } = useAsMulti(
+    signer?.address,
+    api && t?.callData ? decodeCallData(api, t?.callData) : undefined,
+    t?.rawPending?.onChainMultisig.when,
+    team
+  )
 
   const approve = useCallback(async () => {
     await new Promise((resolve, reject) => {
@@ -101,5 +129,5 @@ export const useMultisigExtrinsicFromCalldata = (
     })
   }, [approveAsMulti, otherTxMetadata, proxyExtrinsic?.extrinsic, t])
 
-  return { innerExtrinsic, proxyExtrinsic, hash, approving, approve, t, estimatedFee, ready }
+  return { innerExtrinsic, proxyExtrinsic, hash, approving, approve, t, estimatedFee, ready, readyToExecute }
 }

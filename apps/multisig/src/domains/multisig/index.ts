@@ -203,6 +203,11 @@ export interface Transaction {
   decoded?: TransactionDecoded
   callData?: `0x${string}`
   id?: string
+  draft?: {
+    createdAt: Date
+    creatorId: string
+    id: string
+  }
 }
 
 export const toConfirmedTxUrl = (t: Transaction) =>

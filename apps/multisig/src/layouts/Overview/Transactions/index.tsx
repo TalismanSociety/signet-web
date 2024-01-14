@@ -29,6 +29,7 @@ import { useNominations } from '@domains/staking/useNominations'
 import { useNomPoolOf } from '@domains/staking/useNomPool'
 import { ValidatorsRotationSummaryDetails } from '../../Staking/ValidatorsRotationSummaryDetails'
 import { makeTransactionID } from '@util/misc'
+import { TransactionSidesheet } from '@components/TransactionSidesheet.tsx'
 
 enum Mode {
   Pending,
@@ -154,123 +155,130 @@ const TransactionsList = ({ nominations, transactions }: { nominations?: string[
         <Route
           path="/tx/:hash"
           element={
-            <SideSheet
-              onRequestDismiss={() => {
-                navigate('/overview')
-              }}
-              onClose={() => {
-                navigate('/overview')
-              }}
-              title={<FullScreenDialogTitle t={openTransaction} showPill />}
-              css={{
-                header: {
-                  margin: '32px 48px',
-                },
-                height: '100vh',
-                background: 'var(--color-grey800)',
-                maxWidth: '781px',
-                minWidth: '700px',
-                width: '100%',
-                padding: '0 !important',
-              }}
+            <TransactionSidesheet
+              calldata="0x"
+              description={openTransaction?.description ?? ''}
               open={!!openTransaction}
-            >
-              <FullScreenDialogContents
-                canCancel={canCancel}
-                readyToExecute={readyToExecute}
-                fee={readyToExecute ? asMultiEstimatedFee : approveAsMultiEstimatedFee}
-                t={openTransaction}
-                transactionDetails={detailsSelector(openTransaction)}
-                onApprove={() =>
-                  new Promise((resolve, reject) => {
-                    if (readyToExecute) {
-                      // cache selected account in case it changes while executing
-                      const signedInAs = selectedAccount
+              t={openTransaction}
+              onClose={() => navigate('/overview')}
+            />
+            // <SideSheet
+            //   onRequestDismiss={() => {
+            //     navigate('/overview')
+            //   }}
+            //   onClose={() => {
+            //     navigate('/overview')
+            //   }}
+            //   title={<FullScreenDialogTitle t={openTransaction} />}
+            //   css={{
+            //     header: {
+            //       margin: '32px 48px',
+            //     },
+            //     height: '100vh',
+            //     background: 'var(--color-grey800)',
+            //     maxWidth: '781px',
+            //     minWidth: '700px',
+            //     width: '100%',
+            //     padding: '0 !important',
+            //   }}
+            //   open={!!openTransaction}
+            // >
+            //   <FullScreenDialogContents
+            //     canCancel={canCancel}
+            //     readyToExecute={readyToExecute}
+            //     fee={readyToExecute ? asMultiEstimatedFee : approveAsMultiEstimatedFee}
+            //     t={openTransaction}
+            //     transactionDetails={detailsSelector(openTransaction)}
+            //     onApprove={() =>
+            //       new Promise((resolve, reject) => {
+            //         if (readyToExecute) {
+            //           // cache selected account in case it changes while executing
+            //           const signedInAs = selectedAccount
 
-                      // pause config change detection while updating
-                      if (openTransaction?.decoded?.changeConfigDetails) setChangingMultisigConfig(true)
+            //           // pause config change detection while updating
+            //           if (openTransaction?.decoded?.changeConfigDetails) setChangingMultisigConfig(true)
 
-                      asMulti({
-                        onSuccess: async r => {
-                          // Handle execution of the multisig configuration change
-                          if (openTransaction?.decoded?.changeConfigDetails) {
-                            const expectedNewMultisigAddress = toMultisigAddress(
-                              openTransaction.decoded.changeConfigDetails.signers,
-                              openTransaction.decoded.changeConfigDetails.threshold
-                            )
-                            const { isProxyDelegatee } = await addressIsProxyDelegatee(
-                              multisig.proxyAddress,
-                              expectedNewMultisigAddress
-                            )
-                            if (isProxyDelegatee) {
-                              const newMultisig = {
-                                ...multisig,
-                                multisigAddress: expectedNewMultisigAddress,
-                                threshold: openTransaction.decoded.changeConfigDetails.threshold,
-                                signers: openTransaction.decoded.changeConfigDetails.signers,
-                              }
-                              await updateMultisigConfig(newMultisig, signedInAs)
-                              toast.success('Multisig settings updated.', { duration: 5000 })
-                            } else {
-                              toast.error(
-                                'It appears there was an issue updating your multisig configuration. Please check the transaction output.'
-                              )
-                            }
-                          } else {
-                            toast.success('Transaction executed.', { duration: 5000, position: 'bottom-right' })
-                          }
-                          setChangingMultisigConfig(false)
-                          setUnknownTransactions(prev => [
-                            ...prev,
-                            makeTransactionID(multisig.chain, r.blockNumber?.toNumber() ?? 0, r.txIndex ?? 0),
-                          ])
-                          navigate('/overview')
-                          resolve()
-                        },
-                        onFailure: e => {
-                          navigate('/overview')
-                          toast.error(`Failed to execute transaction: ${JSON.stringify(e)}`)
-                          console.error(e)
-                          setChangingMultisigConfig(false)
-                          reject()
-                        },
-                      })
-                    } else {
-                      approveAsMulti({
-                        onSuccess: () => {
-                          navigate('/overview')
-                          toast.success('Transaction approved.', { duration: 5000, position: 'bottom-right' })
-                          resolve()
-                        },
-                        onFailure: e => {
-                          navigate('/overview')
-                          toast.error('Failed to approve transaction.')
-                          console.error(e)
-                          reject()
-                        },
-                      })
-                    }
-                  })
-                }
-                onCancel={() =>
-                  new Promise((resolve, reject) => {
-                    cancelAsMulti({
-                      onSuccess: () => {
-                        navigate('/overview')
-                        toast.success('Transaction cancelled.', { duration: 5000, position: 'bottom-right' })
-                        resolve()
-                      },
-                      onFailure: e => {
-                        navigate('/overview')
-                        toast.error('Failed to cancel transaction.')
-                        console.error(e)
-                        reject()
-                      },
-                    })
-                  })
-                }
-              />
-            </SideSheet>
+            //           asMulti({
+            //             onSuccess: async r => {
+            //               // Handle execution of the multisig configuration change
+            //               if (openTransaction?.decoded?.changeConfigDetails) {
+            //                 const expectedNewMultisigAddress = toMultisigAddress(
+            //                   openTransaction.decoded.changeConfigDetails.signers,
+            //                   openTransaction.decoded.changeConfigDetails.threshold
+            //                 )
+            //                 const { isProxyDelegatee } = await addressIsProxyDelegatee(
+            //                   multisig.proxyAddress,
+            //                   expectedNewMultisigAddress
+            //                 )
+            //                 if (isProxyDelegatee) {
+            //                   const newMultisig = {
+            //                     ...multisig,
+            //                     multisigAddress: expectedNewMultisigAddress,
+            //                     threshold: openTransaction.decoded.changeConfigDetails.threshold,
+            //                     signers: openTransaction.decoded.changeConfigDetails.signers,
+            //                   }
+            //                   await updateMultisigConfig(newMultisig, signedInAs)
+            //                   toast.success('Multisig settings updated.', { duration: 5000 })
+            //                 } else {
+            //                   toast.error(
+            //                     'It appears there was an issue updating your multisig configuration. Please check the transaction output.'
+            //                   )
+            //                 }
+            //               } else {
+            //                 toast.success('Transaction executed.', { duration: 5000, position: 'bottom-right' })
+            //               }
+            //               setChangingMultisigConfig(false)
+            //               setUnknownTransactions(prev => [
+            //                 ...prev,
+            //                 makeTransactionID(multisig.chain, r.blockNumber?.toNumber() ?? 0, r.txIndex ?? 0),
+            //               ])
+            //               navigate('/overview')
+            //               resolve()
+            //             },
+            //             onFailure: e => {
+            //               navigate('/overview')
+            //               toast.error(`Failed to execute transaction: ${JSON.stringify(e)}`)
+            //               console.error(e)
+            //               setChangingMultisigConfig(false)
+            //               reject()
+            //             },
+            //           })
+            //         } else {
+            //           approveAsMulti({
+            //             onSuccess: () => {
+            //               navigate('/overview')
+            //               toast.success('Transaction approved.', { duration: 5000, position: 'bottom-right' })
+            //               resolve()
+            //             },
+            //             onFailure: e => {
+            //               navigate('/overview')
+            //               toast.error('Failed to approve transaction.')
+            //               console.error(e)
+            //               reject()
+            //             },
+            //           })
+            //         }
+            //       })
+            //     }
+            //     onCancel={() =>
+            //       new Promise((resolve, reject) => {
+            //         cancelAsMulti({
+            //           onSuccess: () => {
+            //             navigate('/overview')
+            //             toast.success('Transaction cancelled.', { duration: 5000, position: 'bottom-right' })
+            //             resolve()
+            //           },
+            //           onFailure: e => {
+            //             navigate('/overview')
+            //             toast.error('Failed to cancel transaction.')
+            //             console.error(e)
+            //             reject()
+            //           },
+            //         })
+            //       })
+            //     }
+            //   />
+            // </SideSheet>
           }
         />
       </Routes>
