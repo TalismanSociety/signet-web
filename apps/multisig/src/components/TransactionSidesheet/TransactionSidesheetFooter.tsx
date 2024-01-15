@@ -201,7 +201,9 @@ export const CollaboratorCta: React.FC<{
     return (
       <div className="w-full">
         {t.draft.creator.id !== signedInUser?.id && (
-          <p>Only the creator of this draft or signers of this vault has permission to delete this draft.</p>
+          <p className="mb-[8px]">
+            Only the creator of this draft or signers of this vault has permission to delete this draft.
+          </p>
         )}
         <div className="grid grid-cols-2 gap-[12px] w-full">
           <Button variant="outline" className="w-full" onClick={() => onCancel()}>

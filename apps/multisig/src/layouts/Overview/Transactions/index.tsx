@@ -23,10 +23,7 @@ const Transactions = () => {
   }, [searchParam])
 
   return (
-    <Tabs
-      defaultValue={defaultTab}
-      className="bg-gray-800 rounded-[16px] flex flex-col p-[24px] w-full overflow-hidden"
-    >
+    <Tabs defaultValue={defaultTab} className="bg-gray-800 rounded-[16px] flex flex-col p-[24px] w-full">
       <TabsList className="flex items-center justify-start font-bold">
         <TabsTrigger value="pending" onClick={() => navigate(`/overview`)}>
           Pending

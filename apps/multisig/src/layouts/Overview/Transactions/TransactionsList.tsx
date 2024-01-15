@@ -51,14 +51,13 @@ export const TransactionsList = ({
   const setUnknownTransactions = useSetRecoilState(unknownConfirmedTransactionsState)
 
   return (
-    <TabsContent value={value} className="grid gap-[16px] w-full overflow-hidden">
+    <TabsContent value={value} className="grid gap-[16px] w-full">
       <AnimatePresence mode="wait">
         <motion.div
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 10, opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="overflow-hidden"
         >
           {!!indexing && (
             <div className="flex items-center mb-[16px] gap-[8px]">
@@ -71,11 +70,11 @@ export const TransactionsList = ({
               <EyeOfSauronProgressIndicator />
             </div>
           ) : (
-            <div className="grid gap-[24px] w-full overflow-hidden">
+            <div className="grid gap-[24px] w-full ">
               {groupedTransactions.map(([day, transactions]) => (
-                <div className="overflow-hidden" key={day}>
+                <div key={day}>
                   <p>{day}</p>
-                  <div className="grid gap-[20px] mt-[8px] w-full overflow-hidden">
+                  <div className="grid gap-[20px] mt-[8px] w-full">
                     {transactions.map(t => (
                       <motion.div
                         key={t.draft?.id ?? t.id}
