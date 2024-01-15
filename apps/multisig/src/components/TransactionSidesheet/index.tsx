@@ -11,12 +11,16 @@ import { useMultisigExtrinsicFromCalldata } from '@domains/multisig/useMultisigE
 import { useCancelAsMulti } from '@domains/chains'
 import { getErrorString } from '@util/misc'
 import { SubmittableResult } from '@polkadot/api'
+import { useSaveDraftMetadata } from '@domains/offchain-data/tx-metadata-draft'
+import { useNavigate } from 'react-router-dom'
+import { useToast } from '@components/ui/use-toast'
 
 type TransactionSidesheetProps = {
   onApproved?: (res: { result: SubmittableResult; executed: boolean }) => void
   onApproveFailed?: (err: Error) => void
   onClose?: () => void
   onRejected?: (res: { ok: boolean; error?: string }) => void
+  onSaved?: () => void
   open?: boolean
   description: string
   calldata: `0x${string}`
@@ -31,6 +35,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   onApproved,
   onApproveFailed,
   onClose,
+  onSaved,
   onRejected,
   open,
   t: submittedTx,
@@ -47,7 +52,10 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     otherTxMetadata,
     submittedTx
   )
+  const navigate = useNavigate()
+  const { saveDraft, loading: savingDraft } = useSaveDraftMetadata()
   const { cancelAsMulti, canCancel: canReject } = useCancelAsMulti(t)
+  const { toast } = useToast()
 
   const handleClose = useCallback(async () => {
     if (loading) return
@@ -91,15 +99,46 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     }
   }, [canReject, cancelAsMulti, onRejected])
 
-  const handleSaveDraft = useCallback(() => {
+  const handleSaveDraft = useCallback(async () => {
     setLoading(true)
     try {
-      console.log('Saved draft')
+      const saved = await saveDraft({
+        callData: calldata,
+        description,
+        teamId: selectedMultisig.id,
+        changeConfigDetails: otherTxMetadata?.changeConfigDetails,
+      })
+
+      if (saved.errors) {
+        throw new Error(saved.errors[0]?.message)
+      } else {
+        if (onSaved) {
+          onSaved()
+        } else {
+          navigate('/overview?tab=draft')
+          toast({ title: 'Transaction saved!' })
+        }
+      }
     } catch (e) {
+      onClose?.()
+      toast({
+        title: 'Failed to saved tx as draft',
+        description: getErrorString(e),
+      })
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [
+    calldata,
+    description,
+    navigate,
+    onClose,
+    onSaved,
+    otherTxMetadata?.changeConfigDetails,
+    saveDraft,
+    selectedMultisig.id,
+    toast,
+  ])
 
   const handleDeleteDraft = useCallback(() => {
     setLoading(true)
@@ -146,7 +185,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
                 rejecting={rejecting}
                 t={t}
                 fee={estimatedFee}
-                loading={loading || approving}
+                loading={loading || approving || savingDraft}
                 canReject={canReject}
               />
             )}

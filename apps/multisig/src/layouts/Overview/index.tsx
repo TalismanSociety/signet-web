@@ -113,17 +113,16 @@ const Overview = () => {
           grid-template-areas:
             'transactions'
             'overview-assets';
-          flex: 1;
           @media ${device.md} {
             grid-template-columns: 45% 55%;
             grid-template-areas: 'overview-assets transactions';
           }
           @media ${device.lg} {
-            grid-template-columns: 38fr 62fr;
+            grid-template-columns: 38% 62%;
           }
         `}
       >
-        <div className="flex flex-col gap-[16px] h-full" css={{ gridArea: 'overview-assets' }}>
+        <div className="flex flex-col gap-[16px] h-full w-full" css={{ gridArea: 'overview-assets' }}>
           <VaultOverview />
           <Assets augmentedTokens={augmentedTokens} />
         </div>

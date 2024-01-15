@@ -8,24 +8,24 @@ import {
   combinedViewState,
   toConfirmedTxUrl,
 } from '@domains/multisig'
-import { css } from '@emotion/css'
 import { ArrowUp, Contract, List, Settings, Share2, Unknown, Vote, Zap } from '@talismn/icons'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { useMemo } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import truncateMiddle from 'truncate-middle'
-
 import { formattedDate, formattedHhMm } from './utils'
 
 const TransactionSummaryRow = ({
   t,
   onClick,
   shortDate,
+  showDraftBadge,
 }: {
   t: Transaction
   onClick?: () => void
   shortDate: boolean
+  showDraftBadge?: boolean
 }) => {
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
   const combinedView = useRecoilValue(combinedViewState)
@@ -63,110 +63,75 @@ const TransactionSummaryRow = ({
 
   const tokenBreakdown = sumOutgoing.map(b => `${balanceToFloat(b)} ${b.token.symbol}`).join(' + ')
   return (
-    <div
-      onClick={onClick}
-      className={css`
-        display: grid;
-        align-items: center;
-        grid-template-columns: 44px 1fr auto auto;
-        grid-template-rows: 16px 16px;
-        grid-template-areas:
-          'icon description tokenAmount executedInfo'
-          'icon time usdAmount executedInfo';
-        p {
-          margin-top: 4px;
-        }
-      `}
-    >
-      <div
-        className={css`
-          grid-area: icon;
-          display: grid;
-          align-items: center;
-          justify-content: center;
-          height: 32px;
-          width: 32px;
-          border-radius: 100px;
-          background-color: var(--color-backgroundLighter);
-          svg {
-            height: 15px;
-            width: 15px;
-            color: var(--color-primary);
-          }
-        `}
-      >
-        {txIcon}
-      </div>
-      <span
-        css={{
-          gridArea: 'description',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          color: 'var(--color-offWhite)',
-          overflow: 'hidden',
-        }}
-      >
-        <p className="whitespace-nowrap overflow-hidden text-ellipsis mr-[4px]">{t.description}</p>
-        {combinedView ? (
-          <div css={{ display: 'flex', alignItems: 'center' }}>
-            <img css={{ height: 16 }} src={t.multisig.chain.logo} alt={t.multisig.chain.chainName} />
-            <p css={{ marginLeft: '4px', fontSize: '12px', color: 'var(--color-foreground)' }}>
-              {truncateMiddle(t.multisig.name, 24, 0, '...')}
+    <div onClick={onClick} className="flex items-center justify-between w-full gap-[16px]">
+      <div className="flex items-center justify-start gap-[8px] w-full overflow-hidden">
+        <div className="flex items-center justify-center min-w-[32px] w-[32px] h-[32px] bg-gray-500 [&>svg]:h-[15px] [&>svg]:w-[15px] rounded-full text-primary">
+          {txIcon}
+        </div>
+
+        <div className="flex flex-col items-start overflow-hidden">
+          <div className="flex items-center gap-[8px] text-offWhite overflow-hidden text-ellipsis w-full max-w-max">
+            <p className="whitespace-nowrap overflow-hidden text-ellipsis leading-[16px] max-w-max w-full">
+              {t.description}
             </p>
+            {combinedView ? (
+              <div className="flex items-center">
+                <img
+                  className="w-[16px] h-[16px] min-w-[16px]"
+                  src={t.multisig.chain.logo}
+                  alt={t.multisig.chain.chainName}
+                />
+                <p className="text-gray-200 text-[12px] leading-[12px] ml-[4px] mt-[2px] ">
+                  {truncateMiddle(t.multisig.name, 24, 0, '...')}
+                </p>
+              </div>
+            ) : null}
+            {t.draft ? (
+              showDraftBadge ? (
+                <div className="text-orange-400 border rounded-[8px] px-[8px] pb-[2px]">
+                  <p className="text-[12px] leading-[12px] !mt-[4px]">Draft</p>
+                </div>
+              ) : null
+            ) : (
+              !t.executedAt &&
+              threshold !== signedCount && (
+                <div className="flex items-center justify-center rounded-[12px] bg-gray-500 text-[11px] text-offWhite pt-[2px] h-[16px] px-[4px]">
+                  {signedCount}/{threshold}
+                </div>
+              )
+            )}
           </div>
-        ) : null}
-        {!t.executedAt && threshold !== signedCount && (
-          <div
-            className={css`
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border-radius: 12px;
-              background-color: var(--color-backgroundLighter);
-              padding: 0 6px;
-              font-size: 11px;
-              color: var(--color-foreground);
-              height: 16px;
-              padding-top: 2px;
-              cursor: inherit;
-            `}
+          <p className="text-[12px] mt-[2px]">{shortDate ? formattedHhMm(t.date) : formattedDate(t.date)}</p>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-end">
+        <div className="flex flex-col items-end">
+          <p className="text-right text-offWhite leading-[16px] whitespace-nowrap">{tokenBreakdown}</p>
+          <div className="text-right text-[14px]">
+            {tokenBreakdown.length === 0 ? null : sumPriceUsd !== undefined ? (
+              <>{formatUsd(sumPriceUsd)}</>
+            ) : (
+              <Skeleton.Surface css={{ marginLeft: 'auto', height: '14px', width: '42px' }} />
+            )}
+          </div>
+        </div>
+        {t.executedAt && t.hash && (
+          <a
+            className="ml-[24px]"
+            href={toConfirmedTxUrl(t)}
+            target="_blank"
+            rel="noreferrer"
+            onClick={e => e.stopPropagation()}
           >
-            {signedCount}/{threshold}
-          </div>
-        )}
-      </span>
-      <p css={{ gridArea: 'time', fontSize: '14px', paddingTop: '4px' }}>
-        {shortDate ? formattedHhMm(t.date) : formattedDate(t.date)}
-      </p>
-      <p css={{ gridArea: 'tokenAmount', textAlign: 'right', color: 'var(--color-offWhite)', gridTemplateRows: '1fr' }}>
-        {tokenBreakdown}
-      </p>
-      <div css={{ gridArea: 'usdAmount', textAlign: 'right', fontSize: '14px', paddingTop: '10px' }}>
-        {tokenBreakdown.length === 0 ? null : sumPriceUsd !== undefined ? (
-          <>{formatUsd(sumPriceUsd)}</>
-        ) : (
-          <Skeleton.Surface css={{ marginLeft: 'auto', height: '14px', width: '42px' }} />
+            <StatusCircle
+              type={StatusCircleType.Success}
+              circleDiameter="24px"
+              iconDimentions={{ width: '11px', height: 'auto' }}
+            />
+          </a>
         )}
       </div>
-      {t.executedAt && (
-        <a
-          className={css`
-            grid-area: executedInfo;
-            margin-left: 24px;
-          `}
-          href={toConfirmedTxUrl(t)}
-          target="_blank"
-          rel="noreferrer"
-          onClick={e => e.stopPropagation()}
-        >
-          <StatusCircle
-            type={StatusCircleType.Success}
-            circleDiameter="24px"
-            iconDimentions={{ width: '11px', height: 'auto' }}
-          />
-        </a>
-      )}
     </div>
   )
 }

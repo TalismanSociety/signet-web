@@ -29,7 +29,7 @@ export const useMultisigExtrinsicFromCalldata = (
 
   // decode the inner calldata (this is the actual extrinsic, e.g. transfer tokens)
   const innerExtrinsic = useMemo(() => {
-    if (!api || submittedTx) return undefined
+    if (!api || submittedTx?.hash) return undefined
 
     try {
       const extrinsic = decodeCallData(api, calldata as `0x{string}`)
@@ -43,7 +43,7 @@ export const useMultisigExtrinsicFromCalldata = (
 
   // the proxy extrinsic that wraps the inner extrinsic
   const proxyExtrinsic = useMemo(() => {
-    if (submittedTx) return undefined
+    if (submittedTx?.hash) return undefined
     if (!api) return undefined
     if (!api.tx.proxy?.proxy) return { ok: false, error: 'Proxy module not supported on this chain.' }
     if (!innerExtrinsic?.extrinsic)
@@ -60,7 +60,7 @@ export const useMultisigExtrinsicFromCalldata = (
       : undefined)
 
   const t: Transaction | undefined = useMemo(() => {
-    if (submittedTx) return submittedTx
+    if (submittedTx?.hash) return submittedTx as Transaction
 
     if (allActiveChainTokens.state !== 'hasValue') return undefined
     const curChainTokens = allActiveChainTokens.contents.get(team.chain.squidIds.chainData)
@@ -71,6 +71,7 @@ export const useMultisigExtrinsicFromCalldata = (
     // only for type safety, this should not happen because proxy address is crafted on the spot
     if (decoded === 'not_ours') return undefined
     return {
+      ...submittedTx,
       date: new Date(),
       hash: hash || '0x',
       description,

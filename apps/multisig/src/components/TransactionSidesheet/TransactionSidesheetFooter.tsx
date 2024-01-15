@@ -193,14 +193,14 @@ export const CollaboratorCta: React.FC<{
   onSaveDraft: Function
   onCancel: Function
   loading: boolean
-}> = ({ t, loading, onCancel, onDeleteDraft }) => {
+}> = ({ t, loading, onCancel, onDeleteDraft, onSaveDraft }) => {
   const signedInUser = useRecoilValue(selectedAccountState)
 
   // draft already created and saved to db
   if (t.draft) {
     return (
       <div className="w-full">
-        {t.draft.creatorId !== signedInUser?.id && (
+        {t.draft.creator.id !== signedInUser?.id && (
           <p>Only the creator of this draft or signers of this vault has permission to delete this draft.</p>
         )}
         <div className="grid grid-cols-2 gap-[12px] w-full">
@@ -209,7 +209,7 @@ export const CollaboratorCta: React.FC<{
           </Button>
           <Button
             className="w-full"
-            disabled={signedInUser?.id !== t.draft.creatorId || loading}
+            disabled={signedInUser?.id !== t.draft.creator.id || loading}
             onClick={() => onDeleteDraft()}
             variant="destructive"
           >
@@ -234,10 +234,10 @@ export const CollaboratorCta: React.FC<{
 
   return (
     <div className="grid grid-cols-2 gap-[12px] w-full">
-      <Button className="w-full" onClick={() => onCancel()} variant="outline">
+      <Button className="w-full" onClick={() => onCancel()} variant="outline" disabled={loading}>
         Cancel
       </Button>
-      <Button className="w-full" disabled={loading}>
+      <Button className="w-full" disabled={loading} loading={loading} onClick={() => onSaveDraft()}>
         Save as Draft
       </Button>
     </div>

@@ -205,7 +205,10 @@ export interface Transaction {
   id?: string
   draft?: {
     createdAt: Date
-    creatorId: string
+    creator: {
+      id: string
+      address: Address
+    }
     id: string
   }
 }

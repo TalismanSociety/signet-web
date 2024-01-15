@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 enum PillType {
   Pending,
   Executed,
+  Draft,
 }
 
 const Pill = ({ children, type }: { children: React.ReactNode; type: PillType }) => {
@@ -12,7 +13,11 @@ const Pill = ({ children, type }: { children: React.ReactNode; type: PillType })
     <div
       className={cn(
         'flex items-center justify-center px-[8px] py-[2px] rounded-[12px]',
-        type === PillType.Executed ? 'text-green-500 bg-green-700/50' : 'text-yellow-500 bg-yellow-600/30'
+        type === PillType.Executed
+          ? 'text-green-500 bg-green-700/30'
+          : type === PillType.Draft
+          ? 'border border-orange-400 text-orange-400'
+          : 'text-orange-500 bg-orange-600/20'
       )}
     >
       {children}
@@ -34,6 +39,13 @@ export const TransactionSidesheetHeader: React.FC<{ t?: Transaction }> = ({ t })
       return (
         <Pill type={PillType.Pending}>
           <p className="text-[12px] mt-[3px]">Pending</p>
+        </Pill>
+      )
+
+    if (t.draft)
+      return (
+        <Pill type={PillType.Draft}>
+          <p className="text-[12px] mt-[3px]">Draft</p>
         </Pill>
       )
 
