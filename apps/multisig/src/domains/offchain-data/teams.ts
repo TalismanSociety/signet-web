@@ -626,10 +626,11 @@ export const useTeamFromUrl = () => {
   }, [init, selectedMultisig.id, setSelectedMultisig, teams, urlTeamId, user])
 
   useEffect(() => {
-    if (!init || selectedMultisig.id === DUMMY_MULTISIG_ID) return
+    // sign page has it's own vault switch mechanism so this shouldnt interupt it
+    if (!init || (selectedMultisig.id === DUMMY_MULTISIG_ID && !location.pathname.includes('sign'))) return
     const curSearch = new URLSearchParams(location.search)
     curSearch.set('teamId', selectedMultisig.id)
 
     navigate(`${window.location.pathname}?${curSearch.toString()}`)
-  }, [init, location.search, navigate, selectedMultisig])
+  }, [init, location.pathname, location.search, navigate, selectedMultisig])
 }
