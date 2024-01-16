@@ -350,11 +350,6 @@ export const useCreateTeamOnHasura = () => {
   return { createTeam, creatingTeam }
 }
 
-export const changingMultisigConfigState = atom<boolean>({
-  key: 'changingMultisigConfig',
-  default: false,
-})
-
 export const useUpdateMultisigConfig = () => {
   const setTeams = useSetRecoilState(teamsState)
   const { toast } = useToast()

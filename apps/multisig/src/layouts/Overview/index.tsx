@@ -10,7 +10,7 @@ import Assets, { TokenAugmented } from './Assets'
 import Transactions from './Transactions'
 import { Layout } from '../Layout'
 import { css } from '@emotion/css'
-import { changingMultisigConfigState, useUpdateMultisigConfig } from '../../domains/offchain-data'
+import { useUpdateMultisigConfig } from '../../domains/offchain-data'
 import { selectedAccountState } from '../../domains/auth'
 import VaultOverview from './VaultOverview'
 import { useToast } from '../../components/ui/use-toast'
@@ -18,7 +18,6 @@ import { useToast } from '../../components/ui/use-toast'
 const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const signedInAccount = useRecoilValue(selectedAccountState)
-  const changingMultisigConfig = useRecoilValue(changingMultisigConfigState)
   const { updateMultisigConfig } = useUpdateMultisigConfig()
   const { toast } = useToast()
 
@@ -96,10 +95,10 @@ const Overview = () => {
 
   useEffect(() => {
     // DUMMY MULTISIG, dont need to detect or check for changes
-    if (selectedMultisig.id === DUMMY_MULTISIG_ID || changingMultisigConfig) return
+    if (selectedMultisig.id === DUMMY_MULTISIG_ID) return
 
     detectChangeAndAutoUpdate()
-  }, [changingMultisigConfig, detectChangeAndAutoUpdate, selectedMultisig.id, selectedMultisig.proxies])
+  }, [detectChangeAndAutoUpdate, selectedMultisig.id, selectedMultisig.proxies])
 
   const augmentedTokens: TokenAugmented[] = useAugmentedBalances()
   return (
