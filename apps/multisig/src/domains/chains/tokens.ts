@@ -125,7 +125,7 @@ export const tokenPricesState = selectorFamily({
   key: 'TokenPrices',
   get:
     (tokens: (BaseToken | undefined)[]) =>
-    async ({ get }) => {
+    ({ get }) => {
       const res: { [key: string]: Price } = {}
       tokens.forEach(t => {
         if (t?.coingeckoId === undefined) return

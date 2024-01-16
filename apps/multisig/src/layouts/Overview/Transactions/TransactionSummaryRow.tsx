@@ -44,6 +44,12 @@ const TransactionSummaryRow = ({
     return undefined
   }, [sumOutgoing, tokenPrices])
 
+  const priceUnavailable = useMemo(() => {
+    if (tokenPrices.state === 'loading') return true
+    const tokenPricesLength = Object.values(tokenPrices.contents).length
+    return tokenPricesLength !== sumOutgoing.length
+  }, [sumOutgoing.length, tokenPrices.contents, tokenPrices.state])
+
   const signedCount = Object.values(t.approvals).filter(Boolean).length
   const txIcon = !t.decoded ? (
     <Unknown />
@@ -130,7 +136,9 @@ const TransactionSummaryRow = ({
           <p className="text-right text-offWhite leading-[16px] whitespace-nowrap">{tokenBreakdown}</p>
           <div className="text-right text-[14px]">
             {tokenBreakdown.length === 0 ? null : sumPriceUsd !== undefined ? (
-              <>{formatUsd(sumPriceUsd)}</>
+              priceUnavailable ? null : (
+                <>{formatUsd(sumPriceUsd)}</>
+              )
             ) : (
               <Skeleton.Surface css={{ marginLeft: 'auto', height: '14px', width: '42px' }} />
             )}

@@ -21,7 +21,9 @@ const AmountRow = ({ balance, hideIcon }: { balance: Balance; hideIcon?: boolean
       {!hideIcon && <img css={{ height: '20px' }} src={balance.token.logo} alt="token logo" />}
       <p css={{ fontSize: '18px', marginTop: '4px' }}>{balance.token.symbol}</p>
       {price.state === 'hasValue' ? (
-        <p css={{ fontSize: '18px', marginTop: '4px' }}>{`(${formatUsd(balanceFloat * price.contents.current)})`}</p>
+        price.contents.current === 0 ? null : (
+          <p css={{ fontSize: '18px', marginTop: '4px' }}>{`(${formatUsd(balanceFloat * price.contents.current)})`}</p>
+        )
       ) : (
         <Skeleton.Surface css={{ height: '14px', minWidth: '125px' }} />
       )}
