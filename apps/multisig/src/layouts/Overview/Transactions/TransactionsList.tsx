@@ -4,7 +4,6 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import { groupTransactionsByDay } from './utils'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { useToast } from '@components/ui/use-toast'
-import { changingMultisigConfigState } from '@domains/offchain-data'
 import { unknownConfirmedTransactionsState } from '@domains/tx-history'
 import { TabsContent } from '@components/ui/tabs'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -47,7 +46,6 @@ export const TransactionsList = ({
   const multisig = openTransaction?.multisig || _selectedMultisig
 
   const { toast } = useToast()
-  const setChangingMultisigConfig = useSetRecoilState(changingMultisigConfigState)
   const setUnknownTransactions = useSetRecoilState(unknownConfirmedTransactionsState)
 
   return (
@@ -103,7 +101,6 @@ export const TransactionsList = ({
                         t={openTransaction}
                         onApproved={({ result, executed }) => {
                           if (executed) {
-                            setChangingMultisigConfig(false)
                             setUnknownTransactions(prev => [
                               ...prev,
                               makeTransactionID(

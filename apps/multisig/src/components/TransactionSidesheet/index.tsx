@@ -80,9 +80,9 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     try {
       const r = await approve()
       if (t?.draft) {
+        navigate('/overview?tab=pending')
+        toast({ title: 'Transaction Approved!' })
         await deleteDraft(t.draft.id, 'executed')
-        onClose?.()
-        navigate('/overview')
       } else {
         onApproved?.(r)
       }
@@ -92,7 +92,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     } finally {
       setApproving(false)
     }
-  }, [approve, deleteDraft, navigate, onApproveFailed, onApproved, onClose, t?.draft])
+  }, [approve, deleteDraft, navigate, onApproveFailed, onApproved, t?.draft, toast])
 
   const handleReject = useCallback(async () => {
     if (!canReject) return
