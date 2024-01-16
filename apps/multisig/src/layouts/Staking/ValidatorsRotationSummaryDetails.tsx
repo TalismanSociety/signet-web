@@ -145,7 +145,7 @@ export const ValidatorsRotationExpandedDetails: React.FC<{ t: Transaction }> = (
 
   useEffect(() => {
     if (cachedNominations !== undefined) return
-    setCachedNominations(nomPoolNominations?.map(({ address }) => address) ?? [])
+    setCachedNominations(nomPoolNominations?.map(({ address }) => address))
   }, [cachedNominations, nomPoolNominations])
 
   return (
