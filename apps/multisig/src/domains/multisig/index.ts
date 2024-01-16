@@ -23,8 +23,8 @@ import persistAtom from '../persist'
 import { VoteDetails, mapConvictionToIndex } from '../referenda'
 import { selectedAccountState } from '../auth'
 import { TxMetadata, txMetadataByTeamIdState } from '../offchain-data/metadata'
-import { isEqual } from 'lodash'
 import { Multisig } from './types'
+import { activeTeamsState, teamsState } from '@domains/offchain-data'
 
 export * from './types.d'
 export * from './useSelectedMultisig'
@@ -46,12 +46,16 @@ const DUMMY_MULTISIG: Multisig = {
   threshold: 0,
   multisigAddress: new Address(new Uint8Array(32)),
   proxyAddress: new Address(new Uint8Array(32)),
+  collaborators: [],
 }
 
-export const multisigsState = atom<Multisig[]>({
+/** @deprecated use teamsState */
+export const multisigsState = selector<Multisig[]>({
   key: 'Multisigs',
-  default: [],
-  effects_UNSTABLE: [persistAtom],
+  get: ({ get }) => {
+    const teams = get(teamsState)
+    return teams?.map(team => team.asMultisig) ?? []
+  },
 })
 
 // Map of call hashes to their metadata.
@@ -71,13 +75,9 @@ export const selectedMultisigIdState = atom<string | undefined>({
 export const activeMultisigsState = selector({
   key: 'ActiveMultisigs',
   get: ({ get }) => {
-    const multisigs = get(multisigsState)
-    const selectedAccount = get(selectedAccountState)
-
-    if (!selectedAccount) return []
-    return multisigs.filter(multisig => {
-      return multisig.signers.some(signer => selectedAccount.injected.address.isEqual(signer))
-    })
+    const activeTeams = get(activeTeamsState)
+    if (!activeTeams) return []
+    return activeTeams.map(team => team.asMultisig)
   },
 })
 
@@ -108,26 +108,6 @@ export const selectedMultisigChainTokensState = selector<BaseToken[]>({
     return tokens
   },
 })
-
-export const useUpsertMultisig = () => {
-  const [multisigs, setMultisigs] = useRecoilState(multisigsState)
-  const upsertMultisig = useCallback(
-    (multisig: Multisig) => {
-      const newMultisigs = [...multisigs]
-      const multisigIndex = multisigs.findIndex(m => m.id === multisig.id)
-      if (multisigIndex === -1) {
-        newMultisigs.push(multisig)
-      } else {
-        if (isEqual(multisigs[multisigIndex], multisig)) return
-        newMultisigs[multisigIndex] = multisig
-      }
-      setMultisigs(newMultisigs)
-    },
-    [multisigs, setMultisigs]
-  )
-
-  return upsertMultisig
-}
 
 // Returns the next connected signer that needs to sign the transaction,
 // or undefined if there are none that can sign
@@ -223,6 +203,14 @@ export interface Transaction {
   decoded?: TransactionDecoded
   callData?: `0x${string}`
   id?: string
+  draft?: {
+    createdAt: Date
+    creator: {
+      id: string
+      address: Address
+    }
+    id: string
+  }
 }
 
 export const toConfirmedTxUrl = (t: Transaction) =>
@@ -433,7 +421,7 @@ export const extrinsicToDecoded = (
   multisig: Multisig,
   extrinsic: SubmittableExtrinsic<'promise'>,
   chainTokens: BaseToken[],
-  metadata?: TxMetadata | null,
+  metadata?: Partial<TxMetadata> | null,
   defaultName?: string
 ): { decoded: TransactionDecoded; description: string } | 'not_ours' => {
   try {
@@ -481,7 +469,7 @@ export const extrinsicToDecoded = (
         const recipients: (TransactionRecipient | null)[] = obj.args.calls.map((call: any) =>
           callToTransactionRecipient(call, chainTokens)
         )
-        if (!recipients.includes(null) && recipients.length > 1) {
+        if (!recipients.includes(null) && recipients.length >= 1) {
           return {
             decoded: {
               type: TransactionType.MultiSend,

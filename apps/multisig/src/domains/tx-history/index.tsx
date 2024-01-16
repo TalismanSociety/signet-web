@@ -153,7 +153,7 @@ const blockCacheState = atom<Record<string, Vec<GenericExtrinsic<AnyTuple>>>>({
 })
 
 export const useConfirmedTransactions = (): { loading: boolean; transactions: Transaction[] } => {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [selectedMultisig] = useSelectedMultisig()
   const [target, setTarget] = useState(selectedMultisig)
   const { api } = useApi(selectedMultisig.chain.rpcs)
@@ -164,13 +164,6 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
   const nextFetchRef = useRef(new Date())
   const [blockCache, setBlockCache] = useRecoilState(blockCacheState)
   const allActiveChainTokens = useRecoilValueLoadable(allChainTokensSelector)
-
-  // this will make sure changing vault only triggers 1 reload
-  useEffect(() => {
-    if (target.id === selectedMultisig.id) return
-    setTarget(selectedMultisig)
-    nextFetchRef.current = new Date()
-  }, [selectedMultisig, target.id])
 
   // fetch if we have new unknown tx
   useEffect(() => {
@@ -385,6 +378,13 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
   useEffect(() => {
     load()
   }, [load, autoRefresh])
+
+  // this will make sure changing vault only triggers 1 reload
+  useEffect(() => {
+    if (target.id === selectedMultisig.id) return
+    setTarget(selectedMultisig)
+    nextFetchRef.current = new Date()
+  }, [selectedMultisig, target.id])
 
   return { loading: loading || !api, transactions: processedTransactions.decodedTransactions }
 }

@@ -12,15 +12,20 @@ import { useNavigate } from 'react-router-dom'
 import { Tooltip } from '@components/ui/tooltip'
 import Modal from '@components/Modal'
 import { Input } from '@components/ui/input'
+import { useUser } from '@domains/auth'
 
-const Header: React.FC<{ loading: boolean; supported?: boolean }> = ({ loading, supported }) => (
+const Header: React.FC<{ loading: boolean; supported?: boolean; isCollaborator: boolean }> = ({
+  loading,
+  supported,
+  isCollaborator,
+}) => (
   <div className="flex flex-col gap-[16px] w-full">
     <div className="w-full">
       <div className="w-full flex items-center justify-between gap-[16px] mb-[8px]">
         <div css={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <h2 css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>Smart Contracts</h2>
         </div>
-        {supported && (
+        {supported && !isCollaborator && (
           <div className="flex items-center gap-[12px]">
             <Button variant="outline" size="lg" asLink to="/smart-contracts/add">
               Add contract
@@ -54,6 +59,7 @@ const ContractRow: React.FC<{ contract: SmartContract; onDelete: () => void }> =
   const navigate = useNavigate()
   const [selectedMultisig] = useSelectedMultisig()
   const { copied, copy } = useCopied()
+  const { isCollaborator } = useUser()
 
   const handleCopy = useCallback(
     (e: React.MouseEvent) => {
@@ -68,7 +74,6 @@ const ContractRow: React.FC<{ contract: SmartContract; onDelete: () => void }> =
     (e: React.MouseEvent) => {
       e.preventDefault()
       e.stopPropagation()
-      // TODO: handle delete
       onDelete()
     },
     [onDelete]
@@ -98,11 +103,13 @@ const ContractRow: React.FC<{ contract: SmartContract; onDelete: () => void }> =
             {copied ? <Check size={16} /> : <Copy size={16} />}
           </Button>
         </Tooltip>
-        <Tooltip content="Remove contract from vault">
-          <Button size="icon" variant="ghost" onClick={handleDelete}>
-            <Trash size={16} />
-          </Button>
-        </Tooltip>
+        {!isCollaborator && (
+          <Tooltip content="Remove contract from vault">
+            <Button size="icon" variant="ghost" onClick={handleDelete}>
+              <Trash size={16} />
+            </Button>
+          </Tooltip>
+        )}
       </div>
     </div>
   )
@@ -114,12 +121,13 @@ export const SmartContractsDashboard: React.FC = () => {
   const [toDelete, setToDelete] = useState<SmartContract>()
   const [deleteConfirmation, setDeleteConfirmation] = useState('')
   const { deleteSmartContract, deleting } = useDeleteSmartContract()
+  const { isCollaborator } = useUser()
 
   const { contracts } = useSmartContracts()
 
   return (
     <div className="flex flex-col pl-[0px] lg:px-[4%] py-[16px] gap-[16px] flex-1">
-      <Header supported={supported} loading={loading} />
+      <Header supported={supported} loading={loading} isCollaborator={isCollaborator} />
       {supported ? (
         contracts === undefined ? (
           <StatusMessage type="loading" message="Loading your contracts..." />

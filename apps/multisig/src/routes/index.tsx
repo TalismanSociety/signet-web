@@ -15,6 +15,7 @@ import { Dapps } from '../layouts/Dapps'
 import { SignetConnect } from '../layouts/Connect'
 import { Sign } from '../layouts/Sign'
 import SmartContracts from '../layouts/SmartContracts'
+import { Collaborators } from '../layouts/Collaborators'
 
 const router = createBrowserRouter([
   {
@@ -82,6 +83,14 @@ const router = createBrowserRouter([
     element: (
       <RequireAuth requireSignIn>
         <Dapps />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/collaborators',
+    element: (
+      <RequireAuth requireSignIn>
+        <Collaborators />
       </RequireAuth>
     ),
   },

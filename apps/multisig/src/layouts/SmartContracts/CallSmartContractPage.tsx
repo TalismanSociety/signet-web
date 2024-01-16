@@ -9,10 +9,11 @@ import { useContractPallet } from '@domains/substrate-contracts'
 import { useContractCall } from '@domains/substrate-contracts/useContractCall'
 import { ContractPromise } from '@polkadot/api-contract'
 import { AbiMessage } from '@polkadot/api-contract/types'
-import { SignSummary } from '../Sign/SignSummary'
 import { useMemo, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Input } from '@components/ui/input'
+import { TransactionSidesheet } from '@components/TransactionSidesheet'
+import { useToast } from '@components/ui/use-toast'
 
 export const CallSmartContractPage: React.FC = () => {
   const navigate = useNavigate()
@@ -25,6 +26,7 @@ export const CallSmartContractPage: React.FC = () => {
   const [args, setArgs] = useState<{ value: any; valid: boolean }[]>([])
   const [reviewing, setReviewing] = useState(false)
   const [description, setDescription] = useState('')
+  const { toast } = useToast()
 
   const contractDetails = useMemo(() => {
     return contracts?.find(({ id }) => id === smartContractId)
@@ -124,16 +126,24 @@ export const CallSmartContractPage: React.FC = () => {
         )}
       </div>
       {contractCallExtrinsic && (
-        <SignSummary
+        <TransactionSidesheet
           calldata={contractCallExtrinsic.method.toHex()}
           description={description || `Call ${message?.method}`}
           onApproved={() => {
             setReviewing(false)
-            navigate('/')
+            navigate('/overview')
+            toast({ title: 'Transaction successful!' })
           }}
-          onCancel={() => setReviewing(false)}
+          onClose={() => setReviewing(false)}
+          onApproveFailed={e => {
+            setReviewing(false)
+            console.error(e)
+            toast({
+              title: 'Failed to create transaction',
+              description: e.message,
+            })
+          }}
           open={reviewing}
-          selectedMultisig={selectedMultisig}
         />
       )}
     </div>

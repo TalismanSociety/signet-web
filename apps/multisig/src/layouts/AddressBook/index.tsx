@@ -12,16 +12,22 @@ import { Copy, Database, Plus, Trash } from '@talismn/icons'
 import { Contact, useAddressBook, useDeleteContact } from '@domains/offchain-data'
 import { AddContactModal } from './AddContactModal'
 import { useState, useMemo } from 'react'
-import { copyToClipboard } from '@domains/common'
 import { useInput } from '@hooks/useInput'
 import { Multisig, useSelectedMultisig } from '@domains/multisig'
-import Logomark from '../../components/Logomark'
+import Logomark from '@components/Logomark'
+import { useRecoilValue } from 'recoil'
+import { selectedAccountState } from '@domains/auth'
+import useCopied from '@hooks/useCopied'
 
-const Header: React.FC<{ onAddContact: () => void; vaultName: string }> = ({ onAddContact, vaultName }) => (
+const Header: React.FC<{ onAddContact: () => void; vaultName: string; hideAddButton: boolean }> = ({
+  onAddContact,
+  vaultName,
+  hideAddButton,
+}) => (
   <div css={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
     <div>
       <div css={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <h2 css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>Address Book</h2>
+        <h2 className="text-offWhite text-[24px] mt-[4px] font-bold">Address Book</h2>
         <Tooltip
           content={
             <p css={{ maxWidth: 350 }}>
@@ -45,19 +51,27 @@ const Header: React.FC<{ onAddContact: () => void; vaultName: string }> = ({ onA
         <p css={({ color }) => ({ color: color.offWhite })}>Contacts</p>
         <p>Manage contacts to share and edit with other Multisig members</p>
       </div>
-      <Button variant="outlined" css={{ borderRadius: 12, padding: '8px 12px' }} onClick={onAddContact}>
-        <div css={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <Plus size={16} />
-          <p css={{ marginTop: 4, fontSize: 14 }}>Add Contact</p>
-        </div>
-      </Button>
+      {!hideAddButton && (
+        <Button variant="outlined" css={{ borderRadius: 12, padding: '8px 12px' }} onClick={onAddContact}>
+          <div css={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <Plus size={16} />
+            <p css={{ marginTop: 4, fontSize: 14 }}>Add Contact</p>
+          </div>
+        </Button>
+      )}
     </div>
   </div>
 )
 
-const ContactRow: React.FC<{ contact: Contact; multisig: Multisig }> = ({ contact, multisig }) => {
+const ContactRow: React.FC<{ contact: Contact; multisig: Multisig; hideCollaboratorActions: boolean }> = ({
+  contact,
+  multisig,
+  hideCollaboratorActions,
+}) => {
   const address = contact.address.toSs58(multisig.chain)
   const { deleteContact, deleting } = useDeleteContact()
+  const { copy } = useCopied()
+
   return (
     <div
       key={contact.id}
@@ -83,12 +97,14 @@ const ContactRow: React.FC<{ contact: Contact; multisig: Multisig }> = ({ contac
           button: { color: color.lightGrey },
         })}
       >
-        <IconButton onClick={() => copyToClipboard(address, 'Address copied!')}>
+        <IconButton onClick={() => copy(address, 'Address copied!', address)}>
           <Copy size={16} />
         </IconButton>
-        <IconButton onClick={() => deleteContact(contact.id)} disabled={deleting}>
-          {deleting ? <CircularProgressIndicator size={16} /> : <Trash size={16} />}
-        </IconButton>
+        {!hideCollaboratorActions && (
+          <IconButton onClick={() => deleteContact(contact.id)} disabled={deleting}>
+            {deleting ? <CircularProgressIndicator size={16} /> : <Trash size={16} />}
+          </IconButton>
+        )}
       </div>
     </div>
   )
@@ -97,9 +113,14 @@ const ContactRow: React.FC<{ contact: Contact; multisig: Multisig }> = ({ contac
 export const AddressBook: React.FC = () => {
   const { contacts } = useAddressBook()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const user = useRecoilValue(selectedAccountState)
   const [selectedMultisig] = useSelectedMultisig()
   const queryInput = useInput('')
 
+  const isCollaborator = useMemo(
+    () => (user ? selectedMultisig.isCollaborator(user.injected.address) : false),
+    [selectedMultisig, user]
+  )
   const filteredContacts = useMemo(
     () =>
       contacts?.filter(contact => {
@@ -117,8 +138,12 @@ export const AddressBook: React.FC = () => {
   return (
     <Layout selected="Address Book" requiresMultisig>
       <div css={{ display: 'flex', flex: 1, padding: '32px 8%' }}>
-        <div css={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 520 }}>
-          <Header onAddContact={() => setIsModalOpen(true)} vaultName={selectedMultisig.name} />
+        <div css={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 680 }}>
+          <Header
+            onAddContact={() => setIsModalOpen(true)}
+            vaultName={selectedMultisig.name}
+            hideAddButton={isCollaborator}
+          />
           {contacts === undefined ? (
             <EyeOfSauronProgressIndicator />
           ) : contacts.length === 0 ? (
@@ -137,7 +162,12 @@ export const AddressBook: React.FC = () => {
                 }}
               >
                 {filteredContacts.map(contact => (
-                  <ContactRow key={contact.id} contact={contact} multisig={selectedMultisig} />
+                  <ContactRow
+                    key={contact.id}
+                    contact={contact}
+                    multisig={selectedMultisig}
+                    hideCollaboratorActions={isCollaborator}
+                  />
                 ))}
               </div>
             </div>

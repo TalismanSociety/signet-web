@@ -216,7 +216,7 @@ export const useCancelAsMulti = (tx?: Transaction) => {
           }
         )
         .catch(e => {
-          onFailure(JSON.stringify(e))
+          onFailure(getErrorString(e))
         })
     },
     [depositorAddress, createExtrinsic, loading, setRawPendingTransactionDependency, canCancel, tx?.multisig.chain]
@@ -331,7 +331,7 @@ export const useAsMulti = (
           }
         )
         .catch(e => {
-          onFailure(JSON.stringify(e))
+          onFailure(getErrorString(e))
         })
     },
     [extensionAddress, createExtrinsic, setRawPendingTransactionDependency, multisig.chain]

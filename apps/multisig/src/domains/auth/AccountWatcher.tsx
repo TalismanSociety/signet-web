@@ -13,9 +13,11 @@ export const AccountWatcher: React.FC = () => {
 
   const findNextSignedInAccount = useCallback(
     (exclude?: string) =>
-      extensionAccounts.find(
-        account => account.address.toSs58() !== exclude && !!authTokenBook[account.address.toSs58()]
-      ),
+      extensionAccounts.find(account => {
+        const address = account.address.toSs58()
+        const auth = authTokenBook[address]
+        return address !== exclude && !!auth && typeof auth !== 'string' && auth.accessToken && auth.id
+      }),
     [authTokenBook, extensionAccounts]
   )
 

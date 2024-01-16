@@ -1,20 +1,22 @@
-import { useCallback, useState } from 'react'
-import { atom, selector, useRecoilState, useSetRecoilState } from 'recoil'
+import { useCallback, useMemo, useState } from 'react'
+import { atom, selector, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { web3FromSource } from '@polkadot/extension-dapp'
 import { SiwsMessage } from '@talismn/siws'
 import { InjectedAccount, accountsState } from '../extension'
 import persistAtom from '../persist'
 import toast from 'react-hot-toast'
 import { captureException } from '@sentry/react'
+import { useSelectedMultisig } from '@domains/multisig'
 
 const SIWS_ENDPOINT = process.env.REACT_APP_SIWS_ENDPOINT ?? ''
 
 // keyed by ss58 address, value is the auth token
-type AuthTokenBook = Record<string, string | undefined>
+type AuthTokenBook = Record<string, string | { accessToken: string; id: string } | undefined>
 
 export type SignedInAccount = {
   jwtToken: string
   injected: InjectedAccount
+  id: string
 }
 
 // store selected address in local storage
@@ -46,14 +48,16 @@ export const selectedAccountState = selector<SignedInAccount | null>({
     if (!selectedAddress) return null
 
     // account not signed in, hence cannot be selected
-    const jwtToken = authTokenBook[selectedAddress]
-    if (jwtToken === undefined) return null
+    const auth = authTokenBook[selectedAddress]
+    if (auth === undefined) return null
 
     // account not connected from extension
     const injected = extensionAccounts.find(account => account.address.toSs58() === selectedAddress)
     if (!injected) return null
 
-    return { jwtToken, injected }
+    // backward compatibility: auth token used to be a string
+    if (typeof auth === 'string') return null
+    return { jwtToken: auth.accessToken, injected, id: auth.id }
   },
 })
 
@@ -73,9 +77,9 @@ export const useSignIn = () => {
       setSigningIn(true)
 
       const ss58Address = account.address.toSs58()
-      let token = authTokenBook[ss58Address]
+      let auth = authTokenBook[ss58Address]
       try {
-        if (!token) {
+        if (typeof auth === 'string' || !auth?.accessToken || !auth.id) {
           // to be able to retrieve the signer interface from this account
           // we can use web3FromSource which will return an InjectedExtension type
           const injector = await web3FromSource(account.meta.source)
@@ -121,12 +125,18 @@ export const useSignIn = () => {
 
           const verifyData = await verifyRes.json()
 
-          token = verifyData?.accessToken
+          auth = {
+            accessToken: verifyData?.accessToken,
+            id: verifyData?.id,
+          }
         }
 
-        if (token) {
+        if (auth) {
           setSelectedAccount(ss58Address)
-          setAuthTokenBook({ ...authTokenBook, [ss58Address]: token })
+          setAuthTokenBook({
+            ...authTokenBook,
+            [ss58Address]: auth,
+          })
         } else {
           toast.error('Failed to sign in.')
         }
@@ -145,3 +155,11 @@ export const useSignIn = () => {
 }
 
 export { AccountWatcher } from './AccountWatcher'
+
+export const useUser = () => {
+  const [multisig] = useSelectedMultisig()
+  const user = useRecoilValue(selectedAccountState)
+  const isCollaborator = useMemo(() => (user ? multisig.isCollaborator(user.injected.address) : true), [multisig, user])
+  const isSigner = useMemo(() => (user ? multisig.isSigner(user.injected.address) : true), [multisig, user])
+  return { user, isSigner, isCollaborator }
+}

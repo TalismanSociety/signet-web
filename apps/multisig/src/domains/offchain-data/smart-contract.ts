@@ -114,7 +114,6 @@ export const useAddSmartContract = () => {
         const conflict = smartContracts.find(contact => contact.address.isEqual(address))
         if (conflict) return newContract
 
-        console.log(newContract, smartContracts)
         smartContracts = [...smartContracts, newContract]
         setSmartContractsByTeamId({ ...smartContractsByTeamId, [teamId]: smartContracts })
 

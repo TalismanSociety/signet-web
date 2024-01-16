@@ -7,11 +7,12 @@ import { Address } from '@util/addresses'
 import { Chain, filteredSupportedChains } from '@domains/chains'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { Button } from '@components/ui/button'
-import { SignSummary } from './SignSummary'
 import { TextInput } from '@talismn/ui'
 import { authTokenBookState, selectedAddressState } from '@domains/auth'
 import { XCircle } from '@talismn/icons'
 import { TransactionDetailsDialog } from './TransactionDetailsDialog'
+import { TransactionSidesheet } from '@components/TransactionSidesheet'
+import { useToast } from '@components/ui/use-toast'
 
 const Wrapper: React.FC<React.PropsWithChildren & { source?: string }> = ({ children, source }) => (
   <Layout hideSideBar requiresMultisig>
@@ -38,6 +39,7 @@ export const Sign: React.FC = () => {
   const [reviewing, setReviewing] = useState(false)
   const [skipAutoSelect, setSkipAutoSelect] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
+  const { toast } = useToast()
 
   const { id, callDataHex, dappUrl, proxiedAccount, genesisHash } = useMemo(() => {
     const proxiedAccount = Address.fromSs58(searchParams.get('account') ?? '')
@@ -191,15 +193,23 @@ export const Sign: React.FC = () => {
           </div>
         )}
       </div>
-      <SignSummary
+      <TransactionSidesheet
         calldata={callDataHex as `0x${string}`}
         description={description || `Transaction from ${dappUrl.origin}`}
-        selectedMultisig={selectedMultisig}
         open={reviewing}
-        onCancel={() => setReviewing(false)}
         onApproved={() => {
           setReviewing(false)
+          toast({ title: 'Transaction successful!' })
           navigate('/overview')
+        }}
+        onClose={() => setReviewing(false)}
+        onApproveFailed={e => {
+          setReviewing(false)
+          console.error(e)
+          toast({
+            title: 'Transaction failed',
+            description: e.message,
+          })
         }}
       />
     </Wrapper>

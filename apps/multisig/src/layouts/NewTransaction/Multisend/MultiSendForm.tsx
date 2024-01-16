@@ -25,9 +25,12 @@ const MultiSendForm = (props: {
   const [hasInvalidRow, setHasInvalidRow] = useState(false)
 
   useEffect(() => {
-    if (!selectedToken && props.tokens.state === 'hasValue' && props.tokens.contents.length > 0) {
+    if (
+      props.tokens.state === 'hasValue' &&
+      props.tokens.contents.length > 0 &&
+      !props.tokens.contents.find(token => token.id === selectedToken?.id)
+    )
       setSelectedToken(props.tokens.contents[0])
-    }
   }, [props.tokens, selectedToken])
 
   return (

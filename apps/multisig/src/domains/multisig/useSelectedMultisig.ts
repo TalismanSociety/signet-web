@@ -4,6 +4,7 @@ import { DUMMY_MULTISIG_ID, selectedMultisigIdState, selectedMultisigState } fro
 import { useCallback, useEffect, useMemo } from 'react'
 import { useProxies } from '../proxy/useProxies'
 import { isEqual } from 'lodash'
+import { Address } from '@util/addresses'
 
 const proxiesState = atom<Record<string, ProxyDefinition[] | undefined>>({
   key: 'proxies',
@@ -28,7 +29,8 @@ export const useSelectedMultisig = (): [MultisigWithExtraData, (multisig: Multis
   )
 
   const multisigWithExtraData = useMemo((): MultisigWithExtraData => {
-    if (selectedMultisig.id === DUMMY_MULTISIG_ID) return { ...selectedMultisig, proxies: [], allProxies: [] }
+    if (selectedMultisig.id === DUMMY_MULTISIG_ID)
+      return { ...selectedMultisig, proxies: [], allProxies: [], isCollaborator: () => false, isSigner: () => false }
     const proxiesOfProxiedAccount = cachedProxies[proxyId]
     const filteredProxies = proxiesOfProxiedAccount?.filter(({ delegate }) =>
       delegate.isEqual(selectedMultisig.multisigAddress)
@@ -38,6 +40,8 @@ export const useSelectedMultisig = (): [MultisigWithExtraData, (multisig: Multis
       ...selectedMultisig,
       proxies: filteredProxies,
       allProxies: proxiesOfProxiedAccount,
+      isCollaborator: (address: Address) => selectedMultisig.collaborators.some(user => user.address.isEqual(address)),
+      isSigner: (address: Address) => selectedMultisig.signers.some(signer => signer.isEqual(address)),
     }
   }, [cachedProxies, proxyId, selectedMultisig])
 

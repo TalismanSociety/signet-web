@@ -20,14 +20,14 @@ const Overview = () => {
   const signedInAccount = useRecoilValue(selectedAccountState)
   const changingMultisigConfig = useRecoilValue(changingMultisigConfigState)
   const { updateMultisigConfig } = useUpdateMultisigConfig()
-  const { toast, dismiss } = useToast()
+  const { toast } = useToast()
 
   // TODO: consider migrating to top level so it works regardless of page?
   const detectChangeAndAutoUpdate = useCallback(async () => {
     try {
-      if (!selectedMultisig.proxies || !selectedMultisig.allProxies) return dismiss() // loading
+      if (!selectedMultisig.proxies || !selectedMultisig.allProxies) return // loading
 
-      if (selectedMultisig.proxies.length > 0) return dismiss() // has proxies, no need to change
+      if (selectedMultisig.proxies.length > 0) return // has proxies, no need to change
 
       console.log(
         `Detected change in multisig configuration. Outdated multisig address ${selectedMultisig.multisigAddress.toSs58(
@@ -92,7 +92,7 @@ const Overview = () => {
       ),
       duration: 600000,
     })
-  }, [dismiss, selectedMultisig, signedInAccount, toast, updateMultisigConfig])
+  }, [selectedMultisig, signedInAccount, toast, updateMultisigConfig])
 
   useEffect(() => {
     // DUMMY MULTISIG, dont need to detect or check for changes
@@ -100,8 +100,6 @@ const Overview = () => {
 
     detectChangeAndAutoUpdate()
   }, [changingMultisigConfig, detectChangeAndAutoUpdate, selectedMultisig.id, selectedMultisig.proxies])
-
-  useEffect(() => () => dismiss(), [dismiss])
 
   const augmentedTokens: TokenAugmented[] = useAugmentedBalances()
   return (
@@ -115,17 +113,16 @@ const Overview = () => {
           grid-template-areas:
             'transactions'
             'overview-assets';
-          flex: 1;
           @media ${device.md} {
             grid-template-columns: 45% 55%;
             grid-template-areas: 'overview-assets transactions';
           }
           @media ${device.lg} {
-            grid-template-columns: 38fr 62fr;
+            grid-template-columns: 38% 62%;
           }
         `}
       >
-        <div className="flex flex-col gap-[16px] h-full" css={{ gridArea: 'overview-assets' }}>
+        <div className="flex flex-col gap-[16px] h-full w-full" css={{ gridArea: 'overview-assets' }}>
           <VaultOverview />
           <Assets augmentedTokens={augmentedTokens} />
         </div>

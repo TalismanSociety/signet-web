@@ -20,6 +20,7 @@ function initMultisig(m: Multisig) {
   setAddressPrototype(m.multisigAddress)
   setAddressPrototype(m.proxyAddress)
   m.signers.forEach(s => setAddressPrototype(s))
+  m.collaborators.forEach(u => setAddressPrototype(u.address))
   // Refresh Chain definitions if they have changed
   const latestChain = supportedChains.find(c => c.squidIds.chainData === m.chain.squidIds.chainData)
   if (latestChain) m.chain = latestChain
@@ -32,7 +33,7 @@ export default recoilPersist({
       const parsed: ParsedLocalStorage = JSON.parse(str)
 
       if ('Multisigs' in parsed) {
-        parsed.Multisigs.forEach(m => initMultisig(m))
+        parsed.Multisigs = []
       }
 
       if ('SelectedMultisig' in parsed) {

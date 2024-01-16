@@ -67,7 +67,6 @@ export const AddContractPage: React.FC = () => {
 
     if (value === '') return
     const { abi, error } = parseContractBundle(value)
-    console.log(abi, error)
     if (abi) setAbi(abi)
     if (error) setAbiError(error)
   }
