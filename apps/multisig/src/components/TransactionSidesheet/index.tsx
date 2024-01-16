@@ -1,11 +1,11 @@
 import { Transaction, TxOffchainMetadata, useSelectedMultisig } from '@domains/multisig'
 import { SideSheet } from '@talismn/ui'
 import { TransactionSidesheetHeader } from './TransactionSidesheetHeader'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import TransactionDetailsExpandable from '../../layouts/Overview/Transactions/TransactionDetailsExpandable'
 import TransactionSummaryRow from '../../layouts/Overview/Transactions/TransactionSummaryRow'
 import { TransactionSidesheetApprovals } from './TransactionSidesheetApprovals'
-import { TransactionSidesheetFooter } from './TransactionSidesheetFooter'
+import { TransactionSidesheetFooter, TransactionSidesheetLoading } from './TransactionSidesheetFooter'
 import { useApi } from '@domains/chains/pjs-api'
 import { useMultisigExtrinsicFromCalldata } from '@domains/multisig/useMultisigExtrinsicFromCalldata'
 import { useCancelAsMulti } from '@domains/chains'
@@ -40,11 +40,11 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   open,
   t: submittedTx,
 }) => {
-  const [loading, setLoading] = useState(false)
+  const [approving, setApproving] = useState(false)
   const [rejecting, setRejecting] = useState(false)
   const [selectedMultisig] = useSelectedMultisig()
   const { api } = useApi(selectedMultisig.chain.rpcs)
-  const { approve, approving, estimatedFee, readyToExecute, t } = useMultisigExtrinsicFromCalldata(
+  const { approve, estimatedFee, readyToExecute, t } = useMultisigExtrinsicFromCalldata(
     description,
     selectedMultisig,
     calldata,
@@ -56,16 +56,27 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   const { saveDraft, loading: savingDraft } = useSaveDraftMetadata()
   const { deleteDraft, loading: deletingDraft } = useDeleteDraftMetadata()
   const { cancelAsMulti, canCancel: canReject } = useCancelAsMulti(t)
+
   const { toast } = useToast()
 
+  const loading: TransactionSidesheetLoading = useMemo(() => {
+    return {
+      savingDraft,
+      deletingDraft,
+      approving,
+      rejecting,
+      any: savingDraft || deletingDraft || approving || rejecting,
+    }
+  }, [approving, deletingDraft, rejecting, savingDraft])
+
   const handleClose = useCallback(async () => {
-    if (loading) return
+    if (loading.any) return
     onClose?.()
     return
   }, [loading, onClose])
 
   const handleApprove = useCallback(async () => {
-    setLoading(true)
+    setApproving(true)
     try {
       const r = await approve()
       if (t?.draft) {
@@ -79,7 +90,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
       if (e === 'Cancelled') return
       onApproveFailed?.(e instanceof Error ? e : new Error(getErrorString(e)))
     } finally {
-      setLoading(false)
+      setApproving(false)
     }
   }, [approve, deleteDraft, navigate, onApproveFailed, onApproved, onClose, t?.draft])
 
@@ -107,7 +118,6 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   }, [canReject, cancelAsMulti, onRejected])
 
   const handleSaveDraft = useCallback(async () => {
-    setLoading(true)
     try {
       const saved = await saveDraft({
         callData: calldata,
@@ -132,8 +142,6 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
         title: 'Failed to saved tx as draft',
         description: getErrorString(e),
       })
-    } finally {
-      setLoading(false)
     }
   }, [
     calldata,
@@ -149,17 +157,14 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
 
   const handleDeleteDraft = useCallback(async () => {
     if (!t?.draft) return
-    setLoading(true)
+
     try {
       await deleteDraft(t.draft.id)
       onClose?.()
       toast({
         title: 'Draft deleted!',
       })
-    } catch (e) {
-    } finally {
-      setLoading(false)
-    }
+    } catch (e) {}
   }, [deleteDraft, onClose, t?.draft, toast])
 
   return (
@@ -195,10 +200,9 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
                 onDeleteDraft={handleDeleteDraft}
                 onSaveDraft={handleSaveDraft}
                 readyToExecute={readyToExecute}
-                rejecting={rejecting}
                 t={t}
                 fee={estimatedFee}
-                loading={loading || approving || savingDraft || deletingDraft}
+                loading={loading}
                 canReject={canReject}
               />
             )}

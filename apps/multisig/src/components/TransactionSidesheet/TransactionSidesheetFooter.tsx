@@ -11,6 +11,14 @@ import { cn } from '@util/tailwindcss'
 import { useCallback, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 
+export type TransactionSidesheetLoading = {
+  any: boolean
+  approving: boolean
+  deletingDraft: boolean
+  rejecting: boolean
+  savingDraft: boolean
+}
+
 export const SignerCta: React.FC<{
   canReject?: boolean
   onApprove: Function
@@ -19,23 +27,10 @@ export const SignerCta: React.FC<{
   onReject: Function
   onSaveDraft: Function
   readyToExecute: boolean
-  rejecting: boolean
   fee?: Balance
   t: Transaction
-  loading: boolean
-}> = ({
-  canReject,
-  onApprove,
-  onCancel,
-  onDeleteDraft,
-  onReject,
-  onSaveDraft,
-  fee,
-  loading,
-  readyToExecute,
-  rejecting,
-  t,
-}) => {
+  loading: TransactionSidesheetLoading
+}> = ({ canReject, onApprove, onCancel, onDeleteDraft, onReject, onSaveDraft, fee, loading, readyToExecute, t }) => {
   const extensionAccounts = useRecoilValue(accountsState)
   const [asDraft, setAsDraft] = useState(false)
   const { transactions: pendingTransactions, loading: pendingLoading } = usePendingTransactions()
@@ -54,7 +49,7 @@ export const SignerCta: React.FC<{
   }, [asDraft, onApprove, onSaveDraft])
 
   const handleToggleAsDraft = useCallback(() => {
-    if (loading) return
+    if (loading.any) return
     setAsDraft(asDraft => (isCreating ? !asDraft : false))
   }, [isCreating, loading])
 
@@ -153,11 +148,11 @@ export const SignerCta: React.FC<{
           )}
           {isCreating && (
             <div className="flex items-center justify-end w-full mt-[12px]">
-              <Checkbox checked={asDraft} onCheckedChange={handleToggleAsDraft} disabled={loading} />
+              <Checkbox checked={asDraft} onCheckedChange={handleToggleAsDraft} disabled={loading.any} />
               <p
                 className={cn(
                   'mt-[3px] ml-[8px] text-offWhite select-none',
-                  loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
+                  loading.any ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
                 )}
                 onClick={handleToggleAsDraft}
               >
@@ -170,7 +165,7 @@ export const SignerCta: React.FC<{
 
       <div className="grid grid-cols-2 gap-[12px] w-full">
         {t.draft ? (
-          <Button variant="outline" className="w-full" onClick={() => onDeleteDraft()} disabled={rejecting || loading}>
+          <Button variant="outline" className="w-full" onClick={() => onDeleteDraft()} disabled={loading.any}>
             Delete Draft
           </Button>
         ) : (
@@ -178,8 +173,8 @@ export const SignerCta: React.FC<{
             variant="outline"
             className="w-full"
             onClick={() => (t.rawPending ? onReject() : onCancel())}
-            disabled={t.rawPending ? rejecting || !canReject : false}
-            loading={rejecting}
+            disabled={loading.any || (t.rawPending ? !canReject : false)}
+            loading={loading.rejecting}
           >
             {t.rawPending ? (canReject ? 'Reject' : 'Only originator can reject') : 'Cancel'}
           </Button>
@@ -190,13 +185,10 @@ export const SignerCta: React.FC<{
             onClick={handleApprove}
             disabled={
               missingExecutionCallData ||
-              !connectedAccountCanApprove ||
-              !canApproveAsChangeConfig ||
-              !fee ||
-              loading ||
-              rejecting
+              loading.any ||
+              (!asDraft && (!connectedAccountCanApprove || !canApproveAsChangeConfig || !fee))
             }
-            loading={loading}
+            loading={asDraft ? loading.savingDraft : loading.approving}
           >
             {asDraft ? 'Save as Draft' : readyToExecute ? 'Approve & Execute' : 'Approve'}
           </Button>
@@ -211,27 +203,29 @@ export const CollaboratorCta: React.FC<{
   onDeleteDraft: Function
   onSaveDraft: Function
   onCancel: Function
-  loading: boolean
-}> = ({ t, loading, onCancel, onDeleteDraft, onSaveDraft }) => {
+  loading: TransactionSidesheetLoading
+}> = ({ t, onCancel, onDeleteDraft, onSaveDraft, loading }) => {
   const signedInUser = useRecoilValue(selectedAccountState)
 
   // draft already created and saved to db
   if (t.draft) {
+    const isCreator = t.draft.creator.id === signedInUser?.id
     return (
       <div className="w-full">
-        {t.draft.creator.id !== signedInUser?.id && (
+        {!isCreator && (
           <p className="mb-[8px]">
             Only the creator of this draft or signers of this vault has permission to delete this draft.
           </p>
         )}
         <div className="grid grid-cols-2 gap-[12px] w-full">
-          <Button variant="outline" className="w-full" onClick={() => onCancel()}>
+          <Button variant="outline" className="w-full" onClick={() => onCancel()} disabled={loading.any}>
             Cancel
           </Button>
           <Button
             className="w-full"
-            disabled={signedInUser?.id !== t.draft.creator.id || loading}
+            disabled={!isCreator || loading.any}
             onClick={() => onDeleteDraft()}
+            loading={loading.deletingDraft}
             variant="destructive"
           >
             Delete Draft
@@ -255,10 +249,10 @@ export const CollaboratorCta: React.FC<{
 
   return (
     <div className="grid grid-cols-2 gap-[12px] w-full">
-      <Button className="w-full" onClick={() => onCancel()} variant="outline" disabled={loading}>
+      <Button className="w-full" onClick={() => onCancel()} variant="outline" disabled={loading.any}>
         Cancel
       </Button>
-      <Button className="w-full" disabled={loading} loading={loading} onClick={() => onSaveDraft()}>
+      <Button className="w-full" disabled={loading.any} loading={loading.savingDraft} onClick={() => onSaveDraft()}>
         Save as Draft
       </Button>
     </div>
@@ -275,21 +269,8 @@ export const TransactionSidesheetFooter: React.FC<{
   onDeleteDraft: Function
   onReject: Function
   onSaveDraft: Function
-  loading: boolean
-  rejecting: boolean
-}> = ({
-  canReject,
-  onApprove,
-  onCancel,
-  onDeleteDraft,
-  onReject,
-  onSaveDraft,
-  fee,
-  loading,
-  readyToExecute,
-  rejecting,
-  t,
-}) => {
+  loading: TransactionSidesheetLoading
+}> = ({ canReject, onApprove, onCancel, onDeleteDraft, onReject, onSaveDraft, fee, loading, readyToExecute, t }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const signer = useRecoilValue(selectedAccountState)
 
@@ -302,10 +283,10 @@ export const TransactionSidesheetFooter: React.FC<{
   if (isCollaborator)
     return (
       <CollaboratorCta
-        loading={loading}
         onDeleteDraft={onDeleteDraft}
         onSaveDraft={onSaveDraft}
         onCancel={onCancel}
+        loading={loading}
         t={t}
       />
     )
@@ -315,7 +296,6 @@ export const TransactionSidesheetFooter: React.FC<{
       canReject={canReject}
       fee={fee}
       loading={loading}
-      rejecting={rejecting}
       onApprove={onApprove}
       onSaveDraft={onSaveDraft}
       onCancel={onCancel}
