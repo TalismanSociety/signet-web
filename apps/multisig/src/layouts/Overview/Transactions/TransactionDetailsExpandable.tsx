@@ -23,7 +23,10 @@ import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { SmartContractCallExpandedDetails } from '../../SmartContracts/SmartContractCallExpandedDetails'
 import { Accordion, AccordionItem, AccordionContent, AccordionTrigger } from '@components/ui/accordion'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
-import { ValidatorsRotationHeader } from '../../../layouts/Staking/ValidatorsRotationSummaryDetails'
+import {
+  ValidatorsRotationExpandedDetails,
+  ValidatorsRotationHeader,
+} from '../../../layouts/Staking/ValidatorsRotationSummaryDetails'
 
 const CopyPasteBox: React.FC<{ content: string; label: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
@@ -292,6 +295,9 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
         return <VoteExpandedDetails t={t} />
       case TransactionType.ContractCall:
         return <SmartContractCallExpandedDetails t={t} />
+      case TransactionType.NominateFromNomPool:
+      case TransactionType.NominateFromStaking:
+        return <ValidatorsRotationExpandedDetails t={t} />
       default:
         return t.decoded ? null : (
           <div className="grid gap-[8px]">
