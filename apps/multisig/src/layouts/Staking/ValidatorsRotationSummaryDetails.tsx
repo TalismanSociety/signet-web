@@ -51,7 +51,7 @@ export const ValidatorsRotationHeader: React.FC<{ t: Transaction }> = ({ t }) =>
   )
 
   const bondedPools = useRecoilValue(bondedPoolsState)
-  const [cachedNominations, setCachedNominations] = useState(nomPoolNominations?.map(({ address }) => address) ?? [])
+  const [cachedNominations, setCachedNominations] = useState(nomPoolNominations?.map(({ address }) => address))
 
   const nominatedPool = useMemo(() => {
     if (t.decoded?.nominate?.poolId === undefined) return null
@@ -119,7 +119,7 @@ export const ValidatorsRotationExpandedDetails: React.FC<{ t: Transaction }> = (
     selectedMultisig.chain,
     pool?.pool.stash.toSs58(selectedMultisig.chain)
   )
-  const [cachedNominations, setCachedNominations] = useState(nomPoolNominations?.map(({ address }) => address) ?? [])
+  const [cachedNominations, setCachedNominations] = useState(nomPoolNominations?.map(({ address }) => address))
 
   const newNominations = useMemo(() => {
     return t.decoded?.nominate?.validators ?? []
