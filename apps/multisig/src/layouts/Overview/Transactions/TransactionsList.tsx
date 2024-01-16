@@ -76,7 +76,11 @@ export const TransactionsList = ({
                     {transactions.map(t => (
                       <motion.div key={t.draft?.id ?? t.id} whileHover={{ scale: 1.015 }} className="cursor-pointer">
                         <TransactionSummaryRow
-                          onClick={() => navigate(`/overview/${value}-tx/${t.draft?.id ?? t.hash}?tab=${value}`)}
+                          onClick={() =>
+                            navigate(
+                              `/overview/${value}-tx/${t.draft?.id ?? t.hash}?tab=${value}&teamId=${multisig.id}`
+                            )
+                          }
                           t={t}
                           shortDate={true}
                           showDraftBadge
@@ -92,7 +96,7 @@ export const TransactionsList = ({
                   path={`/${value}-tx/:hash`}
                   element={
                     !loading && !openTransaction ? (
-                      <Navigate to="/overview" />
+                      <Navigate to={`/overview?tab=${value}&teamId=${multisig.id}`} />
                     ) : (
                       <TransactionSidesheet
                         calldata="0x"
@@ -113,17 +117,17 @@ export const TransactionsList = ({
                         }}
                         onApproveFailed={e => {
                           console.error(e)
-                          navigate('/overview')
+                          navigate(`/overview?tab=${value}&teamId=${multisig.id}`)
                           toast({
                             title: 'Failed to approve transaction',
                             description: e.message,
                           })
                         }}
                         onClose={() => {
-                          navigate('/overview')
+                          navigate(`/overview?tab=${value}&teamId=${multisig.id}`)
                         }}
                         onRejected={({ error }) => {
-                          navigate('/overview')
+                          navigate(`/overview?tab=${value}&teamId=${multisig.id}`)
                           if (error) {
                             console.error(error)
                             toast({

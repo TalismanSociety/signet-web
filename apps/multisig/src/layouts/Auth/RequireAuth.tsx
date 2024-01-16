@@ -3,6 +3,7 @@ import { accountsState } from '@domains/extension'
 import Landing from '../Landing'
 import { selectedAccountState } from '@domains/auth'
 import SignInPage from './SignInPage'
+import { useTeamFromUrl } from '@domains/offchain-data'
 
 type Props = {
   requireSignIn?: boolean
@@ -15,6 +16,7 @@ type Props = {
 const RequireAuth: React.FC<React.PropsWithChildren & Props> = ({ children, requireSignIn }) => {
   const [extensionAccounts] = useRecoilState(accountsState)
   const signedInAccount = useRecoilValue(selectedAccountState)
+  useTeamFromUrl()
 
   // show landing page for connection if not accounts connected
   if (extensionAccounts.length === 0) {

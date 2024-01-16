@@ -15,6 +15,7 @@ export const Layout: React.FC<
   const activeTeams = useRecoilValue(activeTeamsState)
   const devMode = useDevMode()
 
+  console.log('activeTeams', activeTeams)
   return (
     <div
       css={{
@@ -36,7 +37,7 @@ export const Layout: React.FC<
               <EyeOfSauronProgressIndicator />
             </div>
           ) : (
-            <Navigate to="/add-vault" />
+            <Navigate to="/add-vault?redirect=self" />
           )
         ) : (
           <>

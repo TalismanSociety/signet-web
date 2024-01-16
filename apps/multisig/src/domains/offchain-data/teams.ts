@@ -1,14 +1,15 @@
 import { gql } from 'graphql-request'
 import { atom, selector, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
-import { SignedInAccount, selectedAccountState } from '../auth'
-import { useCallback, useEffect, useState } from 'react'
+import { SignedInAccount, selectedAccountState, useUser } from '../auth'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { requestSignetBackend } from './hasura'
 import { Address, toMultisigAddress } from '@util/addresses'
 import { Chain, supportedChains } from '../chains'
-import { Multisig, selectedMultisigIdState, useSelectedMultisig } from '../multisig'
+import { DUMMY_MULTISIG_ID, Multisig, selectedMultisigIdState, useSelectedMultisig } from '../multisig'
 import { useToast } from '@components/ui/use-toast'
 import { getErrorString } from '@util/misc'
 import { captureException } from '@sentry/react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 type RawTeam = {
   id: string
@@ -232,7 +233,7 @@ export const TeamsWatcher: React.FC = () => {
       const { data, error } = await requestSignetBackend<{ team: RawTeam[] }>(TEAM_BY_SIGNER_QUERY, {}, account)
 
       if (data?.team) {
-        let changed = false
+        let changed = data.team.length === 0
         const validTeams: Team[] = [...(teams ?? [])]
         // parse and validate each team from raw json to Team
         for (const rawTeam of data.team) {
@@ -593,4 +594,42 @@ export const useDeleteCollaborator = () => {
   )
 
   return { deleting, deleteCollaborator }
+}
+
+export const useTeamFromUrl = () => {
+  const { user } = useUser()
+  const [selectedMultisig, setSelectedMultisig] = useSelectedMultisig()
+  const location = useLocation()
+  const teams = useRecoilValue(teamsState)
+  const [init, setInit] = useState(false)
+  const navigate = useNavigate()
+
+  const urlTeamId = useMemo(() => {
+    const urlParams = new URLSearchParams(location.search)
+    return urlParams.get('teamId')
+  }, [location.search])
+
+  useEffect(() => {
+    if (!teams || init || !user) return
+
+    // dont need to do anything
+    if (!urlTeamId || urlTeamId === selectedMultisig.id) return setInit(true)
+
+    // find the team to switch to
+    const team = teams.find(team => team.id === urlTeamId)
+    if (!team) return // team not found for the current signed in user
+
+    setInit(true)
+
+    // switch to team specified in url
+    setSelectedMultisig(team.toMultisig())
+  }, [init, selectedMultisig.id, setSelectedMultisig, teams, urlTeamId, user])
+
+  useEffect(() => {
+    if (!init || selectedMultisig.id === DUMMY_MULTISIG_ID) return
+    const curSearch = new URLSearchParams(location.search)
+    curSearch.set('teamId', selectedMultisig.id)
+
+    navigate(`${window.location.pathname}?${curSearch.toString()}`)
+  }, [init, location.search, navigate, selectedMultisig])
 }

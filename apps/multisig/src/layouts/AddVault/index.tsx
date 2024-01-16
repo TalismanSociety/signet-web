@@ -1,8 +1,8 @@
 import { css } from '@emotion/css'
 import { useRecoilValue } from 'recoil'
 import { activeMultisigsState } from '../../domains/multisig'
-import React, { useState } from 'react'
-import { Outlet, Route, Routes, useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { Layout } from '../Layout'
 import { CancleOrNext } from './common/CancelOrNext'
 import CreateMultisig from './CreateVault'
@@ -46,12 +46,20 @@ export const AddVault: React.FC = () => {
   const activeMultisigs = useRecoilValue(activeMultisigsState)
   const [create, setCreate] = useState(true)
   const navigate = useNavigate()
+  const location = useLocation()
 
   const isNewAccount = activeMultisigs.length === 0
 
   const handleAddVault = () => {
     navigate(create ? 'create' : 'import')
   }
+
+  useEffect(() => {
+    if (activeMultisigs.length > 0 && location.pathname === '/add-vault') {
+      const search = new URLSearchParams(location.search)
+      if (search.get('redirect') === 'self') navigate(-1)
+    }
+  }, [activeMultisigs.length, location.pathname, location.search, navigate])
 
   return (
     <Layout hideSideBar>
