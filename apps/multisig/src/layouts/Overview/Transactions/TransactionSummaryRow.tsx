@@ -73,10 +73,8 @@ const TransactionSummaryRow = ({
         </div>
 
         <div className="flex flex-col items-start overflow-x-hidden overflow-y-visible gap-[2px]">
-          <div className="flex items-center gap-[8px] text-offWhite overflow-x-hidden overflow-y-visible text-ellipsis w-full max-w-max">
-            <p className="whitespace-nowrap overflow-hidden text-ellipsis leading-[16px] max-w-max w-full mt-[4px]">
-              {t.description}
-            </p>
+          <div className="flex items-center gap-[8px] text-offWhite overflow-x-hidden overflow-y-visible text-ellipsis w-full max-w-max pt-[4px]">
+            <p className="whitespace-nowrap text-ellipsis leading-[16px] max-w-max w-full mt-[4px]">{t.description}</p>
             {combinedView ? (
               <div className="flex items-center">
                 <img
