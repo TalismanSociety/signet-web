@@ -44,7 +44,7 @@ export const SmartContractCallExpandedDetails: React.FC<{ t: Transaction }> = ({
     }
   }, [contract, t.decoded])
 
-  if (loading || !api)
+  if ((!decodedContractCall && loading) || !api)
     return (
       <div className="w-full">
         <StatusMessage type="loading" message="Loading smart contract..." />

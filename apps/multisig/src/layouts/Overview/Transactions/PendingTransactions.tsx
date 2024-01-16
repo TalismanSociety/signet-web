@@ -19,11 +19,5 @@ export const PendingTansactions: React.FC<Props> = ({ value }) => {
     return () => clearInterval(interval)
   })
 
-  console.log(
-    transactions.map(t => ({
-      hash: t.hash,
-      when: t.rawPending?.onChainMultisig.when.toHuman(),
-    }))
-  )
   return <TransactionsList value={value} loading={loading} transactions={transactions} />
 }
