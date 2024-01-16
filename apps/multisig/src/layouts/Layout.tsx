@@ -15,7 +15,6 @@ export const Layout: React.FC<
   const activeTeams = useRecoilValue(activeTeamsState)
   const devMode = useDevMode()
 
-  console.log('activeTeams', activeTeams)
   return (
     <div
       css={{
