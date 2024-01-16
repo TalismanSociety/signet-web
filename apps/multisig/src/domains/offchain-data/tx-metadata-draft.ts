@@ -76,20 +76,7 @@ export const useSaveDraftMetadata = () => {
   const [mutateSaveDraft, { loading, data, error }] = useMutation<
     { insert_tx_metadata_draft_one: TxMetadataDraftRaw },
     SaveDraftProps
-  >(SAVE_DRAFT_METADATA, {
-    onCompleted: (data, clientOptions) => {
-      console.log(data, clientOptions)
-      if (!clientOptions || !clientOptions.client) return
-      const curRes = clientOptions.client.readQuery({
-        query: GET_TX_METADATA_DRAFT_QUERY,
-        variables: {
-          teamId: selectedMultisig.id,
-        },
-      })
-
-      console.log(curRes)
-    },
-  })
+  >(SAVE_DRAFT_METADATA)
 
   const saveDraft = useCallback(
     async (

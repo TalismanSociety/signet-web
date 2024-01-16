@@ -84,7 +84,6 @@ const VoteAction: React.FC = () => {
                 })
               }}
               onApproved={() => {
-                console.log('Approved')
                 toast({ title: 'Transaction successful!', duration: 8000 })
                 navigate('/overview')
               }}
