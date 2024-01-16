@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
-import { Button, TextInput } from '@talismn/ui'
+import { Button } from '@talismn/ui'
 import Modal from '@components/Modal'
 import { useInput } from '@hooks/useInput'
 import { Address } from '@util/addresses'
 import { useAddressBook, useCreateContact } from '../../domains/offchain-data'
 import { useSelectedMultisig } from '../../domains/multisig'
+import { Input } from '@components/ui/input'
 
 type Props = {
   onClose?: () => void
@@ -47,22 +48,14 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
       <h1 css={{ fontSize: 20, fontWeight: 700 }}>Add new contact</h1>
       <p css={{ marginTop: 8 }}>Saved contacts will be shared by all members of your multisig.</p>
       <form css={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <TextInput placeholder="Contact Name" leadingLabel="Name" {...nameInput} />
-        <TextInput
+        <Input placeholder="Contact Name" label="Name" {...nameInput} />
+        <Input
           placeholder="Address"
-          leadingLabel="Address"
+          label="Address"
           {...addressInput}
-          leadingSupportingText={
+          supportingLabel={
             conflict ? (
-              <p
-                css={({ color }) => ({
-                  color: color.lightGrey,
-                  fontSize: 14,
-                  marginLeft: 12,
-                })}
-              >
-                Address already exists in address book.
-              </p>
+              <p className="text-gray-200 mt-[8px] ml-[12px] text-[14px]">Address already exists in address book.</p>
             ) : null
           }
         />

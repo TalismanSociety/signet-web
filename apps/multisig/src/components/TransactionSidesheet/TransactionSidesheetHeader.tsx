@@ -17,7 +17,7 @@ const Pill = ({ children, type }: { children: React.ReactNode; type: PillType })
           ? 'text-green-500 bg-green-700/30'
           : type === PillType.Draft
           ? 'border border-orange-400 text-orange-400'
-          : 'text-orange-500 bg-orange-600/20'
+          : 'text-orange-400 bg-orange-400/20'
       )}
     >
       {children}

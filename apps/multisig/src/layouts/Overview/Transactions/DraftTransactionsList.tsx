@@ -6,7 +6,6 @@ import {
   useSelectedMultisig,
 } from '@domains/multisig'
 import { useHasura } from '@domains/offchain-data/hasura'
-import { gql } from 'graphql-tag'
 import { useEffect, useMemo } from 'react'
 import { allChainTokensSelector } from '@domains/chains'
 import { useRecoilValueLoadable } from 'recoil'
@@ -14,49 +13,19 @@ import { innerCalldataToTransaction } from '@domains/multisig/innerCalldataToTra
 import { useApi } from '@domains/chains/pjs-api'
 import { TransactionsList } from './TransactionsList'
 import { Address } from '@util/addresses'
+import { GET_TX_METADATA_DRAFT_QUERY, TxMetadataDraftRaw } from '@domains/offchain-data/tx-metadata-draft'
 
 type Props = {
   value: string
 }
 
-type TxMetadataDraftRaw = {
-  id: string
-  team_id: string
-  creator: {
-    id: string
-    identifier: string
-    identifier_type: string
-  }
-  created_at: string
-  change_config_details: any
-  call_data: string
-  description: string
-}
-
-const DRAFT_QUERY = gql`
-  query GetDraftTransactions($teamId: uuid!) {
-    tx_metadata_draft(where: { team_id: { _eq: $teamId }, status: { _eq: "draft" } }, order_by: { created_at: desc }) {
-      id
-      team_id
-      creator {
-        id
-        identifier
-        identifier_type
-      }
-      created_at
-      change_config_details
-      call_data
-      description
-    }
-  }
-`
 export const DraftTransactionsList: React.FC<Props> = ({ value }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const { api } = useApi(selectedMultisig.chain.rpcs)
   const allActiveChainTokens = useRecoilValueLoadable(allChainTokensSelector)
   const { data, loading, refetch } = useHasura<{
     tx_metadata_draft: TxMetadataDraftRaw[]
-  }>(DRAFT_QUERY, {
+  }>(GET_TX_METADATA_DRAFT_QUERY, {
     skip: selectedMultisig.id === DUMMY_MULTISIG_ID,
     fetchPolicy: 'cache-and-network',
     initialFetchPolicy: 'network-only',
@@ -81,9 +50,9 @@ export const DraftTransactionsList: React.FC<Props> = ({ value }) => {
     if (allActiveChainTokens.state !== 'hasValue') return undefined
     const curChainTokens = allActiveChainTokens.contents.get(selectedMultisig.chain.squidIds.chainData)
 
-    if (!data?.tx_metadata_draft || !api || !curChainTokens) return []
-    const parsed: Transaction[] = []
+    if (!data?.tx_metadata_draft || !api || !curChainTokens) return undefined
 
+    const parsed: Transaction[] = []
     data.tx_metadata_draft.forEach(tx => {
       try {
         const createdDate = new Date(tx.created_at)
@@ -127,7 +96,7 @@ export const DraftTransactionsList: React.FC<Props> = ({ value }) => {
           multisig: selectedMultisig,
           date: createdDate,
           description: tx.description,
-          callData: tx.call_data as `0x${string}`,
+          callData: transaction.calldata as `0x${string}`,
           draft: {
             createdAt: createdDate,
             id: tx.id,

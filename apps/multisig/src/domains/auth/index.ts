@@ -1,11 +1,12 @@
-import { useCallback, useState } from 'react'
-import { atom, selector, useRecoilState, useSetRecoilState } from 'recoil'
+import { useCallback, useMemo, useState } from 'react'
+import { atom, selector, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { web3FromSource } from '@polkadot/extension-dapp'
 import { SiwsMessage } from '@talismn/siws'
 import { InjectedAccount, accountsState } from '../extension'
 import persistAtom from '../persist'
 import toast from 'react-hot-toast'
 import { captureException } from '@sentry/react'
+import { useSelectedMultisig } from '@domains/multisig'
 
 const SIWS_ENDPOINT = process.env.REACT_APP_SIWS_ENDPOINT ?? ''
 
@@ -154,3 +155,11 @@ export const useSignIn = () => {
 }
 
 export { AccountWatcher } from './AccountWatcher'
+
+export const useUser = () => {
+  const [multisig] = useSelectedMultisig()
+  const user = useRecoilValue(selectedAccountState)
+  const isCollaborator = useMemo(() => (user ? multisig.isCollaborator(user.injected.address) : true), [multisig, user])
+  const isSigner = useMemo(() => (user ? multisig.isSigner(user.injected.address) : true), [multisig, user])
+  return { user, isSigner, isCollaborator }
+}

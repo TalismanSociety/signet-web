@@ -15,6 +15,7 @@ export const innerCalldataToTransaction = (
   transaction?: {
     decoded: TransactionDecoded
     hash: `0x${string}`
+    calldata: `0x${string}`
   }
 } => {
   try {
@@ -28,6 +29,7 @@ export const innerCalldataToTransaction = (
       transaction: {
         hash,
         decoded: decoded.decoded,
+        calldata: proxyExtrinsic.method.toHex(),
       },
     }
   } catch (e) {

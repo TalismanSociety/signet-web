@@ -15,6 +15,8 @@ import { useMemo } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import truncateMiddle from 'truncate-middle'
 import { formattedDate, formattedHhMm } from './utils'
+import { AccountDetails } from '@components/AddressInput/AccountDetails'
+import { useKnownAddresses } from '@hooks/useKnownAddresses'
 
 const TransactionSummaryRow = ({
   t,
@@ -27,6 +29,7 @@ const TransactionSummaryRow = ({
   shortDate: boolean
   showDraftBadge?: boolean
 }) => {
+  const { contactByAddress } = useKnownAddresses(t.multisig.id)
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
   const combinedView = useRecoilValue(combinedViewState)
   const tokenPrices = useRecoilValueLoadable(tokenPricesState(sumOutgoing.map(b => b.token)))
@@ -64,14 +67,14 @@ const TransactionSummaryRow = ({
   const tokenBreakdown = sumOutgoing.map(b => `${balanceToFloat(b)} ${b.token.symbol}`).join(' + ')
   return (
     <div onClick={onClick} className="flex items-center justify-between w-full gap-[16px]">
-      <div className="flex items-center justify-start gap-[8px] w-full overflow-hidden">
-        <div className="flex items-center justify-center min-w-[32px] w-[32px] h-[32px] bg-gray-500 [&>svg]:h-[15px] [&>svg]:w-[15px] rounded-full text-primary">
+      <div className="flex items-center justify-start gap-[8px] w-full">
+        <div className="flex items-center justify-center min-w-[36px] w-[36px] h-[36px] bg-gray-500 [&>svg]:h-[15px] [&>svg]:w-[15px] rounded-full text-primary">
           {txIcon}
         </div>
 
-        <div className="flex flex-col items-start overflow-hidden">
-          <div className="flex items-center gap-[8px] text-offWhite overflow-hidden text-ellipsis w-full max-w-max">
-            <p className="whitespace-nowrap overflow-hidden text-ellipsis leading-[16px] max-w-max w-full">
+        <div className="flex flex-col items-start overflow-x-hidden overflow-y-visible gap-[2px]">
+          <div className="flex items-center gap-[8px] text-offWhite overflow-x-hidden overflow-y-visible text-ellipsis w-full max-w-max">
+            <p className="whitespace-nowrap overflow-hidden text-ellipsis leading-[16px] max-w-max w-full mt-[4px]">
               {t.description}
             </p>
             {combinedView ? (
@@ -88,8 +91,8 @@ const TransactionSummaryRow = ({
             ) : null}
             {t.draft ? (
               showDraftBadge ? (
-                <div className="text-orange-400 border rounded-[8px] px-[8px] pb-[2px]">
-                  <p className="text-[12px] leading-[12px] !mt-[4px]">Draft</p>
+                <div className="text-orange-400 border rounded-[8px] px-[6px] pb-[2px]">
+                  <p className="text-[11px] leading-[11px] !mt-[3px]">Draft</p>
                 </div>
               ) : null
             ) : (
@@ -101,7 +104,26 @@ const TransactionSummaryRow = ({
               )
             )}
           </div>
-          <p className="text-[12px] mt-[2px]">{shortDate ? formattedHhMm(t.date) : formattedDate(t.date)}</p>
+          <div className="flex items-center justify-start">
+            <p className="text-[12px] mt-[2px] leading-[12px] whitespace-nowrap">
+              {shortDate ? formattedHhMm(t.date) : formattedDate(t.date)}
+            </p>
+            {t.draft && (
+              <div className="flex items-center justify-start gap-[8px] ml-[8px]">
+                <div className="w-[3px] h-[3px] bg-gray-200 rounded-full" />
+                <div className=" [&>div>div>p]:!text-[12px] [&>div>p]:!text-[12px] [&>div]:gap-[4px] [&>div>div]:!min-w-[16px] [&>div>div>svg]:!w-[16px] [&>div>div>svg]:!h-[16px] flex items-center">
+                  <p className="text-[12px] mr-[4px] whitespace-nowrap mt-[3px]">Drafted by</p>
+                  <AccountDetails
+                    address={t.draft.creator.address}
+                    name={contactByAddress?.[t.draft.creator.address.toSs58()]?.name}
+                    withAddressTooltip
+                    nameOrAddressOnly
+                    disableCopy
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

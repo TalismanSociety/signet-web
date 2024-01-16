@@ -11,7 +11,7 @@ import { useMultisigExtrinsicFromCalldata } from '@domains/multisig/useMultisigE
 import { useCancelAsMulti } from '@domains/chains'
 import { getErrorString } from '@util/misc'
 import { SubmittableResult } from '@polkadot/api'
-import { useSaveDraftMetadata } from '@domains/offchain-data/tx-metadata-draft'
+import { useDeleteDraftMetadata, useSaveDraftMetadata } from '@domains/offchain-data/tx-metadata-draft'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@components/ui/use-toast'
 
@@ -54,6 +54,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   )
   const navigate = useNavigate()
   const { saveDraft, loading: savingDraft } = useSaveDraftMetadata()
+  const { deleteDraft, loading: deletingDraft } = useDeleteDraftMetadata()
   const { cancelAsMulti, canCancel: canReject } = useCancelAsMulti(t)
   const { toast } = useToast()
 
@@ -67,14 +68,20 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     setLoading(true)
     try {
       const r = await approve()
-      onApproved?.(r)
+      if (t?.draft) {
+        await deleteDraft(t.draft.id, 'executed')
+        onClose?.()
+        navigate('/overview')
+      } else {
+        onApproved?.(r)
+      }
     } catch (e) {
       if (e === 'Cancelled') return
       onApproveFailed?.(e instanceof Error ? e : new Error(getErrorString(e)))
     } finally {
       setLoading(false)
     }
-  }, [approve, onApproveFailed, onApproved])
+  }, [approve, deleteDraft, navigate, onApproveFailed, onApproved, onClose, t?.draft])
 
   const handleReject = useCallback(async () => {
     if (!canReject) return
@@ -140,14 +147,20 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     toast,
   ])
 
-  const handleDeleteDraft = useCallback(() => {
+  const handleDeleteDraft = useCallback(async () => {
+    if (!t?.draft) return
     setLoading(true)
     try {
+      await deleteDraft(t.draft.id)
+      onClose?.()
+      toast({
+        title: 'Draft deleted!',
+      })
     } catch (e) {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [deleteDraft, onClose, t?.draft, toast])
 
   return (
     <SideSheet
@@ -185,7 +198,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
                 rejecting={rejecting}
                 t={t}
                 fee={estimatedFee}
-                loading={loading || approving || savingDraft}
+                loading={loading || approving || savingDraft || deletingDraft}
                 canReject={canReject}
               />
             )}

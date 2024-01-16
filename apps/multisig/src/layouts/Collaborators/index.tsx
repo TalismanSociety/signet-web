@@ -4,10 +4,12 @@ import { useState } from 'react'
 import { Layout } from '../../layouts/Layout'
 import { AddCollaboratorModal } from './AddCollaboratorModal'
 import { CollaboratorRow } from './CollaboratorRow'
+import { useUser } from '@domains/auth'
 
 export const Collaborators: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const [showAddModal, setShowAddModal] = useState(false)
+  const { isCollaborator } = useUser()
 
   return (
     <Layout selected="Collaborators" requiresMultisig>
@@ -15,9 +17,11 @@ export const Collaborators: React.FC = () => {
         <div className="w-full max-w-[680px]">
           <div className="w-full flex justify-between items-center">
             <h1 className="text-offWhite mt-[4px] font-bold text-[24px]">Collaborators</h1>
-            <Button variant="outline" size="lg" onClick={() => setShowAddModal(true)}>
-              Add Collaborator
-            </Button>
+            {!isCollaborator && (
+              <Button variant="outline" size="lg" onClick={() => setShowAddModal(true)}>
+                Add Collaborator
+              </Button>
+            )}
           </div>
           <p className="mt-[8px]">
             Add non-signers as Collaborators, with access to view onchain and offchain information from this Vault and

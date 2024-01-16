@@ -15,6 +15,7 @@ export const SignerCta: React.FC<{
   canReject?: boolean
   onApprove: Function
   onCancel: Function
+  onDeleteDraft: Function
   onReject: Function
   onSaveDraft: Function
   readyToExecute: boolean
@@ -22,7 +23,19 @@ export const SignerCta: React.FC<{
   fee?: Balance
   t: Transaction
   loading: boolean
-}> = ({ canReject, onApprove, onCancel, onReject, onSaveDraft, fee, loading, readyToExecute, rejecting, t }) => {
+}> = ({
+  canReject,
+  onApprove,
+  onCancel,
+  onDeleteDraft,
+  onReject,
+  onSaveDraft,
+  fee,
+  loading,
+  readyToExecute,
+  rejecting,
+  t,
+}) => {
   const extensionAccounts = useRecoilValue(accountsState)
   const [asDraft, setAsDraft] = useState(false)
   const { transactions: pendingTransactions, loading: pendingLoading } = usePendingTransactions()
@@ -156,15 +169,21 @@ export const SignerCta: React.FC<{
       )}
 
       <div className="grid grid-cols-2 gap-[12px] w-full">
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={() => (t.rawPending ? onReject() : onCancel())}
-          disabled={t.rawPending ? rejecting || !canReject : false}
-          loading={rejecting}
-        >
-          {t.rawPending ? (canReject ? 'Reject' : 'Only originator can reject') : 'Cancel'}
-        </Button>
+        {t.draft ? (
+          <Button variant="outline" className="w-full" onClick={() => onDeleteDraft()} disabled={rejecting || loading}>
+            Delete Draft
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => (t.rawPending ? onReject() : onCancel())}
+            disabled={t.rawPending ? rejecting || !canReject : false}
+            loading={rejecting}
+          >
+            {t.rawPending ? (canReject ? 'Reject' : 'Only originator can reject') : 'Cancel'}
+          </Button>
+        )}
         <div className="w-full flex items-center flex-col justify-center">
           <Button
             className="w-full"
@@ -300,6 +319,7 @@ export const TransactionSidesheetFooter: React.FC<{
       onApprove={onApprove}
       onSaveDraft={onSaveDraft}
       onCancel={onCancel}
+      onDeleteDraft={onDeleteDraft}
       onReject={onReject}
       readyToExecute={readyToExecute}
       t={t}

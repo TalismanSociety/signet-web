@@ -40,7 +40,7 @@ export const TransactionsList = ({
   }, [transactions])
   const _selectedMultisig = useRecoilValue(selectedMultisigState)
   const openTransaction = useMemo(
-    () => transactions.find(t => t.hash === extractHash(location, value)),
+    () => transactions.find(t => (t.draft?.id ?? t.hash) === extractHash(location, value)),
     [transactions, location, value]
   )
 
@@ -76,13 +76,9 @@ export const TransactionsList = ({
                   <p>{day}</p>
                   <div className="grid gap-[20px] mt-[8px] w-full">
                     {transactions.map(t => (
-                      <motion.div
-                        key={t.draft?.id ?? t.id}
-                        whileHover={{ scale: 1.015 }}
-                        className="cursor-pointer overflow-hidden"
-                      >
+                      <motion.div key={t.draft?.id ?? t.id} whileHover={{ scale: 1.015 }} className="cursor-pointer">
                         <TransactionSummaryRow
-                          onClick={() => navigate(`/overview/${value}-tx/${t.hash}`)}
+                          onClick={() => navigate(`/overview/${value}-tx/${t.draft?.id ?? t.hash}?tab=${value}`)}
                           t={t}
                           shortDate={true}
                           showDraftBadge
