@@ -1,5 +1,5 @@
 import { bondedPoolsState } from '@domains/staking'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
 import { Identicon, Skeleton } from '@talismn/ui'
 import AddressTooltip from '@components/AddressTooltip'
@@ -51,7 +51,8 @@ export const ValidatorsRotationHeader: React.FC<{ t: Transaction }> = ({ t }) =>
   )
 
   const bondedPools = useRecoilValue(bondedPoolsState)
-  const [cachedNominations, setCachedNominations] = useState(nomPoolNominations?.map(({ address }) => address))
+
+  const existingNominations = useMemo(() => nomPoolNominations?.map(({ address }) => address), [nomPoolNominations])
 
   const nominatedPool = useMemo(() => {
     if (t.decoded?.nominate?.poolId === undefined) return null
@@ -66,25 +67,20 @@ export const ValidatorsRotationHeader: React.FC<{ t: Transaction }> = ({ t }) =>
   const addedNominations = useMemo(() => {
     const added: string[] = []
     newNominations.forEach(addedAddress => {
-      if (!cachedNominations?.includes(addedAddress)) added.push(addedAddress)
+      if (!existingNominations?.includes(addedAddress)) added.push(addedAddress)
     })
     return added
-  }, [cachedNominations, newNominations])
+  }, [existingNominations, newNominations])
 
   const removedNominations = useMemo(() => {
     const removed: string[] = []
-    cachedNominations?.forEach(removedAddress => {
+    existingNominations?.forEach(removedAddress => {
       if (!newNominations.includes(removedAddress)) removed.push(removedAddress)
     })
     return removed
-  }, [cachedNominations, newNominations])
+  }, [existingNominations, newNominations])
 
   const changed = addedNominations.length > 0 || removedNominations.length > 0
-
-  useEffect(() => {
-    if (cachedNominations !== undefined) return
-    setCachedNominations(nomPoolNominations?.map(({ address }) => address) ?? [])
-  }, [cachedNominations, nomPoolNominations])
 
   return (
     <div className="flex items-center gap-[8px]">
@@ -119,34 +115,30 @@ export const ValidatorsRotationExpandedDetails: React.FC<{ t: Transaction }> = (
     selectedMultisig.chain,
     pool?.pool.stash.toSs58(selectedMultisig.chain)
   )
-  const [cachedNominations, setCachedNominations] = useState(nomPoolNominations?.map(({ address }) => address))
 
   const newNominations = useMemo(() => {
     return t.decoded?.nominate?.validators ?? []
   }, [t.decoded?.nominate?.validators])
 
+  const existingNominations = useMemo(() => nomPoolNominations?.map(({ address }) => address), [nomPoolNominations])
+
   const addedNominations = useMemo(() => {
     const added: string[] = []
     newNominations.forEach(addedAddress => {
-      if (!cachedNominations?.includes(addedAddress)) added.push(addedAddress)
+      if (!existingNominations?.includes(addedAddress)) added.push(addedAddress)
     })
     return added
-  }, [cachedNominations, newNominations])
+  }, [existingNominations, newNominations])
 
   const removedNominations = useMemo(() => {
     const removed: string[] = []
-    cachedNominations?.forEach(removedAddress => {
+    existingNominations?.forEach(removedAddress => {
       if (!newNominations.includes(removedAddress)) removed.push(removedAddress)
     })
     return removed
-  }, [cachedNominations, newNominations])
+  }, [existingNominations, newNominations])
 
   const changed = addedNominations.length > 0 || removedNominations.length > 0
-
-  useEffect(() => {
-    if (cachedNominations !== undefined) return
-    setCachedNominations(nomPoolNominations?.map(({ address }) => address))
-  }, [cachedNominations, nomPoolNominations])
 
   return (
     <div className="grid gap-[16px]">
