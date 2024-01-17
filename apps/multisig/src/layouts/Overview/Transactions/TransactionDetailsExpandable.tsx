@@ -27,8 +27,9 @@ import {
   ValidatorsRotationExpandedDetails,
   ValidatorsRotationHeader,
 } from '../../../layouts/Staking/ValidatorsRotationSummaryDetails'
+import { useDecodedCalldata } from '@domains/common'
 
-const CopyPasteBox: React.FC<{ content: string; label: string }> = ({ content, label }) => {
+const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -46,7 +47,7 @@ const CopyPasteBox: React.FC<{ content: string; label: string }> = ({ content, l
   }
   return (
     <div className="flex flex-col gap-[16]">
-      <p className="ml-[8px] mb-[8px]">{label}</p>
+      {!!label && <p className="ml-[8px] mb-[8px]">{label}</p>}
       <div className="p-[16px] gap-[16px] flex items-center w-full overflow-hidden justify-between bg-gray-800 rounded-[16px]">
         <p className="break-all text-[14px]" style={{ wordBreak: 'break-all' }}>
           {content}
@@ -61,6 +62,29 @@ const CopyPasteBox: React.FC<{ content: string; label: string }> = ({ content, l
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+const MultisigCallDataBox: React.FC<{ calldata: `0x${string}`; genesisHash: string }> = ({ calldata, genesisHash }) => {
+  const { decodedCalldata } = useDecodedCalldata(calldata, genesisHash)
+  const [viewJson, setViewJson] = useState(false)
+
+  return (
+    <div className="flex flex-col gap-[16]">
+      <div className="px-[8px] mb-[4px] w-full flex items-center justify-between">
+        <p>Multisig call data</p>
+        <p className="text-[14px] cursor-pointer hover:text-offWhite" onClick={() => setViewJson(!viewJson)}>
+          View as {viewJson ? 'Hex' : 'JSON'}
+        </p>
+      </div>
+      {viewJson ? (
+        <div className="bg-gray-800 rounded-[16px] p-[16px] w-full overflow-auto max-h-[50vh]">
+          <pre className="text-[12px] leading-[1.2]">{JSON.stringify(decodedCalldata, null, 2)}</pre>
+        </div>
+      ) : (
+        <CopyPasteBox content={calldata} />
+      )}
     </div>
   )
 }
@@ -254,6 +278,7 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
 
   return null
 }
+
 const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
   const [metadata, setMetadata] = useRecoilState(txOffchainMetadataState)
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
@@ -369,7 +394,10 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
               {transactionDetails}
               {(t.callData !== undefined || t.hash !== undefined) && (
                 <div className="border-t border-gray-500 pt-[16px] max-w-[100%] overflow-hidden flex flex-col gap-[16px]">
-                  {t.callData !== undefined && <CopyPasteBox label="Multisig call data" content={t.callData} />}
+                  {t.callData !== undefined && (
+                    <MultisigCallDataBox calldata={t.callData} genesisHash={t.multisig.chain.genesisHash} />
+                  )}
+                  {/* {t.callData !== undefined && <CopyPasteBox label="Multisig call data" content={t.callData} />} */}
                   {t.hash !== undefined && <CopyPasteBox label="Call hash" content={t.hash} />}
                 </div>
               )}

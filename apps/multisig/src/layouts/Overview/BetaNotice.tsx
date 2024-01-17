@@ -1,6 +1,8 @@
 import Modal from '@components/Modal'
+import { Checkbox } from '@components/ui/checkbox'
+import persist from '@domains/persist'
 import { Button } from '@talismn/ui'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { atom, useRecoilState } from 'recoil'
 
 // create atom to track whether it's been opened
@@ -9,15 +11,25 @@ const betaWarningOpenedState = atom({
   default: true,
 })
 
+const dontShowAgainState = atom({
+  key: 'dontShowAgainState',
+  default: false,
+  effects_UNSTABLE: [persist],
+})
+
 const BetaNotice = () => {
   const [isOpen, setIsOpen] = useRecoilState(betaWarningOpenedState)
+  const [dontShowAgain, setDontShowAgain] = useRecoilState(dontShowAgainState)
+  const [_dontShowAgain, setLocalDontShowAgain] = useState(false)
+
   const close = useCallback(() => {
     setIsOpen(false)
-  }, [setIsOpen])
+    if (_dontShowAgain) setDontShowAgain(true)
+  }, [_dontShowAgain, setDontShowAgain, setIsOpen])
 
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={!dontShowAgain && isOpen}
       onAfterOpen={() => {}}
       onRequestClose={() => {
         setIsOpen(false)
@@ -56,6 +68,17 @@ const BetaNotice = () => {
           <Button css={{ width: '164px' }} onClick={close}>
             I understand
           </Button>
+
+          <div className="flex items-center gap-[8px] mt-[24px]">
+            <Checkbox
+              id="beta-popup"
+              checked={_dontShowAgain}
+              onCheckedChange={checked => setLocalDontShowAgain(!!checked)}
+            />
+            <label htmlFor="beta-popup" className="select-none mt-[3px]">
+              Do not show this again.
+            </label>
+          </div>
         </div>
       </div>
     </Modal>
