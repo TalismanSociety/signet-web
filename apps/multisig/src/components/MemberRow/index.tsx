@@ -8,6 +8,11 @@ import { shortenAddress } from '../../util/addresses'
 const MemberRow = (props: { member: AugmentedAccount; chain: Chain; onDelete?: () => void; truncate?: boolean }) => {
   const address = props.member.address.toSs58(props.chain)
   const shortAddress = props.member.address.toShortSs58(props.chain)
+  const name = props.member.nickname
+  const a0Id = props.member.a0Id
+  const primaryValue = name ?? a0Id ?? shortAddress
+  const hasSecondaryValue = name || a0Id
+  const secondaryValue = hasSecondaryValue ? (name ? a0Id : undefined) ?? shortAddress : undefined
   return (
     <div
       className={css`
@@ -25,9 +30,9 @@ const MemberRow = (props: { member: AugmentedAccount; chain: Chain; onDelete?: (
     >
       <div css={{ gap: 8 }}>
         <Identicon css={{ width: 24, height: 'auto' }} value={address} />
-        {props.member.nickname ? (
+        {primaryValue ? (
           <p css={({ color }) => ({ color: color.offWhite })}>
-            {props.member.nickname} <span css={({ color }) => ({ color: color.lightGrey })}>{shortAddress}</span>
+            {primaryValue} <span css={({ color }) => ({ color: color.lightGrey })}>{secondaryValue}</span>
             {props.member.you ? <span> (You)</span> : ''}
           </p>
         ) : (

@@ -19,40 +19,40 @@ export const NameAndAddress: React.FC<{
   if (!name && !a0Id)
     return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{address.toShortSs58(chain)}</p>
 
-  if (name && secondaryValue && isAzeroId(secondaryValue) && a0IdAndAddress) {
-    return (
-      <div
-        css={{
-          display: 'flex',
-          gap: breakLine ? 0 : 8,
-          flexDirection: breakLine ? 'column' : 'row',
-          alignItems: breakLine ? 'flex-start' : 'center',
-          marginTop: breakLine ? 0 : 4,
-        }}
-      >
-        <p
-          css={({ color }) => ({
-            color: color.offWhite,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxWidth: 140,
-            width: '100%',
-          })}
-        >
-          {name}
-        </p>
-        {!!secondaryValue && !nameOrAddressOnly && (
-          <div className={`${limitDisplayWidth ? 'w-60' : null}`}>
-            <p className="overflow-auto" css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>
-              {a0Id ? ShortenAzeroId(a0Id) : null}
-              <>&nbsp;&nbsp;{address.toShortSs58(chain)}</>
-            </p>
-          </div>
-        )}
-      </div>
-    )
-  }
+  // if (name && secondaryValue && isAzeroId(secondaryValue) && a0IdAndAddress) {
+  //   return (
+  //     <div
+  //       css={{
+  //         display: 'flex',
+  //         gap: breakLine ? 0 : 8,
+  //         flexDirection: breakLine ? 'column' : 'row',
+  //         alignItems: breakLine ? 'flex-start' : 'center',
+  //         marginTop: breakLine ? 0 : 4,
+  //       }}
+  //     >
+  //       <p
+  //         css={({ color }) => ({
+  //           color: color.offWhite,
+  //           whiteSpace: 'nowrap',
+  //           overflow: 'hidden',
+  //           textOverflow: 'ellipsis',
+  //           maxWidth: 140,
+  //           width: '100%',
+  //         })}
+  //       >
+  //         {name}
+  //       </p>
+  //       {/* {!!secondaryValue && !nameOrAddressOnly && (
+  //         <div className={`${limitDisplayWidth ? 'w-60' : null}`}>
+  //           <p className="overflow-auto" css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>
+  //             {a0Id ? ShortenAzeroId(a0Id) : null}
+  //             <>&nbsp;&nbsp;{address.toShortSs58(chain)}</>
+  //           </p>
+  //         </div>
+  //       )} */}
+  //     </div>
+  //   )
+  // }
 
   return (
     <div
@@ -79,9 +79,9 @@ export const NameAndAddress: React.FC<{
       {!!secondaryValue && !nameOrAddressOnly && (
         <p css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>{secondaryValue}</p>
       )}
-      {name && secondaryValue && isAzeroId(secondaryValue) && (
+      {/* {name && secondaryValue && isAzeroId(secondaryValue) && (
         <p css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>{}</p>
-      )}
+      )} */}
     </div>
   )
 }

@@ -7,7 +7,7 @@ import { Address, toMultisigAddress } from '@util/addresses'
 import { Chain, supportedChains } from '../chains'
 import toast from 'react-hot-toast'
 import { Multisig, selectedMultisigIdState, useUpsertMultisig } from '../multisig'
-import { getAzeroId } from '@util/azeroid'
+import { addressToAzeroIdState, useResolveAddressAzeroIdMap } from '@hooks/useResolveAddressAzeroIdMap'
 
 type RawTeam = {
   id: string
@@ -140,6 +140,16 @@ export const TeamsWatcher: React.FC = () => {
   const selectedAccount = useRecoilValue(selectedAccountState)
   const setTeamsBySigner = useSetRecoilState(teamsBySignerState)
   const upsertMultisig = useUpsertMultisig()
+  const addressToAzeroId = useRecoilValue(addressToAzeroIdState)
+  const { readyQueue, prevEntry } = useResolveAddressAzeroIdMap()
+
+  //may not be necessary besides faster initial load of azeroId and may possible cause excessive readyQueue calls during signers' readyQueue
+  useEffect(() => {
+    const address = selectedAccount?.injected.address.toSs58()
+    if (address && !prevEntry.includes(address)) {
+      readyQueue([address])
+    }
+  }, [prevEntry, readyQueue, selectedAccount?.injected.address])
 
   const fetchTeams = useCallback(
     async (account: SignedInAccount) => {
@@ -147,6 +157,7 @@ export const TeamsWatcher: React.FC = () => {
 
       if (data?.team) {
         const validTeams: Team[] = []
+        let signersList: string[] = []
         // parse and validate each team from raw json to Team
         for (const rawTeam of data.team) {
           const { team, error } = parseTeam(rawTeam)
@@ -158,12 +169,19 @@ export const TeamsWatcher: React.FC = () => {
 
           // sync teams from backend to multisigs list
           const multisig = team.toMultisig()
-          const azeroID = await getAzeroId(multisig.proxyAddress.toSs58())
+          const signers = multisig.signers.map(address => address.toSs58())
+          const enqueue = [multisig.proxyAddress.toSs58(), ...signers]
+          signersList = [...signersList, ...enqueue]
+          const azeroID = addressToAzeroId[multisig.proxyAddress.toSs58()]
           if (azeroID) {
             upsertMultisig({ ...multisig, azeroID } as Multisig)
           } else {
             upsertMultisig(multisig)
           }
+        }
+
+        if (!(JSON.stringify(signersList) === JSON.stringify(prevEntry))) {
+          readyQueue(signersList)
         }
 
         setTeamsBySigner(teamsBySigner => ({
@@ -174,7 +192,7 @@ export const TeamsWatcher: React.FC = () => {
         toast.error(error?.message || `Failed to fetch teams for ${account.injected.address.toSs58()}`)
       }
     },
-    [setTeamsBySigner, upsertMultisig]
+    [addressToAzeroId, prevEntry, readyQueue, setTeamsBySigner, upsertMultisig]
   )
 
   useEffect(() => {
@@ -199,6 +217,8 @@ export const useCreateTeamOnHasura = () => {
   const setTeamsBySigner = useSetRecoilState(teamsBySignerState)
   const upsertMultisig = useUpsertMultisig()
   const setSelectedMultisigId = useSetRecoilState(selectedMultisigIdState)
+  const addressToAzeroId = useRecoilValue(addressToAzeroIdState)
+  const { readyQueue, prevEntry } = useResolveAddressAzeroIdMap()
 
   const createTeam = useCallback(
     async (teamInput: {
@@ -245,7 +265,13 @@ export const useCreateTeamOnHasura = () => {
         if (!team || error) return { error: error ?? 'Failed to store team data.' }
 
         const multisig = team.toMultisig()
-        const azeroID = await getAzeroId(multisig.proxyAddress.toSs58())
+        const signers = multisig.signers.map(address => address.toSs58())
+        const enqueue = [multisig.proxyAddress.toSs58(), ...signers]
+        if (!(JSON.stringify(enqueue) === JSON.stringify(prevEntry))) {
+          readyQueue(enqueue)
+        }
+
+        const azeroID = addressToAzeroId[multisig.proxyAddress.toSs58()]
         if (azeroID) {
           upsertMultisig({ ...multisig, azeroID } as Multisig)
         } else {
@@ -269,7 +295,16 @@ export const useCreateTeamOnHasura = () => {
         setCreatingTeam(false)
       }
     },
-    [creatingTeam, setSelectedMultisigId, setTeamsBySigner, signer, upsertMultisig]
+    [
+      addressToAzeroId,
+      creatingTeam,
+      prevEntry,
+      readyQueue,
+      setSelectedMultisigId,
+      setTeamsBySigner,
+      signer,
+      upsertMultisig,
+    ]
   )
 
   return { createTeam, creatingTeam }
@@ -282,6 +317,8 @@ export const changingMultisigConfigState = atom<boolean>({
 
 export const useUpdateMultisigConfig = () => {
   const upsertMultisig = useUpsertMultisig()
+  const addressToAzeroId = useRecoilValue(addressToAzeroIdState)
+  const { readyQueue, prevEntry } = useResolveAddressAzeroIdMap()
 
   const updateMultisigConfig = useCallback(
     async (newMultisig: Multisig, signedInAs: SignedInAccount | null) => {
@@ -319,14 +356,19 @@ export const useUpdateMultisigConfig = () => {
           toast.error('Failed to save multisig config change.')
         }
       }
-      const azeroID = await getAzeroId(newMultisig.proxyAddress.toSs58())
+      const azeroID = addressToAzeroId[newMultisig.proxyAddress.toSs58()]
+      const signers = newMultisig.signers.map(address => address.toSs58())
+      const enqueue = [newMultisig.proxyAddress.toSs58(), ...signers]
+      if (!(JSON.stringify(enqueue) === JSON.stringify(prevEntry))) {
+        readyQueue(enqueue)
+      }
       if (azeroID) {
         upsertMultisig({ ...newMultisig, azeroID } as Multisig)
       } else {
         upsertMultisig(newMultisig)
       }
     },
-    [upsertMultisig]
+    [addressToAzeroId, prevEntry, readyQueue, upsertMultisig]
   )
 
   return { updateMultisigConfig }

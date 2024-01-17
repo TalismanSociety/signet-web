@@ -7,6 +7,8 @@ import { useOnClickOutside } from '@domains/common/useOnClickOutside'
 import { SelectedAddress } from './SelectedAddressPill'
 import { AccountDetails } from './AccountDetails'
 import { useAzeroId } from '@util/azeroid'
+import { useRecoilValue } from 'recoil'
+import { addressToAzeroIdState } from '@hooks/useResolveAddressAzeroIdMap'
 
 export type AddressWithName = {
   address: Address
@@ -52,7 +54,9 @@ const AddressInput: React.FC<Props> = ({
   const [contact, setContact] = useState<AddressWithName | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
   const [resolvedAddress, setResolvedAddress] = useState<{ address: string; azeroId: string } | undefined>(undefined)
-  const query = useMemo(() => value ?? input, [value, input])
+  const addressToAzeroId = useRecoilValue(addressToAzeroIdState)
+
+  const query = value ?? input
   const { loading, address: addressFromAzero, azeroId } = useAzeroId(query, {})
 
   useEffect(() => {
@@ -64,6 +68,8 @@ const AddressInput: React.FC<Props> = ({
       setResolvedAddress({ address: addressFromAzero, azeroId })
       if (onUpdateAzeroId) onUpdateAzeroId(azeroId)
       setQuerying(false)
+    } else {
+      setResolvedAddress(undefined)
     }
   }, [addressFromAzero, azeroId, input, loading, onUpdateAzeroId])
 
@@ -150,20 +156,20 @@ const AddressInput: React.FC<Props> = ({
         ) {
           return {
             address: resolvedA0IdAddress,
-            a0Id: resolvedAddress.azeroId,
+            a0Id: resolvedAddress.azeroId ?? addressToAzeroId[resolvedA0IdAddress.toSs58()],
           }
         }
       }
     } catch (e) {}
     return undefined
-  }, [query, resolvedAddress])
+  }, [addressToAzeroId, query, resolvedAddress])
 
   return (
     <div css={{ width: '100%', position: 'relative' }} ref={containerRef}>
       {controlledSelectedInput && (
         <SelectedAddress
           address={address}
-          a0Id={resolvedAddress?.azeroId}
+          a0Id={addressToAzeroId[address.toSs58()] ?? resolvedAddress?.azeroId}
           chain={chain}
           name={contact?.name}
           onClear={handleClearInput}
@@ -228,7 +234,7 @@ const AddressInput: React.FC<Props> = ({
                   name={contact.name}
                   chain={chain}
                   address={contact.address}
-                  a0Id={contact.a0Id}
+                  a0Id={addressToAzeroId[contact.address.toSs58()]}
                   a0IdAndAddress={true}
                   disableCopy
                   breakLine={compact}

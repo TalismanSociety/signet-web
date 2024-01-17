@@ -46,7 +46,7 @@ export const Member = ({
             &nbsp;
             {m.you && <span>(You)</span>}
           </p>
-          {m.nickname ? <span css={{ fontSize: '12px' }}>{m.address.toShortSs58(chain)}</span> : null}
+          {m.nickname ? <span css={{ fontSize: '12px' }}>{a0Id ?? m.address.toShortSs58(chain)}</span> : null}
         </div>
         <div css={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', gap: '8px' }}>
           {onDelete && (

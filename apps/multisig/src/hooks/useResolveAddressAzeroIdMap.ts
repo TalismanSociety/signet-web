@@ -54,7 +54,7 @@ export function useResolveAddressAzeroIdMap() {
         }
       }
       setPrevEntry(entries)
-      setQueue(q)
+      setQueue(preQ => [...preQ, ...q])
     },
     [addressToAzeroId, prevEntry, setPrevEntry, setQueue]
   )

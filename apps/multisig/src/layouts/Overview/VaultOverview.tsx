@@ -4,12 +4,13 @@ import { Eye, EyeOff } from '@talismn/icons'
 import { Button, CircularProgressIndicator } from '@talismn/ui'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { ChainPill } from '@components/ChainPill'
-import { atom, useRecoilState } from 'recoil'
+import { atom, useRecoilState, useRecoilValue } from 'recoil'
 import persist from '@domains/persist'
 import { Fragment, useEffect } from 'react'
 import { secondsToDuration } from '@util/misc'
 import { Address } from '@util/addresses'
 import { getAzeroId } from '@util/azeroid'
+import { addressToAzeroIdState } from '@hooks/useResolveAddressAzeroIdMap'
 
 type MemberAzeroIdMap = {
   [key: string]: string | undefined
@@ -32,20 +33,21 @@ export const VaultOverview: React.FC = () => {
   const [showMembers, setShowMembers] = useRecoilState(showMemberState)
   const { contactByAddress } = useKnownAddresses(selectedMultisig.id)
   const [memberAzeroIds, setMemberAzeroIds] = useRecoilState(memberAzeroIdState)
+  const addressToAzeroId = useRecoilValue(addressToAzeroIdState)
 
   useEffect(() => {
-    async function getMemberAzeroIds(addresses: Address[]) {
+    function getMemberAzeroIds(addresses: Address[]) {
       let memberAzeroIdMap: MemberAzeroIdMap = {}
       for (const address of addresses) {
         const stringAddress = address.toSs58()
         if (stringAddress) {
-          memberAzeroIdMap = { ...memberAzeroIdMap, [stringAddress]: await getAzeroId(stringAddress) }
+          memberAzeroIdMap = { ...memberAzeroIdMap, [stringAddress]: addressToAzeroId[stringAddress] }
         }
       }
       setMemberAzeroIds(memberAzeroIdMap)
     }
     getMemberAzeroIds(selectedMultisig.signers)
-  }, [selectedMultisig, setMemberAzeroIds])
+  }, [addressToAzeroId, selectedMultisig, setMemberAzeroIds])
 
   return (
     <section
@@ -63,22 +65,15 @@ export const VaultOverview: React.FC = () => {
       </div>
       <div css={{ marginTop: 24 }}>
         <p css={({ color }) => ({ color: color.offWhite, fontSize: 14, marginTop: 3 })}>Vault Address</p>
-        {selectedMultisig.azeroID ? (
+        {
           <AccountDetails
             chain={selectedMultisig.chain}
             address={selectedMultisig.proxyAddress}
-            a0Id={selectedMultisig.azeroID}
+            a0Id={selectedMultisig.azeroID ?? undefined}
             identiconSize={20}
             withAddressTooltip
           />
-        ) : (
-          <AccountDetails
-            chain={selectedMultisig.chain}
-            address={selectedMultisig.proxyAddress}
-            identiconSize={20}
-            withAddressTooltip
-          />
-        )}
+        }
       </div>
       <div
         css={{

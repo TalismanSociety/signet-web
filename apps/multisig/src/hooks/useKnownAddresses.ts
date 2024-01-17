@@ -1,40 +1,36 @@
 import { useRecoilValue, useRecoilState } from 'recoil'
 import { AddressWithName } from '../components/AddressInput'
-import { InjectedAccount, AddressAzeroIdMap, accountsAzeroIdState, accountsState } from '../domains/extension'
+import { InjectedAccount, accountsState } from '../domains/extension'
 import { addressBookByTeamIdState } from '../domains/offchain-data'
-import { useMemo, useEffect } from 'react'
-import { getAzeroId } from '@util/azeroid'
+import { useMemo } from 'react'
+import { addressToAzeroIdState } from '@hooks/useResolveAddressAzeroIdMap'
 
 export const useKnownAddresses = (
   teamId?: string
 ): {
   addresses: AddressWithName[]
   contactByAddress: Record<string, AddressWithName>
-  accountsAzeroIds: AddressAzeroIdMap
 } => {
   const extensionAccounts = useRecoilValue(accountsState)
   const addressBookByTeamId = useRecoilValue(addressBookByTeamIdState)
-  const [accountsAzeroIds, setAccountsAzeroIds] = useRecoilState(accountsAzeroIdState)
+  const addressToAzeroId = useRecoilValue(addressToAzeroIdState)
 
-  useEffect(() => {
-    async function getMemberAzeroIds(accounts: InjectedAccount[]) {
-      let memberAzeroIdMap: AddressAzeroIdMap = {}
-      for (const account of accounts) {
-        const stringAddress = account.address.toSs58()
-        if (stringAddress) {
-          memberAzeroIdMap = { ...memberAzeroIdMap, [stringAddress]: await getAzeroId(stringAddress) }
-        }
+  const extensionAccountsExtended: InjectedAccount[] = useMemo(() => {
+    return extensionAccounts.map(account => {
+      const stringAddress = account.address.toSs58()
+      return {
+        ...account,
+        a0Id: addressToAzeroId[stringAddress],
       }
-      setAccountsAzeroIds(memberAzeroIdMap)
-    }
-    getMemberAzeroIds(extensionAccounts)
-  }, [extensionAccounts, setAccountsAzeroIds])
+    })
+  }, [addressToAzeroId, extensionAccounts])
 
-  const extensionContacts: AddressWithName[] = extensionAccounts.map(({ address, meta, a0Id }) => ({
+  const extensionContacts: AddressWithName[] = extensionAccountsExtended.map(({ address, meta, a0Id }) => ({
+    // const extensionContacts: AddressWithName[] = extensionAccounts.map(({ address, meta }) => ({
     address,
     name: meta.name ?? '',
     type: 'Extension',
-    a0Id: a0Id ?? accountsAzeroIds[address.toSs58()],
+    a0Id: a0Id ?? addressToAzeroId[address.toSs58()],
     extensionName: meta.name,
   }))
 
@@ -87,5 +83,5 @@ export const useKnownAddresses = (
     }, {} as Record<string, AddressWithName>)
   }, [combinedList])
 
-  return { addresses: combinedList, contactByAddress, accountsAzeroIds }
+  return { addresses: combinedList, contactByAddress }
 }

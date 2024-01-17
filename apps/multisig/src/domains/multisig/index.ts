@@ -168,6 +168,7 @@ export interface TxOffchainMetadata {
 export interface AugmentedAccount {
   address: Address
   you?: boolean
+  a0Id?: string
   nickname?: string
   excluded?: boolean
   injected?: InjectedAccount
