@@ -3,7 +3,7 @@ import { Identicon } from '@talismn/ui'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronVertical, Search } from '@talismn/icons'
 import { useOnClickOutside } from '../../domains/common/useOnClickOutside'
-import { useAddressAzeroIdMap } from '@hooks/useAddressAzeroIdsMap'
+import { useResolveAddressAzeroIdMap } from '@hooks/useResolveAddressAzeroIdMap'
 import AddressTooltip from '@components/AddressTooltip'
 
 type Props = {
@@ -33,8 +33,15 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
   const [expanded, setExpanded] = useState(false)
   const ref = useRef(null)
   const [query, setQuery] = useState('')
-  const addresses = accounts.map(account => account.address)
-  const accountsAzeroIds = useAddressAzeroIdMap(addresses)
+  const addresses = accounts.map(account => account.address.toSs58())
+
+  const { readyQueue, queue, prevEntry, addressToAzeroId } = useResolveAddressAzeroIdMap()
+
+  useEffect(() => {
+    if (JSON.stringify(prevEntry) !== JSON.stringify(addresses)) {
+      readyQueue(addresses)
+    }
+  }, [addresses, prevEntry, queue, readyQueue])
 
   useOnClickOutside(ref.current, () => setExpanded(false))
 
@@ -47,18 +54,20 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
         return !isSelectedAccount && isQueryMatch
       })
       .map(acc => {
-        return { ...acc, a0Id: accountsAzeroIds[acc.address.toSs58()] }
+        return { ...acc, a0Id: addressToAzeroId[acc.address.toSs58()] }
       })
-  }, [query, accounts, selectedAccount, accountsAzeroIds])
+  }, [query, accounts, selectedAccount, addressToAzeroId])
 
-  // const filteredAccounts = useMemo(() => {
-  //   return accounts.filter(acc => {
-  //     const isSelectedAccount = selectedAccount?.address.isEqual(acc.address)
-  //     const isQueryMatch =
-  //       !query || `${acc.meta.name} ${acc.address.toSs58()}`.toLowerCase().includes(query.toLowerCase())
-  //     return !isSelectedAccount && isQueryMatch
-  //   })
-  // }, [query, accounts, selectedAccount])
+  const selectedAccountExtended = useMemo(() => {
+    if (selectedAccount) {
+      const stringAddress = selectedAccount.address.toSs58()
+      return {
+        ...selectedAccount,
+        a0Id: addressToAzeroId[stringAddress],
+      }
+    }
+    return selectedAccount
+  }, [addressToAzeroId, selectedAccount])
 
   useEffect(() => {
     if (!expanded && query.length > 0) setQuery('')
@@ -71,9 +80,9 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
     if (!accounts.find(acc => acc.address.isEqual(selectedAccount?.address)) && accounts[0]) {
       onSelect?.(accounts[0])
     }
-  }, [accounts, onSelect, selectedAccount])
+  }, [accounts, onSelect, selectedAccount, addressToAzeroId])
 
-  if (!selectedAccount) return null
+  if (!selectedAccountExtended) return null
   return (
     <div ref={ref} css={{ position: 'relative', width: '100%' }}>
       <div
@@ -98,9 +107,7 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
         })}
         onClick={() => setExpanded(!expanded)}
       >
-        {/* <Tooltip content={<p css={{ fontSize: 12 }}>{selectedAccount.address.toSs58()}</p>}> */}
-        <AccountRow account={selectedAccount} />
-        {/* </Tooltip> */}
+        <AccountRow account={selectedAccountExtended} />
         <div
           css={({ color }) => ({
             height: 'max-content',
@@ -170,9 +177,7 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
                   onSelect?.(acc)
                 }}
               >
-                {/* <Tooltip content={<p css={{ fontSize: 12 }}>{selectedAccount.address.toSs58()}</p>}> */}
                 <AccountRow account={acc} />
-                {/* </Tooltip> */}
               </div>
             ))}
           </div>
