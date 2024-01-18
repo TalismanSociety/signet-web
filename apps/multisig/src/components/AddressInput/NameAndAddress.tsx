@@ -1,6 +1,6 @@
 import { Chain } from '@domains/chains'
 import { Address } from '@util/addresses'
-import { ShortenAzeroId, isAzeroId } from '@util/azeroid'
+// import { ShortenAzeroId, isAzeroId } from '@util/azeroid'
 
 export const NameAndAddress: React.FC<{
   address: Address

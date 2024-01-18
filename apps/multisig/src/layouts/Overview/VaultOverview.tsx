@@ -9,7 +9,6 @@ import persist from '@domains/persist'
 import { Fragment, useEffect } from 'react'
 import { secondsToDuration } from '@util/misc'
 import { Address } from '@util/addresses'
-import { getAzeroId } from '@util/azeroid'
 import { addressToAzeroIdState } from '@hooks/useResolveAddressAzeroIdMap'
 
 type MemberAzeroIdMap = {

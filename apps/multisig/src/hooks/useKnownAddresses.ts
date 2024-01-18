@@ -1,4 +1,4 @@
-import { useRecoilValue, useRecoilState } from 'recoil'
+import { useRecoilValue } from 'recoil'
 import { AddressWithName } from '../components/AddressInput'
 import { InjectedAccount, accountsState } from '../domains/extension'
 import { addressBookByTeamIdState } from '../domains/offchain-data'
@@ -26,7 +26,6 @@ export const useKnownAddresses = (
   }, [addressToAzeroId, extensionAccounts])
 
   const extensionContacts: AddressWithName[] = extensionAccountsExtended.map(({ address, meta, a0Id }) => ({
-    // const extensionContacts: AddressWithName[] = extensionAccounts.map(({ address, meta }) => ({
     address,
     name: meta.name ?? '',
     type: 'Extension',
