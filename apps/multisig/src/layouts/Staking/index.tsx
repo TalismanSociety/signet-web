@@ -17,6 +17,8 @@ import { BondedPool } from '@domains/staking'
 import { Nomination } from '@domains/staking/useNominations'
 import { Address } from '@util/addresses'
 import { ValidatorsRotation } from './ValidatorsRotation'
+import { addressToAzeroIdState } from '@hooks/useResolveAddressAzeroIdMap'
+import { useRecoilValue } from 'recoil'
 
 export const BackButton = () => {
   const theme = useTheme()
@@ -51,6 +53,7 @@ const Staking = () => {
   const [multisig] = useSelectedMultisig()
   const { nativeToken } = useNativeToken(multisig.chain.nativeToken.id)
   const { membership } = usePoolMembership(multisig.proxyAddress, multisig.chain)
+  const addressToAzeroId = useRecoilValue(addressToAzeroIdState)
 
   // user is editing nominations for a nom pool if `pool` exists
   // else we're editing via `staking` pallet
@@ -91,7 +94,12 @@ const Staking = () => {
         {/** second row: Proxied Account */}
         <div css={{ width: '100%' }}>
           <SettingsInfoRow label="Account">
-            <AccountDetails address={multisig.proxyAddress} chain={multisig.chain} />
+            <AccountDetails
+              address={multisig.proxyAddress}
+              chain={multisig.chain}
+              withAddressTooltip
+              a0Id={addressToAzeroId[multisig.proxyAddress.toSs58()]}
+            />
           </SettingsInfoRow>
         </div>
         <div css={{ display: 'grid', gap: 12, width: '100%' }}>

@@ -46,6 +46,7 @@ export const DetailsForm = (props: {
           onChange={props.setDestinationAddress}
           addresses={addresses}
           leadingLabel="Recipient"
+          diaplayNameA0IdAndAddress
         />
       </div>
       <div css={({ color }) => ({ color: color.offWhite, marginTop: 24, marginBottom: 24 })}>

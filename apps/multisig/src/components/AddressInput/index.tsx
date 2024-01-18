@@ -28,6 +28,7 @@ type Props = {
   onUpdateAzeroId?: (id: string | undefined) => void
   addresses?: AddressWithName[]
   chain?: Chain
+  diaplayNameA0IdAndAddress?: boolean
   leadingLabel?: string
   compact?: boolean
 }
@@ -43,6 +44,7 @@ const AddressInput: React.FC<Props> = ({
   defaultAddress,
   addresses = [],
   chain,
+  diaplayNameA0IdAndAddress,
   leadingLabel,
   compact,
 }) => {
@@ -235,11 +237,10 @@ const AddressInput: React.FC<Props> = ({
                   chain={chain}
                   address={contact.address}
                   a0Id={addressToAzeroId[contact.address.toSs58()]}
-                  a0IdAndAddress={true}
                   disableCopy
+                  nameA0IdAndAddress={diaplayNameA0IdAndAddress}
                   breakLine={compact}
                   identiconSize={compact ? 32 : 24}
-                  limitDisplayWidth={true}
                 />
                 <p css={({ color }) => ({ fontSize: 14, fontWeight: 700, textAlign: 'right', color: color.lightGrey })}>
                   {contact.type}
@@ -262,7 +263,6 @@ const AddressInput: React.FC<Props> = ({
                 address={validRawInputAddress.address}
                 chain={chain}
                 a0Id={validRawInputAddress.a0Id}
-                a0IdAndAddress={true}
                 disableCopy
                 breakLine={compact}
                 identiconSize={compact ? 32 : 24}

@@ -11,13 +11,12 @@ type Props = {
   address: Address
   name?: string
   a0Id?: string
-  a0IdAndAddress?: boolean
+  nameA0IdAndAddress?: boolean
   disableCopy?: boolean
   nameOrAddressOnly?: boolean
   withAddressTooltip?: boolean
   identiconSize?: number
   breakLine?: boolean
-  limitDisplayWidth?: boolean
 }
 
 export const AccountDetails: React.FC<Props> = ({
@@ -25,13 +24,12 @@ export const AccountDetails: React.FC<Props> = ({
   address,
   name,
   a0Id,
-  a0IdAndAddress,
   disableCopy,
   nameOrAddressOnly,
+  nameA0IdAndAddress,
   identiconSize = 24,
   withAddressTooltip,
   breakLine,
-  limitDisplayWidth,
 }) => {
   const accountDetailsUI = (
     <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -41,10 +39,9 @@ export const AccountDetails: React.FC<Props> = ({
         chain={chain}
         name={name}
         a0Id={a0Id}
-        a0IdAndAddress={a0IdAndAddress}
+        nameA0IdAndAddress={nameA0IdAndAddress}
         nameOrAddressOnly={nameOrAddressOnly}
         breakLine={breakLine}
-        limitDisplayWidth={limitDisplayWidth}
       />
       {!disableCopy && (
         <div
@@ -57,6 +54,7 @@ export const AccountDetails: React.FC<Props> = ({
     </div>
   )
 
+  // console.log("nameA0IdAndAddress: ", name, nameA0IdAndAddress)
   return withAddressTooltip && chain ? (
     <AddressTooltip name={name} a0Id={a0Id} address={address.toSs58(chain)} chain={chain}>
       {accountDetailsUI}
