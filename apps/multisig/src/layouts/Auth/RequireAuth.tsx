@@ -1,5 +1,5 @@
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { accountsState } from '@domains/extension'
+import { accountsState, extensionAllowedState } from '@domains/extension'
 import Landing from '../Landing'
 import { selectedAccountState } from '@domains/auth'
 import SignInPage from './SignInPage'
@@ -8,6 +8,7 @@ import { useMe } from '@domains/auth/useMe'
 import { Waitlist } from '../../layouts/Onboarding/Waitlist'
 import { SkeletonLayout } from '../../layouts/SkeletonLayout'
 import { Unauthorized } from '../../layouts/Onboarding/Unauthorized'
+import { extensionLoadingState } from '../../domains/extension/index'
 
 type Props = {
   requireSignIn?: boolean
@@ -19,12 +20,15 @@ type Props = {
  * */
 const RequireAuth: React.FC<React.PropsWithChildren & Props> = ({ children, requireSignIn }) => {
   const [extensionAccounts] = useRecoilState(accountsState)
+  const loadingExtension = useRecoilValue(extensionLoadingState)
+  const allowed = useRecoilValue(extensionAllowedState)
   const signedInAccount = useRecoilValue(selectedAccountState)
   const { user, loading } = useMe()
   useTeamFromUrl()
 
   // show landing page for connection if not accounts connected
   if (extensionAccounts.length === 0) {
+    if (allowed || loadingExtension) return <SkeletonLayout />
     return <Landing disableRedirect />
   }
 
