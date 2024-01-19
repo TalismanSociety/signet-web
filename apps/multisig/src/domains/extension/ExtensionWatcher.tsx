@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'
 import { accountsState, extensionAllowedState, extensionInitiatedState, extensionLoadingState } from './index'
 import { web3AccountsSubscribe, web3Enable } from '@polkadot/extension-dapp'
-import toast from 'react-hot-toast'
 import { uniqBy } from 'lodash'
 import { Address } from '@util/addresses'
+import { useToast } from '@components/ui/use-toast'
+import { ToastAction } from '@components/ui/toast'
 
 export const ExtensionWatcher = () => {
   // extensionAllowed is used to trigger web3Enable call
@@ -18,6 +19,7 @@ export const ExtensionWatcher = () => {
   const [extensionInitiated, setExtensionInitiated] = useRecoilState(extensionInitiatedState)
   const [subscribed, setSubscribed] = useState(false)
   const setAccounts = useSetRecoilState(accountsState)
+  const { toast } = useToast()
 
   const connectWallet = useCallback(async () => {
     try {
@@ -27,7 +29,20 @@ export const ExtensionWatcher = () => {
 
       // if none detected, warn user and keep "Connect Wallet" button clickable by setting extensionAllowed to false
       if (extensions.length === 0) {
-        toast.error('No wallet extension detected')
+        toast({
+          title: 'Failed to connect wallet',
+          description: 'No wallet extension detected.',
+          action: (
+            <ToastAction
+              altText="Go to talisman.xyz"
+              onClick={() => {
+                window.open('https://talisman.xyz', '_blank')
+              }}
+            >
+              Try Talisman
+            </ToastAction>
+          ),
+        })
         setExtensionAllowed(false)
       }
       // trigger web3AccountSubscribe only if some accounts are detected
@@ -41,7 +56,7 @@ export const ExtensionWatcher = () => {
     } finally {
       setExtensionLoading(false)
     }
-  }, [setExtensionAllowed, setExtensionLoading])
+  }, [setExtensionAllowed, setExtensionLoading, toast])
 
   useEffect(() => {
     if (extensionAllowed && !extensionLoading && !extensionsDetected) {
