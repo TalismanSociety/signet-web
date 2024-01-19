@@ -233,7 +233,7 @@ export const TeamsWatcher: React.FC = () => {
       const { data, error } = await requestSignetBackend<{ team: RawTeam[] }>(TEAM_BY_SIGNER_QUERY, {}, account)
 
       if (data?.team) {
-        let changed = data.team.length === 0
+        let changed = data.team.length === 0 && (!teams || teams.length > 0)
         const validTeams: Team[] = [...(teams ?? [])]
         // parse and validate each team from raw json to Team
         for (const rawTeam of data.team) {
