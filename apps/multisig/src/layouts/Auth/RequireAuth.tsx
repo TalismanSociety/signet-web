@@ -4,6 +4,10 @@ import Landing from '../Landing'
 import { selectedAccountState } from '@domains/auth'
 import SignInPage from './SignInPage'
 import { useTeamFromUrl } from '@domains/offchain-data'
+import { useMe } from '@domains/auth/useMe'
+import { Waitlist } from '../../layouts/Onboarding/Waitlist'
+import { SkeletonLayout } from '../../layouts/SkeletonLayout'
+import { Unauthorized } from '../../layouts/Onboarding/Unauthorized'
 
 type Props = {
   requireSignIn?: boolean
@@ -16,11 +20,19 @@ type Props = {
 const RequireAuth: React.FC<React.PropsWithChildren & Props> = ({ children, requireSignIn }) => {
   const [extensionAccounts] = useRecoilState(accountsState)
   const signedInAccount = useRecoilValue(selectedAccountState)
+  const { user, loading } = useMe()
   useTeamFromUrl()
 
   // show landing page for connection if not accounts connected
   if (extensionAccounts.length === 0) {
     return <Landing disableRedirect />
+  }
+
+  if (requireSignIn) {
+    if (!signedInAccount) return <SignInPage accounts={extensionAccounts} />
+    if (loading) return <SkeletonLayout />
+    if (!user) return <Unauthorized />
+    if (!user.whitelisted) return <Waitlist />
   }
 
   if (requireSignIn && !signedInAccount) return <SignInPage accounts={extensionAccounts} />
