@@ -20,7 +20,7 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
 
   return (
     <main className="min-h-screen w-full flex flex-col flex-1 h-full relative bg-gray-950">
-      <header className="flex items-center justify-between w-full p-[24px] md:px-[80px] fixed top-0 z-10">
+      <header className="flex items-center justify-between w-full p-[24px] md:px-[80px] fixed top-0 z-10 lg:bg-transparent bg-gray-950">
         <Logo className="w-[106px]" />
         <Button
           disabled={extensionAllowed || extensionLoading}
@@ -31,7 +31,7 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
           {!extensionAllowed || extensionLoading ? 'Connect Wallet' : 'No Accounts Connected'}
         </Button>
       </header>
-      <div className="flex items-center flex-col lg:flex-row h-full">
+      <div className="flex items-center flex-col lg:flex-row lg:h-full">
         <div className="w-full px-[24px] md:pl-[80px] pb-[64px] pt-[104px] lg:py-[104px] h-full flex flex-col my-auto justify-center lg:w-[60%]">
           <Logomark className="w-[32px] h-[32px] lg:w-[40px] lg:h-[40px] mb-[24px]" />
           <h1 className="text-[32px] lg:text-[64px] font-bold">
@@ -62,7 +62,7 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
             </div>
           </Button>
         </div>
-        <div className="w-full bg-[#FD4848] h-full pt-0 min-h-[320px] overflow-hidden lg:w-[40%] relative">
+        <div className="w-full bg-[#FD4848] pt-0 min-h-[320px] overflow-hidden lg:w-[40%] relative h-[80%] lg:h-full">
           <svg
             className="transform translate-x-[-25%] translate-y-[-25%] w-[2000px] h-auto absolute z-0"
             width="1851"
