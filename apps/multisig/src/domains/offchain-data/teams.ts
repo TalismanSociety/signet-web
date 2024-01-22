@@ -631,6 +631,6 @@ export const useTeamFromUrl = () => {
     const curSearch = new URLSearchParams(location.search)
     curSearch.set('teamId', selectedMultisig.id)
 
-    navigate(`${window.location.pathname}?${curSearch.toString()}`)
+    navigate(`${window.location.pathname}?${curSearch.toString()}`, { replace: true })
   }, [init, location.pathname, location.search, navigate, selectedMultisig])
 }

@@ -174,7 +174,7 @@ export const Sign: React.FC = () => {
           </Button>
         </TransactionDetailsDialog>
         <div className="w-full flex flex-col sm:flex-row gap-[16px]">
-          <Button className="w-full" variant="outline" onClick={window.close}>
+          <Button className="w-full" variant="outline" asLink to="/overview">
             Cancel
           </Button>
           <Button
