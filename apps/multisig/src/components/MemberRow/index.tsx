@@ -3,11 +3,10 @@ import { AugmentedAccount } from '@domains/multisig'
 import { css } from '@emotion/css'
 import { ExternalLink, Trash } from '@talismn/icons'
 import { Identicon } from '@talismn/ui'
-import { shortenAddress } from '../../util/addresses'
+import { NameAndAddress } from '@components/AddressInput/NameAndAddress'
 
 const MemberRow = (props: { member: AugmentedAccount; chain: Chain; onDelete?: () => void; truncate?: boolean }) => {
   const address = props.member.address.toSs58(props.chain)
-  const shortAddress = props.member.address.toShortSs58(props.chain)
   return (
     <div
       className={css`
@@ -25,14 +24,8 @@ const MemberRow = (props: { member: AugmentedAccount; chain: Chain; onDelete?: (
     >
       <div css={{ gap: 8 }}>
         <Identicon css={{ width: 24, height: 'auto' }} value={address} />
-        {props.member.nickname ? (
-          <p css={({ color }) => ({ color: color.offWhite })}>
-            {props.member.nickname} <span css={({ color }) => ({ color: color.lightGrey })}>{shortAddress}</span>
-            {props.member.you ? <span> (You)</span> : ''}
-          </p>
-        ) : (
-          <p css={({ color }) => ({ color: color.offWhite })}>{shortenAddress(address, 'long')}</p>
-        )}
+        <NameAndAddress address={props.member.address} name={props.member.nickname} chain={props.chain} />
+        {props.member.you ? <span className="text-offWhite text-[14px]"> (You)</span> : null}
       </div>
       <div css={{ gap: 16 }}>
         {props.onDelete ? (

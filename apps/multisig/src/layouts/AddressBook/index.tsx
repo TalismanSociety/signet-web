@@ -3,7 +3,6 @@ import {
   CircularProgressIndicator,
   EyeOfSauronProgressIndicator,
   IconButton,
-  Identicon,
   TextInput,
   Tooltip,
 } from '@talismn/ui'
@@ -18,6 +17,7 @@ import Logomark from '@components/Logomark'
 import { useRecoilValue } from 'recoil'
 import { selectedAccountState } from '@domains/auth'
 import useCopied from '@hooks/useCopied'
+import { AccountDetails } from '@components/AddressInput/AccountDetails'
 
 const Header: React.FC<{ onAddContact: () => void; vaultName: string; hideAddButton: boolean }> = ({
   onAddContact,
@@ -83,12 +83,16 @@ const ContactRow: React.FC<{ contact: Contact; multisig: Multisig; hideCollabora
         justifyContent: 'space-between',
       })}
     >
-      <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Identicon value={address} size={32} />
-        <div>
-          <p css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>{contact.name}</p>
-          <p css={{ fontSize: 12 }}>{contact.address.toShortSs58(multisig.chain)}</p>
-        </div>
+      <div className="flex items-center justify-start">
+        <AccountDetails
+          address={contact.address}
+          name={contact.name}
+          chain={multisig.chain}
+          withAddressTooltip
+          identiconSize={32}
+          breakLine
+          disableCopy
+        />
       </div>
       <div
         css={({ color }) => ({

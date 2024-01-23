@@ -1,11 +1,11 @@
-import { css } from '@emotion/css'
-import { TextInput } from '@talismn/ui'
 import { Address } from '@util/addresses'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Chain } from '@domains/chains'
 import { useOnClickOutside } from '@domains/common/useOnClickOutside'
 import { SelectedAddress } from './SelectedAddressPill'
 import { AccountDetails } from './AccountDetails'
+import { Input } from '@components/ui/input'
+import { useAzeroIDPromise } from '@domains/azeroid/AzeroIDResolver'
 
 export type AddressWithName = {
   address: Address
@@ -46,6 +46,7 @@ const AddressInput: React.FC<Props> = ({
   const [address, setAddress] = useState(defaultAddress ?? (value ? Address.fromSs58(value) || undefined : undefined))
   const [contact, setContact] = useState<AddressWithName | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
+  const { resolve, resolving, data, clear } = useAzeroIDPromise()
 
   useEffect(() => {
     if (value !== undefined && value === '') setAddress(undefined)
@@ -63,20 +64,23 @@ const AddressInput: React.FC<Props> = ({
   // input displays a non editable pill that shows selected contact's name, address and identicon
   const controlledSelectedInput = address !== undefined
 
-  const handleQueryChange = (addressString: string) => {
-    let address: Address | undefined
-    try {
-      const parsedAddress = Address.fromSs58(addressString)
-      if (!parsedAddress) throw new Error('Invalid address')
-      address = parsedAddress
-    } catch (e) {
-      address = undefined
-    }
+  const handleQueryChange = useCallback(
+    (addressString: string) => {
+      let address: Address | undefined
+      try {
+        const parsedAddress = Address.fromSs58(addressString)
+        if (!parsedAddress) throw new Error('Invalid address')
+        address = parsedAddress
+      } catch (e) {
+        address = undefined
+      }
 
-    if (value === undefined) setInput(addressString)
-    onChange(address, addressString)
-    return address !== undefined
-  }
+      if (value === undefined) setInput(addressString)
+      onChange(address, addressString)
+      return address !== undefined
+    },
+    [onChange, value]
+  )
 
   const handleSelectFromList = (address: Address, contact?: AddressWithName) => {
     handleQueryChange(address.toSs58(chain))
@@ -94,6 +98,14 @@ const AddressInput: React.FC<Props> = ({
     setAddress(undefined)
     setQuerying(false)
   }
+
+  useEffect(() => {
+    if (data?.address) {
+      setAddress(data.address)
+      handleQueryChange(data.address.toSs58(chain))
+      clear()
+    }
+  }, [chain, clear, data, handleQueryChange])
 
   const filteredAddresses = useMemo(() => {
     let inputAddress: Address | undefined
@@ -127,20 +139,23 @@ const AddressInput: React.FC<Props> = ({
   return (
     <div css={{ width: '100%', position: 'relative' }} ref={containerRef}>
       {controlledSelectedInput && (
-        <SelectedAddress address={address} chain={chain} name={contact?.name} onClear={handleClearInput} />
+        <SelectedAddress
+          address={address}
+          chain={chain}
+          name={contact?.name ?? addresses.find(t => t.address.isEqual(address))?.name}
+          onClear={handleClearInput}
+        />
       )}
-      <TextInput
-        leadingLabel={leadingLabel}
-        className={css`
-          font-size: 18px !important;
-          cursor: ${address ? 'pointer' : 'text'};
-        `}
+      <Input
+        label={leadingLabel}
+        loading={resolving}
         placeholder={
           controlledSelectedInput ? '' : addresses.length > 0 ? 'Search or paste address...' : 'Enter address...'
         }
         value={address ? '' : query}
         onChange={e => {
           setQuerying(true)
+          resolve(e.target.value)
           const validInput = handleQueryChange(e.target.value)
 
           // user pasted a valid address, so they're no longer querying

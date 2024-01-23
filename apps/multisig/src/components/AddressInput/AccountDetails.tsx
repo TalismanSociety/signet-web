@@ -13,6 +13,7 @@ type Props = {
   disableCopy?: boolean
   nameOrAddressOnly?: boolean
   withAddressTooltip?: boolean
+  hideIdenticon?: boolean
   identiconSize?: number
   breakLine?: boolean
 }
@@ -26,13 +27,17 @@ export const AccountDetails: React.FC<Props> = ({
   identiconSize = 24,
   withAddressTooltip,
   breakLine,
+  hideIdenticon = false,
 }) => {
   const { copy, copied } = useCopied()
+
   const accountDetailsUI = (
-    <div className="flex items-center gap-[8px] w-full overflow-hidden">
-      <div css={{ minheight: identiconSize, minWidth: identiconSize }}>
-        <Identicon size={identiconSize} value={address.toSs58(chain)} />
-      </div>
+    <div className="flex items-center gap-[8px] w-full overflow-hidden cursor-pointer">
+      {!hideIdenticon && (
+        <div css={{ minheight: identiconSize, minWidth: identiconSize }}>
+          <Identicon size={identiconSize} value={address.toSs58(chain)} />
+        </div>
+      )}
       <NameAndAddress
         address={address}
         chain={chain}
@@ -43,7 +48,11 @@ export const AccountDetails: React.FC<Props> = ({
       {!disableCopy && (
         <div
           className="text-gray-200 h-[16px] cursor-pointer"
-          onClick={() => copy(address.toSs58(chain), 'Address copied!')}
+          onClick={e => {
+            e.preventDefault()
+            e.stopPropagation()
+            copy(address.toSs58(chain), 'Address copied!')
+          }}
         >
           {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
         </div>

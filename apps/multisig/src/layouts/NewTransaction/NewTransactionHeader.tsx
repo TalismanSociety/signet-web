@@ -6,6 +6,6 @@ export const NewTransactionHeader: React.FC<React.PropsWithChildren<{ icon?: Rea
 }) => (
   <div css={({ color }) => ({ display: 'flex', alignItems: 'center', gap: 12, color: color.offWhite })}>
     {icon}
-    <h2 css={{ marginTop: 4 }}>{children}</h2>
+    <h2 className="mt-[4px] font-bold">{children}</h2>
   </div>
 )

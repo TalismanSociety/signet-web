@@ -1,10 +1,8 @@
-import { css } from '@emotion/css'
-import { Copy, PlusCircle } from '@talismn/icons'
+import { PlusCircle } from '@talismn/icons'
 import { Select } from '@talismn/ui'
-import truncateMiddle from 'truncate-middle'
 import { Multisig } from '@domains/multisig'
-import { copyToClipboard } from '@domains/common'
 import { Link } from 'react-router-dom'
+import { AccountDetails } from './AddressInput/AccountDetails'
 
 type Props = {
   multisigs: Multisig[]
@@ -14,30 +12,11 @@ type Props = {
 
 const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; selected?: boolean }> = ({
   multisig,
-  disableCopy,
   selected,
 }) => (
-  <div
-    css={{
-      width: 'max-content',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 12,
-      userSelect: 'none',
-    }}
-  >
+  <div className="w-full flex items-center justify-center gap-[12px] select-none">
     {/** Threshold + chain logo circle */}
-    <div
-      css={{
-        position: 'relative',
-        height: 40,
-        width: 40,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
+    <div className="relative h-[40px] w-[40px] min-w-[40px] flex items-center justify-center">
       <div
         css={({ color }) => ({
           position: 'absolute',
@@ -68,42 +47,15 @@ const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; select
       </p>
     </div>
 
-    {/** Name + Address and copy icon */}
-    <div css={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
-      <p
-        css={({ color }) => ({
-          color: color.offWhite,
-          width: 96,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        })}
-      >
-        {truncateMiddle(multisig.name, 24, 0, '...')}
-      </p>
-      <div css={{ display: 'flex', gap: 4 }}>
-        <p css={{ fontSize: 12, marginTop: 2 }}>{multisig.proxyAddress.toShortSs58(multisig.chain)}</p>
-        {!disableCopy && (
-          <Copy
-            className={css`
-              height: 14px;
-              width: 14px;
-              transition: 100ms ease-in-out;
-              :hover {
-                color: #d4d4d4;
-              }
-            `}
-            onClick={e => {
-              copyToClipboard(
-                multisig.proxyAddress.toSs58(multisig.chain),
-                'Vault address (proxied address) copied to clipboard'
-              )
-              e.stopPropagation()
-            }}
-          />
-        )}
-      </div>
-    </div>
+    {selected && (
+      <AccountDetails
+        name={multisig.name}
+        address={multisig.proxyAddress}
+        chain={multisig.chain}
+        breakLine
+        hideIdenticon
+      />
+    )}
   </div>
 )
 
@@ -138,7 +90,7 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
   return (
     <Select
       afterOptionsNode={<AddVaultButton />}
-      css={{ button: { gap: 12 } }}
+      css={{ button: { gap: 8, width: 240 } }}
       onChange={handleChange}
       placeholder={<VaultDetails multisig={selectedMultisig} selected />}
       placeholderPointerEvents
@@ -152,7 +104,15 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
             key={multisig.id}
             value={multisig.id}
             leadingIcon={<VaultDetails multisig={multisig} />}
-            headlineText={null}
+            headlineText={
+              <AccountDetails
+                name={multisig.name}
+                address={multisig.proxyAddress}
+                chain={multisig.chain}
+                breakLine
+                hideIdenticon
+              />
+            }
           />
         )
       }, [] as any)}

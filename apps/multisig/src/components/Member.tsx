@@ -6,6 +6,7 @@ import { Copy, Trash } from '@talismn/icons'
 import { IconButton, Identicon } from '@talismn/ui'
 import { shortenAddress } from '../util/addresses'
 import { copyToClipboard } from '../domains/common'
+import { NameAndAddress } from './AddressInput/NameAndAddress'
 
 export const Member = ({ m, chain, onDelete }: { m: AugmentedAccount; onDelete?: () => void; chain: Chain }) => {
   const theme = useTheme()
@@ -24,17 +25,9 @@ export const Member = ({ m, chain, onDelete }: { m: AugmentedAccount; onDelete?:
       `}
     >
       <Identicon value={ss58Address} size={32} />
-      <div css={{ display: 'grid', alignItems: 'center' }}>
-        <p css={{ display: 'flex', marginTop: 4 }}>
-          {m.nickname ? (
-            <span css={({ color }) => ({ color: color.offWhite })}>{m.nickname}</span>
-          ) : (
-            <span css={{ color: 'var(--color-offWhite)' }}>{shortenAddress(ss58Address, 'long')}</span>
-          )}
-          &nbsp;
-          {m.you && <span>(You)</span>}
-        </p>
-        {m.nickname ? <span css={{ fontSize: '12px' }}>{m.address.toShortSs58(chain)}</span> : null}
+      <div className="flex items-start gap-[8px] justify-start">
+        <NameAndAddress name={m.nickname} address={m.address} chain={chain} breakLine />
+        {m.you ? <span className="text-gray-200 text-[14px] leading-[16px]"> (You)</span> : null}
       </div>
       <div css={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', gap: '8px' }}>
         {onDelete && (

@@ -193,7 +193,7 @@ const parseTeam = (rawTeam: RawTeam): { team?: Team; error?: string } => {
     const collaborators: Collaborator[] = []
 
     // parse collaborators
-    for (const rawUser of rawTeam.collaborators) {
+    for (const rawUser of rawTeam.collaborators ?? []) {
       const rawAddress = rawUser.user.identifier
       const address = Address.fromSs58(rawAddress)
       if (!address) {
