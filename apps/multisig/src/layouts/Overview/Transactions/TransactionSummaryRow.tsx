@@ -8,7 +8,7 @@ import {
   combinedViewState,
   toConfirmedTxUrl,
 } from '@domains/multisig'
-import { ArrowUp, Contract, List, Settings, Share2, Unknown, Vote, Zap } from '@talismn/icons'
+import { Contract, List, Send, Settings, Share2, Unknown, Vote, Zap } from '@talismn/icons'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { useMemo } from 'react'
@@ -54,7 +54,7 @@ const TransactionSummaryRow = ({
   const txIcon = !t.decoded ? (
     <Unknown />
   ) : t.decoded.type === TransactionType.Transfer ? (
-    <ArrowUp />
+    <Send />
   ) : t.decoded.type === TransactionType.MultiSend ? (
     <Share2 />
   ) : t.decoded.type === TransactionType.ChangeConfig ? (
@@ -80,7 +80,9 @@ const TransactionSummaryRow = ({
 
         <div className="flex flex-col items-start overflow-x-hidden overflow-y-visible gap-[2px]">
           <div className="flex items-center gap-[8px] text-offWhite overflow-x-hidden overflow-y-visible text-ellipsis w-full max-w-max pt-[4px]">
-            <p className="whitespace-nowrap text-ellipsis leading-[16px] max-w-max w-full mt-[4px]">{t.description}</p>
+            <p className="whitespace-nowrap overflow-hidden text-ellipsis leading-[16px] max-w-max w-full mt-[4px]">
+              {t.description}
+            </p>
             {combinedView ? (
               <div className="flex items-center">
                 <img
@@ -146,7 +148,7 @@ const TransactionSummaryRow = ({
         </div>
         {t.executedAt && t.hash && (
           <a
-            className="ml-[24px]"
+            className="ml-[8px] lg:ml-[24px]"
             href={toConfirmedTxUrl(t)}
             target="_blank"
             rel="noreferrer"

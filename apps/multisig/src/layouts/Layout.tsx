@@ -16,19 +16,9 @@ export const Layout: React.FC<
   const devMode = useDevMode()
 
   return (
-    <div
-      css={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        minHeight: '100vh',
-        gap: 16,
-        padding: 24,
-        flex: 1,
-      }}
-    >
+    <div className="flex flex-col w-full min-h-screen gap-[16px] p-[24px] flex-1">
       <Header />
-      <div css={{ display: 'flex', flex: 1, gap: 16 }}>
+      <section className="flex w-full flex-1 gap-[16px]">
         {requiresMultisig && (!activeTeams || activeTeams.length === 0) ? (
           // loading multisigs from backend
           activeTeams === undefined ? (
@@ -117,7 +107,7 @@ export const Layout: React.FC<
             {!!activeTeams?.length && <BetaNotice />}
           </>
         )}
-      </div>
+      </section>
       <Footer />
     </div>
   )

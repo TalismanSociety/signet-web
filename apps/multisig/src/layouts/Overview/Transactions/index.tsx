@@ -26,7 +26,7 @@ const Transactions = () => {
     <Tabs
       defaultValue={defaultTab}
       value={defaultTab}
-      className="bg-gray-800 rounded-[16px] flex flex-col p-[24px] w-full"
+      className="bg-gray-800 rounded-[16px] flex flex-col p-[24px] lg:w-[100px] lg:flex-[6]"
     >
       <TabsList className="flex items-center justify-start font-bold">
         <TabsTrigger value="pending" onClick={() => navigate(`/overview`)}>

@@ -22,7 +22,7 @@ const Sidebar = (props: Props) => {
   const theme = useTheme()
 
   return (
-    <section className="flex flex-col items-center bg-gray-800 p-[12px] rounded-[16px] gap-[32px] lg:pr-[24px] lg:pl-[16px]">
+    <div className="flex flex-col items-center bg-gray-800 p-[12px] rounded-[16px] gap-[32px] lg:pr-[24px] lg:pl-[16px]">
       {props.sections.map(({ name, options }) => (
         <div className="w-full flex flex-col" key={name}>
           <p className="hidden lg:block uppercase text-[12px] mb-[8px]">{name}</p>
@@ -73,7 +73,7 @@ const Sidebar = (props: Props) => {
           </div>
         </div>
       ))}
-    </section>
+    </div>
   )
 }
 

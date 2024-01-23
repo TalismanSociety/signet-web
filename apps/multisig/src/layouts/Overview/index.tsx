@@ -2,14 +2,12 @@ import { useAugmentedBalances } from '@domains/balances'
 import { DUMMY_MULTISIG_ID, useSelectedMultisig } from '@domains/multisig'
 import { getAllChangeAttempts } from '@domains/offchain-data/metadata'
 import { toMultisigAddress } from '@util/addresses'
-import { device } from '@util/breakpoints'
 import { useCallback, useEffect } from 'react'
 import { useRecoilValue } from 'recoil'
 
 import Assets, { TokenAugmented } from './Assets'
 import Transactions from './Transactions'
 import { Layout } from '../Layout'
-import { css } from '@emotion/css'
 import { useUpdateMultisigConfig } from '../../domains/offchain-data'
 import { selectedAccountState } from '../../domains/auth'
 import VaultOverview from './VaultOverview'
@@ -103,25 +101,11 @@ const Overview = () => {
   const augmentedTokens: TokenAugmented[] = useAugmentedBalances()
   return (
     <Layout selected="Overview" requiresMultisig>
-      <div
-        className={css`
-          display: grid;
-          flex: 1;
-          gap: 16px;
-          grid-template-columns: 1fr;
-          grid-template-areas:
-            'transactions'
-            'overview-assets';
-          @media ${device.md} {
-            grid-template-columns: 45% 55%;
-            grid-template-areas: 'overview-assets transactions';
-          }
-          @media ${device.lg} {
-            grid-template-columns: 38% 62%;
-          }
-        `}
-      >
-        <div className="flex flex-col gap-[16px] h-full w-full" css={{ gridArea: 'overview-assets' }}>
+      <div className="flex flex-col lg:flex-row gap-[16px] flex-1 w-[100px]">
+        <div
+          className="flex flex-col gap-[16px] h-full w-full flex-1 lg:w-[100px] lg:flex-[5]"
+          css={{ gridArea: 'overview-assets' }}
+        >
           <VaultOverview />
           <Assets augmentedTokens={augmentedTokens} />
         </div>
