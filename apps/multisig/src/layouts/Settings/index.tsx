@@ -83,7 +83,7 @@ const Settings = () => {
   return (
     <Layout selected="Settings" requiresMultisig>
       <div css={{ display: 'flex', flex: 1, padding: '32px 8%', flexDirection: 'column', gap: 32 }}>
-        <h2 css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>Vault Settings</h2>
+        <h2 className="text-offWhite mt-[4px] font-bold">Vault Settings</h2>
         <div css={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
           {/** first row: Name */}
           <SettingsInfoRow label="Vault Name">

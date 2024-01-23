@@ -109,17 +109,10 @@ export const VaultOverview: React.FC = () => {
           transition: 'max-height 0.3s',
         }}
       >
-        <div
-          css={{
-            display: 'grid',
-            gridTemplateColumns: '50% 40%',
-            gap: '0px 8px',
-            marginTop: 24,
-          }}
-        >
-          <div>
+        <div className="flex flex-col-reverse sm:flex-row gap-x-[8px] gap-y-[16px] mt-[24px] flex-1">
+          <div className="sm:w-[100px] flex flex-col flex-1">
             <p css={({ color }) => ({ color: color.lightGrey, marginBottom: 8, fontSize: 14 })}>Signers</p>
-            <div css={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="flex flex-col gap-[12px] items-start justify-start [&>div]:w-max">
               {selectedMultisig.signers.map(signer => (
                 <AccountDetails
                   key={signer.toSs58()}
@@ -133,13 +126,14 @@ export const VaultOverview: React.FC = () => {
               ))}
             </div>
           </div>
-          <div>
+          <div className="sm:w-[100px] flex flex-col flex-1">
             <p css={({ color }) => ({ color: color.lightGrey, marginBottom: 8, fontSize: 14 })}>Multisig Address</p>
             <AccountDetails
               chain={selectedMultisig.chain}
               address={selectedMultisig.multisigAddress}
               identiconSize={20}
               withAddressTooltip
+              nameOrAddressOnly
             />
           </div>
         </div>

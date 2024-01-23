@@ -23,7 +23,7 @@ const Header: React.FC<{ loading: boolean; supported?: boolean; isCollaborator: 
     <div className="w-full">
       <div className="w-full flex items-center justify-between gap-[16px] mb-[8px]">
         <div css={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <h2 css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>Smart Contracts</h2>
+          <h2 className="text-offWhite mt-[4px] font-bold">Smart Contracts</h2>
         </div>
         {supported && !isCollaborator && (
           <div className="flex items-center gap-[12px]">

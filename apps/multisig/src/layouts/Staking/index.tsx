@@ -86,7 +86,7 @@ const Staking = () => {
 
   return (
     <Wrapper>
-      <h2 css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>Staking Overview</h2>
+      <h2 className="text-offWhite mt-[4px] font-bold">Staking Overview</h2>
       <div css={{ display: 'flex', gap: 32, width: '100%' }}>
         {/** second row: Proxied Account */}
         <div css={{ width: '100%' }}>

@@ -1,5 +1,7 @@
+import { useAzeroID } from '@domains/azeroid/AzeroIDResolver'
 import { Chain } from '@domains/chains'
 import { Address } from '@util/addresses'
+import { useMemo } from 'react'
 
 export const NameAndAddress: React.FC<{
   address: Address
@@ -8,33 +10,45 @@ export const NameAndAddress: React.FC<{
   nameOrAddressOnly?: boolean
   breakLine?: boolean
 }> = ({ address, name, chain, nameOrAddressOnly, breakLine }) => {
-  if (!name) return <p css={({ color }) => ({ color: color.offWhite, marginTop: 6 })}>{address?.toShortSs58(chain)}</p>
+  const { resolve } = useAzeroID()
+
+  const azeroId = useMemo(() => {
+    if (nameOrAddressOnly && name) return undefined
+    return resolve(address.toSs58())?.a0id
+  }, [address, name, nameOrAddressOnly, resolve])
+
+  const primaryText = useMemo(() => {
+    if (name) return name
+    return azeroId ?? address.toShortSs58(chain)
+  }, [address, azeroId, chain, name])
+
+  const secondaryText = useMemo(() => {
+    if (nameOrAddressOnly) return null
+    if (name) return azeroId ?? address.toShortSs58(chain)
+    return azeroId ? address.toShortSs58(chain) : null // address is primary text
+  }, [address, azeroId, chain, name, nameOrAddressOnly])
+
+  if (!secondaryText)
+    return <p className="text-offWhite overflow-hidden text-ellipsis mt-[3px] w-full max-w-max">{primaryText}</p>
 
   return (
     <div
       css={{
         display: 'flex',
-        gap: breakLine ? 0 : 8,
+        gap: breakLine ? 4 : 8,
         flexDirection: breakLine ? 'column' : 'row',
         alignItems: breakLine ? 'flex-start' : 'center',
-        marginTop: breakLine ? 0 : 4,
+        marginTop: breakLine ? 0 : 2,
         overflow: 'hidden',
       }}
     >
-      <p
-        css={({ color }) => ({
-          color: color.offWhite,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          maxWidth: 'max-content',
-          width: '100%',
-        })}
-      >
-        {name}
+      <p className="text-offWhite whitespace-nowrap overflow-hidden text-ellipsis max-w-max w-full leading-[1]">
+        {primaryText}
       </p>
-      {!nameOrAddressOnly && (
-        <p css={({ color }) => ({ color: color.lightGrey, fontSize: 12 })}>{address.toShortSs58(chain)}</p>
+      {!!secondaryText && (
+        <p className="text-gray-200 text-[12px] leading-[1] whitespace-nowrap overflow-hidden text-ellipsis max-w-max w-full">
+          {secondaryText}
+        </p>
       )}
     </div>
   )

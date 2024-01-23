@@ -29,6 +29,7 @@ import { ValidatorsWatcher } from './domains/staking/ValidatorsWatcher'
 import ConstsWatcher from './domains/chains/ConstsWatcher'
 import { Toaster as NewToaster } from '@components/ui/toaster'
 import { HasuraProvider } from '@domains/offchain-data/hasura'
+import { AzeroIDResolverProvider } from '@domains/azeroid/AzeroIDResolver'
 
 const Loader = () => {
   return (
@@ -58,22 +59,24 @@ const App: React.FC = () => (
           enabledChains={supportedChains.map(chain => chain.genesisHash)}
         >
           <HasuraProvider>
-            <Suspense fallback={<Loader />}>
-              <PendingTransactionsWatcher />
-              <BalancesWatcher />
-              <ExtensionWatcher />
-              <AccountWatcher />
-              <OffchainDataWatcher />
-              <NomPoolsWatcher />
-              <ValidatorsWatcher />
-              <ActiveMultisigWatcher />
-              <ConstsWatcher />
-              <RouterProvider router={router} />
-              <Toaster position="top-right" containerStyle={{ top: '6.4rem' }}>
-                {t => <ToastBar toast={t} />}
-              </Toaster>
-              <NewToaster />
-            </Suspense>
+            <AzeroIDResolverProvider>
+              <Suspense fallback={<Loader />}>
+                <PendingTransactionsWatcher />
+                <BalancesWatcher />
+                <ExtensionWatcher />
+                <AccountWatcher />
+                <OffchainDataWatcher />
+                <NomPoolsWatcher />
+                <ValidatorsWatcher />
+                <ActiveMultisigWatcher />
+                <ConstsWatcher />
+                <RouterProvider router={router} />
+                <Toaster position="top-right" containerStyle={{ top: '6.4rem' }}>
+                  {t => <ToastBar toast={t} />}
+                </Toaster>
+                <NewToaster />
+              </Suspense>
+            </AzeroIDResolverProvider>
           </HasuraProvider>
         </BalancesProvider>
       </RecoilRelayEnvironmentProvider>

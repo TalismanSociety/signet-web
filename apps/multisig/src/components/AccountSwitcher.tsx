@@ -18,7 +18,6 @@ type Props = {
 const AccountRow = ({
   account,
   onSelect,
-  chain,
 }: {
   account: InjectedAccount
   onSelect: (account: InjectedAccount) => void
@@ -120,6 +119,7 @@ const AccountSwitcher: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
             chain={multisig.chain}
             breakLine
             disableCopy
+            withAddressTooltip
           />
         </div>
         <div
