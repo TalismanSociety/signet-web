@@ -103,6 +103,8 @@ const AddressInput: React.FC<Props> = ({
     if (data?.address) {
       setAddress(data.address)
       handleQueryChange(data.address.toSs58(chain))
+      setQuerying(false)
+      setExpanded(false)
       clear()
     }
   }, [chain, clear, data, handleQueryChange])
@@ -167,12 +169,13 @@ const AddressInput: React.FC<Props> = ({
         onFocus={() => setExpanded(addresses.length > 0 || validRawInputAddress !== undefined)}
       />
       <div
-        css={({ color }) => ({
+        className={'bg-gray-900'}
+        css={{
           position: 'absolute',
           top: '100%',
           marginTop: 8,
           left: 0,
-          backgroundColor: color.foreground,
+          // backgroundColor: color.foreground,
           width: '100%',
           zIndex: 1,
           borderRadius: 8,
@@ -182,7 +185,7 @@ const AddressInput: React.FC<Props> = ({
           overflow: 'hidden',
           transition: '0.2s ease-in-out',
           overflowY: 'auto',
-        })}
+        }}
       >
         <div css={{ padding: '8px 0px' }}>
           {filteredAddresses.length > 0 ? (
@@ -210,7 +213,7 @@ const AddressInput: React.FC<Props> = ({
                 <p className="whitespace-nowrap text-[14px] font-bold text-right text-gray-200">{contact.type}</p>
               </div>
             ))
-          ) : !querying && validRawInputAddress ? (
+          ) : address || (!querying && validRawInputAddress) ? (
             // user pasted an unknown but valid address, show identicon and formatted address to indicate the address is valid
             <div
               css={{
@@ -220,10 +223,10 @@ const AddressInput: React.FC<Props> = ({
                   filter: 'brightness(1.2)',
                 },
               }}
-              onClick={() => handleSelectFromList(validRawInputAddress)}
+              onClick={() => handleSelectFromList((validRawInputAddress || address) as Address)}
             >
               <AccountDetails
-                address={validRawInputAddress}
+                address={(validRawInputAddress || address) as Address}
                 chain={chain}
                 disableCopy
                 breakLine={compact}

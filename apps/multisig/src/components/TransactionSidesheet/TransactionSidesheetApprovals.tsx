@@ -1,5 +1,6 @@
 import MemberRow from '@components/MemberRow'
 import StatusCircle, { StatusCircleType } from '@components/StatusCircle'
+import { Tooltip } from '@components/ui/tooltip'
 import { Transaction } from '@domains/multisig'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Address } from '@util/addresses'
@@ -23,13 +24,19 @@ export const TransactionSidesheetApprovals: React.FC<{ t: Transaction }> = ({ t 
                 chain={t.multisig.chain}
               />
             </div>
-            <div className="ml-[24px]">
-              <StatusCircle
-                type={approval ? StatusCircleType.Success : StatusCircleType.Unknown}
-                circleDiameter="24px"
-                iconDimentions={{ width: '11px', height: 'auto' }}
-              />
-            </div>
+            {(t.rawPending || t.executedAt) && (
+              <div className="ml-[24px]">
+                <Tooltip content={approval ? 'Approved' : 'Waiting for approval'}>
+                  <div>
+                    <StatusCircle
+                      type={approval ? StatusCircleType.Success : StatusCircleType.PendingApproval}
+                      circleDiameter="24px"
+                      iconDimentions={{ width: '11px', height: 'auto' }}
+                    />
+                  </div>
+                </Tooltip>
+              </div>
+            )}
           </div>
         )
       })}

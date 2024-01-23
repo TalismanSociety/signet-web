@@ -2,11 +2,9 @@ import { Chain } from '@domains/chains'
 import { AugmentedAccount } from '@domains/multisig'
 import { css } from '@emotion/css'
 import { ExternalLink, Trash } from '@talismn/icons'
-import { Identicon } from '@talismn/ui'
-import { NameAndAddress } from '@components/AddressInput/NameAndAddress'
+import { AccountDetails } from '@components/AddressInput/AccountDetails'
 
 const MemberRow = (props: { member: AugmentedAccount; chain: Chain; onDelete?: () => void; truncate?: boolean }) => {
-  const address = props.member.address.toSs58(props.chain)
   return (
     <div
       className={css`
@@ -23,8 +21,13 @@ const MemberRow = (props: { member: AugmentedAccount; chain: Chain; onDelete?: (
       `}
     >
       <div css={{ gap: 8 }}>
-        <Identicon css={{ width: 24, height: 'auto' }} value={address} />
-        <NameAndAddress address={props.member.address} name={props.member.nickname} chain={props.chain} />
+        <AccountDetails
+          address={props.member.address}
+          name={props.member.nickname}
+          disableCopy
+          withAddressTooltip
+          chain={props.chain}
+        />
         {props.member.you ? <span className="text-offWhite text-[14px]"> (You)</span> : null}
       </div>
       <div css={{ gap: 16 }}>

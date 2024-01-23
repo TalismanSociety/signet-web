@@ -1,35 +1,21 @@
-import { css } from '@emotion/css'
 import { Check, Unknown } from '@talismn/icons'
+import { cn } from '@util/tailwindcss'
 import { ReactNode } from 'react'
 
 export enum StatusCircleType {
   Success,
+  PendingApproval,
   Unknown,
 }
 
-interface Colors {
-  backgroundColor: string
-  iconColor: string
-}
-
-function getColorsAndIcon(type: StatusCircleType): [ReactNode, Colors] {
+function getColorsAndIcon(type: StatusCircleType): [ReactNode, string] {
   switch (type) {
     case StatusCircleType.Success:
-      return [
-        <Check />,
-        {
-          backgroundColor: '#345132',
-          iconColor: '#38d448',
-        },
-      ]
+      return [<Check />, 'text-green-500 bg-green-700/30']
     case StatusCircleType.Unknown:
-      return [
-        <Unknown />,
-        {
-          backgroundColor: '#3f3f3f',
-          iconColor: '#a5a5a5',
-        },
-      ]
+      return [<Unknown />, 'text-gray-200 bg-gray-700']
+    case StatusCircleType.PendingApproval:
+      return [<Check />, 'bg-gray-700 text-gray-200']
   }
 }
 
@@ -41,21 +27,10 @@ const StatusCircle = (props: {
   const [icon, colors] = getColorsAndIcon(props.type)
   return (
     <div
-      className={css`
-        height: 100%;
-        background: ${colors.backgroundColor};
-        display: grid;
-        align-items: center;
-        justify-content: center;
-        height: ${props.circleDiameter};
-        width: ${props.circleDiameter};
-        border-radius: 100px;
-        svg {
-          width: ${props.iconDimentions.width};
-          height: ${props.iconDimentions.height};
-          color: ${colors.iconColor};
-        }
-      `}
+      className={cn(
+        'h-[24px] w-[24px] min-w-[24px] flex items-center justify-center rounded-full [&>svg]:h-[16px] [&>svg]:w-[16px]',
+        colors
+      )}
     >
       {icon}
     </div>
