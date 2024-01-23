@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useState } from 'react'
 import { Button } from '@talismn/ui'
 import Modal from '@components/Modal'
 import { useInput } from '@hooks/useInput'
@@ -6,6 +6,7 @@ import { Address } from '@util/addresses'
 import { useAddressBook, useCreateContact } from '../../domains/offchain-data'
 import { useSelectedMultisig } from '../../domains/multisig'
 import { Input } from '@components/ui/input'
+import AddressInput from '@components/AddressInput'
 
 type Props = {
   onClose?: () => void
@@ -13,8 +14,8 @@ type Props = {
 }
 
 export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const addressInput = useInput('')
   const nameInput = useInput('')
+  const [address, setAddress] = useState<Address | undefined>(undefined)
   const { createContact, creating } = useCreateContact()
   const [selectedMultisig] = useSelectedMultisig()
   const { contactsByAddress } = useAddressBook()
@@ -22,26 +23,18 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const handleClose = () => {
     if (creating) return
     nameInput.onChange('')
-    addressInput.onChange('')
+    setAddress(undefined)
     onClose?.()
   }
 
-  const parsedAddress = useMemo(() => {
-    try {
-      return Address.fromSs58(addressInput.value)
-    } catch (e) {
-      return false
-    }
-  }, [addressInput.value])
-
   const handleCreateContact = async () => {
-    if (!parsedAddress) return
-    const created = await createContact(parsedAddress, nameInput.value, selectedMultisig.id)
+    if (!address) return
+    const created = await createContact(address, nameInput.value, selectedMultisig.id)
     if (created) handleClose()
   }
 
-  const disabled = !parsedAddress || !nameInput.value
-  const conflict = parsedAddress ? !!contactsByAddress[parsedAddress.toSs58()] : false
+  const disabled = !address || !nameInput.value
+  const conflict = address ? !!contactsByAddress[address.toSs58()] : false
 
   return (
     <Modal isOpen={isOpen ?? false} width="100%" maxWidth={420} contentLabel="Add new contact">
@@ -49,16 +42,12 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
       <p css={{ marginTop: 8 }}>Saved contacts will be shared by all members of your multisig.</p>
       <form css={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
         <Input placeholder="Contact Name" label="Name" {...nameInput} />
-        <Input
-          placeholder="Address"
-          label="Address"
-          {...addressInput}
-          supportingLabel={
-            conflict ? (
-              <p className="text-gray-200 mt-[8px] ml-[12px] text-[14px]">Address already exists in address book.</p>
-            ) : null
-          }
-        />
+        <div className="w-full">
+          <AddressInput onChange={newAddress => setAddress(newAddress)} />
+          {conflict ? (
+            <p className="text-gray-200 mt-[8px] ml-[12px] text-[14px]">Address already exists in address book.</p>
+          ) : null}
+        </div>
         <div
           css={{
             display: 'grid',
