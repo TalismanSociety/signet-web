@@ -146,10 +146,10 @@ export const TeamsWatcher: React.FC = () => {
   //may not be necessary besides faster initial load of azeroId and may possible cause excessive readyQueue calls during signers' readyQueue
   useEffect(() => {
     const address = selectedAccount?.injected.address.toSs58()
-    if (address && !prevEntry.includes(address)) {
+    if (address && !Object.keys(addressToAzeroId).includes(address)) {
       readyQueue([address])
     }
-  }, [prevEntry, readyQueue, selectedAccount?.injected.address])
+  }, [addressToAzeroId, readyQueue, selectedAccount?.injected.address])
 
   const fetchTeams = useCallback(
     async (account: SignedInAccount) => {

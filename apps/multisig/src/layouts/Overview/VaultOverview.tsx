@@ -6,14 +6,9 @@ import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { ChainPill } from '@components/ChainPill'
 import { atom, useRecoilState, useRecoilValue } from 'recoil'
 import persist from '@domains/persist'
-import { Fragment, useEffect } from 'react'
+import { Fragment } from 'react'
 import { secondsToDuration } from '@util/misc'
-import { Address } from '@util/addresses'
 import { addressToAzeroIdState } from '@hooks/useResolveAddressAzeroIdMap'
-
-type MemberAzeroIdMap = {
-  [key: string]: string | undefined
-}
 
 const showMemberState = atom<boolean>({
   key: 'dashboardShowMemberState',
@@ -21,32 +16,11 @@ const showMemberState = atom<boolean>({
   effects_UNSTABLE: [persist],
 })
 
-const memberAzeroIdState = atom<MemberAzeroIdMap>({
-  key: 'memberAzeroIdState',
-  default: {},
-  effects_UNSTABLE: [persist],
-})
-
 export const VaultOverview: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const [showMembers, setShowMembers] = useRecoilState(showMemberState)
   const { contactByAddress } = useKnownAddresses(selectedMultisig.id)
-  const [memberAzeroIds, setMemberAzeroIds] = useRecoilState(memberAzeroIdState)
   const addressToAzeroId = useRecoilValue(addressToAzeroIdState)
-
-  useEffect(() => {
-    function getMemberAzeroIds(addresses: Address[]) {
-      let memberAzeroIdMap: MemberAzeroIdMap = {}
-      for (const address of addresses) {
-        const stringAddress = address.toSs58()
-        if (stringAddress) {
-          memberAzeroIdMap = { ...memberAzeroIdMap, [stringAddress]: addressToAzeroId[stringAddress] }
-        }
-      }
-      setMemberAzeroIds(memberAzeroIdMap)
-    }
-    getMemberAzeroIds(selectedMultisig.signers)
-  }, [addressToAzeroId, selectedMultisig, setMemberAzeroIds])
 
   return (
     <section
@@ -152,7 +126,7 @@ export const VaultOverview: React.FC = () => {
             <p css={({ color }) => ({ color: color.lightGrey, marginBottom: 8, fontSize: 14 })}>Signers</p>
             <div css={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {selectedMultisig.signers.map(signer => {
-                const a0Id = memberAzeroIds[signer.toSs58()]
+                const a0Id = addressToAzeroId[signer.toSs58()]
                 return (
                   <AccountDetails
                     key={signer.toSs58()}
