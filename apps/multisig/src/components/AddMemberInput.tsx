@@ -4,15 +4,17 @@ import { Address } from '../util/addresses'
 import { useState } from 'react'
 import { Button } from '@talismn/ui'
 import { Plus } from '@talismn/icons'
+import { Chain } from '@domains/chains'
 
 type Props = {
   onNewAddress: (a: Address) => void
   validateAddress?: (a: Address) => boolean
   addresses?: AddressWithName[]
   compactInput?: boolean
+  chain?: Chain
 }
 
-export const AddMemberInput: React.FC<Props> = ({ validateAddress, onNewAddress, addresses, compactInput }) => {
+export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewAddress, addresses, compactInput }) => {
   const [addressInput, setAddressInput] = useState('')
   const [address, setAddress] = useState<Address | undefined>()
 
@@ -47,6 +49,7 @@ export const AddMemberInput: React.FC<Props> = ({ validateAddress, onNewAddress,
         addresses={addresses}
         value={addressInput}
         compact={compactInput}
+        chain={chain}
         onChange={(address, input) => {
           setAddressInput(input)
           setAddress(address)

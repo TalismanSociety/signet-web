@@ -68,6 +68,7 @@ const AddMembers = (props: {
             if (conflict) toast.error('Duplicate address')
             return !conflict
           }}
+          chain={props.chain}
           onNewAddress={address => props.setAddedAccounts(addedAccounts => [...addedAccounts, address])}
           addresses={knownAddresses}
         />
