@@ -5,6 +5,9 @@ import { graphql } from 'relay-runtime'
 
 import RelayEnvironment from '../../graphql/relay-environment'
 import { supportedChains } from './supported-chains'
+import { ApiPromise } from '@polkadot/api'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Address } from '@util/addresses'
 
 export type Price = {
   current: number
@@ -264,3 +267,30 @@ export const allChainTokensSelector = selector({
   },
   dangerouslyAllowMutability: true, // pjs wsprovider mutates itself to track connection msg stats
 })
+
+export const useSystemToken = (api: ApiPromise | undefined) => {
+  return useMemo(() => {
+    if (!api) return undefined
+    const chainProperties = api.registry.getChainProperties()
+    if (!chainProperties) return undefined
+    const tokenSymbol = (chainProperties.tokenSymbol.toHuman() as string[])[0]
+    const tokenDecimals = +((chainProperties.tokenDecimals.value.toHuman() as string[])[0] ?? 1)
+    return { tokenSymbol, tokenDecimals }
+  }, [api])
+}
+
+export const useNativeTokenBalance = (api: ApiPromise | undefined, address: string | Address) => {
+  const [balanceBN, setBalanceBN] = useState<bigint>()
+  const getBalance = useCallback(() => {
+    if (!api) return undefined
+    api.query.system.account(typeof address === 'string' ? address : address.toSs58(), (acc): void => {
+      setBalanceBN(acc.data.free.toBigInt())
+    })
+  }, [address, api])
+
+  useEffect(() => {
+    getBalance()
+  }, [getBalance])
+
+  return { balanceBN }
+}

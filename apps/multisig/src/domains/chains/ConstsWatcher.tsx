@@ -8,6 +8,7 @@ import { Chain } from './tokens'
 type Consts = {
   maxNominations: number
   poolPalletId: Uint8Array
+  existentialDeposit: bigint
 }
 
 /** Consts of each chain, keyed by chain name */
@@ -25,9 +26,10 @@ export const ConstsWatcher: React.FC = () => {
     async (api: ApiPromise, chainName: string) => {
       if (consts[chainName]) return
 
-      const [maxNominationsRes, palletIdRes] = await Promise.all([
+      const [maxNominationsRes, palletIdRes, edRes] = await Promise.all([
         api.consts.staking?.maxNominations,
         api.consts.nominationPools?.palletId,
+        api.consts.balances.existentialDeposit,
       ])
 
       const maxNominations = maxNominationsRes ? +maxNominationsRes.toBigInt().toString() : 16
@@ -37,6 +39,7 @@ export const ConstsWatcher: React.FC = () => {
         [chainName]: {
           maxNominations,
           poolPalletId: palletId,
+          existentialDeposit: edRes.toBigInt(),
         } as Consts,
       })
     },

@@ -11,7 +11,7 @@ export const Waitlist: React.FC = () => (
         <p className="text-center my-[16px]">
           Sign up to get early access to Signet, we will get in touch when your account has been whitelisted.
         </p>
-        <Button asLink to="https://talisman.xyz/signet" target="_blank">
+        <Button asLink to={process.env.REACT_APP_SIGNET_LANDING_PAGE ?? ''} target="_blank">
           Get Early Access
         </Button>
       </div>

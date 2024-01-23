@@ -50,11 +50,11 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
             className="w-max mt-[24px] lg:mt-[32px] group"
             variant="outline"
             asLink
-            to={`mailto:${process.env.REACT_APP_CONTACT_EMAIL}`}
+            to={process.env.REACT_APP_SIGNET_LANDING_PAGE ?? ''}
             target="_blank"
           >
             <div className="flex items-center gap-[8px]">
-              <span>Contact us</span>
+              <span>Get Early Access</span>
               <ArrowUpRight className="text-primary group-hover:text-black" height={20} width={20} />
             </div>
           </Button>

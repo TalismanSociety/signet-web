@@ -38,15 +38,14 @@ export const NameAndAddress: React.FC<{
         gap: breakLine ? 4 : 8,
         flexDirection: breakLine ? 'column' : 'row',
         alignItems: breakLine ? 'flex-start' : 'center',
-        marginTop: breakLine ? 0 : 2,
-        overflow: 'hidden',
+        overflowX: 'hidden',
       }}
     >
-      <p className="text-offWhite whitespace-nowrap overflow-hidden text-ellipsis max-w-max w-full leading-[1]">
+      <p className="text-offWhite whitespace-nowrap overflow-hidden text-ellipsis max-w-max w-full leading-[1] pt-[3px]">
         {primaryText}
       </p>
       {!!secondaryText && (
-        <p className="text-gray-200 text-[12px] leading-[1] whitespace-nowrap overflow-hidden text-ellipsis max-w-max w-full">
+        <p className="text-gray-200 text-[12px] leading-[1] whitespace-nowrap overflow-hidden text-ellipsis max-w-max w-full pt-[3px]">
           {secondaryText}
         </p>
       )}

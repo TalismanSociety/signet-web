@@ -1,5 +1,5 @@
 import { Check, Copy, ExternalLink } from '@talismn/icons'
-import { Chain, filteredSupportedChains } from '../domains/chains'
+import { Chain, filteredSupportedChains, useNativeTokenBalance, useSystemToken } from '../domains/chains'
 import { Address } from '../util/addresses'
 import { Tooltip } from './ui/tooltip'
 import { useToast } from './ui/use-toast'
@@ -8,11 +8,17 @@ import { cn } from '../util/tailwindcss'
 import { useAzeroID } from '@domains/azeroid/AzeroIDResolver'
 import { AzeroIDLogo } from './OtherLogos/AzeroID'
 import { useSelectedMultisig } from '@domains/multisig'
+import { useApi } from '@domains/chains/pjs-api'
+import { formatUnits } from '@util/numbers'
+import { Skeleton } from '@talismn/ui'
 
 export const AddressTooltip: React.FC<
   React.PropsWithChildren & { address: Address | string; chain?: Chain; name?: string }
 > = ({ children, address: _address, chain, name }) => {
   const [selectedMultisig] = useSelectedMultisig()
+  const { api } = useApi(chain?.rpcs ?? selectedMultisig.chain.rpcs ?? [])
+  const token = useSystemToken(api)
+  const { balanceBN } = useNativeTokenBalance(api, _address)
   const address = typeof _address === 'string' ? (Address.fromSs58(_address) as Address) : _address
   const ss58Address = address.toSs58(chain)
   const { toast } = useToast()
@@ -84,6 +90,18 @@ export const AddressTooltip: React.FC<
               {copied ? <Check size={16} /> : <Copy size={16} />}
             </div>
           </div>
+          {!!token && !!token.tokenSymbol && !!token.tokenDecimals && (
+            <p className="mt-[8px] text-[12px]">
+              Available Balance:{' '}
+              {balanceBN !== undefined ? (
+                <span className="text-offWhite">
+                  {formatUnits(balanceBN, +token.tokenDecimals)} {token.tokenSymbol}
+                </span>
+              ) : (
+                <Skeleton.Surface className="h-[12px] w-[80px]" />
+              )}
+            </p>
+          )}
         </div>
       }
     >
