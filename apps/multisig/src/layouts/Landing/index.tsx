@@ -32,12 +32,9 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
         </Button>
       </header>
       <div className="flex items-center flex-col lg:flex-row">
-        <div className="w-full px-[24px] md:pl-[80px] pb-[64px] pt-[104px] lg:py-[128px] h-full flex flex-col my-auto lg:w-[60%] lg:min-h-screen lg:h-full justify-center">
+        <div className="w-full px-[24px] md:pl-[80px] pb-[64px] pt-[104px] lg:py-[128px] h-full flex flex-col my-auto lg:w-[60%] min-h-[70vh] lg:min-h-screen lg:h-full justify-center">
           <Logomark className="w-[32px] h-[32px] lg:w-[40px] lg:h-[40px] mb-[24px]" />
-          <h1 className="text-[32px] lg:text-[64px] font-bold">
-            <span className="text-primary whitespace-nowrap">Multisig ops</span> and{' '}
-            <span className="text-primary whitespace-pre-wrap">enterprise workflow</span> for onchain organisations.
-          </h1>
+          <h1 className="leading-[1] text-[48px] lg:text-[64px] font-bold text-primary whitespace-nowrap">Sign-in</h1>
           <p className="text-gray-200 mt-[20px] lg:mt-[32px] text-[16px] lg:text-[18px]">
             Sign in with your whitelisted account or find out more at <br className="hidden lg:block" />
             <a
