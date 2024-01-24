@@ -1,4 +1,3 @@
-import { TextInput } from '@talismn/ui'
 import { Layout } from '../Layout'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@components/ui/button'
@@ -11,11 +10,12 @@ import { useApi } from '@domains/chains/pjs-api'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
+import { Input } from '@components/ui/input'
+import { CircularProgressIndicator } from '@talismn/ui'
 
 const isValidUrl = (url: string) => {
   try {
-    new URL(url)
-    return true
+    return new URL(url)
   } catch (e) {
     return false
   }
@@ -23,18 +23,12 @@ const isValidUrl = (url: string) => {
 
 const messageServiceState = atom({
   key: 'iframeMessageService',
-  default: new MessageService(
-    message => {
-      // TODO: filter only iframe messages
-      return true
-    },
-    { debug: true }
-  ),
+  default: new MessageService(message => message.isTrusted && message.type === 'message', { debug: false }),
   dangerouslyAllowMutability: true,
 })
 
 export const Dapps: React.FC = () => {
-  const [url, setUrl] = useState('')
+  const [input, setInput] = useState('')
   const [shouldLoadUrl, setShouldLoadUrl] = useState(false)
   const [isSdkSupported, setIsSdkSupported] = useState<boolean | undefined>()
   const [txRequest, setTxRequest] = useState<{ innerExtrinsic: SubmittableExtrinsic<'promise'>; res: Function }>()
@@ -47,11 +41,11 @@ export const Dapps: React.FC = () => {
   const { api } = useApi(selectedMultisig.chain.rpcs)
   const { toast } = useToast()
 
-  const isUrlValid = isValidUrl(url)
+  const url = isValidUrl(input)
 
   const handleVisitDapp = (e: React.FormEvent) => {
     e.preventDefault()
-    if (isUrlValid) setShouldLoadUrl(true)
+    if (url) setShouldLoadUrl(true)
   }
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +53,7 @@ export const Dapps: React.FC = () => {
     setShouldLoadUrl(false)
     setIsSdkSupported(undefined)
     window.clearTimeout(timeoutIdRef.current)
-    setUrl(e.target.value)
+    setInput(e.target.value)
   }
 
   const handleIframeLoaded = async () => {
@@ -68,7 +62,7 @@ export const Dapps: React.FC = () => {
     // if we didn't get a sdk init message within 3 seconds, we assume it's not supported
     timeoutIdRef.current = window.setTimeout(() => {
       setIsSdkSupported(false)
-    }, 3000)
+    }, 5000)
   }
 
   const loading = useMemo(() => shouldLoadUrl && isSdkSupported === undefined, [isSdkSupported, shouldLoadUrl])
@@ -92,7 +86,8 @@ export const Dapps: React.FC = () => {
   // this hook handles passing data from Signet to the iframe
   useEffect(() => {
     messageService.onData((message, res) => {
-      if (message.origin.toLowerCase() !== url.toLowerCase())
+      if (!url) return
+      if (message.origin.toLowerCase() !== url.origin.toLowerCase())
         return console.log('message origin does not match iframe url')
       const { type } = message.data
       if (type === 'iframe(init)') {
@@ -125,20 +120,28 @@ export const Dapps: React.FC = () => {
     handleNewExtrinsic,
     messageService,
     selectedMultisig.chain,
+    selectedMultisig.id,
     selectedMultisig.name,
     selectedMultisig.proxyAddress,
     url,
   ])
 
+  useEffect(() => {
+    if (shouldLoadUrl && iframeRef.current) {
+      // eslint-disable-next-line no-self-assign
+      iframeRef.current.src = iframeRef.current?.src
+      setIsSdkSupported(undefined)
+    }
+  }, [selectedMultisig.id, shouldLoadUrl])
   return (
     <Layout selected="Dapps" requiresMultisig>
       <div css={{ display: 'flex', flex: 1, padding: '32px 2%', flexDirection: 'column', gap: 32, width: '100%' }}>
         <h2 css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>Dapps</h2>
         <form className="flex items-center w-full gap-[12px]" onSubmit={handleVisitDapp}>
           <div className="w-full [&>div]:w-full">
-            <TextInput className="w-full" value={url} onChange={handleUrlChange} />
+            <Input className="w-full" value={input} onChange={handleUrlChange} />
           </div>
-          <Button disabled={!isUrlValid} className="h-[51px]" loading={loading}>
+          <Button disabled={!url || loading || shouldLoadUrl} className="h-[51px]" loading={loading}>
             Visit Dapp
           </Button>
         </form>
@@ -146,7 +149,7 @@ export const Dapps: React.FC = () => {
           <div className={clsx('bg-gray-800 rounded-[12px] overflow-hidden border border-gray-600')}>
             <iframe
               ref={iframeRef}
-              src={url.toLowerCase()}
+              src={input.toLowerCase()}
               title="Signet Dapps"
               className={clsx(isSdkSupported ? 'w-full h-full min-h-screen visible' : 'w-0 h-0 invisible')}
               onLoad={handleIframeLoaded}
@@ -154,9 +157,12 @@ export const Dapps: React.FC = () => {
             {!isSdkSupported && (
               <div className="w-full bg-gray-800 p-[16px] rounded-[12px]">
                 {isSdkSupported === undefined ? (
-                  <p>Loading dapp...</p>
+                  <div className="w-full flex items-center justify-center gap-[12px]">
+                    <CircularProgressIndicator />
+                    <p className="mt-[3px]">Loading dapp...</p>
+                  </div>
                 ) : !isSdkSupported ? (
-                  <p>The dapp does not support being used in Signet.</p>
+                  <p>The dapp may not support being used in Signet.</p>
                 ) : null}
               </div>
             )}
