@@ -194,7 +194,6 @@ export const useAzeroIDPromise = () => {
       try {
         setResolving(true)
         const res = await resolveAsPromise(query)
-        console.log(res)
         setData(res)
       } catch (e) {
         console.error(e)
