@@ -73,14 +73,14 @@ const TransactionSummaryRow = ({
   const tokenBreakdown = sumOutgoing.map(b => `${balanceToFloat(b)} ${b.token.symbol}`).join(' + ')
   return (
     <div onClick={onClick} className="flex items-center justify-between w-full gap-[16px]">
-      <div className="flex items-center justify-start gap-[8px] w-full">
+      <div className="flex items-center justify-start gap-[8px] w-full overflow-x-hidden">
         <div className="flex items-center justify-center min-w-[36px] w-[36px] h-[36px] bg-gray-500 [&>svg]:h-[15px] [&>svg]:w-[15px] rounded-full text-primary">
           {txIcon}
         </div>
 
-        <div className="flex flex-col items-start overflow-x-hidden overflow-y-visible gap-[2px]">
-          <div className="flex items-center gap-[8px] text-offWhite overflow-x-hidden overflow-y-visible text-ellipsis w-full max-w-max pt-[4px]">
-            <p className="whitespace-nowrap overflow-hidden text-ellipsis leading-[16px] max-w-max w-full mt-[4px]">
+        <div className="flex flex-col items-start gap-[2px] w-1 flex-1">
+          <div className="flex items-center gap-[8px] text-offWhite pt-[4px] w-full">
+            <p className="whitespace-nowrap leading-[16px] pt-[6px] w-full overflow-hidden text-ellipsis overflow-y-visible max-w-max">
               {t.description}
             </p>
             {combinedView ? (
@@ -97,7 +97,7 @@ const TransactionSummaryRow = ({
             ) : null}
             {t.draft ? (
               showDraftBadge ? (
-                <div className="text-orange-400 border rounded-[8px] px-[6px] pb-[2px]">
+                <div className="text-orange-400 border rounded-[8px] px-[6px] pb-[2px] min-w-max">
                   <p className="text-[11px] leading-[11px] !mt-[3px]">Draft</p>
                 </div>
               ) : null
