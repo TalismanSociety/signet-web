@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useRecoilState, useSetRecoilState } from 'recoil'
+import { useRecoilState } from 'recoil'
 import { accountsState, extensionAllowedState, extensionInitiatedState, extensionLoadingState } from './index'
 import { web3AccountsSubscribe, web3Enable } from '@polkadot/extension-dapp'
 import { uniqBy } from 'lodash'
@@ -18,7 +18,7 @@ export const ExtensionWatcher = () => {
   const [detectedExtensions, setDetectedExtensions] = useState<string[]>([])
   const [extensionInitiated, setExtensionInitiated] = useRecoilState(extensionInitiatedState)
   const [subscribed, setSubscribed] = useState(false)
-  const setAccounts = useSetRecoilState(accountsState)
+  const [accounts, setAccounts] = useRecoilState(accountsState)
   const { toast } = useToast()
 
   const connectWallet = useCallback(async () => {
@@ -45,10 +45,18 @@ export const ExtensionWatcher = () => {
         })
         setExtensionAllowed(false)
       }
+
+      // only add to detected list if more than 1 account is available
+      const detected: string[] = []
+      for (const ext of extensions) {
+        const accounts = await ext.accounts.get(true)
+        if (accounts.length > 0) detected.push(ext.name)
+      }
+
       // trigger web3AccountSubscribe only if some accounts are detected
       // otherwise we'll have a subscription error bug
       setExtensionsDetected(extensions.length > 0)
-      setDetectedExtensions(extensions.map(extension => extension.name))
+      setDetectedExtensions(detected)
     } catch (e) {
       console.error(e)
       setExtensionsDetected(false)
@@ -77,35 +85,23 @@ export const ExtensionWatcher = () => {
       })
 
       setAccounts(uniqueAccounts)
-
-      // initial connections made
-      const connectedExtensions = uniqBy(accounts, account => account.meta.source).map(account => account.meta.source)
-
-      // browsers like Arc will inject each extensions synchronously
-      // AccountWatcher requires all extensions to be injected to hydrate UI properly
-      if (!extensionInitiated) {
-        if (detectedExtensions.every(extension => connectedExtensions.includes(extension))) {
-          setExtensionInitiated(true)
-        }
-      }
-
-      // if all accounts disconnected, set extensionAllowed to false
-      // so connect wallet buttons will be clickable again
-      setExtensionAllowed(accounts.length > 0)
-      setExtensionsDetected(accounts.length > 0)
     }).catch(e => {
       console.error(e)
       setSubscribed(false)
     })
-  }, [
-    detectedExtensions,
-    extensionInitiated,
-    extensionsDetected,
-    setAccounts,
-    setExtensionAllowed,
-    setExtensionInitiated,
-    subscribed,
-  ])
+  }, [extensionsDetected, setAccounts, subscribed])
 
+  useEffect(() => {
+    if (detectedExtensions.length === 0) return
+    if (!extensionInitiated) {
+      // set initiated to true if accounts list has accounts of every detected extension
+      const connectedExtensions = uniqBy(accounts, account => account.meta.source).map(account => account.meta.source)
+      if (detectedExtensions.every(extension => connectedExtensions.includes(extension))) setExtensionInitiated(true)
+    } else {
+      // detect wallet disconnection, which will trigger a clean up on authTokenBook
+      setExtensionAllowed(accounts.length > 0)
+      setExtensionsDetected(accounts.length > 0)
+    }
+  }, [accounts, detectedExtensions, extensionInitiated, setExtensionAllowed, setExtensionInitiated])
   return null
 }
