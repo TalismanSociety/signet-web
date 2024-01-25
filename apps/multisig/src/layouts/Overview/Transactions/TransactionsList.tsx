@@ -104,6 +104,14 @@ export const TransactionsList = ({
                         description={openTransaction?.description ?? ''}
                         open={!!openTransaction}
                         t={openTransaction}
+                        otherTxMetadata={{
+                          changeConfigDetails: openTransaction?.decoded?.changeConfigDetails
+                            ? {
+                                newMembers: openTransaction.decoded.changeConfigDetails.signers,
+                                newThreshold: openTransaction.decoded.changeConfigDetails.threshold,
+                              }
+                            : undefined,
+                        }}
                         onApproved={({ result, executed }) => {
                           if (executed) {
                             setUnknownTransactions(prev => [
