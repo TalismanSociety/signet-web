@@ -30,7 +30,15 @@ const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
         </a>
       </div>
       <div className="flex items-center justify-center gap-[24px]">
-        <p className="text-[14px] text-center">Signet (Beta)</p>
+        <a
+          className={cn(
+            darkTalisman ? 'text-offWhite lg:text-gray-900' : '',
+            'hover:opacity-80 text-[14px] text-center'
+          )}
+          href={process.env.REACT_APP_SIGNET_LANDING_PAGE}
+        >
+          Signet (Beta)
+        </a>
         <div className="group [&>a]:transition-all [&>a]:duration-300 [&>a]:text-[14px] hover:scale-105 transition-all duration-300">
           <a
             className={cn(
