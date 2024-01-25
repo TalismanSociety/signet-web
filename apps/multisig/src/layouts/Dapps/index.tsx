@@ -173,7 +173,13 @@ export const Dapps: React.FC = () => {
         <TransactionSidesheet
           description={`Transaction from ${url}`}
           open
-          onClose={() => setTxRequest(undefined)}
+          onClose={() => {
+            txRequest.res({
+              ok: false,
+              error: 'Cancelled',
+            })
+            setTxRequest(undefined)
+          }}
           calldata={txRequest.innerExtrinsic.method.toHex()}
           onApproveFailed={e => {
             toast({
