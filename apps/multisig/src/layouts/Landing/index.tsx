@@ -60,7 +60,7 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
           </Button>
         </div>
 
-        <div className="flex flex-1 w-full bg-[#FD4848] pt-[28px] pl-[28px] z-10 relative lg:top-1/2 lg:translate-y-[-50%] lg:pl-[68px] lg:w-[40%] lg:py-[104px] lg:h-full">
+        <div className="flex flex-1 w-full bg-[#FD4848] pt-[28px] pl-[28px] z-10 relative lg:top-1/2 lg:translate-y-[-50%] lg:pl-[32px] lg:w-[40%] lg:py-[104px] lg:h-full">
           <AppMockup />
           <div className="absolute w-full h-full flex-1 z-0 top-0 left-0 overflow-hidden">
             <svg
