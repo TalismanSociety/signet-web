@@ -8,13 +8,15 @@ import { Button } from '@components/ui/button'
 import { AppMockup } from './AppMockup'
 import Logomark from '@components/Logomark'
 import { ArrowUpRight } from 'lucide-react'
+import { useRef } from 'react'
 
 const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) => {
   const [extensionAccounts] = useRecoilState(accountsState)
   const [extensionLoading] = useRecoilState(extensionLoadingState)
   const [extensionAllowed, setExtensionAllowed] = useRecoilState(extensionAllowedState)
+  const extensionAllowedWhenLaunch = useRef(extensionAllowed)
 
-  if (!disableRedirect && extensionAccounts.length > 0) {
+  if (!disableRedirect && !extensionAllowedWhenLaunch.current && extensionAccounts.length > 0) {
     return <Navigate to="/overview" />
   }
 
@@ -22,14 +24,20 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
     <main className="min-h-screen w-full flex flex-col flex-1 h-full relative bg-gray-950">
       <header className="flex items-center justify-between w-full p-[24px] md:px-[80px] fixed top-0 z-20 lg:bg-transparent bg-gray-950">
         <Logo className="w-[106px]" />
-        <Button
-          disabled={extensionAllowed || extensionLoading}
-          loading={extensionLoading}
-          onClick={() => setExtensionAllowed(true)}
-          className="px-[16px] min-h-[48px] h-[48px] lg:px-[32px] lg:h-[56px] lg:min-h-[56px]"
-        >
-          {!extensionAllowed || extensionLoading ? 'Connect Wallet' : 'No Accounts Connected'}
-        </Button>
+        {extensionAccounts.length > 0 ? (
+          <Button asLink to="/overview">
+            Go to Dashboard
+          </Button>
+        ) : (
+          <Button
+            disabled={extensionAllowed || extensionLoading}
+            loading={extensionLoading}
+            onClick={() => setExtensionAllowed(true)}
+            className="px-[16px] min-h-[48px] h-[48px] lg:px-[32px] lg:h-[56px] lg:min-h-[56px]"
+          >
+            {!extensionAllowed || extensionLoading ? 'Connect Wallet' : 'No Accounts Connected'}
+          </Button>
+        )}
       </header>
       <div className="flex items-center flex-col lg:flex-row">
         <div className="w-full px-[24px] md:pl-[80px] pb-[64px] pt-[104px] lg:py-[128px] h-full flex flex-col my-auto lg:w-[60%] min-h-[70vh] lg:min-h-screen lg:h-full justify-center">
@@ -46,21 +54,27 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
               {process.env.REACT_APP_CONTACT_EMAIL}
             </a>
           </p>
-          <Button
-            className="w-max mt-[24px] lg:mt-[32px] group"
-            variant="outline"
-            asLink
-            to={process.env.REACT_APP_SIGNET_LANDING_PAGE ?? ''}
-            target="_blank"
-          >
-            <div className="flex items-center gap-[8px]">
-              <span>Get Early Access</span>
-              <ArrowUpRight className="text-primary group-hover:text-black" height={20} width={20} />
-            </div>
-          </Button>
+          {extensionAccounts.length > 0 ? (
+            <Button className="mt-[24px]" asLink to="/overview">
+              Go to Dashboard
+            </Button>
+          ) : (
+            <Button
+              className="w-max mt-[24px] lg:mt-[32px] group"
+              variant="outline"
+              asLink
+              to={process.env.REACT_APP_SIGNET_LANDING_PAGE ?? ''}
+              target="_blank"
+            >
+              <div className="flex items-center gap-[8px]">
+                <span>Get Early Access</span>
+                <ArrowUpRight className="text-primary group-hover:text-black" height={20} width={20} />
+              </div>
+            </Button>
+          )}
         </div>
 
-        <div className="flex flex-1 w-full bg-[#FD4848] pt-[28px] pl-[28px] z-10 relative lg:top-1/2 lg:translate-y-[-50%] lg:pl-[32px] lg:w-[40%] lg:py-[104px] lg:h-full">
+        <div className="flex flex-1 w-full bg-[#FD4848] pt-[28px] pl-[28px] z-10 relative lg:top-1/2 lg:translate-y-[-50%] lg:pl-[68px] lg:w-[40%] lg:py-[104px] lg:h-full">
           <AppMockup />
           <div className="absolute w-full h-full flex-1 z-0 top-0 left-0 overflow-hidden">
             <svg

@@ -27,8 +27,15 @@ export const ExtensionWatcher = () => {
       // fire Connect Wallet popup and detect accounts allowed in extensions
       const extensions = await web3Enable(process.env.REACT_APP_APPLICATION_NAME ?? 'Signet')
 
+      // only add to detected list if more than 1 account is available
+      const detected: string[] = []
+      for (const ext of extensions) {
+        const accounts = await ext.accounts.get(true)
+        if (accounts.length > 0) detected.push(ext.name)
+      }
+
       // if none detected, warn user and keep "Connect Wallet" button clickable by setting extensionAllowed to false
-      if (extensions.length === 0) {
+      if (detected.length === 0) {
         toast({
           title: 'Failed to connect wallet',
           description: 'No wallet extension detected.',
@@ -46,16 +53,9 @@ export const ExtensionWatcher = () => {
         setExtensionAllowed(false)
       }
 
-      // only add to detected list if more than 1 account is available
-      const detected: string[] = []
-      for (const ext of extensions) {
-        const accounts = await ext.accounts.get(true)
-        if (accounts.length > 0) detected.push(ext.name)
-      }
-
       // trigger web3AccountSubscribe only if some accounts are detected
       // otherwise we'll have a subscription error bug
-      setExtensionsDetected(extensions.length > 0)
+      setExtensionsDetected(detected.length > 0)
       setDetectedExtensions(detected)
     } catch (e) {
       console.error(e)

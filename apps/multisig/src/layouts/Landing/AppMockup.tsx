@@ -8,8 +8,18 @@ export const AppMockup: React.FC = () => (
     xmlns="http://www.w3.org/2000/svg"
     xmlnsXlink="http://www.w3.org/1999/xlink"
   >
+    <rect
+      x="5.34709"
+      y="5.34709"
+      width="1001.31"
+      height="526.306"
+      rx="21.3739"
+      stroke="#1B1B1B"
+      strokeWidth="9.30582"
+      fill="#1B1B1B"
+    />
     <g clipPath="url(#clip0_1239_19355)">
-      <rect x="10" y="10" width="992" height="517" rx="16.721" fill="#121212" />
+      <rect x="10" y="10" width="992" height="517" rx="16.721" fill="#121212" className="bg-gray-950" />
       <path
         d="M28.5172 47.7421H26.5332C26.6655 49.9906 27.3929 54.0247 33.3008 54.0247C36.5414 54.0247 39.3631 52.6139 39.3631 49.1309C39.3631 42.8262 29.3108 44.8763 29.3108 41.1067C29.3108 39.0566 30.9641 38.6157 32.8379 38.6157C36.5193 38.6157 36.7177 40.6658 36.7839 42.0105H38.9001C38.7679 40.6879 38.1506 36.8962 32.9702 36.8962C28.5613 36.8962 27.1945 39.2109 27.1945 41.3712C27.1945 47.2791 37.3129 44.6338 37.3129 49.4615C37.3129 51.3353 35.351 52.2391 33.3008 52.2391C29.928 52.2391 28.6495 50.5197 28.5172 47.7421Z"
         fill="#FAFAFA"
@@ -580,15 +590,6 @@ export const AppMockup: React.FC = () => (
         fill="#A5A5A5"
       />
     </g>
-    <rect
-      x="5.34709"
-      y="5.34709"
-      width="1001.31"
-      height="526.306"
-      rx="21.3739"
-      stroke="#1B1B1B"
-      strokeWidth="9.30582"
-    />
     <defs>
       <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
         <use xlinkHref="#image0_1239_19355" transform="scale(0.0005)" />
