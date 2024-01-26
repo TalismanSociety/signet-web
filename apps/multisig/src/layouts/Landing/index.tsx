@@ -1,24 +1,33 @@
 import Logo from '@components/Logo'
 import { accountsState, extensionAllowedState, extensionLoadingState } from '@domains/extension'
-import { Navigate } from 'react-router-dom'
-import { useRecoilState } from 'recoil'
+import { useNavigate } from 'react-router-dom'
+import { atom, useRecoilState } from 'recoil'
 
 import Footer from '../Footer'
 import { Button } from '@components/ui/button'
 import { AppMockup } from './AppMockup'
 import Logomark from '@components/Logomark'
 import { ArrowUpRight } from 'lucide-react'
-import { useRef } from 'react'
+import { useEffect } from 'react'
+
+const shouldRedirectToDashboardState = atom({
+  key: 'shouldRedirectToDashboardKey',
+  default: window.location.pathname === '/',
+})
 
 const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) => {
   const [extensionAccounts] = useRecoilState(accountsState)
   const [extensionLoading] = useRecoilState(extensionLoadingState)
   const [extensionAllowed, setExtensionAllowed] = useRecoilState(extensionAllowedState)
-  const extensionAllowedWhenLaunch = useRef(extensionAllowed)
+  const [shouldRedirect, setShouldDirect] = useRecoilState(shouldRedirectToDashboardState)
+  const navigate = useNavigate()
 
-  if (!disableRedirect && !extensionAllowedWhenLaunch.current && extensionAccounts.length > 0) {
-    return <Navigate to="/overview" />
-  }
+  useEffect(() => {
+    if (!disableRedirect && shouldRedirect && extensionAccounts.length > 0) {
+      setShouldDirect(false)
+      navigate('/overview')
+    }
+  })
 
   return (
     <main className="min-h-screen w-full flex flex-col flex-1 h-full relative bg-gray-950">
