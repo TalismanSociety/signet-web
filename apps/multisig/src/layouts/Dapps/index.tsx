@@ -35,7 +35,6 @@ export const Dapps: React.FC = () => {
 
   const messageService = useRecoilValue(messageServiceState)
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const timeoutIdRef = useRef<number>()
 
   const [selectedMultisig] = useSelectedMultisig()
   const { api } = useApi(selectedMultisig.chain.rpcs)
@@ -52,17 +51,7 @@ export const Dapps: React.FC = () => {
     e.preventDefault()
     setShouldLoadUrl(false)
     setIsSdkSupported(undefined)
-    window.clearTimeout(timeoutIdRef.current)
     setInput(e.target.value)
-  }
-
-  const handleIframeLoaded = async () => {
-    // make sure we clear all previously set timeouts
-    window.clearTimeout(timeoutIdRef.current)
-    // if we didn't get a sdk init message within 3 seconds, we assume it's not supported
-    timeoutIdRef.current = window.setTimeout(() => {
-      setIsSdkSupported(false)
-    }, 5000)
   }
 
   const loading = useMemo(() => shouldLoadUrl && isSdkSupported === undefined, [isSdkSupported, shouldLoadUrl])
@@ -92,7 +81,6 @@ export const Dapps: React.FC = () => {
       const { type } = message.data
       if (type === 'iframe(init)') {
         setIsSdkSupported(true)
-        window.clearTimeout(timeoutIdRef.current)
         res(true)
       }
 
@@ -133,6 +121,7 @@ export const Dapps: React.FC = () => {
       setIsSdkSupported(undefined)
     }
   }, [selectedMultisig.id, shouldLoadUrl])
+
   return (
     <Layout selected="Dapps" requiresMultisig>
       <div css={{ display: 'flex', flex: 1, padding: '32px 2%', flexDirection: 'column', gap: 32, width: '100%' }}>
@@ -141,31 +130,37 @@ export const Dapps: React.FC = () => {
           <div className="w-full [&>div]:w-full">
             <Input className="w-full" value={input} onChange={handleUrlChange} />
           </div>
-          <Button disabled={!url || loading || shouldLoadUrl} className="h-[51px]" loading={loading}>
+          <Button disabled={!url || loading || shouldLoadUrl} className="h-[51px]">
             Visit Dapp
           </Button>
         </form>
-        {shouldLoadUrl && (
+        {shouldLoadUrl && url && (
           <div className={clsx('bg-gray-800 rounded-[12px] overflow-hidden border border-gray-600')}>
+            <div className="flex items-center justify-between px-[12px] py-[8px]">
+              <p className="text-[14px] text-offWhite">
+                {url.origin}
+                <span className="text-gray-200">{url.pathname}</span>
+              </p>
+              {isSdkSupported === undefined ? (
+                <div className="flex items-center justify-center gap-[8px]">
+                  <CircularProgressIndicator size={16} />
+                  <p className="mt-[3px] text-[14px]">Waiting...</p>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-[8px]">
+                  <div className="bg-green-400/30 w-[12px] h-[12px] rounded-full flex items-center justify-center">
+                    <div className="bg-green-600 w-[8px] h-[8px] rounded-full" />
+                  </div>
+                  <p className="mt-[3px] text-[14px] text-white">Connected</p>
+                </div>
+              )}
+            </div>
             <iframe
               ref={iframeRef}
               src={input.toLowerCase()}
               title="Signet Dapps"
-              className={clsx(isSdkSupported ? 'w-full h-full min-h-screen visible' : 'w-0 h-0 invisible')}
-              onLoad={handleIframeLoaded}
+              className="w-full h-full min-h-screen visible"
             />
-            {!isSdkSupported && (
-              <div className="w-full bg-gray-800 p-[16px] rounded-[12px]">
-                {isSdkSupported === undefined ? (
-                  <div className="w-full flex items-center justify-center gap-[12px]">
-                    <CircularProgressIndicator />
-                    <p className="mt-[3px]">Loading dapp...</p>
-                  </div>
-                ) : !isSdkSupported ? (
-                  <p>The dapp may not support being used in Signet.</p>
-                ) : null}
-              </div>
-            )}
           </div>
         )}
       </div>
