@@ -245,15 +245,14 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
               return console.error(`Invalid realAddress from subsquid at ${tx.block.height}-${tx.indexInBlock}`)
             if (!realAddress.isEqual(selectedMultisig.proxyAddress)) return // not ours
 
+            const id = makeTransactionID(
+              selectedMultisig.chain,
+              multisigArgs.maybeTimepoint.height,
+              multisigArgs.maybeTimepoint.index
+            )
+
             // get tx metadata from backend
-            const txMetadata =
-              txMetadataByTeamId[selectedMultisig.id]?.data[
-                makeTransactionID(
-                  selectedMultisig.chain,
-                  multisigArgs.maybeTimepoint.height,
-                  multisigArgs.maybeTimepoint.index
-                )
-              ]
+            const txMetadata = txMetadataByTeamId[selectedMultisig.id]?.data[id]
 
             // get the extrinsic from block to decode
             const ext = extrinsics[tx.indexInBlock]
@@ -279,7 +278,7 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
               multisig: selectedMultisig,
               date: new Date(tx.block.timestamp),
               callData,
-              id: `${tx.block.height}-${tx.indexInBlock}`,
+              id,
               ...decoded,
             })
             // txs is sorted by timestamp asc, we need to push to top of decodedTransactions to make it desc
