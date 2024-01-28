@@ -8,12 +8,19 @@ import { useSelectedMultisig } from '../domains/multisig'
 import { Address } from '../util/addresses'
 import { Chain } from '../domains/chains'
 import { AccountDetails } from './AddressInput/AccountDetails'
+import { atom, useRecoilValue } from 'recoil'
+import { useToast } from './ui/use-toast'
 
 type Props = {
   accounts: InjectedAccount[]
   selectedAccount?: InjectedAccount
   onSelect?: (account: InjectedAccount) => void
 }
+
+export const blockAccountSwitcher = atom<boolean>({
+  key: 'blockAccountSwitcher',
+  default: false,
+})
 
 const AccountRow = ({
   account,
@@ -43,14 +50,17 @@ const AccountRow = ({
   </div>
 )
 
-const AccountSwitcher: React.FC<Props> = ({ accounts, onSelect, selectedAccount }) => {
+const AccountSwitcher: React.FC<Props> = ({ accounts, selectedAccount }) => {
+  const { toast, dismiss } = useToast()
   const [expanded, setExpanded] = useState(false)
   const { signIn } = useSignIn()
   const [multisig] = useSelectedMultisig()
   const ref = useRef(null)
   const [query, setQuery] = useState('')
   const [accountToSignIn, setAccountToSignIn] = useState<InjectedAccount>()
+  const blocked = useRecoilValue(blockAccountSwitcher)
   useOnClickOutside(ref.current, () => setExpanded(false))
+  const toastId = useRef<string>()
 
   // cannot close if signing in
   const actualExpanded = expanded || accountToSignIn
@@ -79,6 +89,16 @@ const AccountSwitcher: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
 
   const handleSelectAccount = async (account: InjectedAccount) => {
     setQuery('')
+    if (blocked) {
+      setExpanded(false)
+      if (toastId.current) dismiss(toastId.current)
+      const { id } = toast({
+        title: 'Cannot switch accounts.',
+        description: "Make sure you're not in the middle of something.",
+      })
+      toastId.current = id
+      return
+    }
     setAccountToSignIn(account)
     try {
       await signIn(account)
