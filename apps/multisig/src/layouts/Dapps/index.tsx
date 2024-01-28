@@ -12,6 +12,9 @@ import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 import { Input } from '@components/ui/input'
 import { CircularProgressIndicator } from '@talismn/ui'
+import { X } from '@talismn/icons'
+import { Tooltip } from '@components/ui/tooltip'
+import { ChevronsLeftRight, ChevronsRightLeft } from 'lucide-react'
 
 const isValidUrl = (url: string) => {
   try {
@@ -39,6 +42,7 @@ export const Dapps: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const { api } = useApi(selectedMultisig.chain.rpcs)
   const { toast } = useToast()
+  const [expanded, setExpanded] = useState(false)
 
   const url = isValidUrl(input)
 
@@ -52,6 +56,12 @@ export const Dapps: React.FC = () => {
     setShouldLoadUrl(false)
     setIsSdkSupported(undefined)
     setInput(e.target.value)
+  }
+
+  const closeIframe = () => {
+    setShouldLoadUrl(false)
+    setIsSdkSupported(undefined)
+    setInput('')
   }
 
   const loading = useMemo(() => shouldLoadUrl && isSdkSupported === undefined, [isSdkSupported, shouldLoadUrl])
@@ -124,44 +134,85 @@ export const Dapps: React.FC = () => {
 
   return (
     <Layout selected="Dapps" requiresMultisig>
-      <div css={{ display: 'flex', flex: 1, padding: '32px 2%', flexDirection: 'column', gap: 32, width: '100%' }}>
+      <div css={{ display: 'flex', flex: 1, padding: 16, flexDirection: 'column', gap: 16, width: '100px' }}>
         <h2 css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>Dapps</h2>
-        <form className="flex items-center w-full gap-[12px]" onSubmit={handleVisitDapp}>
-          <div className="w-full [&>div]:w-full">
-            <Input className="w-full" value={input} onChange={handleUrlChange} />
-          </div>
-          <Button disabled={!url || loading || shouldLoadUrl} className="h-[51px]">
-            Visit Dapp
-          </Button>
-        </form>
-        {shouldLoadUrl && url && (
-          <div className={clsx('bg-gray-800 rounded-[12px] overflow-hidden border border-gray-600')}>
-            <div className="flex items-center justify-between px-[12px] py-[8px]">
-              <p className="text-[14px] text-offWhite">
-                {url.origin}
-                <span className="text-gray-200">{url.pathname}</span>
-              </p>
-              {isSdkSupported === undefined ? (
-                <div className="flex items-center justify-center gap-[8px]">
-                  <CircularProgressIndicator size={16} />
-                  <p className="mt-[3px] text-[14px]">Waiting...</p>
+
+        {shouldLoadUrl && url ? (
+          <div
+            className={clsx(
+              expanded
+                ? 'absolute left-0 right-0 lg:left-[16px] lg:right-[16px] lg:bottom-[16px] rounded-b-0 rounded-t-[12px] lg:rounded-b-[12px] top-[96px] bottom-0'
+                : 'w-full rounded-[12px]',
+              'bg-gray-800 overflow-hidden border border-gray-600 transition-all duration-300'
+            )}
+          >
+            <div className="flex flex-1 items-center justify-between px-[12px] py-[8px] gap-[8px]">
+              <div className="flex flex-1 items-center w-1 gap-[8px]">
+                {isSdkSupported ? (
+                  <Tooltip
+                    content={
+                      <p className="text-gray-200 text-[12px]">
+                        <span className="font-bold text-offWhite">{selectedMultisig.name}</span> is connected to{' '}
+                        {url.origin}
+                      </p>
+                    }
+                  >
+                    <div className="bg-green-400/30 w-[12px] h-[12px] rounded-full flex items-center justify-center">
+                      <div className="bg-green-600 w-[8px] h-[8px] rounded-full" />
+                    </div>
+                  </Tooltip>
+                ) : (
+                  <Tooltip
+                    content={
+                      <p className="text-[12px]">
+                        Waiting for dapp to establish communication and connect to your vault.
+                        <br />
+                        The dapp may not support connecting to Signet vaults.
+                      </p>
+                    }
+                  >
+                    <div className="min-w-[12px]">
+                      <CircularProgressIndicator size={12} />
+                    </div>
+                  </Tooltip>
+                )}
+                <p className="text-[14px] w-full max-w-max text-offWhite overflow-hidden text-ellipsis mt-[3px]">
+                  {url.origin}
+                  <span className="text-gray-200">{url.pathname}</span>
+                </p>
+              </div>
+              <div className="flex items-center justify-end gap-[12px]">
+                <div
+                  className="bg-green-500 hover:bg-green-400 rounded-full p-[2px]"
+                  onClick={() => setExpanded(!expanded)}
+                >
+                  {expanded ? (
+                    <ChevronsRightLeft size={10} className="text-green-950 -rotate-45" />
+                  ) : (
+                    <ChevronsLeftRight size={10} className="text-green-950 -rotate-45" />
+                  )}
                 </div>
-              ) : (
-                <div className="flex items-center justify-center gap-[8px]">
-                  <div className="bg-green-400/30 w-[12px] h-[12px] rounded-full flex items-center justify-center">
-                    <div className="bg-green-600 w-[8px] h-[8px] rounded-full" />
-                  </div>
-                  <p className="mt-[3px] text-[14px] text-white">Connected</p>
+                <div className="bg-red-500 hover:bg-red-400 rounded-full p-[1px]" onClick={closeIframe}>
+                  <X size={12} className="text-red-950" />
                 </div>
-              )}
+              </div>
             </div>
             <iframe
               ref={iframeRef}
               src={input.toLowerCase()}
               title="Signet Dapps"
-              className="w-full h-full min-h-screen visible"
+              className="w-full h-full min-h-[calc(100vh-300px)] visible"
             />
           </div>
+        ) : (
+          <form className="flex flex-col sm:flex-row items-center w-full gap-[12px]" onSubmit={handleVisitDapp}>
+            <div className="w-full [&>div]:w-full">
+              <Input className="w-full" value={input} onChange={handleUrlChange} />
+            </div>
+            <Button disabled={!url || loading || shouldLoadUrl} className="h-[51px] w-full sm:w-auto">
+              Visit Dapp
+            </Button>
+          </form>
         )}
       </div>
       {txRequest && (
