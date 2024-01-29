@@ -629,8 +629,9 @@ export const useTeamFromUrl = () => {
     // sign page has it's own vault switch mechanism so this shouldnt interupt it
     if (!init || (selectedMultisig.id === DUMMY_MULTISIG_ID && !location.pathname.includes('sign'))) return
     const curSearch = new URLSearchParams(location.search)
-    curSearch.set('teamId', selectedMultisig.id)
+    if (curSearch.get('teamId') === selectedMultisig.id) return
 
+    curSearch.set('teamId', selectedMultisig.id)
     navigate(`${window.location.pathname}?${curSearch.toString()}`, { replace: true })
   }, [init, location.pathname, location.search, navigate, selectedMultisig])
 }

@@ -12,7 +12,6 @@ import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import { selectedMultisigChainTokensState, selectedMultisigState } from '@domains/multisig'
 import { SplitVoteParams } from '@domains/referenda'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
-import { useNavigate } from 'react-router-dom'
 import { Layout } from '../../Layout'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
@@ -22,7 +21,6 @@ const VoteAction: React.FC = () => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.rpcs))
   const tokens = useRecoilValueLoadable(selectedMultisigChainTokensState)
   const [reviewing, setReviewing] = useState(false)
-  const navigate = useNavigate()
   const [voteDetails, setVoteDetails] = useState<VoteDetails>({
     details: { Standard: defaultVoteDetails.Standard },
   })
@@ -82,10 +80,6 @@ const VoteAction: React.FC = () => {
                   title: 'Failed to create transaction',
                   description: e.message,
                 })
-              }}
-              onApproved={() => {
-                toast({ title: 'Transaction successful!', duration: 8000 })
-                navigate('/overview')
               }}
               onClose={() => setReviewing(false)}
               open={reviewing}

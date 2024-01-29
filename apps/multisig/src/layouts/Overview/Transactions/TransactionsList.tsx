@@ -96,9 +96,7 @@ export const TransactionsList = ({
                 <Route
                   path={`/${value}-tx/:hash`}
                   element={
-                    !loading && !openTransaction ? (
-                      <Navigate to={`/overview?tab=${value}&teamId=${multisig.id}`} />
-                    ) : (
+                    !loading && !openTransaction ? null : (
                       <TransactionSidesheet
                         calldata="0x"
                         description={openTransaction?.description ?? ''}
@@ -116,11 +114,11 @@ export const TransactionsList = ({
                           if (executed) {
                             setUnknownTransactions(prev => [
                               ...prev,
-                              makeTransactionID(
+                              `${multisig.id}-${makeTransactionID(
                                 multisig.chain,
                                 result.blockNumber?.toNumber() ?? 0,
                                 result.txIndex ?? 0
-                              ),
+                              )}`,
                             ])
                           }
                         }}

@@ -5,7 +5,6 @@ import { selectedMultisigChainTokensState, useSelectedMultisig } from '@domains/
 import { hasPermission } from '@domains/proxy/util'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useRecoilValueLoadable } from 'recoil'
 
 import { MultiSendSend } from './multisend.types'
@@ -29,7 +28,6 @@ const MultiSend = () => {
   const [sends, setSends] = useState<MultiSendSend[]>([])
   const [multisig] = useSelectedMultisig()
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.rpcs))
-  const navigate = useNavigate()
   const { toast } = useToast()
   const permissions = hasPermission(multisig, 'transfer')
 
@@ -80,10 +78,6 @@ const MultiSend = () => {
             onClose={() => setStep(Step.Details)}
             calldata={extrinsic?.method.toHex()}
             description={name}
-            onApproved={() => {
-              toast({ title: 'Transaction successful!' })
-              navigate('/overview')
-            }}
             onApproveFailed={e => {
               setStep(Step.Details)
               console.error(e)

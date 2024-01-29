@@ -1,4 +1,4 @@
-import { Transaction, TxOffchainMetadata, useSelectedMultisig } from '@domains/multisig'
+import { Transaction, TxOffchainMetadata, executingTransactionsState, useSelectedMultisig } from '@domains/multisig'
 import { SideSheet } from '@talismn/ui'
 import { TransactionSidesheetHeader } from './TransactionSidesheetHeader'
 import { useCallback, useMemo, useState } from 'react'
@@ -14,9 +14,11 @@ import { SubmittableResult } from '@polkadot/api'
 import { useDeleteDraftMetadata, useSaveDraftMetadata } from '@domains/offchain-data/tx-metadata-draft'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@components/ui/use-toast'
+import { useRecoilState } from 'recoil'
 
 type TransactionSidesheetProps = {
   onApproved?: (res: { result: SubmittableResult; executed: boolean }) => void
+  preventRedirect?: boolean
   onApproveFailed?: (err: Error) => void
   onClose?: () => void
   onRejected?: (res: { ok: boolean; error?: string }) => void
@@ -39,6 +41,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   onRejected,
   open,
   t: submittedTx,
+  preventRedirect,
 }) => {
   const [approving, setApproving] = useState(false)
   const [rejecting, setRejecting] = useState(false)
@@ -52,47 +55,75 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     otherTxMetadata,
     submittedTx
   )
+
   const navigate = useNavigate()
   const { saveDraft, loading: savingDraft } = useSaveDraftMetadata()
   const { deleteDraft, loading: deletingDraft } = useDeleteDraftMetadata()
   const { cancelAsMulti, canCancel: canReject } = useCancelAsMulti(t)
+  const [executingTransactions, setExecutingTransactions] = useRecoilState(executingTransactionsState)
 
   const { toast } = useToast()
+  const executing = useMemo(() => {
+    return !t?.executedAt && executingTransactions.some(({ hash }) => hash === t?.hash)
+  }, [executingTransactions, t?.executedAt, t?.hash])
 
-  const loading: TransactionSidesheetLoading = useMemo(() => {
-    return {
+  const loading: TransactionSidesheetLoading = useMemo(
+    () => ({
       savingDraft,
       deletingDraft,
-      approving,
+      approving: approving || executing,
       rejecting,
-      any: savingDraft || deletingDraft || approving || rejecting,
-    }
-  }, [approving, deletingDraft, rejecting, savingDraft])
+      any: savingDraft || deletingDraft || approving || rejecting || executing,
+    }),
+    [approving, deletingDraft, executing, rejecting, savingDraft]
+  )
 
-  const handleClose = useCallback(async () => {
+  const handleClose = useCallback(() => {
     if (loading.any) return
     onClose?.()
-    return
-  }, [loading, onClose])
+  }, [loading.any, onClose])
 
   const handleApprove = useCallback(async () => {
     setApproving(true)
+    let executing = false
     try {
-      const r = await approve()
-      if (t?.draft) {
-        navigate('/overview?tab=pending')
-        toast({ title: 'Transaction Approved!' })
-        await deleteDraft(t.draft.id, 'executed')
-      } else {
-        onApproved?.(r)
+      // executing tx may lead to tx missing in the pending list before it is finalized
+      // hence we add to a temp list to keep the UI in place until it is finalized
+      if (readyToExecute && t) {
+        executing = true
+        setExecutingTransactions(prev => [...prev, t])
       }
+      const r = await approve()
+      const extrinsicId = `${r.result.blockNumber}-${r.result.txIndex}`
+      toast({
+        title: r?.executed ? 'Transaction Executed!' : 'Transaction Approved!',
+        description: `The transaction has been ${r?.executed ? 'executed' : 'approved'} at ${extrinsicId}`,
+      })
+
+      onApproved?.(r)
+      // approving from draft tab, delete the draft
+      // redirect if approving from a draft or if redirect isnt disabled
+      if (!preventRedirect) navigate(`/overview?tab=${r.executed ? 'history' : 'pending'}`)
+      if (t?.draft) await deleteDraft(t.draft.id, 'executed')
     } catch (e) {
       if (e === 'Cancelled') return
       onApproveFailed?.(e instanceof Error ? e : new Error(getErrorString(e)))
     } finally {
+      if (executing) setExecutingTransactions(prev => prev.filter(({ hash }) => hash !== t?.hash))
       setApproving(false)
     }
-  }, [approve, deleteDraft, navigate, onApproveFailed, onApproved, t?.draft, toast])
+  }, [
+    approve,
+    deleteDraft,
+    navigate,
+    onApproveFailed,
+    onApproved,
+    preventRedirect,
+    readyToExecute,
+    setExecutingTransactions,
+    t,
+    toast,
+  ])
 
   const handleReject = useCallback(async () => {
     if (!canReject) return
@@ -132,8 +163,8 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
         if (onSaved) {
           onSaved()
         } else {
-          navigate('/overview?tab=draft')
-          toast({ title: 'Transaction saved!' })
+          if (!preventRedirect) navigate('/overview?tab=draft')
+          toast({ title: 'Saved as draft!' })
         }
       }
     } catch (e) {
@@ -150,6 +181,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     onClose,
     onSaved,
     otherTxMetadata?.changeConfigDetails,
+    preventRedirect,
     saveDraft,
     selectedMultisig.id,
     toast,

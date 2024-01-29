@@ -6,7 +6,6 @@ import { Address } from '@util/addresses'
 import BN from 'bn.js'
 import Decimal from 'decimal.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 
 import { Layout } from '../../Layout'
@@ -29,7 +28,6 @@ const SendAction = () => {
   const [amountInput, setAmountInput] = useState('')
   const multisig = useRecoilValue(selectedMultisigState)
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.rpcs))
-  const navigate = useNavigate()
   const { toast } = useToast()
 
   const defaultName = name || `Send ${selectedToken?.symbol || 'Token'}`
@@ -68,13 +66,6 @@ const SendAction = () => {
     }
   }, [destinationAddress, selectedToken, apiLoadable, amountBn, multisig])
 
-  const handleApproved = useCallback(() => {
-    navigate('/overview')
-    toast({
-      title: 'Transaction successful!',
-    })
-  }, [navigate, toast])
-
   const handleFailed = useCallback(
     (err: Error) => {
       setStep(Step.Details)
@@ -109,7 +100,6 @@ const SendAction = () => {
               calldata={extrinsic.method.toHex()}
               open={step === Step.Review}
               onClose={() => setStep(Step.Details)}
-              onApproved={handleApproved}
               onApproveFailed={handleFailed}
             />
           )}

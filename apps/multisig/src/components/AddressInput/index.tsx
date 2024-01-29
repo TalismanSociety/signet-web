@@ -169,7 +169,7 @@ const AddressInput: React.FC<Props> = ({
         onFocus={() => setExpanded(addresses.length > 0 || validRawInputAddress !== undefined)}
       />
       <div
-        className={'bg-gray-900'}
+        className={'bg-gray-800 shadow-lg'}
         css={{
           position: 'absolute',
           top: '100%',

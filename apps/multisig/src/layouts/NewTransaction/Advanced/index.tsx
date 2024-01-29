@@ -5,7 +5,6 @@ import 'ace-builds/src-noconflict/ext-language_tools'
 
 import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { DetailsForm } from './DetailsForm'
 import { Layout } from '../../Layout'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
@@ -20,7 +19,6 @@ const AdvancedAction = () => {
   const [step, setStep] = useState(Step.Details)
   const [name, setName] = useState('')
   const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic<'promise'> | undefined>()
-  const navigate = useNavigate()
   const { toast } = useToast()
 
   return (
@@ -41,10 +39,6 @@ const AdvancedAction = () => {
             calldata={extrinsic.method.toHex()}
             open={step === Step.Review}
             onClose={() => setStep(Step.Details)}
-            onApproved={() => {
-              navigate('/overview')
-              toast({ title: 'Transaction sent!' })
-            }}
             onApproveFailed={e => {
               setStep(Step.Details)
               toast({ title: 'Transaction failed', description: e.message })

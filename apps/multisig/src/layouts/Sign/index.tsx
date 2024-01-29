@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { Layout } from '../Layout'
 import { useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
@@ -30,7 +30,6 @@ const Wrapper: React.FC<React.PropsWithChildren & { source?: string }> = ({ chil
 )
 
 export const Sign: React.FC = () => {
-  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const multisigs = useRecoilValue(multisigsState)
   const [selectedMultisig, setSelectedMultisig] = useSelectedMultisig()
@@ -197,11 +196,7 @@ export const Sign: React.FC = () => {
         calldata={callDataHex as `0x${string}`}
         description={description || `Transaction from ${dappUrl.origin}`}
         open={reviewing}
-        onApproved={() => {
-          setReviewing(false)
-          toast({ title: 'Transaction successful!' })
-          navigate('/overview')
-        }}
+        onApproved={() => setReviewing(false)}
         onClose={() => setReviewing(false)}
         onApproveFailed={e => {
           setReviewing(false)

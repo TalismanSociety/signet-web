@@ -203,6 +203,7 @@ export interface Transaction {
   decoded?: TransactionDecoded
   callData?: `0x${string}`
   id?: string
+  metadataSaved?: boolean
   draft?: {
     createdAt: Date
     creator: {
@@ -614,6 +615,12 @@ export const pendingTransactionsLoadingState = atom<boolean>({
   default: true,
 })
 
+export const executingTransactionsState = atom<Transaction[]>({
+  key: 'ExecutingTransaction',
+  default: [],
+  dangerouslyAllowMutability: true, // fixes an issue with pjs mutating itself
+})
+
 // transforms raw transaction from the chain into a full Transaction
 export const PendingTransactionsWatcher = () => {
   const selectedMultisig = useRecoilValue(selectedMultisigState)
@@ -687,6 +694,7 @@ export const PendingTransactionsWatcher = () => {
             multisig: rawPending.multisig,
             approvals: rawPending.approvals,
             id: transactionID,
+            metadataSaved: true,
             ...decoded,
           }
         } catch (error) {
@@ -730,8 +738,14 @@ export const PendingTransactionsWatcher = () => {
 export const usePendingTransactions = () => {
   const loading = useRecoilValue(pendingTransactionsLoadingState)
   const transactions = useRecoilValue(pendingTransactionsState)
+  const executingTransactions = useRecoilValue(executingTransactionsState)
 
-  return { loading, transactions }
+  const allTransactions = useMemo(() => {
+    const indexing = executingTransactions.filter(({ hash }) => !transactions.find(t => t.hash === hash))
+    return [...transactions, ...indexing]
+  }, [executingTransactions, transactions])
+
+  return { loading, transactions: allTransactions }
 }
 
 export const EMPTY_BALANCE: Balance = {

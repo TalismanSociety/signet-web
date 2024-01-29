@@ -105,7 +105,7 @@ export const useMultisigExtrinsicFromCalldata = (
     approveAsMulti,
     estimatedFee: approveFee,
     ready: approveReady,
-  } = useApproveAsMulti(signer?.address, hash, null, t?.multisig)
+  } = useApproveAsMulti(signer?.address, hash, t?.rawPending?.onChainMultisig.when ?? null, t?.multisig)
 
   const {
     asMulti,
@@ -126,6 +126,7 @@ export const useMultisigExtrinsicFromCalldata = (
       // approve tx if not ready to execute
       if (!readyToExecute) {
         approveAsMulti({
+          saveMetadata: !t.metadataSaved,
           metadata: {
             description: t?.description,
             callData: t.callData,
@@ -136,8 +137,8 @@ export const useMultisigExtrinsicFromCalldata = (
             resolve({ result: r, executed: false })
           },
           onFailure: e => {
-            reject(e)
             setApproving(false)
+            reject(e)
           },
         })
       } else {

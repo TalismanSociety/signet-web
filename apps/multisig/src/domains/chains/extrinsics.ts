@@ -405,10 +405,12 @@ export const useApproveAsMulti = (
       onSuccess,
       onFailure,
       metadata,
+      saveMetadata = true,
     }: {
       onSuccess: (r: SubmittableResult) => void
       onFailure: (message: string) => void
       metadata?: TxOffchainMetadata
+      saveMetadata?: boolean
     }) => {
       // cache selected account when tx was approved
       const signedInAs = signedInAccount
@@ -445,7 +447,7 @@ export const useApproveAsMulti = (
                 }
                 if (method === 'ExtrinsicSuccess') {
                   // if there's a description, it means we want to post to the metadata service
-                  if (metadata) {
+                  if (metadata && saveMetadata) {
                     // @ts-ignore
                     const timepointHeight = result.blockNumber.toNumber() as number
                     const timepointIndex = result.txIndex as number
@@ -545,9 +547,7 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
           signer,
         },
         result => {
-          if (!result || !result.status) {
-            return
-          }
+          if (!result || !result.status) return
 
           if (result.status.isFinalized) {
             result.events
@@ -572,18 +572,38 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
               .filter(({ event: { section } }) => section === 'system')
               .forEach(({ event: { method } }): void => {
                 if (method === 'ExtrinsicFailed') {
-                  onFailure(JSON.stringify(result.toHuman()))
+                  if (apiLoadable.state === 'hasValue' && result.dispatchError) {
+                    const errModule = apiLoadable.contents.registry.findMetaError(result.dispatchError.asModule)
+                    console.error(errModule)
+                    onFailure(errModule.docs.join(''))
+                  } else {
+                    onFailure(JSON.stringify(result.toHuman()))
+                  }
                 }
               })
           } else if (result.isError) {
-            onFailure(JSON.stringify(result.toHuman()))
+            if (apiLoadable.state === 'hasValue' && result.dispatchError) {
+              const errModule = apiLoadable.contents.registry.findMetaError(result.dispatchError.asModule)
+              console.error(errModule)
+              onFailure(errModule.docs.join(''))
+            } else {
+              onFailure(JSON.stringify(result.toHuman()))
+            }
           }
         }
       ).catch(e => {
+        captureException(e)
         onFailure(e.toString())
       })
     },
-    [extensionAddress, createTx, setRawPendingTransactionDependency, chain]
+    [
+      createTx,
+      extensionAddress,
+      chain,
+      setRawPendingTransactionDependency,
+      apiLoadable.state,
+      apiLoadable.contents.registry,
+    ]
   )
 
   return { createProxy, ready: apiLoadable.state === 'hasValue' && !!estimatedFee, estimatedFee }
@@ -659,7 +679,13 @@ export const useTransferProxyToMultisig = (chain: Chain) => {
                 .filter(({ event: { section } }) => section === 'system')
                 .forEach(({ event }): void => {
                   if (event.method === 'ExtrinsicFailed') {
-                    onFailure(JSON.stringify(result.toHuman()))
+                    if (apiLoadable.state === 'hasValue' && result.dispatchError) {
+                      const errModule = apiLoadable.contents.registry.findMetaError(result.dispatchError.asModule)
+                      console.error(errModule)
+                      onFailure(errModule.docs.join(''))
+                    } else {
+                      onFailure(JSON.stringify(result.toHuman()))
+                    }
                   } else if (event.method === 'ExtrinsicSuccess') {
                     onSuccess(result)
                   }

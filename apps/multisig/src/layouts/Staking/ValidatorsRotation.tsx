@@ -11,7 +11,6 @@ import { validatorsState } from '@domains/staking/ValidatorsWatcher'
 import { useConsts } from '@domains/chains/ConstsWatcher'
 import { useToast } from '@components/ui/use-toast'
 import { useNominateTransaction } from '../../domains/staking/useNominateTransaction'
-import { useNavigate } from 'react-router-dom'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 
 const NominationCard: React.FC<Nomination & { onClick: () => void; disabled?: boolean; icon?: React.ReactNode }> = ({
@@ -84,7 +83,6 @@ export const ValidatorsRotation: React.FC<{
   pool?: BondedPool
   onBack: () => void
 }> = ({ address, nominations, onBack, pool }) => {
-  const navigate = useNavigate()
   const [multisig] = useSelectedMultisig()
   const [deleted, setDeleted] = useState<Record<string, boolean>>({})
   const [added, setAdded] = useState<string[]>([])
@@ -327,10 +325,6 @@ export const ValidatorsRotation: React.FC<{
               title: 'Failed to approve transaction',
               description: e.message,
             })
-          }}
-          onApproved={() => {
-            toast({ title: 'Transaction successful' })
-            navigate('/overview')
           }}
           onClose={() => setReviewing(false)}
         />

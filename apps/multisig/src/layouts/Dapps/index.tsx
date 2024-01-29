@@ -219,6 +219,7 @@ export const Dapps: React.FC = () => {
         <TransactionSidesheet
           description={`Transaction from ${url}`}
           open
+          preventRedirect // users may want to continue browsing on the page
           onClose={() => {
             txRequest.res({
               ok: false,
@@ -234,7 +235,6 @@ export const Dapps: React.FC = () => {
             })
           }}
           onApproved={({ result }) => {
-            toast({ title: 'Transaction successful' })
             txRequest?.res({
               ok: true,
               receipt: {

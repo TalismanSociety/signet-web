@@ -50,7 +50,6 @@ const Settings = () => {
   const newMultisigAddress = toMultisigAddress(newMembers, newThreshold)
   const hasAny = multisig.proxies?.find(p => p.proxyType === 'Any') !== undefined
   const { toast } = useToast()
-  const navigate = useNavigate()
 
   const changed = useMemo(() => {
     return !newMultisigAddress.isEqual(multisig.multisigAddress)
@@ -180,10 +179,6 @@ const Settings = () => {
               newMembers,
               newThreshold,
             },
-          }}
-          onApproved={() => {
-            toast({ title: 'Transaction successful' })
-            navigate('/overview')
           }}
           onApproveFailed={e => {
             console.error(e)
