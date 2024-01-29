@@ -1,6 +1,6 @@
 import { Transaction, selectedMultisigState } from '@domains/multisig'
 import { useMemo } from 'react'
-import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { groupTransactionsByDay } from './utils'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { useToast } from '@components/ui/use-toast'
