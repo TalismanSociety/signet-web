@@ -63,9 +63,10 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   const [executingTransactions, setExecutingTransactions] = useRecoilState(executingTransactionsState)
 
   const { toast } = useToast()
-  const executing = useMemo(() => {
-    return !t?.executedAt && executingTransactions.some(({ hash }) => hash === t?.hash)
-  }, [executingTransactions, t?.executedAt, t?.hash])
+  const executing = useMemo(
+    () => !t?.executedAt && executingTransactions.some(({ hash }) => hash === t?.hash),
+    [executingTransactions, t?.executedAt, t?.hash]
+  )
 
   const loading: TransactionSidesheetLoading = useMemo(
     () => ({

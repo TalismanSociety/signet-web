@@ -162,7 +162,7 @@ export const AzeroIDResolverProvider: React.FC<React.PropsWithChildren> = ({ chi
 }
 
 export const useAzeroID = () => {
-  const { a0IdToAddress, addressToA0Id, subscribe, resolveAsPromise } = useContext(AzeroIDResolverContext)
+  const { a0IdToAddress, addressToA0Id, subscribe } = useContext(AzeroIDResolverContext)
 
   const resolve = useCallback(
     (query: string): ResolverPromiseResolve | undefined => {
@@ -179,11 +179,11 @@ export const useAzeroID = () => {
     [a0IdToAddress, addressToA0Id, subscribe]
   )
 
-  return { resolve, resolveAsPromise, subscribe }
+  return { resolve, subscribe }
 }
 
 export const useAzeroIDPromise = () => {
-  const { resolveAsPromise } = useAzeroID()
+  const { resolveAsPromise } = useContext(AzeroIDResolverContext)
   const [resolving, setResolving] = useState(false)
   const [data, setData] = useState<ResolverPromiseResolve | undefined>(undefined)
 

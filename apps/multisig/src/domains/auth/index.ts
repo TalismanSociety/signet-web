@@ -4,9 +4,9 @@ import { web3FromSource } from '@polkadot/extension-dapp'
 import { SiwsMessage } from '@talismn/siws'
 import { InjectedAccount, accountsState } from '../extension'
 import persistAtom from '../persist'
-import toast from 'react-hot-toast'
 import { captureException } from '@sentry/react'
 import { useSelectedMultisig } from '@domains/multisig'
+import { useToast } from '@components/ui/use-toast'
 
 const SIWS_ENDPOINT = process.env.REACT_APP_SIWS_ENDPOINT ?? ''
 
@@ -70,6 +70,7 @@ export const useSignIn = () => {
   const [authTokenBook, setAuthTokenBook] = useRecoilState(authTokenBookState)
   const setSelectedAccount = useSetRecoilState(selectedAddressState)
   const [signingIn, setSigningIn] = useState(false)
+  const { toast, dismiss } = useToast()
 
   const signIn = useCallback(
     async (account: InjectedAccount) => {
@@ -84,7 +85,7 @@ export const useSignIn = () => {
           // we can use web3FromSource which will return an InjectedExtension type
           const injector = await web3FromSource(account.meta.source)
 
-          if (!injector.signer.signRaw) return toast.error('Wallet does not support signing message.')
+          if (!injector.signer.signRaw) throw new Error('Wallet does not support signing message.')
 
           // generate nonce from server
           const res = await fetch(`${SIWS_ENDPOINT}/nonce`, {
@@ -95,12 +96,12 @@ export const useSignIn = () => {
           const nonceData = await res.json()
 
           // error string captured by Hasura (e.g. invalid hasura query)
-          if (nonceData.error) return toast.error(nonceData.error)
+          if (nonceData.error) throw new Error(nonceData.error)
 
           const nonce = nonceData?.nonce
 
           // should've been captured by `nonceData.error`, but adding this check just to be sure
-          if (!nonce) return toast.error('Failed to request for nonce.')
+          if (!nonce) throw new Error('Failed to request for nonce.')
 
           // construct siws message
           const siws = new SiwsMessage({
@@ -125,30 +126,37 @@ export const useSignIn = () => {
 
           const verifyData = await verifyRes.json()
 
-          auth = {
-            accessToken: verifyData?.accessToken,
-            id: verifyData?.id,
+          if (verifyData.error) throw new Error(verifyData.error)
+          if (verifyData && verifyData.accessToken && verifyData.id) {
+            auth = {
+              accessToken: verifyData?.accessToken,
+              id: verifyData?.id,
+            }
           }
         }
 
         if (auth) {
+          dismiss()
           setSelectedAccount(ss58Address)
           setAuthTokenBook({
             ...authTokenBook,
             [ss58Address]: auth,
           })
         } else {
-          toast.error('Failed to sign in.')
+          throw new Error('Please try again.')
         }
       } catch (e) {
         console.error(e)
         captureException(e, { extra: { siwsEndpoint: SIWS_ENDPOINT } })
-        toast.error(typeof e === 'string' ? e : (e as any).message ?? 'Failed to sign in.')
+        toast({
+          title: 'Failed to sign in.',
+          description: typeof e === 'string' ? e : (e as any).message ?? 'Please try again.',
+        })
       } finally {
         setSigningIn(false)
       }
     },
-    [authTokenBook, setAuthTokenBook, setSelectedAccount, signingIn]
+    [authTokenBook, dismiss, setAuthTokenBook, setSelectedAccount, signingIn, toast]
   )
 
   return { signIn, signingIn }
