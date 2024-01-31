@@ -90,7 +90,20 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
   return (
     <Select
       afterOptionsNode={<AddVaultButton />}
-      css={{ button: { gap: 8, width: 240 } }}
+      css={{
+        button: {
+          'gap': 8,
+          'width': 240,
+          'overflowX': 'hidden',
+          '>div': {
+            flex: 1,
+            width: 181, // doesnt matter, only so that flex: 1 works
+          },
+          '>svg': {
+            minWidth: '24px',
+          },
+        },
+      }}
       onChange={handleChange}
       placeholder={<VaultDetails multisig={selectedMultisig} selected />}
       placeholderPointerEvents
@@ -105,13 +118,15 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
             value={multisig.id}
             leadingIcon={<VaultDetails multisig={multisig} />}
             headlineText={
-              <AccountDetails
-                name={multisig.name}
-                address={multisig.proxyAddress}
-                chain={multisig.chain}
-                breakLine
-                hideIdenticon
-              />
+              <div className="w-full max-w-[157px]">
+                <AccountDetails
+                  name={multisig.name}
+                  address={multisig.proxyAddress}
+                  chain={multisig.chain}
+                  breakLine
+                  hideIdenticon
+                />
+              </div>
             }
           />
         )
