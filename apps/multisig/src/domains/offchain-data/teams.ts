@@ -297,6 +297,7 @@ export const useCreateTeamOnHasura = () => {
       if (!signer) return { error: 'Not signed in yet.' }
 
       try {
+        setCreatingTeam(true)
         const res = await requestSignetBackend(
           gql`
             mutation CreateMultisigProxyTeam($team: InsertMultisigProxyInput!) {

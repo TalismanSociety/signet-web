@@ -2,8 +2,7 @@ import { Check, Copy, ExternalLink } from '@talismn/icons'
 import { Chain, filteredSupportedChains, useNativeTokenBalance, useSystemToken } from '../domains/chains'
 import { Address } from '../util/addresses'
 import { Tooltip } from './ui/tooltip'
-import { useToast } from './ui/use-toast'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { cn } from '../util/tailwindcss'
 import { useAzeroID } from '@domains/azeroid/AzeroIDResolver'
 import { AzeroIDLogo } from './OtherLogos/AzeroID'
@@ -11,6 +10,7 @@ import { useSelectedMultisig } from '@domains/multisig'
 import { useApi } from '@domains/chains/pjs-api'
 import { formatUnits } from '@util/numbers'
 import { Skeleton } from '@talismn/ui'
+import useCopied from '@hooks/useCopied'
 
 export const AddressTooltip: React.FC<
   React.PropsWithChildren & { address: Address | string; chain?: Chain; name?: string }
@@ -21,19 +21,12 @@ export const AddressTooltip: React.FC<
   const { balanceBN } = useNativeTokenBalance(api, _address)
   const address = typeof _address === 'string' ? (Address.fromSs58(_address) as Address) : _address
   const ss58Address = address.toSs58(chain)
-  const { toast } = useToast()
-  const [copied, setCopied] = useState(false)
+  const { copy, copied } = useCopied()
   const { resolve } = useAzeroID()
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation()
-    navigator.clipboard.writeText(ss58Address)
-    if (copied) return
-    setCopied(true)
-    toast({
-      title: 'Address copied!',
-      description: <p className="text-[12px]">{address.toShortSs58(chain)}</p>,
-    })
+    copy(ss58Address, 'Address Copied!', <p className="text-[12px]">{address.toShortSs58(chain)}</p>)
   }
 
   const a0Id = useMemo(() => resolve(address.toSs58())?.a0id, [address, resolve])
@@ -44,14 +37,6 @@ export const AddressTooltip: React.FC<
 
     return a0Id ?? 'Unknown Address'
   }, [a0Id, address, selectedMultisig.multisigAddress, selectedMultisig.name, selectedMultisig.proxyAddress])
-
-  useEffect(() => {
-    if (copied) {
-      setTimeout(() => {
-        setCopied(false)
-      }, 2_000)
-    }
-  }, [copied])
 
   return (
     <Tooltip

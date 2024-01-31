@@ -24,6 +24,7 @@ import { useAugmentedAccounts } from '../common/useAugmentedAccounts'
 import { useToast } from '@components/ui/use-toast'
 import { useBlockUnload } from '@hooks/useBlockUnload'
 import { blockAccountSwitcher } from '@components/AccountSwitcher'
+import { getErrorString } from '@util/misc'
 
 export enum Step {
   NameVault,
@@ -89,6 +90,17 @@ const CreateMultisig = () => {
     [augmentedAccounts, threshold]
   )
 
+  const vaultDetailsString = useMemo(() => {
+    let text = ''
+    if (name) text += `Name: ${name}\n`
+    if (chain) text += `Chain: ${chain.squidIds.chainData}\n`
+    if (multisigAddress) text += `Multisig Address: ${multisigAddress.toSs58()}\n`
+    if (createdProxy) text += `Proxy Address: ${createdProxy.toSs58()}\n`
+    if (augmentedAccounts.length) text += `Members: ${augmentedAccounts.map(acc => acc.address.toSs58()).join(', ')}\n`
+    if (threshold) text += `Threshold: ${threshold}\n`
+    return text
+  }, [augmentedAccounts, chain, createdProxy, multisigAddress, name, threshold])
+
   const handleCreateProxy = useCallback(() => {
     setCreatingProxy(true)
     setBlockAccountSwitcher(true)
@@ -119,21 +131,29 @@ const CreateMultisig = () => {
 
   const handleCreateTeam = useCallback(async () => {
     if (!createdProxy) return // cannot happen
-    const { team, error } = await createTeam({
-      name,
-      chain: chain.squidIds.chainData,
-      multisigConfig: { signers: augmentedAccounts.map(a => a.address.toSs58()), threshold },
-      proxiedAddress: createdProxy.toSs58(),
-    })
+    try {
+      const { team, error } = await createTeam({
+        name,
+        chain: chain.squidIds.chainData,
+        multisigConfig: { signers: augmentedAccounts.map(a => a.address.toSs58()), threshold },
+        proxiedAddress: createdProxy.toSs58(),
+      })
 
-    // TODO: Allow manually trigger save team in case failure (e.g. network failure)
-    if (!team || error) throw Error()
-    // vault created! `createTeam` will handle adding the team to the cache
-    // go to overview to check the newly created vault
-    toast({
-      title: 'Vault Created!',
-    })
-    setCreated(true)
+      if (!team || error) throw new Error(error || 'Please try again or submit a bug report.')
+
+      // vault created! `createTeam` will handle adding the team to the cache
+      // go to overview to check the newly created vault
+      toast({ title: 'Vault Created!' })
+      setCreated(true)
+    } catch (e) {
+      toast({
+        title: 'Failed to save vault to Signet',
+        description: getErrorString(e),
+      })
+    } finally {
+      setTransferred(true)
+      setTransferring(false)
+    }
   }, [augmentedAccounts, chain.squidIds.chainData, createTeam, createdProxy, name, threshold, toast])
 
   const handleTransferProxy = useCallback(() => {
@@ -164,8 +184,6 @@ const CreateMultisig = () => {
               description: msg,
             })
           }
-          setTransferred(true)
-          setTransferring(false)
           handleCreateTeam()
         },
         err => {
@@ -236,13 +254,17 @@ const CreateMultisig = () => {
       ) : step === Step.Transactions ? (
         <SignTransactions
           chain={chain}
+          created={created}
           creating={creatingProxy}
+          creatingTeam={creatingTeam}
           createdProxy={createdProxy}
           onBack={() => setStep(Step.Confirmation)}
           onCreateProxy={handleCreateProxy}
+          onSaveVault={handleCreateTeam}
           onTransferProxy={handleTransferProxy}
           transferred={transferred}
           transferring={transferring}
+          vaultDetailsString={vaultDetailsString}
         />
       ) : null}
     </>

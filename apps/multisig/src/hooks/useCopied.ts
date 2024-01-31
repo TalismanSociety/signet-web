@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useToast } from '@components/ui/use-toast'
 
 const useCopied = (duration = 1000) => {
@@ -6,7 +6,7 @@ const useCopied = (duration = 1000) => {
   const { toast } = useToast()
 
   const copy = useCallback(
-    (text: string, title = 'Copied!', description = text) => {
+    (text: string, title = 'Copied!', description: React.ReactNode = text) => {
       if (copied) return
       navigator.clipboard.writeText(text)
       toast({
