@@ -15,6 +15,8 @@ import { CircularProgressIndicator } from '@talismn/ui'
 import { X } from '@talismn/icons'
 import { Tooltip } from '@components/ui/tooltip'
 import { ChevronsLeftRight, ChevronsRightLeft } from 'lucide-react'
+import { ToastAction } from '@components/ui/toast'
+import { useNavigate } from 'react-router-dom'
 
 const isValidUrl = (url: string) => {
   try {
@@ -31,6 +33,7 @@ const messageServiceState = atom({
 })
 
 export const Dapps: React.FC = () => {
+  const navigate = useNavigate()
   const [input, setInput] = useState('')
   const [shouldLoadUrl, setShouldLoadUrl] = useState(false)
   const [isSdkSupported, setIsSdkSupported] = useState<boolean | undefined>()
@@ -242,6 +245,21 @@ export const Dapps: React.FC = () => {
                 blockNumber: result.blockNumber?.toNumber(),
                 txIndex: result.txIndex,
               },
+            })
+            setTxRequest(undefined)
+          }}
+          onSaved={() => {
+            toast({
+              title: 'Saved as draft!',
+              action: (
+                <ToastAction altText="View Drafts" onClick={() => navigate('/overview?tab=draft')}>
+                  View
+                </ToastAction>
+              ),
+            })
+            txRequest?.res({
+              ok: true,
+              error: 'Saved as draft, please ignore this error.',
             })
             setTxRequest(undefined)
           }}

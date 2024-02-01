@@ -79,7 +79,7 @@ export const SignetConnect: React.FC = () => {
   }, [activeMultisigs, selectedVaultIds])
 
   return (
-    <Layout hideSideBar>
+    <Layout hideSideBar requiresMultisig>
       {window.opener ? (
         <div className="max-w-[863px] mx-auto my-[64px] rounded-[24px] bg-gray-900 px-[16px] py-[24px] sm:py-[80px] w-full">
           <h1 className=" text-[32px] text-center">Connect Vaults</h1>
