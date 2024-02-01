@@ -1,26 +1,13 @@
 import { InjectedAccount } from '@domains/extension'
-import { Identicon } from '@talismn/ui'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronVertical, Search } from '@talismn/icons'
 import { useOnClickOutside } from '../../domains/common/useOnClickOutside'
+import { AccountDetails } from '@components/AddressInput/AccountDetails'
 
 type Props = {
   accounts: InjectedAccount[]
   selectedAccount?: InjectedAccount
   onSelect?: (account: InjectedAccount) => void
-}
-
-const AccountRow = ({ account }: { account: InjectedAccount }) => {
-  const addressString = account.address.toSs58()
-  return (
-    <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <Identicon size={24} value={addressString} />
-      <p css={({ color }) => ({ marginTop: 4, color: color.lightGrey })}>
-        <span css={{ width: '100%' }}>{account.meta.name}</span>{' '}
-        <span css={({ color }) => ({ color: color.offWhite })}>({account.address.toShortSs58()})</span>
-      </p>
-    </div>
-  )
 }
 
 const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount }) => {
@@ -77,7 +64,12 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
         })}
         onClick={() => setExpanded(!expanded)}
       >
-        <AccountRow account={selectedAccount} />
+        <AccountDetails
+          address={selectedAccount.address}
+          name={selectedAccount.meta.name}
+          disableCopy
+          withAddressTooltip
+        />
         <div
           css={({ color }) => ({
             height: 'max-content',
@@ -147,7 +139,7 @@ const AccountComboBox: React.FC<Props> = ({ accounts, onSelect, selectedAccount 
                   onSelect?.(acc)
                 }}
               >
-                <AccountRow account={acc} />
+                <AccountDetails address={acc.address} name={acc.meta.name} disableCopy withAddressTooltip />
               </div>
             ))}
           </div>
