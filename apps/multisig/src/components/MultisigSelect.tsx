@@ -94,10 +94,14 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
         button: {
           'gap': 8,
           'width': 240,
+          'paddingTop': 0,
+          'paddingBottom': 0,
           'overflowX': 'hidden',
           '>div': {
             flex: 1,
             width: 181, // doesnt matter, only so that flex: 1 works
+            paddingTop: 8,
+            paddingBottom: 8,
           },
           '>svg': {
             minWidth: '24px',
