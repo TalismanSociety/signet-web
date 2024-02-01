@@ -109,6 +109,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     } catch (e) {
       if (e === 'Cancelled') return
       onApproveFailed?.(e instanceof Error ? e : new Error(getErrorString(e)))
+      onClose?.()
     } finally {
       if (executing) setExecutingTransactions(prev => prev.filter(({ hash }) => hash !== t?.hash))
       setApproving(false)
@@ -119,6 +120,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     navigate,
     onApproveFailed,
     onApproved,
+    onClose,
     preventRedirect,
     readyToExecute,
     setExecutingTransactions,

@@ -10471,7 +10471,7 @@ __metadata:
     "@talismn/development": "workspace:^"
     "@talismn/dot-pool-selector": snapshot
     "@talismn/icons": "workspace:^"
-    "@talismn/siws": ^0.0.5
+    "@talismn/siws": 0.0.8
     "@talismn/ui": "workspace:^"
     "@talismn/util": ^0.2.0
     "@testing-library/jest-dom": ^5.16.5
@@ -10605,15 +10605,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@talismn/siws@npm:^0.0.5":
-  version: 0.0.5
-  resolution: "@talismn/siws@npm:0.0.5"
+"@talismn/siws@npm:0.0.8":
+  version: 0.0.8
+  resolution: "@talismn/siws@npm:0.0.8"
   dependencies:
+    "@azns/resolver-core": ^1.6.0
     "@types/jest": ^29.5.8
   peerDependencies:
     "@polkadot/api": ^10.10.1
     "@polkadot/extension-dapp": ^0.46.5
-  checksum: 01ab60b5086808eef3421a35c3421c9a318db83997766a9a52bce4db9a8557581cab406b5179bf2eb3125db0be7ea21d63c6ae0d37f08deee390a4a4bc994c73
+  checksum: 5338e6350b4eb5da178d4b09264c6460f986d907b3bda2878c92b04a3b21dfcc7204162e72de27cbe2b77e093d7589dc103344de15c457407e920ba43db7ad27
   languageName: node
   linkType: hard
 

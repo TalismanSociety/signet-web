@@ -22,6 +22,7 @@ import { Chain, isSubstrateAssetsToken, isSubstrateNativeToken, isSubstrateToken
 import { useInsertTxMetadata } from '../offchain-data/metadata'
 import { selectedAccountState } from '../auth'
 import { captureException } from '@sentry/react'
+import { handleSubmittableResultError } from '@util/errors'
 
 export const buildTransferExtrinsic = (api: ApiPromise, to: Address, balance: Balance) => {
   if (isSubstrateNativeToken(balance.token)) {
@@ -185,37 +186,33 @@ export const useCancelAsMulti = (tx?: Transaction) => {
       const extrinsic = await createExtrinsic()
       if (loading || !extrinsic || !depositorAddress || !canCancel) {
         console.error('tried to call cancelAsMulti before it was ready')
-        return
+        return onFailure('Please try again.')
       }
 
       const { signer } = await web3FromAddress(depositorAddress.toSs58(tx.multisig.chain))
-      extrinsic
-        .signAndSend(
-          depositorAddress.toSs58(tx.multisig.chain),
-          {
-            signer,
-          },
-          result => {
-            if (!result || !result.status) {
-              return
-            }
+      const unsubscribe = await extrinsic
+        .signAndSend(depositorAddress.toSs58(tx.multisig.chain), { signer }, result => {
+          try {
+            handleSubmittableResultError(result)
+            if (!result?.status?.isFinalized) return
 
-            if (result.status.isFinalized) {
-              result.events.forEach(({ event: { method } }): void => {
-                if (method === 'ExtrinsicFailed') {
-                  onFailure(JSON.stringify(result.toHuman()))
-                }
-                if (method === 'ExtrinsicSuccess') {
-                  setRawPendingTransactionDependency(new Date())
-                  onSuccess(result)
-                }
-              })
-            } else if (result.isError) {
-              onFailure(JSON.stringify(result.toHuman()))
-            }
+            // find event that indicates successful extrinsic
+            result.events.forEach(({ event: { method } }): void => {
+              if (method === 'ExtrinsicSuccess') {
+                setRawPendingTransactionDependency(new Date())
+                onSuccess(result)
+              }
+            })
+          } catch (e) {
+            if (unsubscribe) unsubscribe()
+            captureException(e)
+            console.error('Error in cancelAsMulti', e)
+            onFailure(getErrorString(e))
           }
-        )
+        })
         .catch(e => {
+          console.error('Error in cancelAsMulti', e)
+          if ((e as any).message !== 'Cancelled') captureException(e)
           onFailure(getErrorString(e))
         })
     },
@@ -298,39 +295,32 @@ export const useAsMulti = (
       const extrinsic = await createExtrinsic()
       if (!extrinsic || !extensionAddress) {
         console.error('tried to call approveAsMulti before it was ready')
-        return
+        return onFailure('Please try again.')
       }
 
       const { signer } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
-      extrinsic
-        .signAndSend(
-          extensionAddress.toSs58(multisig.chain),
-          {
-            signer,
-          },
-          result => {
-            if (!result || !result.status) {
-              return
-            }
+      const unsubscribe = await extrinsic
+        .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
+          try {
+            handleSubmittableResultError(result)
+            if (!result?.status?.isFinalized) return
 
-            if (result.status.isFinalized) {
-              result.events
-                .filter(({ event: { section } }) => section === 'system')
-                .forEach(({ event: { method } }): void => {
-                  if (method === 'ExtrinsicFailed') {
-                    onFailure(JSON.stringify(result.toHuman()))
-                  }
-                  if (method === 'ExtrinsicSuccess') {
-                    setRawPendingTransactionDependency(new Date())
-                    onSuccess(result)
-                  }
-                })
-            } else if (result.isError) {
-              onFailure(JSON.stringify(result.toHuman()))
-            }
+            result.events.forEach(({ event: { section, method } }): void => {
+              if (section === 'system' && method === 'ExtrinsicSuccess') {
+                setRawPendingTransactionDependency(new Date())
+                onSuccess(result)
+              }
+            })
+          } catch (e) {
+            if (unsubscribe) unsubscribe()
+            captureException(e)
+            console.error('Error in asMulti', e)
+            onFailure(getErrorString(e))
           }
-        )
+        })
         .catch(e => {
+          console.error('Error in asMulti', e)
+          if ((e as any).message !== 'Cancelled') captureException(e)
           onFailure(getErrorString(e))
         })
     },
@@ -418,65 +408,52 @@ export const useApproveAsMulti = (
       const extrinsic = await createExtrinsic()
       if (!extrinsic || !extensionAddress || !hash || !multisig) {
         console.error('tried to call approveAsMulti before it was ready')
-        return
+        return onFailure('Please try again.')
       }
 
       const { signer } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
-      extrinsic
-        .signAndSend(
-          extensionAddress.toSs58(multisig.chain),
-          {
-            signer,
-          },
-          result => {
-            if (!result || !result.status) {
-              return
-            }
-            if (result.status.isFinalized) {
-              result.events.forEach(async ({ event: { method } }): Promise<void> => {
-                if (method === 'ExtrinsicFailed') {
-                  let errorMessage
-                  if (result.dispatchError && apiLoadable.state === 'hasValue') {
-                    const substrateError = apiLoadable.contents.registry.findMetaError(result.dispatchError.asModule)
-                    errorMessage = substrateError.docs.join('')
-                    console.error(substrateError)
-                  }
-                  if (!errorMessage) errorMessage = JSON.stringify(result.toHuman())
-                  captureException({ result: result.toHuman(), errorMessage })
-                  onFailure(errorMessage)
-                }
-                if (method === 'ExtrinsicSuccess') {
-                  // if there's a description, it means we want to post to the metadata service
-                  if (metadata && saveMetadata) {
-                    // @ts-ignore
-                    const timepointHeight = result.blockNumber.toNumber() as number
-                    const timepointIndex = result.txIndex as number
-                    const extrinsicId = makeTransactionID(multisig.chain, timepointHeight, timepointIndex)
+      const unsubscribe = await extrinsic
+        .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
+          try {
+            handleSubmittableResultError(result)
+            if (!result?.status?.isFinalized) return
 
-                    if (signedInAs) {
-                      insertTxMetadata(signedInAs, multisig, {
-                        callData: metadata.callData,
-                        description: metadata.description,
-                        hash,
-                        timepointHeight,
-                        timepointIndex,
-                        changeConfigDetails: metadata.changeConfigDetails,
-                        extrinsicId,
-                      })
-                    }
+            // find event that indicates successful extrinsic and insert tx metadata
+            result.events.forEach(async ({ event: { method } }): Promise<void> => {
+              if (method === 'ExtrinsicSuccess') {
+                // if there's a description, it means we want to post to the metadata service
+                if (metadata && saveMetadata) {
+                  // @ts-ignore
+                  const timepointHeight = result.blockNumber.toNumber() as number
+                  const timepointIndex = result.txIndex as number
+                  const extrinsicId = makeTransactionID(multisig.chain, timepointHeight, timepointIndex)
+
+                  if (signedInAs) {
+                    insertTxMetadata(signedInAs, multisig, {
+                      callData: metadata.callData,
+                      description: metadata.description,
+                      hash,
+                      timepointHeight,
+                      timepointIndex,
+                      changeConfigDetails: metadata.changeConfigDetails,
+                      extrinsicId,
+                    })
                   }
-                  setRawPendingTransactionDependency(new Date())
-                  onSuccess(result)
                 }
-              })
-            } else if (result.isError) {
-              onFailure(JSON.stringify(result.toHuman()))
-            }
+                setRawPendingTransactionDependency(new Date())
+                onSuccess(result)
+              }
+            })
+          } catch (e) {
+            if (unsubscribe) unsubscribe()
+            captureException(e)
+            console.error('Error in asMulti', e)
+            onFailure(getErrorString(e))
           }
-        )
+        })
         .catch(e => {
-          // probably not substrate error
-          captureException(e)
+          console.error('Error in approveAsMulti', e)
+          if ((e as any).message !== 'Cancelled') captureException(e)
           onFailure(getErrorString(e))
         })
     },
@@ -486,8 +463,6 @@ export const useApproveAsMulti = (
       extensionAddress,
       hash,
       multisig,
-      apiLoadable.state,
-      apiLoadable.contents.registry,
       setRawPendingTransactionDependency,
       insertTxMetadata,
     ]
@@ -541,83 +516,51 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
 
       const { signer } = await web3FromAddress(extensionAddress.toSs58(chain))
 
-      tx.signAndSend(
-        extensionAddress.toSs58(chain),
-        {
-          signer,
-        },
-        result => {
-          if (!result || !result.status) return
+      const unsubscribe = await tx
+        .signAndSend(extensionAddress.toSs58(chain), { signer }, result => {
+          try {
+            handleSubmittableResultError(result)
+            if (!result?.status?.isFinalized) return
 
-          if (result.status.isFinalized) {
-            result.events
-              .filter(({ event: { section } }) => section === 'proxy')
-              .forEach(({ event }): void => {
-                const { method, data } = event
+            result.events.forEach(({ event }): void => {
+              const { method, data, section } = event
 
-                if (method === 'PureCreated') {
-                  if (data[0]) {
-                    const pureStr = data[0].toString()
-                    const pure = Address.fromSs58(pureStr)
-                    if (!pure) throw Error(`chain returned invalid address ${pureStr}`)
-                    setRawPendingTransactionDependency(new Date())
-                    onSuccess(pure)
-                  } else {
-                    onFailure('No proxies exist')
-                  }
+              if (section === 'proxy' && method === 'PureCreated') {
+                if (data[0]) {
+                  const pureStr = data[0].toString()
+                  const pure = Address.fromSs58(pureStr)
+                  if (!pure) throw Error(`chain returned invalid address ${pureStr}`)
+                  setRawPendingTransactionDependency(new Date())
+                  onSuccess(pure)
+                } else {
+                  throw new Error('No proxies exist')
                 }
-              })
-
-            result.events
-              .filter(({ event: { section } }) => section === 'system')
-              .forEach(({ event: { method } }): void => {
-                if (method === 'ExtrinsicFailed') {
-                  if (apiLoadable.state === 'hasValue' && result.dispatchError) {
-                    const errModule = apiLoadable.contents.registry.findMetaError(result.dispatchError.asModule)
-                    console.error(errModule)
-                    onFailure(errModule.docs.join(''))
-                  } else {
-                    onFailure(JSON.stringify(result.toHuman()))
-                  }
-                }
-              })
-          } else if (result.isError) {
-            if (apiLoadable.state === 'hasValue' && result.dispatchError) {
-              const errModule = apiLoadable.contents.registry.findMetaError(result.dispatchError.asModule)
-              console.error(errModule)
-              onFailure(errModule.docs.join(''))
-            } else {
-              onFailure(JSON.stringify(result.toHuman()))
-            }
+              }
+            })
+          } catch (e) {
+            if (unsubscribe) unsubscribe()
+            captureException(e)
+            console.error('Error in createProxy', e)
+            onFailure(getErrorString(e))
           }
-        }
-      ).catch(e => {
-        captureException(e)
-        onFailure(e.toString())
-      })
+        })
+        .catch(e => {
+          console.error('Error in createProxy', e)
+          if ((e as any).message !== 'Cancelled') captureException(e)
+          onFailure(getErrorString(e))
+        })
     },
-    [
-      createTx,
-      extensionAddress,
-      chain,
-      setRawPendingTransactionDependency,
-      apiLoadable.state,
-      apiLoadable.contents.registry,
-    ]
+    [createTx, extensionAddress, chain, setRawPendingTransactionDependency]
   )
 
   return { createProxy, ready: apiLoadable.state === 'hasValue' && !!estimatedFee, estimatedFee }
 }
 
-// utils.batchAll(
-//   balances.transferKeepAlive(proxyAddress, existentialDeposit)
-//   proxy.proxy(proxyAddress, None, call(
-//     utils.batchAll(
-//       proxy.addProxy(multisigAddress, Any, 0)
-//       proxy.removeProxy(setterUppererAddress)
-//     )
-//   )
-// )
+/**
+ * Given a proxied addrss, transfer the proxied address to the multisig and deposit some funds into the proxied address
+ * @param chain
+ * @returns
+ */
 export const useTransferProxyToMultisig = (chain: Chain) => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.rpcs))
 
@@ -663,40 +606,26 @@ export const useTransferProxyToMultisig = (chain: Chain) => {
       ])
 
       // Send the batch call
-      signerBatchCall
-        .signAndSend(
-          extensionAddress.toSs58(chain),
-          {
-            signer,
-          },
-          result => {
-            if (!result || !result.status) {
-              return
-            }
+      const unsubscribe = await signerBatchCall
+        .signAndSend(extensionAddress.toSs58(chain), { signer }, result => {
+          try {
+            handleSubmittableResultError(result)
+            if (!result?.status?.isFinalized) return
 
-            if (result.status.isFinalized) {
-              result.events
-                .filter(({ event: { section } }) => section === 'system')
-                .forEach(({ event }): void => {
-                  if (event.method === 'ExtrinsicFailed') {
-                    if (apiLoadable.state === 'hasValue' && result.dispatchError) {
-                      const errModule = apiLoadable.contents.registry.findMetaError(result.dispatchError.asModule)
-                      console.error(errModule)
-                      onFailure(errModule.docs.join(''))
-                    } else {
-                      onFailure(JSON.stringify(result.toHuman()))
-                    }
-                  } else if (event.method === 'ExtrinsicSuccess') {
-                    onSuccess(result)
-                  }
-                })
-            } else if (result.isError) {
-              onFailure(JSON.stringify(result.toHuman()))
-            }
+            result.events.forEach(({ event }): void => {
+              if (event.section === 'system' && event.method === 'ExtrinsicSuccess') onSuccess(result)
+            })
+          } catch (e) {
+            if (unsubscribe) unsubscribe()
+            console.error('Failed to deposit and transfer pure proxy to multisig:', e)
+            captureException(e)
+            onFailure(getErrorString(e))
           }
-        )
+        })
         .catch(e => {
-          onFailure(e.toString())
+          console.error('Failed to deposit and transfer pure proxy to multisig:', e)
+          if ((e as any).message !== 'Cancelled') captureException(e)
+          onFailure(getErrorString(e))
         })
     },
     [apiLoadable, chain]

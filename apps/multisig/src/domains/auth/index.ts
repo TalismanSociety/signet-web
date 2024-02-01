@@ -7,6 +7,7 @@ import persistAtom from '../persist'
 import { captureException } from '@sentry/react'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useToast } from '@components/ui/use-toast'
+import { useAzeroID } from '@domains/azeroid/AzeroIDResolver'
 
 const SIWS_ENDPOINT = process.env.REACT_APP_SIWS_ENDPOINT ?? ''
 
@@ -67,6 +68,7 @@ export const signedInAccountState = atom<string | null>({
 })
 
 export const useSignIn = () => {
+  const { resolve } = useAzeroID()
   const [authTokenBook, setAuthTokenBook] = useRecoilState(authTokenBookState)
   const setSelectedAccount = useSetRecoilState(selectedAddressState)
   const [signingIn, setSigningIn] = useState(false)
@@ -111,6 +113,7 @@ export const useSignIn = () => {
             uri: window.location.origin,
             statement: 'Welcome to Signet! Please sign in to continue.',
             chainName: 'Substrate',
+            azeroId: resolve(ss58Address)?.a0id,
           })
 
           // sign payload for backend verification
@@ -156,7 +159,7 @@ export const useSignIn = () => {
         setSigningIn(false)
       }
     },
-    [authTokenBook, dismiss, setAuthTokenBook, setSelectedAccount, signingIn, toast]
+    [authTokenBook, dismiss, resolve, setAuthTokenBook, setSelectedAccount, signingIn, toast]
   )
 
   return { signIn, signingIn }
