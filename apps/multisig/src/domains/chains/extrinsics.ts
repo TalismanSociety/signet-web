@@ -412,38 +412,51 @@ export const useApproveAsMulti = (
       }
 
       const { signer } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
+      let savedMetadata = false
       const unsubscribe = await extrinsic
         .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
           try {
             handleSubmittableResultError(result)
+
+            // make a reusable fn that will save metadata
+            // 1. try to save as soon as tx is included in block
+            // 2. when tx is finalized, if tx isn't saved, we try to save again
+            const saveMetadataFn = () => {
+              if (signedInAs && metadata && saveMetadata) {
+                const timepointHeight = (result as any).blockNumber.toNumber() as number
+                const timepointIndex = result.txIndex as number
+                const extrinsicId = makeTransactionID(multisig.chain, timepointHeight, timepointIndex)
+
+                savedMetadata = true
+                insertTxMetadata(signedInAs, multisig, {
+                  callData: metadata.callData,
+                  description: metadata.description,
+                  hash,
+                  timepointHeight,
+                  timepointIndex,
+                  changeConfigDetails: metadata.changeConfigDetails,
+                  extrinsicId,
+                })
+              }
+            }
+
+            const hasSuccessEvent = result.events.some(({ event: { method } }) => method === 'ExtrinsicSuccess')
+
+            // save metadata early as soon as tx is included in block
+            if (result.isInBlock && hasSuccessEvent) saveMetadataFn()
+
+            // remaining logic should only be triggered upon finalization
             if (!result?.status?.isFinalized) return
 
-            // find event that indicates successful extrinsic and insert tx metadata
-            result.events.forEach(async ({ event: { method } }): Promise<void> => {
-              if (method === 'ExtrinsicSuccess') {
-                // if there's a description, it means we want to post to the metadata service
-                if (metadata && saveMetadata) {
-                  // @ts-ignore
-                  const timepointHeight = result.blockNumber.toNumber() as number
-                  const timepointIndex = result.txIndex as number
-                  const extrinsicId = makeTransactionID(multisig.chain, timepointHeight, timepointIndex)
+            // handleSubmittableResultError should've captured the error, unless the blockchain has bad error handling
+            if (!hasSuccessEvent) throw new Error('Transaction completed without success event!')
 
-                  if (signedInAs) {
-                    insertTxMetadata(signedInAs, multisig, {
-                      callData: metadata.callData,
-                      description: metadata.description,
-                      hash,
-                      timepointHeight,
-                      timepointIndex,
-                      changeConfigDetails: metadata.changeConfigDetails,
-                      extrinsicId,
-                    })
-                  }
-                }
-                setRawPendingTransactionDependency(new Date())
-                onSuccess(result)
-              }
-            })
+            // try to save again if for whatever reason isInBlock was never true and skipped to finalized
+            if (!savedMetadata) saveMetadataFn()
+
+            // refresh pending transaction list
+            setRawPendingTransactionDependency(new Date())
+            onSuccess(result)
           } catch (e) {
             if (unsubscribe) unsubscribe()
             captureException(e)
