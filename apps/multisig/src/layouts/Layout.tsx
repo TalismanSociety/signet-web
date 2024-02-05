@@ -8,6 +8,8 @@ import { activeTeamsState } from '../domains/offchain-data'
 import { Navigate } from 'react-router-dom'
 import BetaNotice from './Overview/BetaNotice'
 import { useDevMode } from '../domains/common/useDevMode'
+import WalletConnectLogo from '@components/WalletConnectLogo'
+import { WalletConnectRequest } from '@domains/wallet-connect/WalletConnectRequest'
 
 export const Layout: React.FC<
   React.PropsWithChildren & { selected?: string; requiresMultisig?: boolean; hideSideBar?: boolean }
@@ -94,6 +96,11 @@ export const Layout: React.FC<
                         href: '/collaborators',
                       },
                       {
+                        name: 'Wallet Connect',
+                        icon: <WalletConnectLogo className="w-[24px] h-[24px]" />,
+                        href: '/wallet-connect',
+                      },
+                      {
                         name: 'Settings',
                         icon: <Settings />,
                         href: '/settings',
@@ -105,6 +112,7 @@ export const Layout: React.FC<
             )}
             {children}
             {!!activeTeams?.length && <BetaNotice />}
+            <WalletConnectRequest />
           </>
         )}
       </section>

@@ -16,6 +16,8 @@ import { SignetConnect } from '../layouts/Connect'
 import { Sign } from '../layouts/Sign'
 import SmartContracts from '../layouts/SmartContracts'
 import { Collaborators } from '../layouts/Collaborators'
+import { WalletConnectPage } from '../layouts/WalletConnect'
+import { WalletConnectSessionsPage } from '../layouts/WalletConnect/SessionsPage'
 
 const router = createBrowserRouter([
   {
@@ -123,6 +125,22 @@ const router = createBrowserRouter([
     element: (
       <RequireAuth requireSignIn>
         <SmartContracts />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/wallet-connect',
+    element: (
+      <RequireAuth requireSignIn>
+        <WalletConnectPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/wallet-connect/sessions',
+    element: (
+      <RequireAuth requireSignIn>
+        <WalletConnectSessionsPage />
       </RequireAuth>
     ),
   },

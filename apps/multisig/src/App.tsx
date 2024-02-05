@@ -30,6 +30,7 @@ import ConstsWatcher from './domains/chains/ConstsWatcher'
 import { Toaster as NewToaster } from '@components/ui/toaster'
 import { HasuraProvider } from '@domains/offchain-data/hasura'
 import { AzeroIDResolverProvider } from '@domains/azeroid/AzeroIDResolver'
+import { WalletConnectProvider } from '@domains/wallet-connect'
 
 const Loader = () => {
   return (
@@ -61,20 +62,22 @@ const App: React.FC = () => (
           <HasuraProvider>
             <AzeroIDResolverProvider>
               <Suspense fallback={<Loader />}>
-                <PendingTransactionsWatcher />
-                <BalancesWatcher />
-                <ExtensionWatcher />
-                <AccountWatcher />
-                <OffchainDataWatcher />
-                <NomPoolsWatcher />
-                <ValidatorsWatcher />
-                <ActiveMultisigWatcher />
-                <ConstsWatcher />
-                <RouterProvider router={router} />
-                <Toaster position="top-right" containerStyle={{ top: '6.4rem' }}>
-                  {t => <ToastBar toast={t} />}
-                </Toaster>
-                <NewToaster />
+                <WalletConnectProvider>
+                  <PendingTransactionsWatcher />
+                  <BalancesWatcher />
+                  <ExtensionWatcher />
+                  <AccountWatcher />
+                  <OffchainDataWatcher />
+                  <NomPoolsWatcher />
+                  <ValidatorsWatcher />
+                  <ActiveMultisigWatcher />
+                  <ConstsWatcher />
+                  <RouterProvider router={router} />
+                  <Toaster position="top-right" containerStyle={{ top: '6.4rem' }}>
+                    {t => <ToastBar toast={t} />}
+                  </Toaster>
+                  <NewToaster />
+                </WalletConnectProvider>
               </Suspense>
             </AzeroIDResolverProvider>
           </HasuraProvider>
