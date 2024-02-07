@@ -243,6 +243,32 @@ export const supportedChains: Chain[] = [
     ss58Prefix: 42,
   },
   {
+    squidIds: { chainData: 'astar' },
+    genesisHash: '0x9eb76c5184c4ab8679d2d5d819fdf90b9c001403e9e17da2e14b6d8aec4029c6',
+    chainName: 'Astar',
+    isTestnet: false,
+    nativeToken: {
+      id: 'astar-substrate-native-astr',
+    },
+    subscanUrl: 'https://astar.subscan.io/',
+    rpcs: [
+      {
+        url: 'wss://astar-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://1rpc.io/astr',
+      },
+      {
+        url: 'wss://rpc.astar.network',
+      },
+      {
+        url: 'wss://astar.public.curie.radiumblock.co/ws',
+      },
+    ],
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/astar.svg',
+    ss58Prefix: 5,
+  },
+  {
     squidIds: { chainData: 'shibuya-testnet' },
     genesisHash: '0xddb89973361a170839f80f152d2e9e38a376a5a7eccefcade763f46a8e567019',
     chainName: 'Shibuya',
