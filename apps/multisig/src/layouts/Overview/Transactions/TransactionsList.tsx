@@ -103,6 +103,12 @@ export const TransactionsList = ({
                         open={!!openTransaction}
                         t={openTransaction}
                         otherTxMetadata={{
+                          contractDeployed: openTransaction?.decoded?.contractDeployment
+                            ? {
+                                abi: openTransaction.decoded.contractDeployment.abi,
+                                name: openTransaction.decoded.contractDeployment.name,
+                              }
+                            : undefined,
                           changeConfigDetails: openTransaction?.decoded?.changeConfigDetails
                             ? {
                                 newMembers: openTransaction.decoded.changeConfigDetails.signers,

@@ -5,7 +5,7 @@
 
 import { pjsApiSelector } from '@domains/chains/pjs-api'
 import { accountsState } from '@domains/extension'
-import { Balance, Multisig, Transaction, TxOffchainMetadata } from '@domains/multisig'
+import { Balance, Multisig, Transaction } from '@domains/multisig'
 import { ApiPromise, SubmittableResult } from '@polkadot/api'
 import type { SubmittableExtrinsic } from '@polkadot/api/types'
 import { web3FromAddress } from '@polkadot/extension-dapp'
@@ -19,8 +19,7 @@ import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoi
 
 import { allRawPendingTransactionsSelector, rawPendingTransactionsDependency } from './storage-getters'
 import { Chain, isSubstrateAssetsToken, isSubstrateNativeToken, isSubstrateTokensToken, tokenByIdQuery } from './tokens'
-import { useInsertTxMetadata } from '../offchain-data/metadata'
-import { selectedAccountState } from '../auth'
+import { TxMetadata, useInsertTxMetadata } from '../offchain-data/metadata'
 import { captureException } from '@sentry/react'
 import { handleSubmittableResultError } from '@util/errors'
 
@@ -336,7 +335,6 @@ export const useApproveAsMulti = (
   timepoint: Timepoint | null | undefined,
   multisig: Multisig | undefined
 ) => {
-  const signedInAccount = useRecoilValue(selectedAccountState)
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig?.chain.rpcs || []))
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(multisig?.chain.nativeToken.id || null))
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
@@ -399,12 +397,9 @@ export const useApproveAsMulti = (
     }: {
       onSuccess: (r: SubmittableResult) => void
       onFailure: (message: string) => void
-      metadata?: TxOffchainMetadata
+      metadata?: Pick<TxMetadata, 'changeConfigDetails' | 'contractDeployed' | 'callData' | 'description'>
       saveMetadata?: boolean
     }) => {
-      // cache selected account when tx was approved
-      const signedInAs = signedInAccount
-
       const extrinsic = await createExtrinsic()
       if (!extrinsic || !extensionAddress || !hash || !multisig) {
         console.error('tried to call approveAsMulti before it was ready')
@@ -422,19 +417,17 @@ export const useApproveAsMulti = (
             // 1. try to save as soon as tx is included in block
             // 2. when tx is finalized, if tx isn't saved, we try to save again
             const saveMetadataFn = () => {
-              if (signedInAs && metadata && saveMetadata) {
+              if (metadata && saveMetadata) {
                 const timepointHeight = (result as any).blockNumber.toNumber() as number
                 const timepointIndex = result.txIndex as number
                 const extrinsicId = makeTransactionID(multisig.chain, timepointHeight, timepointIndex)
 
                 savedMetadata = true
-                insertTxMetadata(signedInAs, multisig, {
-                  callData: metadata.callData,
-                  description: metadata.description,
+                insertTxMetadata(multisig, {
+                  ...metadata,
                   hash,
                   timepointHeight,
                   timepointIndex,
-                  changeConfigDetails: metadata.changeConfigDetails,
                   extrinsicId,
                 })
               }
@@ -470,15 +463,7 @@ export const useApproveAsMulti = (
           onFailure(getErrorString(e))
         })
     },
-    [
-      signedInAccount,
-      createExtrinsic,
-      extensionAddress,
-      hash,
-      multisig,
-      setRawPendingTransactionDependency,
-      insertTxMetadata,
-    ]
+    [createExtrinsic, extensionAddress, hash, multisig, setRawPendingTransactionDependency, insertTxMetadata]
   )
 
   return { approveAsMulti, ready: ready && !!estimatedFee, estimatedFee }

@@ -6,6 +6,7 @@ import { ChevronLeft } from '@talismn/icons'
 import { AddContractPage } from './AddContractPage'
 import { CallSmartContractPage } from './CallSmartContractPage'
 import { useUser } from '@domains/auth'
+import { DepolyContractPage } from './DeployContractPage'
 
 const SubpageWrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex flex-col pl-[0px] lg:px-[4%] py-[16px] gap-[16px] flex-1 overflow-auto">
@@ -42,7 +43,7 @@ export const SmartContracts: React.FC = () => {
           path="deploy"
           element={
             <SubpageWrapper>
-              <p>Deploy</p>
+              <DepolyContractPage />
             </SubpageWrapper>
           }
         />

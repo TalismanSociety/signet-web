@@ -2,14 +2,9 @@ import { ApiPromise, SubmittableResult } from '@polkadot/api'
 import { useCallback, useMemo, useState } from 'react'
 import { allChainTokensSelector, decodeCallData, useApproveAsMulti, useAsMulti } from '../chains'
 import { Multisig } from './types'
-import {
-  Transaction,
-  TransactionApprovals,
-  TxOffchainMetadata,
-  extrinsicToDecoded,
-  useNextTransactionSigner,
-} from './index'
+import { Transaction, TransactionApprovals, extrinsicToDecoded, useNextTransactionSigner } from './index'
 import { useRecoilValueLoadable } from 'recoil'
+import { TxMetadata } from '@domains/offchain-data'
 
 /**
  * @param submittedTx calldata, description and otherTxMetadata are ignored if this is provided
@@ -21,7 +16,7 @@ export const useMultisigExtrinsicFromCalldata = (
   team: Multisig,
   calldata: `0x${string}`,
   api?: ApiPromise,
-  otherTxMetadata?: Pick<TxOffchainMetadata, 'changeConfigDetails'>,
+  otherTxMetadata?: Pick<TxMetadata, 'changeConfigDetails' | 'contractDeployed'>,
   submittedTx?: Transaction
 ) => {
   const [approving, setApproving] = useState(false)

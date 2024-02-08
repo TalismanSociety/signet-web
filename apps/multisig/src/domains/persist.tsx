@@ -2,7 +2,7 @@ import { Address } from '@util/addresses'
 import { recoilPersist } from 'recoil-persist'
 
 import { supportedChains } from './chains'
-import { Multisig, TxOffchainMetadata } from './multisig'
+import { Multisig } from './multisig'
 
 function setAddressPrototype(a: any): void {
   a.bytes = new Uint8Array(Object.values(a.bytes))
@@ -10,11 +10,7 @@ function setAddressPrototype(a: any): void {
 }
 
 // Need to manually set the prototype of deserialized Address instances.
-type ParsedLocalStorage =
-  | { Multisigs: Multisig[] }
-  | { SelectedMultisig: Multisig }
-  | { TxOffchainMetadata: { [key: string]: [TxOffchainMetadata, Date] } }
-  | { AllowExtension: boolean }
+type ParsedLocalStorage = { Multisigs: Multisig[] } | { SelectedMultisig: Multisig } | { AllowExtension: boolean }
 
 function initMultisig(m: Multisig) {
   setAddressPrototype(m.multisigAddress)
@@ -40,13 +36,6 @@ export default recoilPersist({
         initMultisig(parsed.SelectedMultisig)
       }
 
-      if ('TxOffchainMetadata' in parsed) {
-        Object.values(parsed.TxOffchainMetadata).forEach(([v]) => {
-          if (v.changeConfigDetails) {
-            v.changeConfigDetails.newMembers.forEach(m => setAddressPrototype(m))
-          }
-        })
-      }
       if ('AllowExtension' in parsed) {
         // noop
       }

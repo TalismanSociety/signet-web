@@ -9,15 +9,14 @@ import AmountRow from '@components/AmountRow'
 import MemberRow from '@components/MemberRow'
 import { Rpc, decodeCallData } from '@domains/chains'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
-import { Balance, Transaction, TransactionType, calcSumOutgoing, txOffchainMetadataState } from '@domains/multisig'
+import { Balance, Transaction, TransactionType, calcSumOutgoing } from '@domains/multisig'
 import { css } from '@emotion/css'
 import { useTheme } from '@emotion/react'
 import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote, Zap } from '@talismn/icons'
 import { Address } from '@util/addresses'
 import { useEffect, useMemo, useState } from 'react'
 import AceEditor from 'react-ace'
-import { useRecoilState, useRecoilValueLoadable } from 'recoil'
-import truncateMiddle from 'truncate-middle'
+import { useRecoilValueLoadable } from 'recoil'
 import { VoteExpandedDetails, VoteTransactionHeaderContent } from './VoteTransactionDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { SmartContractCallExpandedDetails } from '../../SmartContracts/SmartContractCallExpandedDetails'
@@ -28,6 +27,7 @@ import {
   ValidatorsRotationHeader,
 } from '../../../layouts/Staking/ValidatorsRotationSummaryDetails'
 import { useDecodedCalldata } from '@domains/common'
+import { Upload } from 'lucide-react'
 
 const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
@@ -280,7 +280,6 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
 }
 
 const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
-  const [metadata, setMetadata] = useRecoilState(txOffchainMetadataState)
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
 
   const { name, icon } = useMemo(() => {
@@ -299,6 +298,8 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
         return { name: 'Vote', icon: <Vote /> }
       case TransactionType.ContractCall:
         return { name: 'Contract call', icon: <Contract /> }
+      case TransactionType.DeployContract:
+        return { name: 'Deploy Contract', icon: <Upload /> }
       case TransactionType.NominateFromNomPool:
         return { name: 'Staking (Nom Pool)', icon: <Zap /> }
       case TransactionType.NominateFromStaking:
@@ -338,20 +339,8 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
               extrinsic={undefined}
               setExtrinsic={e => {
                 if (!e) return
-                const expectedHash = t.hash
-                const extrinsicHash = e.registry.hash(e.method.toU8a()).toHex()
-                if (expectedHash === extrinsicHash) {
-                  setMetadata({
-                    ...metadata,
-                    [expectedHash]: [
-                      {
-                        callData: e.method.toHex(),
-                        description: `Transaction ${truncateMiddle(expectedHash, 6, 4, '...')}`,
-                      },
-                      new Date(),
-                    ],
-                  })
-                }
+
+                // TODO: save the calldata in cache and save to db
               }}
             />
             <p className="!text-[12px]">
@@ -360,7 +349,7 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
           </div>
         )
     }
-  }, [metadata, setMetadata, t])
+  }, [t])
 
   return (
     <div className="px-[16px] bg-gray-600 rounded-[16px] max-w-[100%]">

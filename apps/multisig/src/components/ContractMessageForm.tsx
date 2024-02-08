@@ -21,10 +21,11 @@ type Props = {
   messages: AbiMessage[]
   onChange: (message: AbiMessage, args: any[]) => void
   chain: Chain
+  label?: string
 }
 
 /** TODO: support payable */
-export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain }) => {
+export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain, label = 'Message to send' }) => {
   const [messageIndex, setMessageIndex] = useState(0)
   const [openMethod, setOpenMethod] = useState(false)
   const { api } = useApi(chain.rpcs)
@@ -43,7 +44,7 @@ export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain
     <div className="w-full">
       {/** Message selector */}
       <div className="w-full">
-        <p className="text-[14px] mb-[4px]">Message to send</p>
+        <p className="text-[14px] mb-[4px]">{label}</p>
         <Popover open={openMethod} onOpenChange={setOpenMethod}>
           <PopoverTrigger asChild>
             <Button className="w-full h-16 px-[20px]" variant="secondary">

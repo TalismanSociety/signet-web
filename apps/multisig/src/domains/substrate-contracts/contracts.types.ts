@@ -3,3 +3,5 @@ export type SubstrateContractFromPallet = {
   depositAccount: string
   trieId: string
 }
+
+// export type ContractBundle = {}

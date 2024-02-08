@@ -17,6 +17,7 @@ import truncateMiddle from 'truncate-middle'
 import { formattedDate, formattedHhMm } from './utils'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
+import { Upload } from 'lucide-react'
 
 const TransactionSummaryRow = ({
   t,
@@ -66,6 +67,8 @@ const TransactionSummaryRow = ({
     <Zap />
   ) : t.decoded.type === TransactionType.ContractCall ? (
     <Contract />
+  ) : t.decoded.type === TransactionType.DeployContract ? (
+    <Upload />
   ) : (
     <List />
   )
