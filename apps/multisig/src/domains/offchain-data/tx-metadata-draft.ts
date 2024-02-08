@@ -15,7 +15,7 @@ export type TxMetadataDraftRaw = {
   change_config_details: any
   call_data: string
   description: string
-  contractDeployed: any
+  other_metadata: any
 }
 
 export const GET_TX_METADATA_DRAFT_QUERY = gql`
@@ -32,6 +32,7 @@ export const GET_TX_METADATA_DRAFT_QUERY = gql`
       change_config_details
       call_data
       description
+      other_metadata
     }
   }
 `

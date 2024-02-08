@@ -28,6 +28,7 @@ import {
 } from '../../../layouts/Staking/ValidatorsRotationSummaryDetails'
 import { useDecodedCalldata } from '@domains/common'
 import { Upload } from 'lucide-react'
+import { DeployContractExpandedDetails } from '../../../layouts/SmartContracts/DeployContractExpandedDetails'
 
 const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
@@ -321,6 +322,8 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
         return <VoteExpandedDetails t={t} />
       case TransactionType.ContractCall:
         return <SmartContractCallExpandedDetails t={t} />
+      case TransactionType.DeployContract:
+        return <DeployContractExpandedDetails t={t} />
       case TransactionType.NominateFromNomPool:
       case TransactionType.NominateFromStaking:
         return <ValidatorsRotationExpandedDetails t={t} />

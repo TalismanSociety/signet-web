@@ -270,14 +270,14 @@ export const useInsertTxMetadata = () => {
               newThreshold: other.changeConfigDetails.newThreshold,
             }
           : null,
-        other_metadata: {
-          contractDeployed: other.contractDeployed
-            ? {
+        other_metadata: other.contractDeployed
+          ? {
+              contractDeployed: {
                 abiString: JSON.stringify(other.contractDeployed.abi.json),
                 name: other.contractDeployed.name,
-              }
-            : null,
-        },
+              },
+            }
+          : null,
       }
 
       // save metadata to in-memory cache

@@ -10,7 +10,7 @@ export const innerCalldataToTransaction = (
   multisig: Multisig,
   api: ApiPromise,
   curChainTokens: BaseToken[],
-  otherTxMetadata?: Pick<TxMetadata, 'changeConfigDetails'>
+  otherTxMetadata?: Pick<TxMetadata, 'changeConfigDetails' | 'contractDeployed'>
 ): {
   error?: string
   transaction?: {
