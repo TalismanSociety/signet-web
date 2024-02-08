@@ -4,7 +4,7 @@ async function fetchGraphQL(text: string, variables: any, graph: 'chaindata' | '
   const url =
     graph === 'chaindata'
       ? 'https://squid.subsquid.io/chaindata/v/v4/graphql'
-      : 'https://squid.subsquid.io/signet-squid/v/v3/graphql'
+      : 'https://squid.subsquid.io/sigsquid/graphql'
   const json = await fetch(url, {
     method: 'POST',
     headers: {
