@@ -159,6 +159,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
         description,
         teamId: selectedMultisig.id,
         changeConfigDetails: otherTxMetadata?.changeConfigDetails,
+        contractDeployed: otherTxMetadata?.contractDeployed,
       })
 
       if (saved.errors) {
@@ -185,6 +186,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     onClose,
     onSaved,
     otherTxMetadata?.changeConfigDetails,
+    otherTxMetadata?.contractDeployed,
     preventRedirect,
     saveDraft,
     selectedMultisig.id,
