@@ -175,7 +175,7 @@ const Confirmation = (props: {
 
   const { tokenWithPrice, reserveAmount, estimatedFee, chain, existentialDeposit } = props
   const activeMultisigs = useRecoilValue(activeMultisigsState)
-  const [_, setSelectedMultisig] = useSelectedMultisig()
+  const [, setSelectedMultisig] = useSelectedMultisig()
 
   const multisigAddress = toMultisigAddress(
     props.selectedAccounts.map(a => a.address),

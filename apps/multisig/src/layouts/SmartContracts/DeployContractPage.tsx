@@ -1,5 +1,6 @@
 import { ContractMessageForm } from '@components/ContractMessageForm'
 import { ContractUploader } from '@components/ContractUploader'
+import { BN } from '@polkadot/util'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { Button } from '@components/ui/button'
 import { Input } from '@components/ui/input'
@@ -8,6 +9,7 @@ import { useSelectedMultisig } from '@domains/multisig'
 import { Abi, CodePromise } from '@polkadot/api-contract'
 import { AbiMessage } from '@polkadot/api-contract/types'
 import { useCallback, useMemo, useState } from 'react'
+import { useInstantiateDryRun } from '@domains/substrate-contracts/useInstantiateDryRun'
 
 export const DepolyContractPage: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
@@ -21,6 +23,7 @@ export const DepolyContractPage: React.FC = () => {
       value: any
       valid: boolean
     }[]
+    value: BN
   }>()
 
   const codePromise = useMemo(() => {
@@ -52,15 +55,50 @@ export const DepolyContractPage: React.FC = () => {
     )
   }, [abi, api, deployArgs, name])
 
+  const { dryRunResult, loading, error } = useInstantiateDryRun({
+    api,
+    abi,
+    deployArgs: deployArgs
+      ? {
+          constructor: deployArgs.message,
+          args: deployArgs.args.map(({ value }) => value),
+        }
+      : undefined,
+    extrinsic: useMemo(
+      () =>
+        codePromise && deployArgs && !isNotReady
+          ? codePromise.tx[deployArgs.message.method]?.(
+              {
+                value: deployArgs.value,
+              },
+              ...deployArgs.args.map(({ value }) => value)
+            )
+          : undefined,
+      [codePromise, deployArgs, isNotReady]
+    ),
+    multisig: selectedMultisig,
+    skip: deployArgs?.args.some(({ valid }) => !valid),
+  })
+
   const extrinsic = useMemo(
     () =>
-      codePromise && deployArgs && !isNotReady
-        ? codePromise.tx[deployArgs.message.method]?.({}, ...deployArgs.args.map(({ value }) => value))
+      codePromise && deployArgs && !isNotReady && dryRunResult
+        ? codePromise.tx[deployArgs.message.method]?.(
+            {
+              gasLimit: dryRunResult.gasRequired,
+              storageDepositLimit: dryRunResult?.storageDeposit.value.toPrimitive() as number,
+              value: deployArgs.value.toString(),
+            },
+            ...deployArgs.args.map(({ value }) => value)
+          )
         : undefined,
-    [codePromise, deployArgs, isNotReady]
+    [codePromise, deployArgs, dryRunResult, isNotReady]
   )
 
-  const handleMessageChange = useCallback((message: AbiMessage, args: any[]) => setDeployArgs({ message, args }), [])
+  const handleMessageChange = useCallback(
+    (message: AbiMessage, args: any[], value: BN) => setDeployArgs({ message, args, value }),
+    []
+  )
 
   return (
     <div>
@@ -87,9 +125,15 @@ export const DepolyContractPage: React.FC = () => {
           </div>
         )}
 
-        <Button className="mt-[16px]" disabled={isNotReady} onClick={() => setReviewing(true)}>
+        <Button
+          className="mt-[16px]"
+          disabled={isNotReady || !dryRunResult}
+          loading={loading}
+          onClick={() => setReviewing(true)}
+        >
           Review
         </Button>
+        {!!error && <p className="text-red-500">Failed to simulate instantiation: {error}</p>}
       </div>
       {extrinsic && abi && (
         <TransactionSidesheet

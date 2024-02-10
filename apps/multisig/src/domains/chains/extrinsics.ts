@@ -3,9 +3,9 @@
 // changes in other areas of the codebase.
 // TODO: refactor code to remove repititon
 
-import { pjsApiSelector } from '@domains/chains/pjs-api'
+import { pjsApiSelector, useApi } from '@domains/chains/pjs-api'
 import { accountsState } from '@domains/extension'
-import { Balance, Multisig, Transaction } from '@domains/multisig'
+import { Balance, Multisig, Transaction, useSelectedMultisig } from '@domains/multisig'
 import { ApiPromise, SubmittableResult } from '@polkadot/api'
 import type { SubmittableExtrinsic } from '@polkadot/api/types'
 import { web3FromAddress } from '@polkadot/extension-dapp'
@@ -17,11 +17,17 @@ import BN from 'bn.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 
-import { allRawPendingTransactionsSelector, rawPendingTransactionsDependency } from './storage-getters'
+import { rawPendingTransactionsDependency } from './storage-getters'
 import { Chain, isSubstrateAssetsToken, isSubstrateNativeToken, isSubstrateTokensToken, tokenByIdQuery } from './tokens'
 import { TxMetadata, useInsertTxMetadata } from '../offchain-data/metadata'
 import { captureException } from '@sentry/react'
 import { handleSubmittableResultError } from '@util/errors'
+import { useAddSmartContract } from '@domains/offchain-data'
+
+export type ExecuteCallbacks = {
+  onSuccess: (result: SubmittableResult) => void
+  onFailure: (message: string) => void
+}
 
 export const buildTransferExtrinsic = (api: ApiPromise, to: Address, balance: Balance) => {
   if (isSubstrateNativeToken(balance.token)) {
@@ -175,13 +181,7 @@ export const useCancelAsMulti = (tx?: Transaction) => {
   }, [estimateFee])
 
   const cancelAsMulti = useCallback(
-    async ({
-      onSuccess,
-      onFailure,
-    }: {
-      onSuccess: (r: SubmittableResult) => void
-      onFailure: (message: string) => void
-    }) => {
+    async ({ onSuccess, onFailure }: ExecuteCallbacks) => {
       const extrinsic = await createExtrinsic()
       if (loading || !extrinsic || !depositorAddress || !canCancel) {
         console.error('tried to call cancelAsMulti before it was ready')
@@ -221,34 +221,31 @@ export const useCancelAsMulti = (tx?: Transaction) => {
   return { cancelAsMulti, ready: !loading && !!estimatedFee, estimatedFee, canCancel }
 }
 
-export const useAsMulti = (
-  extensionAddress: Address | undefined,
-  extrinsic: SubmittableExtrinsic<'promise'> | undefined,
-  timepoint: Timepoint | null | undefined,
-  multisig: Multisig
-) => {
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.rpcs))
-  const rawPending = useRecoilValueLoadable(allRawPendingTransactionsSelector)
+export const useAsMulti = (extensionAddress: Address | undefined, t?: Transaction) => {
+  const [selectedMultisig] = useSelectedMultisig()
+  const multisig = useMemo(() => t?.multisig ?? selectedMultisig, [selectedMultisig, t?.multisig])
+  const { api } = useApi(multisig.chain.rpcs)
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(multisig.chain.nativeToken.id))
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
   const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
+  const { addContract } = useAddSmartContract()
 
-  const ready =
-    apiLoadable.state === 'hasValue' &&
-    extensionAddress &&
-    nativeToken.state === 'hasValue' &&
-    !!extrinsic &&
-    timepoint !== undefined &&
-    rawPending.state === 'hasValue'
+  const extrinsic = useMemo(() => {
+    if (!api || !t?.callData) return undefined
+    return decodeCallData(api, t.callData)
+  }, [api, t?.callData])
+
+  const timepoint = useMemo(() => t?.rawPending?.onChainMultisig.when, [t?.rawPending?.onChainMultisig.when])
+  const ready = useMemo(
+    () => !!api && extensionAddress && !!extrinsic && nativeToken.state === 'hasValue' && timepoint !== undefined,
+    [api, extensionAddress, extrinsic, nativeToken.state, timepoint]
+  )
 
   // Creates some tx from calldata
   const createExtrinsic = useCallback(async () => {
-    if (!ready) return
+    if (!ready || !api || !extrinsic || !extensionAddress || timepoint === undefined) return
 
-    const api = apiLoadable.contents
-    if (!api.tx.multisig?.asMulti) {
-      throw new Error('chain missing multisig pallet')
-    }
+    if (!api.tx.multisig?.asMulti) throw new Error('chain missing multisig pallet')
 
     const weightEstimation = (await extrinsic.paymentInfo(extensionAddress.toSs58(multisig.chain))).weight as any
 
@@ -267,7 +264,7 @@ export const useAsMulti = (
       extrinsic.method.toHex(),
       weight
     )
-  }, [apiLoadable, extensionAddress, extrinsic, multisig, ready, timepoint])
+  }, [api, extensionAddress, extrinsic, multisig.chain, multisig.signers, multisig.threshold, ready, timepoint])
 
   const estimateFee = useCallback(async () => {
     const extrinsic = await createExtrinsic()
@@ -284,13 +281,7 @@ export const useAsMulti = (
   }, [estimateFee])
 
   const asMulti = useCallback(
-    async ({
-      onSuccess,
-      onFailure,
-    }: {
-      onSuccess: (r: SubmittableResult) => void
-      onFailure: (message: string) => void
-    }) => {
+    async ({ onSuccess, onFailure }: ExecuteCallbacks) => {
       const extrinsic = await createExtrinsic()
       if (!extrinsic || !extensionAddress) {
         console.error('tried to call approveAsMulti before it was ready')
@@ -302,6 +293,30 @@ export const useAsMulti = (
         .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
           try {
             handleSubmittableResultError(result)
+
+            const instantiatedEvent = result.events.find(
+              ({ event: { method, section, data } }) =>
+                method === 'Instantiated' && section === 'contracts' && !!(data as any).contract
+            )
+            if (result.status.isInBlock && instantiatedEvent && t?.decoded?.contractDeployment) {
+              const contractAddressString = (instantiatedEvent.event.data as any).contract.toString() as string
+              const address = Address.fromSs58(contractAddressString)
+              if (!address) {
+                console.error(result.toHuman())
+                throw new Error(
+                  'Invalid contract address returned! Please check console for more details or submit a bug report.'
+                )
+              }
+
+              addContract(
+                address,
+                t.decoded.contractDeployment.name,
+                t.multisig.id,
+                t.decoded.contractDeployment.abi,
+                JSON.stringify(t.decoded.contractDeployment.abi.json)
+              ).then(() => console.log(`Contract ${t.decoded?.contractDeployment?.name} saved!`))
+            }
+
             if (!result?.status?.isFinalized) return
 
             result.events.forEach(({ event: { section, method } }): void => {
@@ -323,7 +338,7 @@ export const useAsMulti = (
           onFailure(getErrorString(e))
         })
     },
-    [extensionAddress, createExtrinsic, setRawPendingTransactionDependency, multisig.chain]
+    [createExtrinsic, extensionAddress, multisig.chain, t, addContract, setRawPendingTransactionDependency]
   )
 
   return { asMulti, ready: ready && !!estimatedFee, estimatedFee }
@@ -394,9 +409,7 @@ export const useApproveAsMulti = (
       onFailure,
       metadata,
       saveMetadata = true,
-    }: {
-      onSuccess: (r: SubmittableResult) => void
-      onFailure: (message: string) => void
+    }: ExecuteCallbacks & {
       metadata?: Pick<TxMetadata, 'changeConfigDetails' | 'contractDeployed' | 'callData' | 'description'>
       saveMetadata?: boolean
     }) => {

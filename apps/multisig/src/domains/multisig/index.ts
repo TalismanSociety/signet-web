@@ -188,6 +188,7 @@ export interface TransactionDecoded {
     code: `0x${string}`
     data: `0x${string}`
     salt: `0x${string}`
+    value: BN
   }
   voteDetails?: VoteDetails & { token: BaseToken }
 }
@@ -596,7 +597,8 @@ export const extrinsicToDecoded = (
     for (const arg of args) {
       const obj: any = arg.toHuman()
       if (obj?.section === 'contracts' && obj?.method === 'instantiateWithCode') {
-        const { code, data, salt } = obj.args
+        const { code, data, salt, value } = obj.args
+        const valueBN = new BN(value.replaceAll(',', ''))
         return {
           decoded: {
             type: TransactionType.DeployContract,
@@ -608,6 +610,7 @@ export const extrinsicToDecoded = (
                   data,
                   salt,
                   name: metadata.contractDeployed.name,
+                  value: valueBN,
                 }
               : undefined,
           },

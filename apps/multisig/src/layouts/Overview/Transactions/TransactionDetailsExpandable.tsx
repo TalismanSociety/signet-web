@@ -14,7 +14,7 @@ import { css } from '@emotion/css'
 import { useTheme } from '@emotion/react'
 import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote, Zap } from '@talismn/icons'
 import { Address } from '@util/addresses'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import AceEditor from 'react-ace'
 import { useRecoilValueLoadable } from 'recoil'
 import { VoteExpandedDetails, VoteTransactionHeaderContent } from './VoteTransactionDetails'
@@ -29,9 +29,13 @@ import {
 import { useDecodedCalldata } from '@domains/common'
 import { Upload } from 'lucide-react'
 import { DeployContractExpandedDetails } from '../../../layouts/SmartContracts/DeployContractExpandedDetails'
+import { cn } from '@util/tailwindcss'
 
 const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
+  const contentRef = useRef<HTMLParagraphElement>(null)
+  const [exceeded, setExceeded] = useState(false)
+  const [expanded, setExpanded] = useState(false)
 
   useEffect(() => {
     if (copied) {
@@ -46,13 +50,32 @@ const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, 
     navigator.clipboard.writeText(content)
     setCopied(true)
   }
+
+  useEffect(() => {
+    if (!contentRef.current) return
+    setExceeded(contentRef.current.scrollHeight > contentRef.current.clientHeight)
+  }, [])
+
   return (
     <div className="flex flex-col gap-[16]">
       {!!label && <p className="ml-[8px] mb-[8px]">{label}</p>}
       <div className="p-[16px] gap-[16px] flex items-center w-full overflow-hidden justify-between bg-gray-800 rounded-[16px]">
-        <p className="break-all text-[14px]" style={{ wordBreak: 'break-all' }}>
-          {content}
-        </p>
+        <div className="w-full">
+          <p
+            ref={contentRef}
+            className={cn('break-all text-[14px] leading-[20px]', expanded ? '' : 'overflow-hidden line-clamp-5')}
+          >
+            {content}
+          </p>
+          {exceeded && (
+            <p
+              className="text-center text-[14px] mx-auto mt-[4px] hover:text-offWhite cursor-pointer"
+              onClick={() => setExpanded(!expanded)}
+            >
+              {expanded ? 'Minimize' : 'Show all'}
+            </p>
+          )}
+        </div>
         {copied ? (
           <div className="text-green-500">
             <Check size={20} className="min-w-[20px]" />
