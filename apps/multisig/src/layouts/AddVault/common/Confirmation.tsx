@@ -164,7 +164,8 @@ const Cost = ({
     <p>{label}</p>
     {amount !== undefined && symbol !== undefined && price !== undefined ? (
       <p>
-        {balanceToFloat(amount)} {symbol} ({formatUsd(balanceToFloat(amount) * price)})
+        {balanceToFloat(amount) < 0.000001 ? '< 0.0000001' : balanceToFloat(amount).toFixed(6)} {symbol} (
+        {formatUsd(balanceToFloat(amount) * price)})
       </p>
     ) : (
       <Skeleton.Surface css={{ height: 14, minWidth: 125 }} />

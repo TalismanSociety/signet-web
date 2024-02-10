@@ -27,6 +27,9 @@ export const existentialDepositSelector = selectorFamily({
       const apiLoadable = get(pjsApiSelector(chain.rpcs))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
+
+      if (!nativeToken) throw Error(`Token not found for ${nativeTokenId}`)
+
       if (!api.consts.balances) {
         throw Error('Balances must exist on api!')
       }
@@ -51,6 +54,8 @@ const proxyDepositBaseSelector = selectorFamily({
       const apiLoadable = get(pjsApiSelector(chain.rpcs))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
+
+      if (!nativeToken) throw Error('Token not found for ' + nativeTokenId)
       if (!api.consts.proxy) {
         throw Error('Proxy module must exist on api!')
       }
@@ -69,6 +74,8 @@ const proxyDepositFactorSelector = selectorFamily({
       const nativeTokenId = chain.nativeToken.id
 
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
+      if (!nativeToken) throw Error('Token not found for ' + nativeTokenId)
+
       const apiLoadable = get(pjsApiSelector(chain.rpcs))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
@@ -90,6 +97,8 @@ export const proxyDepositTotalSelector = selectorFamily({
       const nativeTokenId = chain.nativeToken.id
 
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
+      if (!nativeToken) throw Error('Token not found for ' + nativeTokenId)
+
       const apiLoadable = get(pjsApiSelector(chain.rpcs))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
@@ -113,6 +122,8 @@ const multisigDepositBaseSelector = selectorFamily({
       const nativeTokenId = chain.nativeToken.id
 
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
+      if (!nativeToken) throw Error('Token not found for ' + nativeTokenId)
+
       const apiLoadable = get(pjsApiSelector(chain.rpcs))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
@@ -134,6 +145,8 @@ const multisigDepositFactorSelector = selectorFamily({
       const nativeTokenId = chain.nativeToken.id
 
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
+      if (!nativeToken) throw Error('Token not found for ' + nativeTokenId)
+
       const apiLoadable = get(pjsApiSelector(chain.rpcs))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
@@ -155,6 +168,8 @@ export const multisigDepositTotalSelector = selectorFamily({
       const nativeTokenId = chain.nativeToken.id
 
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
+      if (!nativeToken) throw Error('Token not found for ' + nativeTokenId)
+
       const apiLoadable = get(pjsApiSelector(chain.rpcs))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady

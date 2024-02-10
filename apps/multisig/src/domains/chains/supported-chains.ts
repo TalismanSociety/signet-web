@@ -8,7 +8,7 @@ export const supportedChains: Chain[] = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/v3/assets/chains/polkadot.svg',
     isTestnet: false,
     nativeToken: {
-      id: 'polkadot-substrate-native-dot',
+      id: 'polkadot-substrate-native',
     },
     subscanUrl: 'https://polkadot.subscan.io/',
     polkaAssemblyUrl: 'https://polkadot.polkassembly.io',
@@ -56,7 +56,7 @@ export const supportedChains: Chain[] = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/v3/assets/chains/kusama.svg',
     isTestnet: false,
     nativeToken: {
-      id: 'kusama-substrate-native-ksm',
+      id: 'kusama-substrate-native',
     },
     subscanUrl: 'https://kusama.subscan.io/',
     polkaAssemblyUrl: 'https://kusama.polkassembly.io',
@@ -102,7 +102,7 @@ export const supportedChains: Chain[] = [
     genesisHash: '0x68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f',
     chainName: 'Polkadot Asset Hub',
     nativeToken: {
-      id: 'polkadot-asset-hub-substrate-native-dot',
+      id: 'polkadot-asset-hub-substrate-native',
     },
     subscanUrl: 'https://assethub-polkadot.subscan.io/',
     rpcs: [
@@ -140,7 +140,7 @@ export const supportedChains: Chain[] = [
     genesisHash: '0x48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a',
     chainName: 'Kusama Asset Hub',
     nativeToken: {
-      id: 'kusama-asset-hub-substrate-native-ksm',
+      id: 'kusama-asset-hub-substrate-native',
     },
     subscanUrl: 'https://assethub-kusama.subscan.io/',
     rpcs: [
@@ -230,7 +230,7 @@ export const supportedChains: Chain[] = [
     isTestnet: true,
     subscanUrl: 'https://rococo.subscan.io/',
     nativeToken: {
-      id: 'rococo-testnet-substrate-native-roc',
+      id: 'rococo-testnet-substrate-native',
     },
     rpcs: [
       {
@@ -248,7 +248,7 @@ export const supportedChains: Chain[] = [
     chainName: 'Astar',
     isTestnet: false,
     nativeToken: {
-      id: 'astar-substrate-native-astr',
+      id: 'astar-substrate-native',
     },
     subscanUrl: 'https://astar.subscan.io/',
     rpcs: [
@@ -273,7 +273,7 @@ export const supportedChains: Chain[] = [
     genesisHash: '0xddb89973361a170839f80f152d2e9e38a376a5a7eccefcade763f46a8e567019',
     chainName: 'Shibuya',
     nativeToken: {
-      id: 'shibuya-testnet-substrate-native-sby',
+      id: 'shibuya-testnet-substrate-native',
     },
     subscanUrl: 'https://shibuya.subscan.io/',
     rpcs: [

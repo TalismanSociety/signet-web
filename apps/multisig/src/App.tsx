@@ -15,10 +15,8 @@ import React, { Suspense } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { RouterProvider } from 'react-router-dom'
 import { RecoilRoot } from 'recoil'
-import { RecoilRelayEnvironmentProvider } from 'recoil-relay'
 
 import ThemeProvider from './App.Theme'
-import RelayEnvironment, { chainDataSquidEnvKey } from './graphql/relay-environment'
 import router from './routes'
 import { supportedChains } from '@domains/chains'
 import { AccountWatcher } from '@domains/auth'
@@ -53,36 +51,34 @@ const Loader = () => {
 const App: React.FC = () => (
   <ThemeProvider>
     <RecoilRoot>
-      <RecoilRelayEnvironmentProvider environment={RelayEnvironment} environmentKey={chainDataSquidEnvKey}>
-        <BalancesProvider
-          balanceModules={balanceModules}
-          withTestnets
-          enabledChains={supportedChains.map(chain => chain.genesisHash)}
-        >
-          <HasuraProvider>
-            <AzeroIDResolverProvider>
-              <Suspense fallback={<Loader />}>
-                <WalletConnectProvider>
-                  <PendingTransactionsWatcher />
-                  <BalancesWatcher />
-                  <ExtensionWatcher />
-                  <AccountWatcher />
-                  <OffchainDataWatcher />
-                  <NomPoolsWatcher />
-                  <ValidatorsWatcher />
-                  <ActiveMultisigWatcher />
-                  <ConstsWatcher />
-                  <RouterProvider router={router} />
-                  <Toaster position="top-right" containerStyle={{ top: '6.4rem' }}>
-                    {t => <ToastBar toast={t} />}
-                  </Toaster>
-                  <NewToaster />
-                </WalletConnectProvider>
-              </Suspense>
-            </AzeroIDResolverProvider>
-          </HasuraProvider>
-        </BalancesProvider>
-      </RecoilRelayEnvironmentProvider>
+      <BalancesProvider
+        balanceModules={balanceModules}
+        withTestnets
+        enabledChains={supportedChains.map(chain => chain.genesisHash)}
+      >
+        <HasuraProvider>
+          <AzeroIDResolverProvider>
+            <Suspense fallback={<Loader />}>
+              <WalletConnectProvider>
+                <PendingTransactionsWatcher />
+                <BalancesWatcher />
+                <ExtensionWatcher />
+                <AccountWatcher />
+                <OffchainDataWatcher />
+                <NomPoolsWatcher />
+                <ValidatorsWatcher />
+                <ActiveMultisigWatcher />
+                <ConstsWatcher />
+                <RouterProvider router={router} />
+                <Toaster position="top-right" containerStyle={{ top: '6.4rem' }}>
+                  {t => <ToastBar toast={t} />}
+                </Toaster>
+                <NewToaster />
+              </WalletConnectProvider>
+            </Suspense>
+          </AzeroIDResolverProvider>
+        </HasuraProvider>
+      </BalancesProvider>
     </RecoilRoot>
   </ThemeProvider>
 )

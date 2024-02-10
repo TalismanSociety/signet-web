@@ -1,13 +1,9 @@
 import { activeMultisigsState } from '@domains/multisig'
 import { selector, selectorFamily } from 'recoil'
-import { graphQLSelectorFamily } from 'recoil-relay'
-import { graphql } from 'relay-runtime'
-
-import RelayEnvironment from '../../graphql/relay-environment'
-import { supportedChains } from './supported-chains'
 import { ApiPromise } from '@polkadot/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Address } from '@util/addresses'
+import { ALL_TOKENS_BY_ID, getTokenById } from './all-tokens'
 
 export type Price = {
   current: number
@@ -172,24 +168,9 @@ export const isSubstrateAssetsToken = (token: BaseToken): token is SubstrateAsse
 export const isSubstrateTokensToken = (token: BaseToken): token is SubstrateTokensToken =>
   token.type === 'substrate-tokens'
 
-export const tokenByIdQuery = graphQLSelectorFamily({
+export const tokenByIdQuery = selectorFamily({
   key: 'TokenById',
-  environment: RelayEnvironment,
-  query: graphql`
-    query tokensByIdQuery($id: String!) {
-      tokenById(id: $id) {
-        data
-      }
-    }
-  `,
-  variables: id => ({ id: id || '' }),
-  mapResponse: res => {
-    // by default, these tokens don't have a fully filled chain property
-    // so we need to add it
-    const chain = supportedChains.find(c => c.squidIds.chainData === res.tokenById.data.chain.id)
-    if (!chain) throw new Error(`chain ${res.tokenById.data.chainId} not found in supported chains`)
-    return { ...res.tokenById.data, chain } as BaseToken
-  },
+  get: id => () => getTokenById(id as string),
 })
 
 export const tokenByIdWithPrice = selectorFamily({
@@ -198,6 +179,8 @@ export const tokenByIdWithPrice = selectorFamily({
     id =>
     async ({ get }): Promise<{ token: BaseToken; price: Price }> => {
       const token = get(tokenByIdQuery(id))
+      if (!token) throw Error('Token not found for ' + id?.toString())
+
       if (!token.coingeckoId) return { token, price: { current: 0 } }
       const price = get(tokenPriceState(token))
       return { token, price }
@@ -225,31 +208,9 @@ export type Chain = {
   polkaAssemblyUrl?: string
 }
 
-export const chainTokensByIdQuery = graphQLSelectorFamily({
+export const chainTokensByIdQuery = selectorFamily({
   key: 'ChainTokensById',
-  environment: RelayEnvironment,
-  query: graphql`
-    query tokensChainTokensByIdQuery($id: String!) {
-      chainById(id: $id) {
-        tokens {
-          data
-        }
-      }
-    }
-  `,
-  variables: id => ({ id }),
-  mapResponse: res => {
-    // by default, these tokens don't have a fully filled chain property
-    // so we need to add it
-    return res.chainById.tokens.map((item: { data: { chain: { id: string } } }) => {
-      const chain = supportedChains.find(c => c.squidIds.chainData === item?.data?.chain.id)
-      if (!chain) {
-        console.error(`chain ${res.tokenById?.data?.chainId ?? item?.data?.chain.id} not found in supported chains`)
-        return null
-      }
-      return { ...item.data, chain }
-    }) as BaseToken[]
-  },
+  get: (id: string) => () => Object.values(ALL_TOKENS_BY_ID).filter(token => token.chain.squidIds.chainData === id),
 })
 
 // Get tokens for all active chains

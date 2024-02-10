@@ -504,7 +504,7 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
 
   const estimateFee = useCallback(async () => {
     const tx = await createTx()
-    if (!tx || !extensionAddress || nativeToken.state !== 'hasValue') return
+    if (!tx || !extensionAddress || nativeToken.state !== 'hasValue' || !nativeToken.contents) return
 
     // Fee estimation
     const paymentInfo = await tx.paymentInfo(extensionAddress.toSs58(chain))
