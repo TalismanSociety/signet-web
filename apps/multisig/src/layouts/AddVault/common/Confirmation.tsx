@@ -25,6 +25,8 @@ import { CircularProgressIndicator, IconButton } from '@talismn/ui'
 import { Skeleton } from '@talismn/ui'
 import { CancleOrNext } from './CancelOrNext'
 import { device } from '@util/breakpoints'
+import { Tooltip } from '@components/ui/tooltip'
+import { InfoIcon } from 'lucide-react'
 
 const NameAndSummary: React.FC<{ name: string; chain: Chain; proxiedAccount?: Address }> = ({
   name,
@@ -84,6 +86,20 @@ const Threshold: React.FC<{ threshold: number; membersCount: number }> = ({ thre
     <p css={({ color }) => ({ color: color.offWhite })}>
       {threshold} of {membersCount} Members
     </p>
+  </div>
+)
+
+const MultisigAddress: React.FC<{ address: Address; chain: Chain }> = ({ address, chain }) => (
+  <div css={{ display: 'grid', gap: 12 }}>
+    <div className="flex items-center gap-[8px]">
+      <p>Multisig Address</p>
+      <Tooltip content="The multisig address is derived from your members and threshold.">
+        <InfoIcon size={16} />
+      </Tooltip>
+    </div>
+    <div className="w-max">
+      <AccountDetails address={address} chain={chain} withAddressTooltip />
+    </div>
   </div>
 )
 
@@ -253,9 +269,10 @@ const Confirmation = (props: {
           `}
         >
           <Members members={props.selectedAccounts} chain={props.chain} />
-          <div css={{ display: 'grid', gap: 32 }}>
+          <div css={{ display: 'grid', gap: 24 }}>
             <Threshold threshold={props.threshold} membersCount={props.selectedAccounts.length} />
 
+            <MultisigAddress address={multisigAddress} chain={chain} />
             {props.proxiedAccount ? (
               <ImportedProxiesTypes
                 chain={props.chain}
@@ -301,21 +318,23 @@ const Confirmation = (props: {
         <div css={{ width: '100%' }}>
           <Cost
             label="Deposit Amount (Reserved)"
-            amount={reserveAmount?.contents}
-            symbol={tokenWithPrice?.contents.token.symbol}
-            price={tokenWithPrice?.contents.price.current}
+            amount={reserveAmount?.state === 'hasValue' ? reserveAmount.contents : undefined}
+            symbol={tokenWithPrice?.contents?.token?.symbol}
+            price={tokenWithPrice?.contents?.price?.current}
           />
           <Cost
             label="Estimated Transaction Fee"
             amount={estimatedFee}
-            symbol={tokenWithPrice?.contents.token.symbol}
-            price={tokenWithPrice?.contents.price.current}
+            symbol={tokenWithPrice?.contents?.token?.symbol}
+            price={tokenWithPrice?.contents?.price?.current}
           />
           <Cost
             label="Initial Vault Funds"
-            amount={existentialDeposit?.contents ? getInitialProxyBalance(existentialDeposit.contents) : undefined}
-            symbol={tokenWithPrice?.contents.token.symbol}
-            price={tokenWithPrice?.contents.price.current}
+            amount={
+              existentialDeposit?.state === 'hasValue' ? getInitialProxyBalance(existentialDeposit.contents) : undefined
+            }
+            symbol={tokenWithPrice?.contents?.token?.symbol}
+            price={tokenWithPrice?.contents?.price?.current}
           />
         </div>
       )}
