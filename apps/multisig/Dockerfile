@@ -11,8 +11,10 @@ ENV REACT_APP_APPLICATION_NAME=Signet \
     REACT_APP_NETWORKS=$NETWORKS
 
 FROM base as builder
-RUN apk add --no-cache libc6-compat
 RUN apk update
+RUN apk add --no-cache libc6-compat
+# Required for node-gyp to build native nodejs modules
+RUN apk add --no-cache python3 make g++
 
 # setup working dir
 WORKDIR /app

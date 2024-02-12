@@ -1,15 +1,11 @@
 import { cn } from '@util/tailwindcss'
+import { CONFIG } from '@lib/config'
 
 const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
   return (
     <footer className="flex-col md:flex-row flex items-start md:items-center justify-center md:justify-between gap-[12px] md:gap-[16px] px-[16px] pb-[16px] lg:px-[96px]">
       <div className="flex items-center gap-x-[12px] [&>a]:text-center [&>a]:text-[14px] [&>a]:text-offWhite ">
-        <a
-          className="hover:text-gray-200"
-          href={`mailto:${process.env.REACT_APP_CONTACT_EMAIL}`}
-          target="_blank"
-          rel="noreferrer"
-        >
+        <a className="hover:text-gray-200" href={`mailto:${CONFIG.CONTACT_EMAIL}`} target="_blank" rel="noreferrer">
           Contact
         </a>
         <a
@@ -35,7 +31,7 @@ const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
             darkTalisman ? 'text-offWhite lg:text-gray-900' : '',
             'hover:opacity-80 text-[14px] text-center'
           )}
-          href={process.env.REACT_APP_SIGNET_LANDING_PAGE}
+          href={CONFIG.SIGNET_LANDING_PAGE}
         >
           Signet (Beta)
         </a>

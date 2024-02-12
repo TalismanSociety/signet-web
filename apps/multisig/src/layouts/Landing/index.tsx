@@ -9,6 +9,7 @@ import { AppMockup } from './AppMockup'
 import Logomark from '@components/Logomark'
 import { ArrowUpRight } from 'lucide-react'
 import { useEffect } from 'react'
+import { CONFIG } from '@lib/config'
 
 const shouldRedirectToDashboardState = atom({
   key: 'shouldRedirectToDashboardKey',
@@ -54,13 +55,8 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
           <h1 className="leading-[1] text-[48px] lg:text-[64px] font-bold text-primary whitespace-nowrap">Sign-in</h1>
           <p className="text-gray-200 mt-[20px] lg:mt-[32px] text-[16px] lg:text-[18px]">
             Sign in with your whitelisted account or find out more at <br className="hidden lg:block" />
-            <a
-              className="text-offWhite"
-              href={`mailto:${process.env.REACT_APP_CONTACT_EMAIL}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {process.env.REACT_APP_CONTACT_EMAIL}
+            <a className="text-offWhite" href={`mailto:${CONFIG.CONTACT_EMAIL}`} target="_blank" rel="noreferrer">
+              {CONFIG.CONTACT_EMAIL}
             </a>
           </p>
           {extensionAccounts.length > 0 ? (
@@ -72,7 +68,7 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
               className="w-max mt-[24px] lg:mt-[32px] group"
               variant="outline"
               asLink
-              to={process.env.REACT_APP_SIGNET_LANDING_PAGE ?? ''}
+              to={CONFIG.SIGNET_LANDING_PAGE}
               target="_blank"
             >
               <div className="flex items-center gap-[8px]">

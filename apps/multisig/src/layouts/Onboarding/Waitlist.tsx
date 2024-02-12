@@ -1,6 +1,7 @@
 import { Button } from '@components/ui/button'
 import Header from '../../layouts/Header'
 import Footer from '../../layouts/Footer'
+import { CONFIG } from '@lib/config'
 
 export const Waitlist: React.FC = () => (
   <main className="w-full min-h-screen p-[24px] h-full flex flex-1 flex-col">
@@ -11,7 +12,7 @@ export const Waitlist: React.FC = () => (
         <p className="text-center my-[16px]">
           Sign up to get early access to Signet, we will get in touch when your account has been whitelisted.
         </p>
-        <Button asLink to={process.env.REACT_APP_SIGNET_LANDING_PAGE ?? ''} target="_blank">
+        <Button asLink to={CONFIG.SIGNET_LANDING_PAGE} target="_blank">
           Get Early Access
         </Button>
       </div>

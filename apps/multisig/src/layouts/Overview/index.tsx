@@ -12,6 +12,7 @@ import { useUpdateMultisigConfig } from '../../domains/offchain-data'
 import { selectedAccountState } from '../../domains/auth'
 import VaultOverview from './VaultOverview'
 import { useToast } from '../../components/ui/use-toast'
+import { CONFIG } from '@lib/config'
 
 const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
@@ -76,13 +77,8 @@ const Overview = () => {
           <p className="text-[12px]">3. Refresh the page and check if the issue still persist.</p>
           <p className="text-[12px] mt-[8px]">
             If you think this is a bug, report to Signet at{' '}
-            <a
-              className="underline"
-              href={`mailto:${process.env.REACT_APP_CONTACT_EMAIL}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {process.env.REACT_APP_CONTACT_EMAIL}
+            <a className="underline" href={`mailto:${CONFIG.CONTACT_EMAIL}`} target="_blank" rel="noreferrer">
+              {CONFIG.CONTACT_EMAIL}
             </a>
           </p>
         </div>

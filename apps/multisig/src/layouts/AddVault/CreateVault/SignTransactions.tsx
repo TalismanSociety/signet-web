@@ -9,6 +9,7 @@ import { Chain } from '@domains/chains'
 import { Check, Info } from 'lucide-react'
 import { cn } from '@util/tailwindcss'
 import { CircularProgressIndicator } from '@talismn/ui'
+import { CONFIG } from '@lib/config'
 
 enum StepStatus {
   Done,
@@ -79,7 +80,7 @@ const SignTransactions: React.FC<{
   vaultDetailsString,
 }) => {
   const getHelpLink = useMemo(() => {
-    let link = `mailto:${process.env.REACT_APP_CONTACT_EMAIL}`
+    let link = `mailto:${CONFIG.CONTACT_EMAIL}`
     const subject = 'Issue creating Signet vault'
     let body = `I am having issues creating a vault on Signet. Here are the details of my vault:\n\n`
 

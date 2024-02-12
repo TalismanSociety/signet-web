@@ -18,6 +18,7 @@ import { useRecoilValue } from 'recoil'
 import { selectedAccountState } from '@domains/auth'
 import useCopied from '@hooks/useCopied'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
+import { CONFIG } from '@lib/config'
 
 const Header: React.FC<{ onAddContact: () => void; vaultName: string; hideAddButton: boolean }> = ({
   onAddContact,
@@ -32,7 +33,7 @@ const Header: React.FC<{ onAddContact: () => void; vaultName: string; hideAddBut
           content={
             <p css={{ maxWidth: 350 }}>
               Your Address Book is currently hosted securely with Signet's Database. To find out more about Self
-              Hosting, contact us at {process.env.REACT_APP_CONTACT_EMAIL}
+              Hosting, contact us at {CONFIG.CONTACT_EMAIL}
             </p>
           }
         >
