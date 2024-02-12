@@ -15,27 +15,31 @@ import { AbiMessage } from '@polkadot/api-contract/types'
 import { MessageSignature } from './SubstrateContractAbi/MessageSignature'
 import { Chain } from '@domains/chains'
 import { useApi } from '@domains/chains/pjs-api'
+import { BN_ZERO, BN } from '@polkadot/util'
 import { AbiParamsForm } from './SubstrateContractAbi/Params'
+import { BalanceInput } from './BalanceInput'
 
 type Props = {
   messages: AbiMessage[]
-  onChange: (message: AbiMessage, args: any[]) => void
+  onChange: (message: AbiMessage, args: any[], value: BN) => void
   chain: Chain
+  label?: string
 }
 
 /** TODO: support payable */
-export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain }) => {
+export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain, label = 'Message to send' }) => {
   const [messageIndex, setMessageIndex] = useState(0)
   const [openMethod, setOpenMethod] = useState(false)
   const { api } = useApi(chain.rpcs)
   const [args, setArgs] = useState<{ value: any; valid: boolean }[]>([])
+  const [value, setValue] = useState(BN_ZERO)
 
   const selectedMessage = useMemo(() => messages[messageIndex] ?? messages?.[0], [messageIndex, messages])
 
   useEffect(() => {
     if (!selectedMessage) return
-    onChange(selectedMessage, args)
-  }, [onChange, selectedMessage, args])
+    onChange(selectedMessage, args, value)
+  }, [onChange, selectedMessage, args, value])
 
   if (!selectedMessage) return null
 
@@ -43,7 +47,7 @@ export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain
     <div className="w-full">
       {/** Message selector */}
       <div className="w-full">
-        <p className="text-[14px] mb-[4px]">Message to send</p>
+        <p className="text-[14px] mb-[4px]">{label}</p>
         <Popover open={openMethod} onOpenChange={setOpenMethod}>
           <PopoverTrigger asChild>
             <Button className="w-full h-16 px-[20px]" variant="secondary">
@@ -82,6 +86,12 @@ export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain
           </PopoverContent>
         </Popover>
       </div>
+
+      {selectedMessage.isPayable && (
+        <div className="mt-[16px] w-full">
+          <BalanceInput label="Payable" chain={chain} onChange={setValue} />
+        </div>
+      )}
 
       {/** Render args form for selected message */}
       {api && selectedMessage.args.length > 0 && (

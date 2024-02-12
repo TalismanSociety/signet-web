@@ -25,6 +25,7 @@ import { selectedAccountState } from '../auth'
 import { TxMetadata, txMetadataByTeamIdState } from '../offchain-data/metadata'
 import { Multisig } from './types'
 import { activeTeamsState, teamsState } from '@domains/offchain-data'
+import { Abi } from '@polkadot/api-contract'
 
 export * from './types.d'
 export * from './useSelectedMultisig'
@@ -56,14 +57,6 @@ export const multisigsState = selector<Multisig[]>({
     const teams = get(teamsState)
     return teams?.map(team => team.asMultisig) ?? []
   },
-})
-
-// Map of call hashes to their metadata.
-// todo: use the date to clear out really old metadata from this cache
-export const txOffchainMetadataState = atom<{ [key: string]: [TxOffchainMetadata, Date] }>({
-  key: 'TxOffchainMetadata',
-  default: {},
-  effects_UNSTABLE: [persistAtom],
 })
 
 export const selectedMultisigIdState = atom<string | undefined>({
@@ -133,6 +126,7 @@ export enum TransactionType {
   NominateFromNomPool,
   NominateFromStaking,
   ContractCall,
+  DeployContract,
 }
 
 export interface ChangeConfigDetails {
@@ -140,10 +134,9 @@ export interface ChangeConfigDetails {
   newMembers: Address[]
 }
 
-export interface TxOffchainMetadata {
-  description: string
-  callData: `0x${string}`
-  changeConfigDetails?: ChangeConfigDetails
+export interface ContractDetails {
+  name: string
+  abi: Abi
 }
 
 export interface AugmentedAccount {
@@ -188,6 +181,14 @@ export interface TransactionDecoded {
   contractCall?: {
     address: Address
     data: `0x${string}`
+  }
+  contractDeployment?: {
+    abi: Abi
+    name: string
+    code: `0x${string}`
+    data: `0x${string}`
+    salt: `0x${string}`
+    value: BN
   }
   voteDetails?: VoteDetails & { token: BaseToken }
 }
@@ -589,6 +590,31 @@ export const extrinsicToDecoded = (
             },
           },
           description: metadata?.description ?? `Contract call to ${address.toShortSs58(multisig.chain)}`,
+        }
+      }
+    }
+
+    for (const arg of args) {
+      const obj: any = arg.toHuman()
+      if (obj?.section === 'contracts' && obj?.method === 'instantiateWithCode') {
+        const { code, data, salt, value } = obj.args
+        const valueBN = new BN(value.replaceAll(',', ''))
+        return {
+          decoded: {
+            type: TransactionType.DeployContract,
+            recipients: [],
+            contractDeployment: metadata?.contractDeployed
+              ? {
+                  abi: metadata.contractDeployed.abi,
+                  code,
+                  data,
+                  salt,
+                  name: metadata.contractDeployed.name,
+                  value: valueBN,
+                }
+              : undefined,
+          },
+          description: metadata?.description ?? `Deploy contract ${metadata?.contractDeployed?.name}`,
         }
       }
     }

@@ -1,17 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { atom, useRecoilState, useRecoilValue } from 'recoil'
-import { ChangeConfigDetails, aggregatedMultisigsState, pendingTransactionsState } from '../multisig'
+import { ChangeConfigDetails, ContractDetails, aggregatedMultisigsState, pendingTransactionsState } from '../multisig'
 import { activeTeamsState, teamsState } from './teams'
-import { gql } from 'graphql-request'
+import { gql } from 'graphql-tag'
 import { requestSignetBackend } from './hasura'
 import { SignedInAccount, selectedAccountState } from '../auth'
 import { makeTransactionID } from '../../util/misc'
 import { supportedChains } from '../chains'
 import { isEqual } from 'lodash'
-import { insertTxMetadata } from '../metadata-service'
 import { Multisig } from '../multisig/index'
 import toast from 'react-hot-toast'
 import { Address } from '../../util/addresses'
+import { useMutation } from '@apollo/client'
+import { Abi } from '@polkadot/api-contract'
 
 // TODO: should handle pagination
 const TX_METADATA_QUERY = gql`
@@ -25,6 +26,7 @@ const TX_METADATA_QUERY = gql`
       change_config_details
       created
       description
+      other_metadata
     }
   }
 `
@@ -38,6 +40,9 @@ export type RawTxMetadata = {
   change_config_details: any
   created: string
   description: string
+  other_metadata: any
+  multisig_address: string
+  proxy_address: string
 }
 
 export type TxMetadata = {
@@ -47,7 +52,8 @@ export type TxMetadata = {
   timepointIndex: number
   chain: string
   callData: string
-  changeConfigDetails: any
+  changeConfigDetails?: ChangeConfigDetails
+  contractDeployed?: ContractDetails
   created: Date
   description: string
 }
@@ -88,6 +94,19 @@ const parseTxMetadata = (rawTxMetadata: RawTxMetadata): TxMetadata => {
     }
   }
 
+  let contractDeployed: ContractDetails | undefined
+  if (rawTxMetadata.other_metadata && rawTxMetadata.other_metadata.contractDeployed) {
+    const { name, abiString } = rawTxMetadata.other_metadata.contractDeployed
+    if (name && abiString) {
+      try {
+        const abi = new Abi(abiString)
+        contractDeployed = { abi, name }
+      } catch (e) {
+        console.error('Failed to parse abi', rawTxMetadata)
+      }
+    }
+  }
+
   return {
     extrinsicId: makeTransactionID(chain, rawTxMetadata.timepoint_height, rawTxMetadata.timepoint_index),
     teamId: rawTxMetadata.team_id,
@@ -98,6 +117,7 @@ const parseTxMetadata = (rawTxMetadata: RawTxMetadata): TxMetadata => {
     changeConfigDetails,
     created: new Date(rawTxMetadata.created),
     description: rawTxMetadata.description,
+    contractDeployed,
   }
 }
 
@@ -203,18 +223,27 @@ export const TxMetadataWatcher = () => {
   return null
 }
 
+const INSERT_TX_METADATA_GQL = gql`
+  mutation InsertTxMetadata($object: tx_metadata_insert_input!) {
+    insert_tx_metadata_one(object: $object) {
+      timepoint_index
+      timepoint_index
+    }
+  }
+`
+
 // handles inserting tx metadata to db, as well as fast insert into cache
 export const useInsertTxMetadata = () => {
   const [txMetadataByTeamId, setTxMetadataByTeamId] = useRecoilState(txMetadataByTeamIdState)
   const teams = useRecoilValue(teamsState)
+  const [insertTx] = useMutation<any, { object: Omit<RawTxMetadata, 'created'> }>(INSERT_TX_METADATA_GQL)
 
   const insertMetadata = useCallback(
     async (
-      signedInAccount: SignedInAccount, // TODO: attach this to graphql request
       multisig: Multisig,
       other: Pick<
         TxMetadata,
-        'callData' | 'changeConfigDetails' | 'description' | 'timepointHeight' | 'timepointIndex'
+        'callData' | 'changeConfigDetails' | 'description' | 'timepointHeight' | 'timepointIndex' | 'contractDeployed'
       > & { hash: string; extrinsicId: string }
     ) => {
       // make sure multisig is stored in db
@@ -225,37 +254,39 @@ export const useInsertTxMetadata = () => {
         newTxMetadataByTeamId[teamId] = txMetadata
       })
 
-      const txMetadata: TxMetadata = {
-        extrinsicId: other.extrinsicId,
-        teamId: multisig.id,
-        timepointHeight: other.timepointHeight,
-        timepointIndex: other.timepointIndex,
+      const rawTxMetadata: Omit<RawTxMetadata, 'created'> = {
+        team_id: multisig.id,
         chain: multisig.chain.squidIds.chainData,
-        callData: other.callData,
-        changeConfigDetails: other.changeConfigDetails,
-        created: new Date(),
+        proxy_address: multisig.proxyAddress.toSs58(),
+        multisig_address: multisig.multisigAddress.toSs58(),
+        call_data: other.callData,
         description: other.description,
+        timepoint_index: other.timepointIndex,
+        timepoint_height: other.timepointHeight,
+        change_config_details: other.changeConfigDetails
+          ? {
+              newMembers: other.changeConfigDetails.newMembers.map(addr => addr.toSs58()),
+              newThreshold: other.changeConfigDetails.newThreshold,
+            }
+          : null,
+        other_metadata: other.contractDeployed
+          ? {
+              contractDeployed: {
+                abiString: JSON.stringify(other.contractDeployed.abi.json),
+                name: other.contractDeployed.name,
+              },
+            }
+          : null,
       }
 
+      // save metadata to in-memory cache
+      const metadata = parseTxMetadata({ ...rawTxMetadata, created: new Date().toString() })
       if (!newTxMetadataByTeamId[multisig.id]) newTxMetadataByTeamId[multisig.id] = { data: {} }
-
-      newTxMetadataByTeamId[multisig.id]!.data[other.extrinsicId] = txMetadata
-
+      newTxMetadataByTeamId[multisig.id]!.data[other.extrinsicId] = metadata
       setTxMetadataByTeamId(newTxMetadataByTeamId)
 
       // store metadata to db
-      insertTxMetadata({
-        multisig_address: multisig.multisigAddress,
-        proxy_address: multisig.proxyAddress,
-        chain: multisig.chain,
-        call_data: other.callData,
-        call_hash: other.hash,
-        description: other.description,
-        timepoint_height: other.timepointHeight,
-        timepoint_index: other.timepointIndex,
-        change_config_details: other.changeConfigDetails,
-        team_id: multisig.id,
-      })
+      insertTx({ variables: { object: rawTxMetadata } })
         .then(() => {
           console.log(`Successfully POSTed metadata for ${other.extrinsicId} to metadata service`)
         })
@@ -264,7 +295,7 @@ export const useInsertTxMetadata = () => {
           toast.error('Failed to POST tx metadata sharing service. See console for more info.')
         })
     },
-    [setTxMetadataByTeamId, teams, txMetadataByTeamId]
+    [insertTx, setTxMetadataByTeamId, teams, txMetadataByTeamId]
   )
 
   return insertMetadata

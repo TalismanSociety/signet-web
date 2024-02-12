@@ -1,4 +1,4 @@
-import { Transaction, TxOffchainMetadata, executingTransactionsState, useSelectedMultisig } from '@domains/multisig'
+import { Transaction, executingTransactionsState, useSelectedMultisig } from '@domains/multisig'
 import { SideSheet } from '@talismn/ui'
 import { TransactionSidesheetHeader } from './TransactionSidesheetHeader'
 import { useCallback, useMemo, useState } from 'react'
@@ -15,6 +15,7 @@ import { useDeleteDraftMetadata, useSaveDraftMetadata } from '@domains/offchain-
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@components/ui/use-toast'
 import { useRecoilState } from 'recoil'
+import { TxMetadata } from '@domains/offchain-data'
 
 type TransactionSidesheetProps = {
   onApproved?: (res: { result: SubmittableResult; executed: boolean }) => void
@@ -26,7 +27,7 @@ type TransactionSidesheetProps = {
   open?: boolean
   description: string
   calldata: `0x${string}`
-  otherTxMetadata?: Pick<TxOffchainMetadata, 'changeConfigDetails'>
+  otherTxMetadata?: Pick<TxMetadata, 'changeConfigDetails' | 'contractDeployed'>
   t?: Transaction
 }
 
@@ -158,6 +159,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
         description,
         teamId: selectedMultisig.id,
         changeConfigDetails: otherTxMetadata?.changeConfigDetails,
+        contractDeployed: otherTxMetadata?.contractDeployed,
       })
 
       if (saved.errors) {
@@ -184,6 +186,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     onClose,
     onSaved,
     otherTxMetadata?.changeConfigDetails,
+    otherTxMetadata?.contractDeployed,
     preventRedirect,
     saveDraft,
     selectedMultisig.id,

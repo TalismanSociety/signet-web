@@ -30,9 +30,9 @@ const Header: React.FC<{ loading: boolean; supported?: boolean; isCollaborator: 
             <Button variant="outline" size="lg" asLink to="/smart-contracts/add">
               Add contract
             </Button>
-            {/* <Button variant="outline" size="lg" asLink to="/smart-contracts/deploy">
+            <Button variant="outline" size="lg" asLink to="/smart-contracts/deploy">
               Deploy New
-            </Button> */}
+            </Button>
           </div>
         )}
       </div>

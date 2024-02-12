@@ -1,6 +1,6 @@
 import { captureException } from '@sentry/react'
 import { SignedInAccount, selectedAccountState } from '../auth'
-import { Variables, request } from 'graphql-request'
+import { RequestDocument, Variables, request } from 'graphql-request'
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink, useQuery } from '@apollo/client'
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil'
 import { setContext } from '@apollo/client/link/context'
@@ -14,7 +14,7 @@ type Response<TData = any> = {
 }
 
 export const requestSignetBackend = async <TData = any, TVariables extends Variables = any>(
-  query: string,
+  query: string | RequestDocument,
   variables?: TVariables,
   signer?: SignedInAccount
 ): Promise<Response<TData>> => {

@@ -167,6 +167,8 @@ const AddressInput: React.FC<Props> = ({
           }
         }}
         onFocus={() => setExpanded(addresses.length > 0 || validRawInputAddress !== undefined)}
+        onClear={handleClearInput}
+        showClearButton={!!controlledSelectedInput}
       />
       <div
         className={'bg-gray-800 shadow-lg'}

@@ -2,14 +2,15 @@ import { BaseToken, decodeCallData } from '@domains/chains'
 import { TransactionDecoded, extrinsicToDecoded } from './index'
 import { ApiPromise } from '@polkadot/api'
 import { getErrorString } from '@util/misc'
-import { Multisig, TxOffchainMetadata } from '.'
+import { Multisig } from './index'
+import { TxMetadata } from '@domains/offchain-data'
 
 export const innerCalldataToTransaction = (
   calldata: `0x${string}`,
   multisig: Multisig,
   api: ApiPromise,
   curChainTokens: BaseToken[],
-  otherTxMetadata?: Pick<TxOffchainMetadata, 'changeConfigDetails'>
+  otherTxMetadata?: Pick<TxMetadata, 'changeConfigDetails' | 'contractDeployed'>
 ): {
   error?: string
   transaction?: {

@@ -1,13 +1,15 @@
 import { Transaction } from '@domains/multisig'
 import { useContractByAddress } from '@domains/substrate-contracts/useContractByAddress'
 import { useMemo } from 'react'
-import { hexToU8a, compactAddLength } from '@polkadot/util'
+import { hexToU8a, compactAddLength, formatBalance } from '@polkadot/util'
 import { StatusMessage } from '@components/StatusMessage'
 import { useApi } from '@domains/chains/pjs-api'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { cn } from '@util/tailwindcss'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Address } from '@util/addresses'
+import { useTokenByChain } from '@domains/balances/useTokenByChain'
+import { Skeleton } from '@talismn/ui'
 
 const Row: React.FC<React.PropsWithChildren & { label: string; className?: string }> = ({
   label,
@@ -26,9 +28,15 @@ const IS_ADDRESS: Record<string, boolean> = {
   LookupSource: true,
   MultiAddress: true,
 }
+const IS_BALANCE: Record<string, boolean> = {
+  Balance: true,
+  BalanceOf: true,
+}
+
 export const SmartContractCallExpandedDetails: React.FC<{ t: Transaction }> = ({ t }) => {
   const { api } = useApi(t.multisig.chain.rpcs)
   const { contract, contractDetails, loading } = useContractByAddress(t.decoded?.contractCall?.address, api)
+  const { symbol, decimal } = useTokenByChain(t.multisig.chain.rpcs)
   const { contactByAddress } = useKnownAddresses(t.multisig.id, {
     includeContracts: true,
     includeSelectedMultisig: true,
@@ -88,6 +96,24 @@ export const SmartContractCallExpandedDetails: React.FC<{ t: Transaction }> = ({
                 />
               </Row>
             )
+        }
+
+        if (IS_BALANCE[arg.type.type]) {
+          return (
+            <Row key={index} label={arg.name}>
+              {decimal === undefined || symbol === undefined ? (
+                <Skeleton.Surface className="h-[20px] w-[80px]" />
+              ) : (
+                <p>
+                  {formatBalance(val.toString(), {
+                    decimals: decimal.toNumber(),
+                    withUnit: false,
+                  })}{' '}
+                  {symbol.toUpperCase()}
+                </p>
+              )}
+            </Row>
+          )
         }
         return (
           <Row key={index} label={arg.name}>

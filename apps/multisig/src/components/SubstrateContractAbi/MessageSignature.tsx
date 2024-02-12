@@ -2,6 +2,7 @@ import { Chain } from '@domains/chains'
 import { useApi } from '@domains/chains/pjs-api'
 import { AbiMessage } from '@polkadot/api-contract/types'
 import { encodeTypeDef } from '@polkadot/types/create'
+import { Skeleton } from '@talismn/ui'
 
 type Props = {
   message: AbiMessage
@@ -11,7 +12,7 @@ type Props = {
 
 export const MessageSignature: React.FC<Props> = ({ message, chain, withoutDocs }) => {
   const { api } = useApi(chain.rpcs)
-  if (!api) return <p>'...'</p>
+  if (!api) return <Skeleton.Surface className="w-[120px] h-[20px]" />
   return (
     <div className="w-full overflow-hidden text-left">
       <p className="text-[14px]">

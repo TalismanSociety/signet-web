@@ -9,6 +9,7 @@ import { ParamInputComponent } from './param-input/param-input.types'
 import { StringParamInput } from './param-input/String'
 import { AmountParamInput } from './param-input/Amount'
 import { HashParamInput } from './param-input/Hash'
+import { ContractBalanceInput } from './param-input/Balance'
 
 type Props = {
   chain: Chain
@@ -57,9 +58,10 @@ const Comp = ({
       case 'u128':
       case 'u256':
       case 'Amount':
+        return AmountParamInput
       case 'Balance':
       case 'BalanceOf':
-        return AmountParamInput
+        return ContractBalanceInput
       case 'Text':
       case 'String':
         return StringParamInput

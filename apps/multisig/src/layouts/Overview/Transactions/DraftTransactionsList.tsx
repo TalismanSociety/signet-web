@@ -1,5 +1,6 @@
 import {
   ChangeConfigDetails,
+  ContractDetails,
   DUMMY_MULTISIG_ID,
   Transaction,
   TransactionApprovals,
@@ -14,6 +15,7 @@ import { useApi } from '@domains/chains/pjs-api'
 import { TransactionsList } from './TransactionsList'
 import { Address } from '@util/addresses'
 import { GET_TX_METADATA_DRAFT_QUERY, TxMetadataDraftRaw } from '@domains/offchain-data/tx-metadata-draft'
+import { Abi } from '@polkadot/api-contract'
 
 type Props = {
   value: string
@@ -75,12 +77,22 @@ export const DraftTransactionsList: React.FC<Props> = ({ value }) => {
             }
         }
 
+        let contractDeployed: ContractDetails | undefined
+        if (tx.other_metadata && tx.other_metadata.contractDeployed) {
+          try {
+            contractDeployed = {
+              abi: new Abi(tx.other_metadata.contractDeployed.abiString as string),
+              name: tx.other_metadata.contractDeployed.name,
+            }
+          } catch (e) {}
+        }
+
         const { transaction } = innerCalldataToTransaction(
           tx.call_data as `0x${string}`,
           selectedMultisig,
           api,
           curChainTokens,
-          { changeConfigDetails }
+          { changeConfigDetails, contractDeployed }
         )
         if (!transaction) return
 

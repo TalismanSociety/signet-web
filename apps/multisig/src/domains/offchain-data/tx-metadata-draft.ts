@@ -1,5 +1,5 @@
 import { useApolloClient, useMutation } from '@apollo/client'
-import { ChangeConfigDetails, useSelectedMultisig } from '@domains/multisig'
+import { ChangeConfigDetails, ContractDetails, useSelectedMultisig } from '@domains/multisig'
 import { gql } from 'graphql-tag'
 import { useCallback } from 'react'
 
@@ -15,6 +15,7 @@ export type TxMetadataDraftRaw = {
   change_config_details: any
   call_data: string
   description: string
+  other_metadata: any
 }
 
 export const GET_TX_METADATA_DRAFT_QUERY = gql`
@@ -31,18 +32,26 @@ export const GET_TX_METADATA_DRAFT_QUERY = gql`
       change_config_details
       call_data
       description
+      other_metadata
     }
   }
 `
 
 const SAVE_DRAFT_METADATA = gql`
-  mutation SaveDraftMutation($teamId: uuid!, $callData: String!, $changeConfigDetails: json, $description: String!) {
+  mutation SaveDraftMutation(
+    $teamId: uuid!
+    $callData: String!
+    $changeConfigDetails: json
+    $description: String!
+    $otherMetadata: jsonb
+  ) {
     insert_tx_metadata_draft_one(
       object: {
         team_id: $teamId
         call_data: $callData
         change_config_details: $changeConfigDetails
         description: $description
+        other_metadata: $otherMetadata
       }
     ) {
       id
@@ -68,6 +77,12 @@ type SaveDraftProps = {
     newThreshold: number
     newMembers: string[]
   } | null
+  otherMetadata: {
+    contractDeployed: {
+      abiString: string
+      name: string
+    }
+  } | null
 }
 
 export const useSaveDraftMetadata = () => {
@@ -80,11 +95,12 @@ export const useSaveDraftMetadata = () => {
 
   const saveDraft = useCallback(
     async (
-      props: Omit<SaveDraftProps, 'changeConfigDetails'> & {
+      props: Omit<SaveDraftProps, 'changeConfigDetails' | 'otherMetadata'> & {
         changeConfigDetails?: ChangeConfigDetails
+        contractDeployed?: ContractDetails
       }
     ) => {
-      const { changeConfigDetails, ...rest } = props
+      const { changeConfigDetails, contractDeployed, ...rest } = props
       const saved = await mutateSaveDraft({
         variables: {
           ...rest,
@@ -92,6 +108,14 @@ export const useSaveDraftMetadata = () => {
             ? {
                 newThreshold: changeConfigDetails.newThreshold,
                 newMembers: changeConfigDetails.newMembers.map(a => a.toSs58(selectedMultisig.chain)),
+              }
+            : null,
+          otherMetadata: contractDeployed
+            ? {
+                contractDeployed: {
+                  abiString: JSON.stringify(contractDeployed.abi.json),
+                  name: contractDeployed.name,
+                },
               }
             : null,
         },
