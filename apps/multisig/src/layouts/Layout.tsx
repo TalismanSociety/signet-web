@@ -63,6 +63,7 @@ export const Layout: React.FC<
                         name: 'Staking',
                         icon: <Zap />,
                         href: '/staking',
+                        hidden: !devMode,
                       },
                       {
                         name: 'Address Book',
