@@ -44,7 +44,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           >
             {loading && <CircularProgressIndicator size={16} />}
             {(showClearButton || !!props.value) && !!onClear && (
-              <Button size="icon" variant="ghost" onClick={onClear}>
+              <Button size="icon" variant="ghost" onClick={onClear} className="h-[30px]" type="button">
                 <X size={16} />
               </Button>
             )}

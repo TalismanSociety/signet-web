@@ -2,9 +2,9 @@ import toast from 'react-hot-toast'
 import AddressInput, { AddressWithName } from './AddressInput'
 import { Address } from '../util/addresses'
 import { useState } from 'react'
-import { Button } from '@talismn/ui'
 import { Plus } from '@talismn/icons'
 import { Chain } from '@domains/chains'
+import { Button } from './ui/button'
 
 type Props = {
   onNewAddress: (a: Address) => void
@@ -39,10 +39,6 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
         alignItems: 'center',
         gap: 8,
         width: '100%',
-        button: {
-          height: 54,
-          gap: 12,
-        },
       }}
     >
       <AddressInput
@@ -55,7 +51,9 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
           setAddress(address)
         }}
       />
-      <Button disabled={!address} variant="outlined" leadingIcon={<Plus size={24} />} type="submit">
+
+      <Button disabled={!address} variant="outline" type="submit" className="px-[12px] gap-[4px]">
+        <Plus size={24} />
         <p css={{ marginTop: 4, marginLeft: 8 }}>Add</p>
       </Button>
     </form>
