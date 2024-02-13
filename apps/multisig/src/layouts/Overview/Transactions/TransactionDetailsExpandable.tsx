@@ -8,15 +8,15 @@ import { CallDataPasteForm } from '@components/CallDataPasteForm'
 import AmountRow from '@components/AmountRow'
 import MemberRow from '@components/MemberRow'
 import { Rpc, decodeCallData } from '@domains/chains'
-import { pjsApiSelector } from '@domains/chains/pjs-api'
-import { Balance, Transaction, TransactionType, calcSumOutgoing } from '@domains/multisig'
+import { pjsApiSelector, useApi } from '@domains/chains/pjs-api'
+import { Balance, Transaction, TransactionType, calcSumOutgoing, tempCalldataState } from '@domains/multisig'
 import { css } from '@emotion/css'
 import { useTheme } from '@emotion/react'
 import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote, Zap } from '@talismn/icons'
 import { Address } from '@util/addresses'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import AceEditor from 'react-ace'
-import { useRecoilValueLoadable } from 'recoil'
+import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 import { VoteExpandedDetails, VoteTransactionHeaderContent } from './VoteTransactionDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { SmartContractCallExpandedDetails } from '../../SmartContracts/SmartContractCallExpandedDetails'
@@ -30,6 +30,7 @@ import { useDecodedCalldata } from '@domains/common'
 import { Upload } from 'lucide-react'
 import { DeployContractExpandedDetails } from '../../../layouts/SmartContracts/DeployContractExpandedDetails'
 import { cn } from '@util/tailwindcss'
+import { isExtrinsicProxyWrapped } from '@util/extrinsics'
 
 const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
@@ -305,6 +306,9 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
 
 const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
+  const setTempCalldata = useSetRecoilState(tempCalldataState)
+  const [decodeError, setDecodeError] = useState<string>()
+  const { api } = useApi(t.multisig.chain.rpcs)
 
   const { name, icon } = useMemo(() => {
     if (!t.decoded) return { name: 'Unknown Transaction', icon: <Unknown /> }
@@ -364,18 +368,43 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
             <CallDataPasteForm
               extrinsic={undefined}
               setExtrinsic={e => {
-                if (!e) return
+                if (!e || !t.id || !api) return setDecodeError("Couldn't decode calldata, please try again.")
 
-                // TODO: save the calldata in cache and save to db
+                // use whatever the user paste if it matches the hash
+                if (api.registry.hash(e.method.toU8a()).toHex() === t.hash) {
+                  setDecodeError(undefined)
+                  return setTempCalldata(prev => ({ ...prev, [t.id as string]: e.method.toHex() }))
+                } else {
+                  // if not match, check whether tx is wrapped in proxy call
+                  const { isWrapped } = isExtrinsicProxyWrapped(e, t.multisig.proxyAddress)
+                  if (!isWrapped) {
+                    // calldata should be wrapped in proxy call, since it's not, we wrap it and match the hash again
+                    const wrapped = api.tx.proxy.proxy(t.multisig.proxyAddress.bytes, null, e)
+                    // calldata ok after we help wrap it
+                    if (api.registry.hash(wrapped.method.toU8a()).toHex() === t.hash) {
+                      setDecodeError(undefined)
+                      return setTempCalldata(prev => ({ ...prev, [t.id as string]: wrapped.method.toHex() }))
+                    }
+                  }
+                  setDecodeError("Calldata doesn't match transaction hash.")
+                }
+              }}
+              onError={error => {
+                if (error.includes('Cannot decode value')) {
+                  setDecodeError('Not a valid calldata')
+                } else {
+                  setDecodeError(error)
+                }
               }}
             />
             <p className="!text-[12px]">
               Call Hash <code>{t.hash}</code>
             </p>
+            {!!decodeError && <p className="mt-[8px] text-red-500">{decodeError}</p>}
           </div>
         )
     }
-  }, [t])
+  }, [api, decodeError, setTempCalldata, t])
 
   return (
     <div className="px-[16px] bg-gray-600 rounded-[16px] max-w-[100%]">

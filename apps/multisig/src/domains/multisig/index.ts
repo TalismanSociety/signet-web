@@ -647,6 +647,11 @@ export const executingTransactionsState = atom<Transaction[]>({
   dangerouslyAllowMutability: true, // fixes an issue with pjs mutating itself
 })
 
+export const tempCalldataState = atom<Record<string, `0x${string}`>>({
+  key: 'TempCalldata',
+  default: {},
+})
+
 // transforms raw transaction from the chain into a full Transaction
 export const PendingTransactionsWatcher = () => {
   const selectedMultisig = useRecoilValue(selectedMultisigState)
@@ -657,6 +662,7 @@ export const PendingTransactionsWatcher = () => {
   const setLoading = useSetRecoilState(pendingTransactionsLoadingState)
   const setPendingTransactions = useSetRecoilState(pendingTransactionsState)
   const txMetadataByTeamId = useRecoilValue(txMetadataByTeamIdState)
+  const tempCalldata = useRecoilValue(tempCalldataState)
 
   const watchingAddress = useMemo(
     () => selectedMultisig.multisigAddress.toSs58(selectedMultisig.chain),
@@ -682,15 +688,16 @@ export const PendingTransactionsWatcher = () => {
       const transactionID = makeTransactionID(rawPending.multisig.chain, timepoint_height, timepoint_index)
 
       const metadata = txMetadataByTeamId[rawPending.multisig.id]?.data[transactionID]
+      const calldata = metadata?.callData ?? tempCalldata[transactionID]
 
-      if (metadata) {
+      if (calldata) {
         try {
           // Validate calldata from the metadata service matches the hash from the chain
           const pjsApi = allApisLoadable.contents.get(rawPending.multisig.chain.squidIds.chainData)
           if (!pjsApi) throw Error(`pjsApi found for rpc ${rawPending.multisig.chain.squidIds.chainData}!`)
 
           // create extrinsic from callData
-          const extrinsic = decodeCallData(pjsApi, metadata.callData)
+          const extrinsic = decodeCallData(pjsApi, calldata)
           if (!extrinsic) {
             throw new Error(
               `Failed to create extrinsic from callData recieved from metadata sharing service for transactionID ${transactionID}`
@@ -709,12 +716,17 @@ export const PendingTransactionsWatcher = () => {
           const chainTokens = allActiveChainTokens.contents.get(rawPending.multisig.chain.squidIds.chainData)
           if (!chainTokens) throw Error('Failed to load chainTokens for chain!')
 
-          const decoded = extrinsicToDecoded(rawPending.multisig, extrinsic, chainTokens, metadata)
+          const decoded = extrinsicToDecoded(
+            rawPending.multisig,
+            extrinsic,
+            chainTokens,
+            metadata ?? { callData: calldata }
+          )
           if (decoded === 'not_ours') return null
 
           return {
             date: rawPending.date,
-            callData: metadata.callData,
+            callData: calldata,
             hash: rawPending.callHash,
             rawPending: rawPending,
             multisig: rawPending.multisig,
@@ -750,6 +762,7 @@ export const PendingTransactionsWatcher = () => {
     setPendingTransactions,
     setLoading,
     txMetadataByTeamId,
+    tempCalldata,
     allApisLoadable.contents,
     allActiveChainTokens.contents,
   ])

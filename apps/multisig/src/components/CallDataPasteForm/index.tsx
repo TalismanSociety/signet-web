@@ -11,10 +11,12 @@ import { SubmittableExtrinsic } from '@polkadot/api/types'
 import AceEditor from 'react-ace'
 import toast from 'react-hot-toast'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
+import { getErrorString } from '@util/misc'
 
 export const CallDataPasteForm = (props: {
   extrinsic: SubmittableExtrinsic<'promise'> | undefined
   setExtrinsic: (s: SubmittableExtrinsic<'promise'> | undefined) => void
+  onError?: (error: string) => void
 }) => {
   const selectedMultisig = useRecoilValue(selectedMultisigState)
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(selectedMultisig.chain.rpcs))
@@ -33,6 +35,8 @@ export const CallDataPasteForm = (props: {
           if (!extrinsic) throw Error('extrinsic should be loaded, did you try to set before loading was ready?')
           props.setExtrinsic(extrinsic)
         } catch (error) {
+          props.onError?.(getErrorString(error))
+          console.error(error)
           if (error instanceof Error) toast.error(`Invalid calldata: ${error.message}`)
           else toast.error(`Invalid calldata: unknown error`)
         }
