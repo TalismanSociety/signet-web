@@ -67,9 +67,7 @@ export const ExtensionWatcher = () => {
   }, [setExtensionAllowed, setExtensionLoading, toast])
 
   useEffect(() => {
-    if (extensionAllowed && !extensionLoading && !extensionsDetected) {
-      connectWallet()
-    }
+    if (extensionAllowed && !extensionLoading && !extensionsDetected) connectWallet()
   }, [connectWallet, extensionAllowed, extensionLoading, extensionsDetected])
 
   // subscribe to extension accounts - we only subscribe once per session, don't need to unsubscribe / re-subscribe

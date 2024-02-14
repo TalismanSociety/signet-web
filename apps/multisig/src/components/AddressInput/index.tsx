@@ -49,7 +49,10 @@ const AddressInput: React.FC<Props> = ({
   const { resolve, resolving, data, clear } = useAzeroIDPromise()
 
   useEffect(() => {
-    if (value !== undefined && value === '') setAddress(undefined)
+    if (value !== undefined && value === '') {
+      setAddress(undefined)
+      setContact(undefined)
+    }
   }, [value])
 
   const blur = () => {
