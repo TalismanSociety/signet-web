@@ -78,11 +78,14 @@ export const ExtensionWatcher = () => {
 
     setSubscribed(true)
     web3AccountsSubscribe(accounts => {
-      const uniqueAccounts = uniqBy(accounts, account => account.address).map(account => {
-        const address = Address.fromSs58(account.address)
-        if (!address) throw Error("Can't parse address from web3AccountsSubscribe!")
-        return { ...account, address }
-      })
+      const uniqueAccounts = uniqBy(accounts, account => account.address)
+        .map(account => {
+          const address = Address.fromSs58(account.address)
+          // we force `as Address` so it can be used with setAccounts without having to define the type
+          return { ...account, address: address as Address }
+        })
+        // address may actually be false if invalid (e.g. evm address)
+        .filter(({ address }) => !!address)
 
       setAccounts(uniqueAccounts)
     }).catch(e => {
