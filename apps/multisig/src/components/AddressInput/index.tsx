@@ -55,10 +55,10 @@ const AddressInput: React.FC<Props> = ({
     }
   }, [value])
 
-  const blur = () => {
+  const blur = useCallback(() => {
     setExpanded(false)
     setQuerying(false)
-  }
+  }, [])
 
   useOnClickOutside(containerRef.current, blur)
 

@@ -145,11 +145,11 @@ export const Dapps: React.FC = () => {
             className={clsx(
               expanded
                 ? 'absolute left-0 right-0 lg:left-[16px] lg:right-[16px] lg:bottom-[16px] rounded-b-0 rounded-t-[12px] lg:rounded-b-[12px] top-[96px] bottom-0'
-                : 'w-full rounded-[12px]',
-              'bg-gray-800 overflow-hidden border border-gray-600 transition-all duration-300'
+                : 'w-full overflow-hidden rounded-[12px]',
+              'bg-gray-800 border border-gray-600 transition-all duration-300 flex flex-col flex-1'
             )}
           >
-            <div className="flex flex-1 items-center justify-between px-[12px] py-[8px] gap-[8px]">
+            <div className="flex items-center justify-between px-[12px] py-[8px] gap-[8px]">
               <div className="flex flex-1 items-center w-1 gap-[8px]">
                 {isSdkSupported ? (
                   <Tooltip
@@ -204,7 +204,7 @@ export const Dapps: React.FC = () => {
               ref={iframeRef}
               src={input.toLowerCase()}
               title="Signet Dapps"
-              className="w-full h-full min-h-[calc(100vh-300px)] visible"
+              className="w-full h-full flex flex-1"
             />
           </div>
         ) : (
