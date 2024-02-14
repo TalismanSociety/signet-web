@@ -83,18 +83,13 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
         <div>
           {!!t.multisig.chain.polkaAssemblyUrl ? (
             <a
-              className={css`
-                color: var(--color-offWhite);
-                :hover {
-                  color: var(--color-primary);
-                }
-              `}
+              className="text-[16px] text-offWhite hover:text-primary flex items-center"
               href={`${t.multisig.chain.polkaAssemblyUrl}/referenda/${referendumId}`}
               target="_blank"
               rel="noopener noreferrer"
             >
               {name}
-              <span style={{ marginLeft: '8px' }}>
+              <span className="mb-[4px] ml-[8px]">
                 <ExternalLink size={14} />
               </span>
             </a>

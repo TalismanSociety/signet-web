@@ -229,6 +229,7 @@ export const supportedChains: Chain[] = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/v3/assets/chains/rococo-testnet.svg',
     isTestnet: true,
     subscanUrl: 'https://rococo.subscan.io/',
+    polkaAssemblyUrl: 'https://rococo.polkassembly.io',
     nativeToken: {
       id: 'rococo-testnet-substrate-native',
     },
