@@ -5,7 +5,7 @@ import { toMultisigAddress } from '@util/addresses'
 import { useCallback, useEffect } from 'react'
 import { useRecoilValue } from 'recoil'
 
-import Assets, { TokenAugmented } from './Assets'
+import Assets from './Assets'
 import Transactions from './Transactions'
 import { Layout } from '../Layout'
 import { useUpdateMultisigConfig } from '../../domains/offchain-data'
@@ -94,7 +94,7 @@ const Overview = () => {
     detectChangeAndAutoUpdate()
   }, [detectChangeAndAutoUpdate, selectedMultisig.id, selectedMultisig.proxies])
 
-  const augmentedTokens: TokenAugmented[] = useAugmentedBalances()
+  const augmentedTokens = useAugmentedBalances()
   return (
     <Layout selected="Overview" requiresMultisig>
       <div className="flex flex-col lg:flex-row gap-[16px] flex-1 w-[100px]">

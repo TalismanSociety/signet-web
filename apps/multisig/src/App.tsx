@@ -55,6 +55,7 @@ const App: React.FC = () => (
         balanceModules={balanceModules}
         withTestnets
         enabledChains={supportedChains.map(chain => chain.genesisHash)}
+        coingeckoApiUrl="https://coingecko.talismn.workers.dev"
       >
         <HasuraProvider>
           <AzeroIDResolverProvider>

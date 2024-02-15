@@ -25,7 +25,7 @@ async function callPriceApis(token: BaseToken): Promise<Price> {
   const thirtyDaysAgoString = thirtyDaysAgo.toISOString().split('T')[0]
   // always try to get from coingecko
   const coingeckoPromise = fetch(
-    `https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoId}&vs_currencies=usd`
+    `https://coingecko.talismn.workers.dev/api/v3/simple/price?ids=${coingeckoId}&vs_currencies=usd`
   ).then(x => x.json())
 
   // try to get ema prices from subscan
