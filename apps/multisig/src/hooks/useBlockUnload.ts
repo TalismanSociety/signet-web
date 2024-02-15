@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
-import { unstable_useBlocker, useBeforeUnload } from 'react-router-dom'
+import { useBlocker, useBeforeUnload } from 'react-router-dom'
 
 export const useBlockUnload = (shouldBlock: boolean) => {
-  unstable_useBlocker(shouldBlock)
+  useBlocker(shouldBlock)
   useBeforeUnload(
     useCallback(
       e => {
