@@ -47,7 +47,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   const [approving, setApproving] = useState(false)
   const [rejecting, setRejecting] = useState(false)
   const [selectedMultisig] = useSelectedMultisig()
-  const { api } = useApi(selectedMultisig.chain.rpcs)
+  const { api } = useApi(selectedMultisig.chain.genesisHash)
   const { approve, estimatedFee, readyToExecute, t } = useMultisigExtrinsicFromCalldata(
     description,
     selectedMultisig,

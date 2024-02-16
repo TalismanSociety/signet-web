@@ -116,7 +116,7 @@ const ContractRow: React.FC<{ contract: SmartContract; onDelete: () => void }> =
 }
 export const SmartContractsDashboard: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
-  const { api } = useApi(selectedMultisig?.chain.rpcs)
+  const { api } = useApi(selectedMultisig?.chain.genesisHash)
   const { loading, supported } = useContractPallet(api)
   const [toDelete, setToDelete] = useState<SmartContract>()
   const [deleteConfirmation, setDeleteConfirmation] = useState('')

@@ -7,7 +7,7 @@ import AddressPill from '@components/AddressPill'
 import { CallDataPasteForm } from '@components/CallDataPasteForm'
 import AmountRow from '@components/AmountRow'
 import MemberRow from '@components/MemberRow'
-import { Rpc, decodeCallData } from '@domains/chains'
+import { decodeCallData } from '@domains/chains'
 import { pjsApiSelector, useApi } from '@domains/chains/pjs-api'
 import { Balance, Transaction, TransactionType, calcSumOutgoing, tempCalldataState } from '@domains/multisig'
 import { css } from '@emotion/css'
@@ -202,8 +202,14 @@ const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
   )
 }
 
-function AdvancedExpendedDetails({ callData, rpcs }: { callData: `0x${string}` | undefined; rpcs: Rpc[] }) {
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(rpcs))
+function AdvancedExpendedDetails({
+  callData,
+  genesisHash,
+}: {
+  callData: `0x${string}` | undefined
+  genesisHash: string
+}) {
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(genesisHash))
   const [error, setError] = useState<Error | undefined>(undefined)
 
   const { extrinsic, human, lines } = useMemo(() => {
@@ -308,7 +314,7 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
   const setTempCalldata = useSetRecoilState(tempCalldataState)
   const [decodeError, setDecodeError] = useState<string>()
-  const { api } = useApi(t.multisig.chain.rpcs)
+  const { api } = useApi(t.multisig.chain.genesisHash)
 
   const { name, icon } = useMemo(() => {
     if (!t.decoded) return { name: 'Unknown Transaction', icon: <Unknown /> }
@@ -344,7 +350,7 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
       case TransactionType.ChangeConfig:
         return <ChangeConfigExpandedDetails t={t} />
       case TransactionType.Advanced:
-        return <AdvancedExpendedDetails callData={t.callData} rpcs={t.multisig.chain.rpcs} />
+        return <AdvancedExpendedDetails callData={t.callData} genesisHash={t.multisig.chain.genesisHash} />
       case TransactionType.Vote:
         return <VoteExpandedDetails t={t} />
       case TransactionType.ContractCall:

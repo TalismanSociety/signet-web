@@ -124,7 +124,7 @@ export const decodeCallData = (api: ApiPromise, callData: string) => {
 
 export const useCancelAsMulti = (tx?: Transaction) => {
   const extensionAddresses = useRecoilValue(accountsState)
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(tx?.multisig.chain.rpcs || []))
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(tx?.multisig.chain.genesisHash || ''))
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(tx?.multisig.chain.nativeToken.id))
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
   const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
@@ -224,7 +224,7 @@ export const useCancelAsMulti = (tx?: Transaction) => {
 export const useAsMulti = (extensionAddress: Address | undefined, t?: Transaction) => {
   const [selectedMultisig] = useSelectedMultisig()
   const multisig = useMemo(() => t?.multisig ?? selectedMultisig, [selectedMultisig, t?.multisig])
-  const { api } = useApi(multisig.chain.rpcs)
+  const { api } = useApi(multisig.chain.genesisHash)
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(multisig.chain.nativeToken.id))
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
   const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
@@ -350,7 +350,7 @@ export const useApproveAsMulti = (
   timepoint: Timepoint | null | undefined,
   multisig: Multisig | undefined
 ) => {
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig?.chain.rpcs || []))
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig?.chain.genesisHash || ''))
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(multisig?.chain.nativeToken.id || null))
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
   const insertTxMetadata = useInsertTxMetadata()
@@ -483,7 +483,7 @@ export const useApproveAsMulti = (
 }
 
 export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefined) => {
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.rpcs))
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(chain.nativeToken.id))
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
   const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
@@ -573,7 +573,7 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
  * @returns
  */
 export const useTransferProxyToMultisig = (chain: Chain) => {
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.rpcs))
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
 
   const transferProxyToMultisig = useCallback(
     async (

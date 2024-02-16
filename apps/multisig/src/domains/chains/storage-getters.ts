@@ -12,10 +12,10 @@ import { Address } from '@util/addresses'
 import { useCallback } from 'react'
 import { atom, selector, selectorFamily, useRecoilValueLoadable } from 'recoil'
 
-import { BaseToken, Chain, Rpc, tokenByIdQuery } from './tokens'
+import { BaseToken, Chain, tokenByIdQuery } from './tokens'
 
 export const useAddressIsProxyDelegatee = (chain: Chain) => {
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.rpcs))
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
 
   const addressIsProxyDelegatee = useCallback(
     async (proxy: Address, address: Address) => {
@@ -86,8 +86,7 @@ export const rawPendingTransactionsSelector = selectorFamily({
 
       if (!multisig) return []
 
-      const api = get(pjsApiSelector(multisig.chain.rpcs))
-      await api.isReady
+      const api = get(pjsApiSelector(multisig.chain.genesisHash))
       const nativeToken = get(tokenByIdQuery(multisig.chain.nativeToken.id))
 
       if (!api.query.multisig?.multisigs) {
@@ -111,8 +110,10 @@ export const rawPendingTransactionsSelector = selectorFamily({
             }
             // attach the date to tx details
             const onChainMultisig = opt.unwrap()
-            const hash = get(blockHashSelector({ height: onChainMultisig.when.height, rpcs: multisig.chain.rpcs }))
-            const date = new Date(get(blockTimestampSelector({ hash, rpcs: multisig.chain.rpcs })))
+            const hash = get(
+              blockHashSelector({ height: onChainMultisig.when.height, genesisHash: multisig.chain.genesisHash })
+            )
+            const date = new Date(get(blockTimestampSelector({ hash, genesisHash: multisig.chain.genesisHash })))
             if (!key.args[1]) throw Error('args is length 2; qed.')
             const callHash = key.args[1]
             return {
@@ -170,9 +171,9 @@ export const allRawPendingTransactionsSelector = selector({
 export const blockTimestampSelector = selectorFamily({
   key: 'blockTimestampSelector',
   get:
-    ({ hash, rpcs }: { hash: BlockHash; rpcs: Rpc[] }) =>
+    ({ hash, genesisHash }: { hash: BlockHash; genesisHash: string }) =>
     async ({ get }): Promise<number> => {
-      const api = get(pjsApiSelector(rpcs))
+      const api = get(pjsApiSelector(genesisHash))
       await api.isReady
       if (!api.query.timestamp?.now) {
         throw Error('timestamp.now must exist on api')
@@ -184,10 +185,26 @@ export const blockTimestampSelector = selectorFamily({
 export const blockHashSelector = selectorFamily({
   key: 'blockHashSelector',
   get:
-    ({ height, rpcs }: { height: BlockNumber; rpcs: Rpc[] }) =>
+    ({ height, genesisHash }: { height: BlockNumber; genesisHash: string }) =>
     async ({ get }): Promise<BlockHash> => {
-      const api = get(pjsApiSelector(rpcs))
+      const api = get(pjsApiSelector(genesisHash))
       await api.isReady
       return api.rpc.chain.getBlockHash(height)
     },
+})
+
+export const identitySelector = selectorFamily({
+  key: 'identitySelector',
+  get:
+    (identifier: string) =>
+    async ({ get }) => {
+      const [genesisHash, address] = identifier.split(':') as [string, string]
+      if (genesisHash === 'undefined') return undefined
+      const api = get(pjsApiSelector(genesisHash))
+      await api.isReady
+      if (!api.query.identity || !api.query.identity.identityOf) return null
+      const identity = await api.query.identity.identityOf(address)
+      return identity
+    },
+  dangerouslyAllowMutability: true,
 })

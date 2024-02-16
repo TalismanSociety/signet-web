@@ -25,7 +25,7 @@ const NominationPoolOverview: React.FC<{
   chain: Chain
   onEdit: (bondedPool: BondedPool, nominations: Nomination[]) => void
 }> = ({ address, chain, onEdit }) => {
-  const { api } = useApi(chain.rpcs)
+  const { api } = useApi(chain.genesisHash)
   const { nativeToken } = useNativeToken(chain.nativeToken.id)
 
   const nomPool = useNomPoolOf(address)

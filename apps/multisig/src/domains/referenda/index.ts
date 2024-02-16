@@ -61,7 +61,7 @@ export const isVoteFeatureSupported = (api: ApiPromise) =>
 
 export const useReferenda = (chain: Chain) => {
   const [referendums, setReferendums] = useState<ReferendumBasicInfo[] | undefined>()
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.rpcs))
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
 
   const isPalletSupported = useMemo(() => {
     if (apiLoadable.state !== 'hasValue') return undefined

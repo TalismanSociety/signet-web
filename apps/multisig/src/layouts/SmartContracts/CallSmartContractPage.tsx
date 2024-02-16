@@ -19,7 +19,7 @@ export const CallSmartContractPage: React.FC = () => {
   const { smartContractId } = useParams<{ smartContractId: string }>()
   const { loading, contracts } = useSmartContracts()
   const [selectedMultisig] = useSelectedMultisig()
-  const { api } = useApi(selectedMultisig?.chain.rpcs)
+  const { api } = useApi(selectedMultisig.chain.genesisHash)
   const { loading: loadingPallet, supported } = useContractPallet(api)
   const [message, setMessage] = useState<AbiMessage>()
   const [args, setArgs] = useState<{ value: any; valid: boolean }[]>([])

@@ -44,7 +44,7 @@ const Settings = () => {
   const [multisig] = useSelectedMultisig()
   const [newMembers, setNewMembers] = useState(multisig.signers)
   const [newThreshold, setNewThreshold] = useState(multisig.threshold)
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.rpcs))
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
   const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic<'promise'> | undefined>()
 
   const newMultisigAddress = toMultisigAddress(newMembers, newThreshold)

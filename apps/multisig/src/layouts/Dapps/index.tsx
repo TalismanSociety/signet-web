@@ -43,7 +43,7 @@ export const Dapps: React.FC = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const [selectedMultisig] = useSelectedMultisig()
-  const { api } = useApi(selectedMultisig.chain.rpcs)
+  const { api } = useApi(selectedMultisig.chain.genesisHash)
   const { toast } = useToast()
   const [expanded, setExpanded] = useState(false)
 

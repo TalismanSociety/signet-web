@@ -20,7 +20,7 @@ export const constsState = atom<Record<string, Consts>>({
 export const ConstsWatcher: React.FC = () => {
   const [multisig] = useSelectedMultisig()
   const [consts, setConsts] = useRecoilState(constsState)
-  const { api } = useApi(multisig.chain.rpcs)
+  const { api } = useApi(multisig.chain.genesisHash)
 
   const fetchConsts = useCallback(
     async (api: ApiPromise, chainName: string) => {

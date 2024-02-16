@@ -11,7 +11,7 @@ type Props = {
 }
 
 export const MessageSignature: React.FC<Props> = ({ message, chain, withoutDocs }) => {
-  const { api } = useApi(chain.rpcs)
+  const { api } = useApi(chain.genesisHash)
   if (!api) return <Skeleton.Surface className="w-[120px] h-[20px]" />
   return (
     <div className="w-full overflow-hidden text-left">

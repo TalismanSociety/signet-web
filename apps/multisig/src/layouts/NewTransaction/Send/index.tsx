@@ -27,7 +27,7 @@ const SendAction = () => {
   const [selectedToken, setSelectedToken] = useState<BaseToken | undefined>()
   const [amountInput, setAmountInput] = useState('')
   const multisig = useRecoilValue(selectedMultisigState)
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.rpcs))
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
   const { toast } = useToast()
 
   const defaultName = name || `Send ${selectedToken?.symbol || 'Token'}`

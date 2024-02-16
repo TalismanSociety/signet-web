@@ -19,7 +19,7 @@ export const validatorsState = atom<{ validators: Record<string, Validator>; cha
 
 export const ValidatorsWatcher: React.FC = () => {
   const [multisig] = useSelectedMultisig()
-  const { api } = useApi(multisig.chain.rpcs)
+  const { api } = useApi(multisig.chain.genesisHash)
   const [validators, setValidators] = useRecoilState(validatorsState)
 
   const fetchIdentities = useCallback(async (addresses: string[], api: ApiPromise) => {

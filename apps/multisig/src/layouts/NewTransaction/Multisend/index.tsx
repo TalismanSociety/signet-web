@@ -27,7 +27,7 @@ const MultiSend = () => {
   const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic<'promise'> | undefined>()
   const [sends, setSends] = useState<MultiSendSend[]>([])
   const [multisig] = useSelectedMultisig()
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.rpcs))
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
   const { toast } = useToast()
   const permissions = hasPermission(multisig, 'transfer')
 
