@@ -17,7 +17,7 @@ import { Abi } from '@polkadot/api-contract'
 export const AddContractPage: React.FC = () => {
   const navigate = useNavigate()
   const [selectedMultisig] = useSelectedMultisig()
-  const { api } = useApi(selectedMultisig?.chain.rpcs)
+  const { api } = useApi(selectedMultisig.chain.genesisHash)
   const { loading, supported, getContractInfo } = useContractPallet(api)
   const [checkingAddress, setCheckingAddress] = useState(false)
 

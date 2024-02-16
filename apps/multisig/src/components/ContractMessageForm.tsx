@@ -30,7 +30,7 @@ type Props = {
 export const ContractMessageForm: React.FC<Props> = ({ messages, onChange, chain, label = 'Message to send' }) => {
   const [messageIndex, setMessageIndex] = useState(0)
   const [openMethod, setOpenMethod] = useState(false)
-  const { api } = useApi(chain.rpcs)
+  const { api } = useApi(chain.genesisHash)
   const [args, setArgs] = useState<{ value: any; valid: boolean }[]>([])
   const [value, setValue] = useState(BN_ZERO)
 

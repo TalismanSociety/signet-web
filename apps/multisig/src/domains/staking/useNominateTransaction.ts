@@ -11,7 +11,7 @@ export const useNominateTransaction = (
   pool?: BondedPool
 ) => {
   const [multisig] = useSelectedMultisig()
-  const { api } = useApi(multisig.chain.rpcs)
+  const { api } = useApi(multisig.chain.genesisHash)
 
   const extrinsic = useMemo(() => {
     if (!api) return undefined

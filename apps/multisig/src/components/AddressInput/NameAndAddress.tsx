@@ -1,7 +1,8 @@
 import { useAzeroID } from '@domains/azeroid/AzeroIDResolver'
 import { Chain } from '@domains/chains'
+import { useOnchainIdentity } from '@domains/identity/useOnchainIdentity'
 import { Address } from '@util/addresses'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export const NameAndAddress: React.FC<{
   address: Address
@@ -11,22 +12,37 @@ export const NameAndAddress: React.FC<{
   breakLine?: boolean
 }> = ({ address, name, chain, nameOrAddressOnly, breakLine }) => {
   const { resolve } = useAzeroID()
+  const [azeroId, setAzeroId] = useState<string | undefined>()
+  const onchainIdentity = useOnchainIdentity(address, chain)
 
-  const azeroId = useMemo(() => {
-    if (nameOrAddressOnly && name) return undefined
-    return resolve(address.toSs58())?.a0id
-  }, [address, name, nameOrAddressOnly, resolve])
+  useEffect(() => {
+    if ((nameOrAddressOnly && name) || !!azeroId) return
+    setAzeroId(resolve(address.toSs58())?.a0id)
+  }, [address, azeroId, name, nameOrAddressOnly, resolve])
 
-  const primaryText = useMemo(() => {
-    if (name) return name
-    return azeroId ?? address.toShortSs58(chain)
-  }, [address, azeroId, chain, name])
+  const onchainIdentityUi = useMemo(() => {
+    if (!onchainIdentity) return null
+    return (
+      <>
+        {onchainIdentity.identity}{' '}
+        {!!onchainIdentity.subIdentity && (
+          <span className="text-gray-200 text-[12px]">/{onchainIdentity.subIdentity}</span>
+        )}
+      </>
+    )
+  }, [onchainIdentity])
+
+  const primaryText = useMemo(
+    () => name ?? onchainIdentityUi ?? azeroId ?? address.toShortSs58(chain),
+    [address, azeroId, chain, name, onchainIdentityUi]
+  )
 
   const secondaryText = useMemo(() => {
     if (nameOrAddressOnly) return null
-    if (name) return azeroId ?? address.toShortSs58(chain)
-    return azeroId ? address.toShortSs58(chain) : null // address is primary text
-  }, [address, azeroId, chain, name, nameOrAddressOnly])
+    if (name) return onchainIdentityUi ?? azeroId ?? address.toShortSs58(chain)
+    if (onchainIdentityUi) return azeroId ?? address.toShortSs58(chain)
+    return null
+  }, [address, azeroId, chain, name, nameOrAddressOnly, onchainIdentityUi])
 
   if (!secondaryText)
     return <p className="text-offWhite overflow-hidden text-ellipsis mt-[3px] w-full max-w-max">{primaryText}</p>

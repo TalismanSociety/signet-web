@@ -1,9 +1,8 @@
-import { Rpc } from '@domains/chains'
 import { useApi } from '@domains/chains/pjs-api'
 import { useMemo } from 'react'
 
-export const useTokenByChain = (chainRpcs: Rpc[]) => {
-  const { api } = useApi(chainRpcs)
+export const useTokenByChain = (genesisHash: string) => {
+  const { api } = useApi(genesisHash)
 
   return useMemo(() => {
     if (!api) return { loading: true }

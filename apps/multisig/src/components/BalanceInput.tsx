@@ -16,7 +16,7 @@ type Props = {
 
 export const BalanceInput: React.FC<Props> = ({ chain, label, onChange, value }) => {
   const [input, setInput] = useState(value?.toString() ?? '')
-  const { loading, decimal, symbol } = useTokenByChain(chain.rpcs)
+  const { loading, decimal, symbol } = useTokenByChain(chain.genesisHash)
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
     e => {

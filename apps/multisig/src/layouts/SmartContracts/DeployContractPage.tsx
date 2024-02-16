@@ -13,7 +13,7 @@ import { useInstantiateDryRun } from '@domains/substrate-contracts/useInstantiat
 
 export const DepolyContractPage: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
-  const { api } = useApi(selectedMultisig.chain.rpcs)
+  const { api } = useApi(selectedMultisig.chain.genesisHash)
   const [name, setName] = useState('')
   const [abi, setAbi] = useState<Abi>()
   const [reviewing, setReviewing] = useState(false)

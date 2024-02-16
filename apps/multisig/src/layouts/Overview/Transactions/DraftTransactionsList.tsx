@@ -23,7 +23,7 @@ type Props = {
 
 export const DraftTransactionsList: React.FC<Props> = ({ value }) => {
   const [selectedMultisig] = useSelectedMultisig()
-  const { api } = useApi(selectedMultisig.chain.rpcs)
+  const { api } = useApi(selectedMultisig.chain.genesisHash)
   const allActiveChainTokens = useRecoilValueLoadable(allChainTokensSelector)
   const { data, loading, refetch } = useHasura<{
     tx_metadata_draft: TxMetadataDraftRaw[]

@@ -11,7 +11,7 @@ type PoolMembership = {
 }
 
 export const usePoolMembership = (address: Address, chain: Chain) => {
-  const { api } = useApi(chain.rpcs)
+  const { api } = useApi(chain.genesisHash)
   const [membership, setMembership] = useState<PoolMembership | undefined | null>()
   const unsub = useRef<VoidFn | null>(null)
 

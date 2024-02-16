@@ -12,7 +12,7 @@ export const U32Opts = { bitLength: 32, isLe: true }
 // Helper: generates pool stash and reward accounts. assumes poolsPalletId is synced.
 export const usePoolConfig = () => {
   const [multisig] = useSelectedMultisig()
-  const { api } = useApi(multisig.chain.rpcs)
+  const { api } = useApi(multisig.chain.genesisHash)
 
   // Helper: generates pool stash and reward accounts. assumes poolsPalletId is synced.
   const createAccounts = (poolId: number) => {

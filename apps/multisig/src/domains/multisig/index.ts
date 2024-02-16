@@ -693,7 +693,7 @@ export const PendingTransactionsWatcher = () => {
       if (calldata) {
         try {
           // Validate calldata from the metadata service matches the hash from the chain
-          const pjsApi = allApisLoadable.contents.get(rawPending.multisig.chain.squidIds.chainData)
+          const pjsApi = allApisLoadable.contents.get(rawPending.multisig.chain.genesisHash)
           if (!pjsApi) throw Error(`pjsApi found for rpc ${rawPending.multisig.chain.squidIds.chainData}!`)
 
           // create extrinsic from callData

@@ -30,8 +30,8 @@ const IS_ADDRESS: Record<string, boolean> = {
 }
 
 export const DeployContractExpandedDetails: React.FC<{ t: Transaction }> = ({ t }) => {
-  const { api } = useApi(t.multisig.chain.rpcs)
-  const { decimal, symbol } = useTokenByChain(t.multisig.chain.rpcs)
+  const { api } = useApi(t.multisig.chain.genesisHash)
+  const { decimal, symbol } = useTokenByChain(t.multisig.chain.genesisHash)
   const { contactByAddress } = useKnownAddresses(t.multisig.id, {
     includeContracts: true,
     includeSelectedMultisig: true,

@@ -18,7 +18,7 @@ import { useToast } from '@components/ui/use-toast'
 
 const VoteAction: React.FC = () => {
   const multisig = useRecoilValue(selectedMultisigState)
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.rpcs))
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
   const tokens = useRecoilValueLoadable(selectedMultisigChainTokensState)
   const [reviewing, setReviewing] = useState(false)
   const [voteDetails, setVoteDetails] = useState<VoteDetails>({

@@ -18,7 +18,7 @@ type ProxyDefinition = {
 }
 
 export const useProxies = (proxiedAddress: Address, chain: Chain, filter: Filter = {}) => {
-  const { api } = useApi(chain.rpcs)
+  const { api } = useApi(chain.genesisHash)
   const [proxies, setProxies] = useState<ProxyDefinition[] | undefined>()
   const [proxyPalletSupported, setProxyPalletSupported] = useState<boolean | undefined>()
   const [currentAddress, setCurrentAddress] = useState(proxiedAddress.toSs58(chain))

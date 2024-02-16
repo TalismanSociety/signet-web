@@ -57,7 +57,7 @@ const getPoolId = (raw: StorageKey<[u32]>): number => {
 
 export const NomPoolsWatcher: React.FC = () => {
   const [multisig] = useSelectedMultisig()
-  const { api } = useApi(multisig.chain.rpcs)
+  const { api } = useApi(multisig.chain.genesisHash)
   const [bondedPools, setBondedPools] = useRecoilState(bondedPoolsState)
   const { createAccounts } = usePoolConfig()
 

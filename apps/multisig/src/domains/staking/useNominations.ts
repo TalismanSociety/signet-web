@@ -17,7 +17,7 @@ export const useNominations = (
   address?: string
 ): { nominations: Nomination[] | undefined; isReady: boolean } => {
   const [multisig] = useSelectedMultisig()
-  const { api } = useApi(multisig.chain.rpcs)
+  const { api } = useApi(multisig.chain.genesisHash)
   const [nominations, setNominations] = useState<string[] | undefined>()
   const unsub = useRef<VoidFn | null>(null)
   const validators = useRecoilValue(validatorsState)

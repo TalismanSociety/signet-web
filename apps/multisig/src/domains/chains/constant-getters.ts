@@ -24,7 +24,7 @@ export const existentialDepositSelector = selectorFamily({
       const nativeTokenId = chain.nativeToken.id
 
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
-      const apiLoadable = get(pjsApiSelector(chain.rpcs))
+      const apiLoadable = get(pjsApiSelector(chain.genesisHash))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
 
@@ -51,7 +51,7 @@ const proxyDepositBaseSelector = selectorFamily({
       const nativeTokenId = chain.nativeToken.id
 
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
-      const apiLoadable = get(pjsApiSelector(chain.rpcs))
+      const apiLoadable = get(pjsApiSelector(chain.genesisHash))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
 
@@ -76,7 +76,7 @@ const proxyDepositFactorSelector = selectorFamily({
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
       if (!nativeToken) throw Error('Token not found for ' + nativeTokenId)
 
-      const apiLoadable = get(pjsApiSelector(chain.rpcs))
+      const apiLoadable = get(pjsApiSelector(chain.genesisHash))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
       if (!api.consts.proxy) {
@@ -99,7 +99,7 @@ export const proxyDepositTotalSelector = selectorFamily({
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
       if (!nativeToken) throw Error('Token not found for ' + nativeTokenId)
 
-      const apiLoadable = get(pjsApiSelector(chain.rpcs))
+      const apiLoadable = get(pjsApiSelector(chain.genesisHash))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
       const proxyDepositBase = get(proxyDepositBaseSelector(chain.squidIds.chainData))
@@ -124,7 +124,7 @@ const multisigDepositBaseSelector = selectorFamily({
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
       if (!nativeToken) throw Error('Token not found for ' + nativeTokenId)
 
-      const apiLoadable = get(pjsApiSelector(chain.rpcs))
+      const apiLoadable = get(pjsApiSelector(chain.genesisHash))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
       if (!api.consts.multisig) {
@@ -147,7 +147,7 @@ const multisigDepositFactorSelector = selectorFamily({
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
       if (!nativeToken) throw Error('Token not found for ' + nativeTokenId)
 
-      const apiLoadable = get(pjsApiSelector(chain.rpcs))
+      const apiLoadable = get(pjsApiSelector(chain.genesisHash))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
       if (!api.consts.multisig) {
@@ -170,7 +170,7 @@ export const multisigDepositTotalSelector = selectorFamily({
       const nativeToken = get(tokenByIdQuery(nativeTokenId))
       if (!nativeToken) throw Error('Token not found for ' + nativeTokenId)
 
-      const apiLoadable = get(pjsApiSelector(chain.rpcs))
+      const apiLoadable = get(pjsApiSelector(chain.genesisHash))
       const api = apiLoadable as unknown as ApiPromise
       await api.isReady
       const depositBase = get(multisigDepositBaseSelector(chain.squidIds.chainData))

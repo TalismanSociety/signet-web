@@ -19,7 +19,7 @@ export const CallDataPasteForm = (props: {
   onError?: (error: string) => void
 }) => {
   const selectedMultisig = useRecoilValue(selectedMultisigState)
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(selectedMultisig.chain.rpcs))
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(selectedMultisig.chain.genesisHash))
   const loading = apiLoadable.state === 'loading'
 
   return (
