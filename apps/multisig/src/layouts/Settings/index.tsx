@@ -86,7 +86,7 @@ const Settings = () => {
         <div css={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
           {/** first row: Name */}
           <SettingsInfoRow label="Vault Name">
-            <p css={({ color }) => ({ color: color.offWhite, fontSize: 16, fontWeight: 600 })}>{multisig.name}</p>
+            <p className="text-[16px] text-offWhite font-bold">{multisig.name}</p>
           </SettingsInfoRow>
           <div />
 
@@ -95,7 +95,7 @@ const Settings = () => {
             label="Proxied Account"
             tooltip="This is the account the Multisig controls, typically where funds are stored"
           >
-            <AccountDetails address={multisig.proxyAddress} chain={multisig.chain} />
+            <AccountDetails address={multisig.proxyAddress} chain={multisig.chain} withAddressTooltip />
           </SettingsInfoRow>
           <SettingsInfoRow label="Chain">
             <ChainPill chain={multisig.chain} />
@@ -106,7 +106,7 @@ const Settings = () => {
             label="Multisig Address"
             tooltip="This multisig address is the address that controls the proxied account. It is derived from your vault's members and threshold."
           >
-            <AccountDetails address={newMultisigAddress} chain={multisig.chain} />
+            <AccountDetails address={newMultisigAddress} chain={multisig.chain} withAddressTooltip />
           </SettingsInfoRow>
           <div />
 

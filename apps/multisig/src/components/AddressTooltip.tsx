@@ -37,15 +37,27 @@ export const AddressTooltip: React.FC<
     setA0Id(resolve(address.toSs58())?.a0id)
   }, [a0Id, address, name, resolve])
 
+  const onchainIdentityUi = useMemo(() => {
+    if (!onchainIdentity) return null
+    return (
+      <>
+        {onchainIdentity.identity}{' '}
+        {!!onchainIdentity.subIdentity && (
+          <span className="text-gray-200 text-[12px]">/{onchainIdentity.subIdentity}</span>
+        )}
+      </>
+    )
+  }, [onchainIdentity])
+
   const defaultName = useMemo(() => {
     if (selectedMultisig.proxyAddress.isEqual(address)) return `${selectedMultisig.name} (Proxied)`
     if (selectedMultisig.multisigAddress.isEqual(address)) return `${selectedMultisig.name} (Multisig)`
 
-    return onchainIdentity ?? a0Id ?? 'Unknown Address'
+    return onchainIdentityUi ?? a0Id ?? 'Unknown Address'
   }, [
     a0Id,
     address,
-    onchainIdentity,
+    onchainIdentityUi,
     selectedMultisig.multisigAddress,
     selectedMultisig.name,
     selectedMultisig.proxyAddress,
@@ -104,7 +116,7 @@ export const AddressTooltip: React.FC<
           )}
           {!!onchainIdentity && (
             <p className="text-[12px] mb-[2px]">
-              On-chain identity: <span className="text-offWhite">{onchainIdentity}</span>
+              On-chain identity: <span className="text-offWhite">{onchainIdentityUi}</span>
             </p>
           )}
         </div>

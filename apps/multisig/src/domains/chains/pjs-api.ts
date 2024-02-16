@@ -15,11 +15,8 @@ export const pjsApiSelector = atomFamily({
         rpcs: [],
       }
 
-      if (rpcs.length === 0) console.log('missing ', _genesisHash)
       // Return a dummy provider when rpcs are not known
-      if (rpcs.length === 0) {
-        return ApiPromise.create({ provider: new WsProvider([]) })
-      }
+      if (rpcs.length === 0) return ApiPromise.create({ provider: new WsProvider([]) })
 
       try {
         const api = await ApiPromise.create({ provider: new WsProvider(rpcs.map(({ url }) => url)) })

@@ -20,17 +20,29 @@ export const NameAndAddress: React.FC<{
     setAzeroId(resolve(address.toSs58())?.a0id)
   }, [address, azeroId, name, nameOrAddressOnly, resolve])
 
+  const onchainIdentityUi = useMemo(() => {
+    if (!onchainIdentity) return null
+    return (
+      <>
+        {onchainIdentity.identity}{' '}
+        {!!onchainIdentity.subIdentity && (
+          <span className="text-gray-200 text-[12px]">/{onchainIdentity.subIdentity}</span>
+        )}
+      </>
+    )
+  }, [onchainIdentity])
+
   const primaryText = useMemo(
-    () => name ?? onchainIdentity ?? azeroId ?? address.toShortSs58(chain),
-    [address, azeroId, chain, name, onchainIdentity]
+    () => name ?? onchainIdentityUi ?? azeroId ?? address.toShortSs58(chain),
+    [address, azeroId, chain, name, onchainIdentityUi]
   )
 
   const secondaryText = useMemo(() => {
     if (nameOrAddressOnly) return null
-    if (name) return onchainIdentity ?? azeroId ?? address.toShortSs58(chain)
-    if (onchainIdentity) return azeroId ?? address.toShortSs58(chain)
+    if (name) return onchainIdentityUi ?? azeroId ?? address.toShortSs58(chain)
+    if (onchainIdentityUi) return azeroId ?? address.toShortSs58(chain)
     return null
-  }, [address, azeroId, chain, name, nameOrAddressOnly, onchainIdentity])
+  }, [address, azeroId, chain, name, nameOrAddressOnly, onchainIdentityUi])
 
   if (!secondaryText)
     return <p className="text-offWhite overflow-hidden text-ellipsis mt-[3px] w-full max-w-max">{primaryText}</p>
