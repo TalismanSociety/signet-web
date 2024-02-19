@@ -3,6 +3,7 @@ import { identitySelector } from '@domains/chains/storage-getters'
 import { Address } from '@util/addresses'
 import { useEffect, useState } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
+import { u8aToString, u8aUnwrapBytes } from '@polkadot/util'
 
 export const useOnchainIdentity = (address: Address, chain?: Chain) => {
   const [onchainIdentity, setOnchainIdentity] = useState<{ identity: string; subIdentity?: string }>()
@@ -14,7 +15,7 @@ export const useOnchainIdentity = (address: Address, chain?: Chain) => {
       const superIdentity = identity.contents.identity.value.info.display
       const subIdentity = identity.contents.subIdentity
       if (superIdentity.isRaw) {
-        const superIdentityString = superIdentity.asRaw.toHuman()?.toString()
+        const superIdentityString = u8aToString(u8aUnwrapBytes(superIdentity.asRaw.toU8a()))
         if (superIdentityString) setOnchainIdentity({ identity: superIdentityString, subIdentity })
       }
     }
