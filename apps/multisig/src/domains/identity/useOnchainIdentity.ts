@@ -15,7 +15,7 @@ export const useOnchainIdentity = (address: Address, chain?: Chain) => {
       const superIdentity = identity.contents.identity.value.info.display
       const subIdentity = identity.contents.subIdentity
       if (superIdentity.isRaw) {
-        const superIdentityString = u8aToString(u8aUnwrapBytes(superIdentity.asRaw.toU8a()))
+        const superIdentityString = u8aToString(u8aUnwrapBytes(superIdentity.asRaw.toString()))
         if (superIdentityString) setOnchainIdentity({ identity: superIdentityString, subIdentity })
       }
     }

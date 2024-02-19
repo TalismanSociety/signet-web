@@ -223,7 +223,7 @@ export const identitySelector = selectorFamily<
         // super identity is valid, return both super and sub identity
         if (superIdentity.isSome) {
           // some identities are hex, we need to convert them to readable strings
-          const subIdentity = u8aToString(u8aUnwrapBytes(rawIdentity.asRaw.toU8a()))
+          const subIdentity = u8aToString(u8aUnwrapBytes(rawIdentity.asRaw.toString()))
           return { identity: superIdentity, subIdentity }
         }
       }
