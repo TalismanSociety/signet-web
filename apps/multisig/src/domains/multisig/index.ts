@@ -618,6 +618,27 @@ export const extrinsicToDecoded = (
         }
       }
     }
+
+    // check for add / remove proxy
+    for (const arg of args) {
+      const obj: any = arg.toHuman()
+      if (obj?.section === 'proxy') {
+        if (obj.method === 'addProxy' || obj.method === 'removeProxy') {
+          const { delegate, proxy_type } = obj.args
+          const address = Address.fromSs58(parseCallAddressArg(delegate))
+          if (!address) throw new Error('Add proxy destination is not a valid address')
+          const action = obj.method === 'addProxy' ? 'Add' : 'Remove'
+          return {
+            decoded: {
+              type: TransactionType.Advanced,
+              recipients: [],
+            },
+            description:
+              metadata?.description ?? `${action} ${address.toShortSs58(multisig.chain)} as ${proxy_type} proxy`,
+          }
+        }
+      }
+    }
   } catch (error) {
     console.error(`Error decoding extrinsic ${JSON.stringify(extrinsic.method.toHuman(), null, 2)}: `, error)
   }

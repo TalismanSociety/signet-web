@@ -8,6 +8,7 @@ import { atom, useRecoilState } from 'recoil'
 import persist from '@domains/persist'
 import { Fragment } from 'react'
 import { secondsToDuration } from '@util/misc'
+import { cn } from '@util/tailwindcss'
 
 const showMemberState = atom<boolean>({
   key: 'dashboardShowMemberState',
@@ -102,14 +103,12 @@ export const VaultOverview: React.FC = () => {
         </div>
       </div>
       <div
-        css={{
-          overflow: 'hidden',
-          height: 'max-content',
-          maxHeight: showMembers ? 1000 : 0,
-          transition: 'max-height 0.3s',
-        }}
+        className={cn(
+          'h-max transition-[max-height] duration-300 overflow-x-hidden',
+          showMembers ? 'overflow-y-auto max-h-[9999px]' : 'overflow-y-hidden max-h-0'
+        )}
       >
-        <div className="flex flex-col-reverse sm:flex-row gap-x-[8px] gap-y-[16px] mt-[24px] flex-1">
+        <div className="flex flex-col-reverse sm:flex-row gap-x-[8px] gap-y-[16px] flex-1 mt-[16px]">
           <div className="sm:w-[100px] flex flex-col flex-1">
             <p css={({ color }) => ({ color: color.lightGrey, marginBottom: 8, fontSize: 14 })}>Signers</p>
             <div className="flex flex-col gap-[12px] items-start justify-start [&>div]:w-max">
