@@ -66,6 +66,7 @@ export const rawPendingTransactionsDependency = atom<Date>({
 
 // The chain `Multisig` storage entry with some augmented data for easier usage.
 export interface RawPendingTransaction {
+  blockHash: BlockHash
   nativeToken: BaseToken
   multisig: Multisig
   onChainMultisig: OnChainMultisig
@@ -119,6 +120,7 @@ export const rawPendingTransactionsSelector = selectorFamily({
             if (!key.args[1]) throw Error('args is length 2; qed.')
             const callHash = key.args[1]
             return {
+              blockHash: hash,
               nativeToken,
               callHash: callHash.toHex(),
               onChainMultisig,

@@ -133,7 +133,7 @@ const fetchRaw = async (vaultAddress: string, chainGenesisHash: string, _offset?
   return { data: { extrinsics } }
 }
 
-const blockCacheState = atom<Record<string, Vec<GenericExtrinsic<AnyTuple>>>>({
+export const blockCacheState = atom<Record<string, Vec<GenericExtrinsic<AnyTuple>>>>({
   key: 'blockCacheState',
   default: {},
   dangerouslyAllowMutability: true,
@@ -212,8 +212,7 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
               threshold: number
             }
 
-            if (!multisigArgs.maybeTimepoint)
-              return console.warn(`Missing maybeTimepoint from subsquid at ${tx.block.height}-${tx.indexInBlock}`)
+            if (!multisigArgs.maybeTimepoint) return
 
             const signer = Address.fromPubKey(tx.signer)
             // impossible unless squid is broken

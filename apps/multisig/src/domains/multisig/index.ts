@@ -26,6 +26,7 @@ import { TxMetadata, txMetadataByTeamIdState } from '../offchain-data/metadata'
 import { Multisig } from './types'
 import { activeTeamsState, teamsState } from '@domains/offchain-data'
 import { Abi } from '@polkadot/api-contract'
+import { blockCacheState } from '@domains/tx-history'
 
 export * from './types.d'
 export * from './useSelectedMultisig'
@@ -684,6 +685,7 @@ export const PendingTransactionsWatcher = () => {
   const setPendingTransactions = useSetRecoilState(pendingTransactionsState)
   const txMetadataByTeamId = useRecoilValue(txMetadataByTeamIdState)
   const tempCalldata = useRecoilValue(tempCalldataState)
+  const blockCache = useRecoilValue(blockCacheState)
 
   const watchingAddress = useMemo(
     () => selectedMultisig.multisigAddress.toSs58(selectedMultisig.chain),
@@ -709,7 +711,20 @@ export const PendingTransactionsWatcher = () => {
       const transactionID = makeTransactionID(rawPending.multisig.chain, timepoint_height, timepoint_index)
 
       const metadata = txMetadataByTeamId[rawPending.multisig.id]?.data[transactionID]
-      const calldata = metadata?.callData ?? tempCalldata[transactionID]
+      let calldata = metadata?.callData ?? tempCalldata[transactionID]
+
+      // try to find the calldata from confirmed transactions
+      // some transactions created externally may have used asMulti instead of asMultiApprove which contains the calldata
+      if (!calldata) {
+        const extrinsics = blockCache[rawPending.blockHash.toHex()]
+        if (extrinsics) {
+          const ext = extrinsics[timepoint_index]
+          if (ext) {
+            const innerExt = ext.method.args[3]! // proxy ext is 3rd arg
+            calldata = innerExt.toHex()
+          }
+        }
+      }
 
       if (calldata) {
         try {
@@ -784,6 +799,7 @@ export const PendingTransactionsWatcher = () => {
     setLoading,
     txMetadataByTeamId,
     tempCalldata,
+    blockCache,
     allApisLoadable.contents,
     allActiveChainTokens.contents,
   ])
