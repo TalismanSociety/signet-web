@@ -197,93 +197,98 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
       const curChainTokens = allActiveChainTokens.contents.get(selectedMultisig.chain.squidIds.chainData)
 
       txs.forEach(tx => {
-        const extrinsics = blockCache[tx.block.hash]
-        if (!extrinsics || !api || !curChainTokens) return
-        if (tx.call.name === 'Multisig.as_multi') {
-          const multisigArgs = tx.call.args as {
-            call: {
-              /** pallet name */
-              __kind: string
-              value: any
-            }
-            maybeTimepoint: { height: number; index: number }
-            otherSignatories: string[]
-            threshold: number
-          }
-
-          const signer = Address.fromPubKey(tx.signer)
-          // impossible unless squid is broken
-          if (!signer) return console.error(`Invalid signer from subsquid at ${tx.block.height}-${tx.indexInBlock}`)
-          const otherSigners: Address[] = []
-          for (const otherSigner of multisigArgs.otherSignatories) {
-            const address = Address.fromPubKey(otherSigner)
-            if (!address) throw Error('squid returned invalid pubkey!')
-            otherSigners.push(address)
-          }
-
-          // TODO: get team's change log. Then check if there's any point in time where this multisig was the controller of the proxied account
-          // const multisigAddress = toMultisigAddress([signer, ...otherSigners], multisigArgs.threshold)
-
-          // transaction made from multisig + proxy vault via Multisig.asMulti -> Proxy.proxy call
-          if (multisigArgs.call.__kind === 'Proxy' && multisigArgs.call.value?.__kind === 'proxy') {
-            const innerProxyCall = multisigArgs.call.value as {
-              /** pub key of proxied address */
-              real: { value: string }
+        try {
+          const extrinsics = blockCache[tx.block.hash]
+          if (!extrinsics || !api || !curChainTokens) return
+          if (tx.call.name === 'Multisig.as_multi') {
+            const multisigArgs = tx.call.args as {
               call: {
                 /** pallet name */
                 __kind: string
-                value: {
-                  /** call method */
-                  __kind: string
-                }
+                value: any
               }
+              maybeTimepoint?: { height: number; index: number }
+              otherSignatories: string[]
+              threshold: number
             }
 
-            // make sure this tx is for us
-            const realAddress = Address.fromPubKey(innerProxyCall.real.value)
-            if (!realAddress)
-              return console.error(`Invalid realAddress from subsquid at ${tx.block.height}-${tx.indexInBlock}`)
-            if (!realAddress.isEqual(selectedMultisig.proxyAddress)) return // not ours
+            if (!multisigArgs.maybeTimepoint)
+              return console.warn(`Missing maybeTimepoint from subsquid at ${tx.block.height}-${tx.indexInBlock}`)
 
-            const id = makeTransactionID(
-              selectedMultisig.chain,
-              multisigArgs.maybeTimepoint.height,
-              multisigArgs.maybeTimepoint.index
-            )
+            const signer = Address.fromPubKey(tx.signer)
+            // impossible unless squid is broken
+            if (!signer) return console.error(`Invalid signer from subsquid at ${tx.block.height}-${tx.indexInBlock}`)
+            const otherSigners: Address[] = []
+            for (const otherSigner of multisigArgs.otherSignatories) {
+              const address = Address.fromPubKey(otherSigner)
+              if (!address) throw Error('squid returned invalid pubkey!')
+              otherSigners.push(address)
+            }
 
-            // get tx metadata from backend
-            const txMetadata = txMetadataByTeamId[selectedMultisig.id]?.data[id]
+            // TODO: get team's change log. Then check if there's any point in time where this multisig was the controller of the proxied account
+            // const multisigAddress = toMultisigAddress([signer, ...otherSigners], multisigArgs.threshold)
 
-            // get the extrinsic from block to decode
-            const ext = extrinsics[tx.indexInBlock]
-            if (!ext) return
-            const innerExt = ext.method.args[3]! // proxy ext is 3rd arg
-            const callData = innerExt.toHex()
+            // transaction made from multisig + proxy vault via Multisig.asMulti -> Proxy.proxy call
+            if (multisigArgs.call.__kind === 'Proxy' && multisigArgs.call.value?.__kind === 'proxy') {
+              const innerProxyCall = multisigArgs.call.value as {
+                /** pub key of proxied address */
+                real: { value: string }
+                call: {
+                  /** pallet name */
+                  __kind: string
+                  value: {
+                    /** call method */
+                    __kind: string
+                  }
+                }
+              }
 
-            // decode call data
-            const decodedExt = decodeCallData(api, callData as string)
-            const defaultName = `${innerProxyCall.call.__kind}.${innerProxyCall.call.value.__kind}`
-            const decoded = extrinsicToDecoded(selectedMultisig, decodedExt, curChainTokens, txMetadata, defaultName)
-            if (decoded === 'not_ours') return
+              // make sure this tx is for us
+              const realAddress = Address.fromPubKey(innerProxyCall.real.value)
+              if (!realAddress)
+                return console.error(`Invalid realAddress from subsquid at ${tx.block.height}-${tx.indexInBlock}`)
+              if (!realAddress.isEqual(selectedMultisig.proxyAddress)) return // not ours
 
-            // insert tx to top of list
-            decodedTransactions.unshift({
-              hash: tx.block.hash as `0x${string}`,
-              approvals: {},
-              executedAt: {
-                block: tx.block.height,
-                index: tx.indexInBlock,
-                by: signer,
-              },
-              multisig: selectedMultisig,
-              date: new Date(tx.block.timestamp),
-              callData,
-              id,
-              ...decoded,
-            })
-            // txs is sorted by timestamp asc, we need to push to top of decodedTransactions to make it desc
+              const id = makeTransactionID(
+                selectedMultisig.chain,
+                multisigArgs.maybeTimepoint.height,
+                multisigArgs.maybeTimepoint.index
+              )
+
+              // get tx metadata from backend
+              const txMetadata = txMetadataByTeamId[selectedMultisig.id]?.data[id]
+
+              // get the extrinsic from block to decode
+              const ext = extrinsics[tx.indexInBlock]
+              if (!ext) return
+              const innerExt = ext.method.args[3]! // proxy ext is 3rd arg
+              const callData = innerExt.toHex()
+
+              // decode call data
+              const decodedExt = decodeCallData(api, callData as string)
+              const defaultName = `${innerProxyCall.call.__kind}.${innerProxyCall.call.value.__kind}`
+              const decoded = extrinsicToDecoded(selectedMultisig, decodedExt, curChainTokens, txMetadata, defaultName)
+              if (decoded === 'not_ours') return
+
+              // insert tx to top of list
+              decodedTransactions.unshift({
+                hash: tx.block.hash as `0x${string}`,
+                approvals: {},
+                executedAt: {
+                  block: tx.block.height,
+                  index: tx.indexInBlock,
+                  by: signer,
+                },
+                multisig: selectedMultisig,
+                date: new Date(tx.block.timestamp),
+                callData,
+                id,
+                ...decoded,
+              })
+              // txs is sorted by timestamp asc, we need to push to top of decodedTransactions to make it desc
+            }
           }
-        }
+        } catch (e) {}
       })
 
       return { decodedTransactions }
