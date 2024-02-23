@@ -18,6 +18,7 @@ import { formattedDate, formattedHhMm } from './utils'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Upload } from 'lucide-react'
+import { Tooltip } from '@components/ui/tooltip'
 
 const TransactionSummaryRow = ({
   t,
@@ -157,11 +158,29 @@ const TransactionSummaryRow = ({
             rel="noreferrer"
             onClick={e => e.stopPropagation()}
           >
-            <StatusCircle
-              type={StatusCircleType.Success}
-              circleDiameter="24px"
-              iconDimentions={{ width: '11px', height: 'auto' }}
-            />
+            {t.executedAt.errors ? (
+              <Tooltip
+                content={
+                  <p className="text-[12px]">
+                    {!!t.executedAt.errors.proxyError && `Proxy call failed: ${t.executedAt.errors.proxyError}`}
+                  </p>
+                }
+              >
+                <div>
+                  <StatusCircle
+                    type={StatusCircleType.Error}
+                    circleDiameter="24px"
+                    iconDimentions={{ width: '11px', height: 'auto' }}
+                  />
+                </div>
+              </Tooltip>
+            ) : (
+              <StatusCircle
+                type={StatusCircleType.Success}
+                circleDiameter="24px"
+                iconDimentions={{ width: '11px', height: 'auto' }}
+              />
+            )}
           </a>
         )}
       </div>

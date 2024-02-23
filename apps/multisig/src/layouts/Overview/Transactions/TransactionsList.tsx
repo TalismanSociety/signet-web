@@ -75,7 +75,16 @@ export const TransactionsList = ({
                   <p>{day}</p>
                   <div className="flex flex-col gap-[20px] mt-[8px] w-full">
                     {transactions.map(t => (
-                      <motion.div key={t.draft?.id ?? t.id} whileHover={{ scale: 1.015 }} className="cursor-pointer">
+                      <motion.div
+                        key={
+                          t.draft?.id ??
+                          (t.executedAt
+                            ? makeTransactionID(t.multisig.chain, t.executedAt.block, t.executedAt.index)
+                            : t.id)
+                        }
+                        whileHover={{ scale: 1.015 }}
+                        className="cursor-pointer"
+                      >
                         <TransactionSummaryRow
                           onClick={() =>
                             navigate(

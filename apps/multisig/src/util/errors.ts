@@ -1,10 +1,30 @@
 import { DispatchError } from '@polkadot/types/interfaces'
 import type { SubmittableResult } from '@polkadot/api'
+import { FrameSystemEventRecord } from '@polkadot/types/lookup'
+import { Result } from '@polkadot/types'
 
 const handleTokenError = (tokenError: any) => {
   switch (tokenError.type) {
     case 'FundsUnavailable':
-      return 'Funds unavailable. Make sure you have enough balance.'
+      return 'Funds are unavailable.'
+    case 'OnlyProvider':
+      return 'Account that must exist would die'
+    case 'BelowMinimum':
+      return 'Account cannot exist with the funds that would be given'
+    case 'CannotCreate':
+      return 'Account cannot be created'
+    case 'UnknownAsset':
+      return 'The asset in question is unknown'
+    case 'Frozen':
+      return 'Funds exist but are frozen'
+    case 'Unsupported':
+      return 'Operation is not supported by the asset'
+    case 'CannotCreateHold':
+      return 'Account cannot be created for recording amount on hold'
+    case 'NotExpendable':
+      return 'Account that is desired to remain would die'
+    case 'Blocked':
+      return 'Account cannot receive the assets'
     default:
       return tokenError.type
   }
@@ -46,4 +66,29 @@ export const handleSubmittableResultError = (res: SubmittableResult) => {
     console.error(errorEvent.toHuman())
     throw new Error(JSON.stringify(errorEvent.toHuman()))
   }
+}
+
+export const getDispatchErrorMessage = (error: DispatchError) => {
+  const registryError = handleDispatchError(error)
+  if (registryError) return registryError.docs.join('')
+
+  if (error.isToken) return handleTokenError(error.asToken)
+
+  return null
+}
+
+export const getExtrinsicErrorsFromEvents = (events: FrameSystemEventRecord[]) => {
+  let proxyError: string | undefined
+  // check if proxy or multisig call failed
+  const proxyEvent = events.find(({ event }) => event.section === 'proxy' && event.method === 'ProxyExecuted')
+  if (proxyEvent) {
+    const [result] = proxyEvent.event.data
+    const proxyEventResult = result as Result<any, DispatchError>
+    if (proxyEventResult.isErr) {
+      const errMessage = getDispatchErrorMessage(proxyEventResult.asErr)
+      if (errMessage) proxyError = errMessage
+    }
+  }
+
+  return proxyError
 }

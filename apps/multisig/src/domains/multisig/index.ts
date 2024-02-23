@@ -27,6 +27,7 @@ import { Multisig } from './types'
 import { activeTeamsState, teamsState } from '@domains/offchain-data'
 import { Abi } from '@polkadot/api-contract'
 import { blockCacheState } from '@domains/tx-history'
+import { FrameSystemEventRecord } from '@polkadot/types/lookup'
 
 export * from './types.d'
 export * from './useSelectedMultisig'
@@ -166,6 +167,10 @@ export interface ExecutedAt {
   block: number
   index: number
   by: Address
+  events?: FrameSystemEventRecord[]
+  errors?: {
+    proxyError?: string
+  }
 }
 
 export interface TransactionDecoded {
@@ -716,9 +721,9 @@ export const PendingTransactionsWatcher = () => {
       // try to find the calldata from confirmed transactions
       // some transactions created externally may have used asMulti instead of asMultiApprove which contains the calldata
       if (!calldata) {
-        const extrinsics = blockCache[rawPending.blockHash.toHex()]
-        if (extrinsics) {
-          const ext = extrinsics[timepoint_index]
+        const block = blockCache[rawPending.blockHash.toHex()]
+        if (block) {
+          const ext = block.extrinsics[timepoint_index]
           if (ext) {
             const innerExt = ext.method.args[3]! // proxy ext is 3rd arg
             calldata = innerExt.toHex()

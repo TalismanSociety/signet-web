@@ -10,6 +10,8 @@ import { useApi } from '../chains/pjs-api'
 import { txMetadataByTeamIdState } from '../offchain-data/metadata'
 import { makeTransactionID } from '../../util/misc'
 import { allChainTokensSelector, decodeCallData } from '../chains'
+import { FrameSystemEventRecord } from '@polkadot/types/lookup'
+import { getExtrinsicErrorsFromEvents } from '@util/errors'
 
 interface RawResponse {
   data: {
@@ -133,7 +135,11 @@ const fetchRaw = async (vaultAddress: string, chainGenesisHash: string, _offset?
   return { data: { extrinsics } }
 }
 
-export const blockCacheState = atom<Record<string, Vec<GenericExtrinsic<AnyTuple>>>>({
+type BlockCache = {
+  extrinsics: Vec<GenericExtrinsic<AnyTuple>>
+  events: Vec<FrameSystemEventRecord>
+}
+export const blockCacheState = atom<Record<string, BlockCache>>({
   key: 'blockCacheState',
   default: {},
   dangerouslyAllowMutability: true,
@@ -176,10 +182,16 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
           hashes.filter(hash => !blockCache[hash]).map(hash => api.rpc.chain.getBlock(hash))
         )
 
+        const eventsOfBlocks = await Promise.all(
+          newBlocks.map(block => api.query.system.events.at(block.block.header.hash))
+        )
         const newBlocksMap = newBlocks.reduce((acc, block) => {
-          acc[block.block.header.hash.toString()] = block.block.extrinsics
+          acc[block.block.header.hash.toString()] = {
+            extrinsics: block.block.extrinsics,
+            events: eventsOfBlocks.shift()!,
+          }
           return acc
-        }, {} as Record<string, Vec<GenericExtrinsic<AnyTuple>>>)
+        }, {} as Record<string, BlockCache>)
 
         setBlockCache(old => ({ ...old, ...newBlocksMap }))
       } catch (e) {
@@ -198,8 +210,8 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
 
       txs.forEach(tx => {
         try {
-          const extrinsics = blockCache[tx.block.hash]
-          if (!extrinsics || !api || !curChainTokens) return
+          const block = blockCache[tx.block.hash]
+          if (!block || !api || !curChainTokens) return
           if (tx.call.name === 'Multisig.as_multi') {
             const multisigArgs = tx.call.args as {
               call: {
@@ -258,7 +270,10 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
               const txMetadata = txMetadataByTeamId[selectedMultisig.id]?.data[id]
 
               // get the extrinsic from block to decode
-              const ext = extrinsics[tx.indexInBlock]
+              const ext = block.extrinsics[tx.indexInBlock]
+              const events = block.events.filter(
+                event => event.phase.isApplyExtrinsic && event.phase.asApplyExtrinsic.eq(tx.indexInBlock)
+              )
               if (!ext) return
               const innerExt = ext.method.args[3]! // proxy ext is 3rd arg
               const callData = innerExt.toHex()
@@ -269,6 +284,8 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
               const decoded = extrinsicToDecoded(selectedMultisig, decodedExt, curChainTokens, txMetadata, defaultName)
               if (decoded === 'not_ours') return
 
+              const proxyError = getExtrinsicErrorsFromEvents(events)
+
               // insert tx to top of list
               decodedTransactions.unshift({
                 hash: tx.block.hash as `0x${string}`,
@@ -277,6 +294,8 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
                   block: tx.block.height,
                   index: tx.indexInBlock,
                   by: signer,
+                  events,
+                  errors: proxyError ? { proxyError } : undefined,
                 },
                 multisig: selectedMultisig,
                 date: new Date(tx.block.timestamp),

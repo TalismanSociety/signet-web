@@ -1,4 +1,4 @@
-import { Check, Unknown } from '@talismn/icons'
+import { Check, Unknown, X } from '@talismn/icons'
 import { cn } from '@util/tailwindcss'
 import { ReactNode } from 'react'
 
@@ -6,6 +6,7 @@ export enum StatusCircleType {
   Success,
   PendingApproval,
   Unknown,
+  Error,
 }
 
 function getColorsAndIcon(type: StatusCircleType): [ReactNode, string] {
@@ -16,6 +17,8 @@ function getColorsAndIcon(type: StatusCircleType): [ReactNode, string] {
       return [<Unknown />, 'text-gray-200 bg-gray-700']
     case StatusCircleType.PendingApproval:
       return [<Check />, 'bg-gray-700 text-gray-200']
+    case StatusCircleType.Error:
+      return [<X />, 'text-red-500 bg-red-700/30 hover:bg-red-500/30']
   }
 }
 
