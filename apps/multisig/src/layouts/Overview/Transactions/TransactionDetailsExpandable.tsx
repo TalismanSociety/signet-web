@@ -186,11 +186,18 @@ const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
                   margin-left: 8px;
                 `}
               >
-                <span css={{ marginTop: '3px' }}>
+                <span css={{ marginTop: '3px', width: 'max-content' }}>
                   {i + 1} of {recipients.length}
                 </span>
               </div>
-              <AddressPill name={contactByAddress[address.toSs58()]?.name} address={address} chain={t.multisig.chain} />
+              <div>
+                <AccountDetails
+                  name={contactByAddress[address.toSs58()]?.name}
+                  address={address}
+                  chain={t.multisig.chain}
+                  withAddressTooltip
+                />
+              </div>
               <div css={{ marginLeft: 'auto' }}>
                 <AmountRow balance={balance} />
               </div>
