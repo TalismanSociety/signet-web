@@ -161,9 +161,14 @@ const TransactionSummaryRow = ({
             {t.executedAt.errors ? (
               <Tooltip
                 content={
-                  <p className="text-[12px]">
-                    {!!t.executedAt.errors.proxyError && `Proxy call failed: ${t.executedAt.errors.proxyError}`}
-                  </p>
+                  <div>
+                    {!!t.executedAt.errors.systemError && (
+                      <p className="text-[12px]">Extrinsic failed: {t.executedAt.errors.systemError}</p>
+                    )}
+                    {!!t.executedAt.errors.proxyError && (
+                      <p className="text-[12px]">Proxy call failed: {t.executedAt.errors.proxyError}</p>
+                    )}
+                  </div>
                 }
               >
                 <div>

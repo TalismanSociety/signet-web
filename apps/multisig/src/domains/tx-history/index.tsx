@@ -284,8 +284,6 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
               const decoded = extrinsicToDecoded(selectedMultisig, decodedExt, curChainTokens, txMetadata, defaultName)
               if (decoded === 'not_ours') return
 
-              const proxyError = getExtrinsicErrorsFromEvents(events)
-
               // insert tx to top of list
               decodedTransactions.unshift({
                 hash: tx.block.hash as `0x${string}`,
@@ -295,7 +293,7 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
                   index: tx.indexInBlock,
                   by: signer,
                   events,
-                  errors: proxyError ? { proxyError } : undefined,
+                  errors: getExtrinsicErrorsFromEvents(events),
                 },
                 multisig: selectedMultisig,
                 date: new Date(tx.block.timestamp),

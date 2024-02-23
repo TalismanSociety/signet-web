@@ -28,6 +28,7 @@ import { activeTeamsState, teamsState } from '@domains/offchain-data'
 import { Abi } from '@polkadot/api-contract'
 import { blockCacheState } from '@domains/tx-history'
 import { FrameSystemEventRecord } from '@polkadot/types/lookup'
+import { ExtrinsicErrorsFromEvents } from '@util/errors'
 
 export * from './types.d'
 export * from './useSelectedMultisig'
@@ -168,9 +169,7 @@ export interface ExecutedAt {
   index: number
   by: Address
   events?: FrameSystemEventRecord[]
-  errors?: {
-    proxyError?: string
-  }
+  errors?: ExtrinsicErrorsFromEvents
 }
 
 export interface TransactionDecoded {

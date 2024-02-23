@@ -77,18 +77,38 @@ export const getDispatchErrorMessage = (error: DispatchError) => {
   return null
 }
 
-export const getExtrinsicErrorsFromEvents = (events: FrameSystemEventRecord[]) => {
+export type ExtrinsicErrorsFromEvents = {
+  proxyError?: string
+  systemError?: string
+}
+
+export const getExtrinsicErrorsFromEvents = (
+  events: FrameSystemEventRecord[]
+): ExtrinsicErrorsFromEvents | undefined => {
   let proxyError: string | undefined
   // check if proxy or multisig call failed
-  const proxyEvent = events.find(({ event }) => event.section === 'proxy' && event.method === 'ProxyExecuted')
-  if (proxyEvent) {
-    const [result] = proxyEvent.event.data
-    const proxyEventResult = result as Result<any, DispatchError>
-    if (proxyEventResult.isErr) {
-      const errMessage = getDispatchErrorMessage(proxyEventResult.asErr)
-      if (errMessage) proxyError = errMessage
+  try {
+    const proxyEvent = events.find(({ event }) => event.section === 'proxy' && event.method === 'ProxyExecuted')
+    if (proxyEvent) {
+      const [result] = proxyEvent.event.data
+      const proxyEventResult = result as Result<any, DispatchError>
+      if (proxyEventResult.isErr) {
+        const errMessage = getDispatchErrorMessage(proxyEventResult.asErr)
+        if (errMessage) proxyError = errMessage
+      }
     }
-  }
+  } catch (e) {}
 
-  return proxyError
+  let systemError: string | undefined
+  try {
+    const systemFailure = events.find(({ event }) => event.section === 'system' && event.method === 'ExtrinsicFailed')
+    if (systemFailure) {
+      const [error] = systemFailure.event.data
+      const dispatchError = error as DispatchError
+      systemError = getDispatchErrorMessage(dispatchError)
+    }
+  } catch (e) {}
+
+  if (systemError || proxyError) return { proxyError, systemError }
+  return undefined
 }
