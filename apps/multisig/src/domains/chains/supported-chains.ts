@@ -289,6 +289,26 @@ export const supportedChains: Chain[] = [
     isTestnet: true,
     ss58Prefix: 5,
   },
+  {
+    squidIds: { chainData: 'aleph-zero-testnet' },
+    genesisHash: '0x05d5279c52c484cc80396535a316add7d47b1c5b9e0398dd1f584149341460c5',
+    chainName: 'Aleph Zero Testnet',
+    isTestnet: true,
+    nativeToken: {
+      id: 'aleph-zero-testnet-substrate-native',
+    },
+    subscanUrl: 'https://test.azero.dev/#/explorer/',
+    rpcs: [
+      {
+        url: 'wss://aleph-zero-testnet-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://ws.test.azero.dev',
+      },
+    ],
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/aleph-zero-testnet.svg',
+    ss58Prefix: 42,
+  },
 ]
 
 export const filteredSupportedChains = supportedChains.filter(chain => {
