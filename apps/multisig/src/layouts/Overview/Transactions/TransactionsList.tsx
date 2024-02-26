@@ -69,11 +69,11 @@ export const TransactionsList = ({
               <EyeOfSauronProgressIndicator />
             </div>
           ) : (
-            <div className="gap-[24px] w-full flex flex-col flex-1">
+            <div className="gap-[20px] w-full flex flex-col flex-1">
               {groupedTransactions.map(([day, transactions]) => (
                 <div key={day}>
                   <p>{day}</p>
-                  <div className="flex flex-col gap-[20px] mt-[8px] w-full">
+                  <div className="flex flex-col gap-[12px] mt-[4px] w-full">
                     {transactions.map(t => (
                       <motion.div
                         key={

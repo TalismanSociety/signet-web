@@ -60,7 +60,7 @@ const SelectChain = (props: {
         <SelectTrigger className="max-w-[280px]">
           <SelectValue placeholder="Select Network" />
         </SelectTrigger>
-        <SelectContent className="grid gap-[16px] py-[4px]">
+        <SelectContent className="grid gap-[16px] py-[4px]" position="item-aligned">
           {mainnets.length > 0 && <Group chains={mainnets} label="Mainnets" />}
           {mainnets.length > 0 && testnets.length > 0 && <hr className="my-[12px]" />}
           {testnets.length > 0 && <Group chains={testnets} label="Testnets" />}
