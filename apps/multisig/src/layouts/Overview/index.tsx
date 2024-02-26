@@ -2,7 +2,7 @@ import { useAugmentedBalances } from '@domains/balances'
 import { DUMMY_MULTISIG_ID, useSelectedMultisig } from '@domains/multisig'
 import { getAllChangeAttempts } from '@domains/offchain-data/metadata'
 import { toMultisigAddress } from '@util/addresses'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRecoilValue } from 'recoil'
 
 import Assets from './Assets'
@@ -18,7 +18,14 @@ const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const signedInAccount = useRecoilValue(selectedAccountState)
   const { updateMultisigConfig } = useUpdateMultisigConfig()
-  const { toast } = useToast()
+  const { toast, dismiss } = useToast()
+  const [toastedForVault, setToastedForVault] = useState<string>()
+
+  useEffect(() => {
+    if (selectedMultisig.id !== toastedForVault) {
+      dismiss()
+    }
+  }, [dismiss, selectedMultisig.id, toastedForVault])
 
   // TODO: consider migrating to top level so it works regardless of page?
   const detectChangeAndAutoUpdate = useCallback(async () => {
@@ -66,6 +73,7 @@ const Overview = () => {
       console.error('Failed to fetch new multisig configuration from metadata service:', error)
     }
 
+    setToastedForVault(selectedMultisig.id)
     toast({
       title: `Proxy not detected for ${selectedMultisig.name}! `,
       description: (

@@ -16,7 +16,7 @@ const Group = (props: { chains: Chain[]; label: string }) => (
   <SelectGroup>
     <SelectLabel>{props.label}</SelectLabel>
     {props.chains.map(chain => (
-      <SelectItem value={chain.genesisHash}>
+      <SelectItem value={chain.genesisHash} key={chain.genesisHash}>
         <div className="w-full flex items-center gap-[12px]">
           <div className="w-[40px] h-[40px] min-h-[40px] min-w-[40px]">
             <img src={chain.logo} alt={chain.chainName} />

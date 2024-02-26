@@ -72,7 +72,7 @@ export const activeMultisigsState = selector({
   key: 'ActiveMultisigs',
   get: ({ get }) => {
     const activeTeams = get(activeTeamsState)
-    if (!activeTeams) return []
+    if (!activeTeams || activeTeams.length === 0) return []
     return activeTeams.map(team => team.asMultisig)
   },
 })
@@ -699,7 +699,8 @@ export const PendingTransactionsWatcher = () => {
   // show loading indicator when view / selected multisig is changed
   useEffect(() => {
     setLoading(true)
-  }, [watchingAddress, combinedView, setLoading])
+    setPendingTransactions([])
+  }, [watchingAddress, combinedView, setLoading, setPendingTransactions])
 
   const ready =
     allRawPending.state === 'hasValue' &&
