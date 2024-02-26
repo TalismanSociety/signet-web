@@ -25,7 +25,6 @@ export const AccountWatcher: React.FC = () => {
     // user disabled all accounts, clean up all jwt token
     if (!extensionAllowed) {
       setSelectedAccount(null)
-      // prevents unnecessary re-render
       if (Object.keys(authTokenBook).length > 0) setAuthTokenBook({})
       return
     }
