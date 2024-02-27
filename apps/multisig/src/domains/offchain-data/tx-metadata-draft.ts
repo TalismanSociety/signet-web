@@ -142,19 +142,17 @@ export const useSaveDraftMetadata = () => {
   return { saveDraft, loading, data, error }
 }
 
-const UPDATE_DRAFT_METADATA = gql`
-  mutation DeleteDraftMutation($id: uuid!, $status: String!) {
-    update_tx_metadata_draft_by_pk(pk_columns: { id: $id }, _set: { status: $status }) {
-      id
-      status
-    }
-  }
-`
-
 export const useDeleteDraftMetadata = () => {
   const client = useApolloClient()
   const [selectedMultisig] = useSelectedMultisig()
-  const [mutateUpdateDraft, { loading }] = useMutation(UPDATE_DRAFT_METADATA)
+  const [mutateUpdateDraft, { loading }] = useMutation(gql`
+    mutation DeleteDraftMutation($id: uuid!, $status: String!) {
+      update_tx_metadata_draft_by_pk(pk_columns: { id: $id }, _set: { status: $status }) {
+        id
+        status
+      }
+    }
+  `)
 
   const deleteDraft = useCallback(
     async (id: string, status = 'cancelled') => {

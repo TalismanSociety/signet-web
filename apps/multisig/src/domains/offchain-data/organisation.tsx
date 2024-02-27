@@ -9,6 +9,7 @@ import { selectedMultisigIdState } from '@domains/multisig'
 import { Address } from '@util/addresses'
 import { captureException } from '@sentry/react'
 import { useToast } from '@components/ui/use-toast'
+import { isEqual } from 'lodash'
 
 const GET_ORGANISATIONS = gql`
   query GetOrganisations {
@@ -115,6 +116,17 @@ export const useOrganisations = () => {
   return { organisations, hasPaidPlan, userOrganisations }
 }
 
+const isSameOrgs = (a: Organisation, b: Organisation) => {
+  const sameName = a.name === b.name
+  const sameId = a.id === b.id
+  const samePlan = a.plan.max_vault === b.plan.max_vault
+  const sameSlug = a.slug === b.slug
+  const sameUsers =
+    a.users.map(u => `${u.role}-${u.user.id}`).join(',') === b.users.map(u => `${u.role}-${u.user.id}`).join(',')
+  const sameTeams = isEqual(a.teams, b.teams)
+  return sameName && sameId && samePlan && sameSlug && sameUsers && sameTeams
+}
+
 // sync orgs from backend to in-memory cache, which allows atoms to access the data
 export const OrganisationsWatcher: React.FC = () => {
   const selectedAccount = useRecoilValue(selectedAccountState)
@@ -125,8 +137,13 @@ export const OrganisationsWatcher: React.FC = () => {
         // store new orgs that are not in prev
         const newOrgs = [...prev]
         organisations.forEach(org => {
-          if (!prev.some(o => o.id === org.id)) newOrgs.push(org)
-          // TODO: equality check
+          const existIndex = newOrgs.findIndex(o => o.id === org.id)
+          if (existIndex < 0) {
+            newOrgs.push(org)
+          } else {
+            const exists = newOrgs[existIndex]
+            if (exists && !isSameOrgs(exists, org)) newOrgs[existIndex] = org
+          }
         })
         return newOrgs
       })
@@ -282,6 +299,7 @@ export const useAddOrgCollaborator = () => {
           },
         })
 
+        // try to update in-memory cache
         if (data?.addOrgCollaborator?.success) {
           setOrganisations(prev => {
             const newOrgs = [...prev]
