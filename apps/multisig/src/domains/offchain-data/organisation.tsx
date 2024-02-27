@@ -346,3 +346,61 @@ export const useAddOrgCollaborator = () => {
 
   return { addCollaborator, adding: loading }
 }
+
+export const useDeleteCollaborator = () => {
+  const setOrganisations = useSetRecoilState(organisationsState)
+  const { toast } = useToast()
+  const [mutate, { loading }] = useMutation<{
+    delete_organisation_user_role_by_pk: {
+      org_id: string
+      user_id: string
+      role: string
+    } | null
+  }>(gql`
+    mutation DeleteCollaborator($orgId: uuid!, $userId: uuid!) {
+      delete_organisation_user_role_by_pk(org_id: $orgId, user_id: $userId) {
+        org_id
+        user_id
+        role
+      }
+    }
+  `)
+
+  const deleteCollaborator = useCallback(
+    async (orgId: string, userId: string) => {
+      const { data, errors } = await mutate({
+        variables: { orgId, userId },
+      })
+
+      if (data?.delete_organisation_user_role_by_pk) {
+        setOrganisations(prev => {
+          const newOrgs = [...prev]
+          const orgIndex = newOrgs.findIndex(org => org.id === orgId)
+
+          if (orgIndex >= 0) {
+            const newOrg = newOrgs[orgIndex]
+            if (!newOrg) return newOrgs
+
+            newOrgs[orgIndex] = {
+              ...newOrg,
+              users: newOrg.users.filter(u => u.user.id !== userId),
+            }
+          }
+          return newOrgs
+        })
+        toast({
+          title: 'Removed collaborator',
+        })
+      }
+
+      if (errors) {
+        console.error(errors)
+        captureException(errors)
+        return false
+      }
+    },
+    [mutate, setOrganisations, toast]
+  )
+
+  return { deleteCollaborator, deleting: loading }
+}

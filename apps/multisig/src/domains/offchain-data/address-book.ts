@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { atom, selector, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { selectedAccountState } from '../auth'
 import { DUMMY_MULTISIG_ID, useSelectedMultisig } from '../multisig'
 import { gql } from 'graphql-tag'
-import { requestSignetBackend } from './hasura'
 import { Address } from '@util/addresses'
-import toast from 'react-hot-toast'
 import { isEqual } from 'lodash'
 import { useMutation, useQuery } from '@apollo/client'
+import { captureException } from '@sentry/react'
+import { useToast } from '@components/ui/use-toast'
 
 const ADDRESSES_QUERY = gql`
   query Addresses($orgId: uuid!) {
@@ -122,35 +122,33 @@ export const useCreateContact = () => {
 }
 
 export const useDeleteContact = () => {
-  const [deleting, setDeleting] = useState(false)
-  const selectedAccount = useRecoilValue(selectedAccountState)
+  const { toast } = useToast()
   const [addressBookByTeamId, setAddressBookByTeamId] = useRecoilState(addressBookByTeamIdState)
+  const [mutate, { loading: deleting }] = useMutation(gql`
+    mutation DeleteAddress($id: uuid!) {
+      delete_address_by_pk(id: $id) {
+        id
+        org_id
+      }
+    }
+  `)
 
   const deleteContact = useCallback(
     async (id: string) => {
-      if (!selectedAccount) return
       try {
-        setDeleting(true)
-        const { data, error } = await requestSignetBackend(
-          gql`
-            mutation DeleteAddress($id: uuid!) {
-              delete_address_by_pk(id: $id) {
-                id
-                org_id
-              }
-            }
-          `,
-          { id },
-          selectedAccount
-        )
+        const { data, errors } = await mutate({ variables: { id } })
 
         const deletedId = data?.delete_address_by_pk?.id
         const orgId = data?.delete_address_by_pk?.org_id
-        if (!deletedId || !orgId || error) {
-          toast.error('Failed to delete contact, please try again.')
+        if (!deletedId || !orgId || errors) {
+          toast({
+            title: 'Failed to delete contact',
+            description: 'Please try again.',
+          })
+          if (errors) captureException(errors)
           return
         }
-        toast.success(`Contact deleted!`)
+        toast({ title: `Contact deleted!` })
 
         let addresses = addressBookByTeamId[orgId] ?? []
         const stillInList = addresses.find(contact => contact.id === id)
@@ -164,11 +162,10 @@ export const useDeleteContact = () => {
         return true
       } catch (e) {
         console.error(e)
-      } finally {
-        setDeleting(false)
+        return false
       }
     },
-    [addressBookByTeamId, selectedAccount, setAddressBookByTeamId]
+    [addressBookByTeamId, mutate, setAddressBookByTeamId, toast]
   )
 
   return { deleteContact, deleting }
@@ -178,36 +175,38 @@ export const AddressBookWatcher = () => {
   const selectedAccount = useRecoilValue(selectedAccountState)
   const setLoading = useSetRecoilState(addressBookLoadingState)
   const [selectedMultisig] = useSelectedMultisig()
-  const [addressBookByTeamId, setAddressBookByTeamId] = useRecoilState(addressBookByTeamIdState)
+  const setAddressBookByTeamId = useSetRecoilState(addressBookByTeamIdState)
 
   const updateAddressBook = useCallback(
     (addresses: { address: string; id: string; org_id: string; name: string }[]) => {
-      const newAddressBookByTeamId = { ...addressBookByTeamId }
-      if (!newAddressBookByTeamId[selectedMultisig.orgId]) newAddressBookByTeamId[selectedMultisig.orgId] = []
+      setAddressBookByTeamId(prev => {
+        const newAddressBookByTeamId = { ...prev }
+        if (!newAddressBookByTeamId[selectedMultisig.orgId]) newAddressBookByTeamId[selectedMultisig.orgId] = []
 
-      addresses.forEach(({ id, name, address, org_id }) => {
-        try {
-          const parsedAddress = Address.fromSs58(address)
-          if (parsedAddress) {
-            let addressesOfTeam = newAddressBookByTeamId[org_id] ?? []
-            const conflict = addressesOfTeam.find(contact => contact.address.isEqual(parsedAddress))
-            if (conflict) return
-            addressesOfTeam = [...addressesOfTeam, { id, name, orgId: org_id, address: parsedAddress }]
-            newAddressBookByTeamId[org_id] = addressesOfTeam
+        addresses.forEach(({ id, name, address, org_id }) => {
+          try {
+            const parsedAddress = Address.fromSs58(address)
+            if (parsedAddress) {
+              let addressesOfTeam = newAddressBookByTeamId[org_id] ?? []
+              const conflict = addressesOfTeam.find(contact => contact.address.isEqual(parsedAddress))
+              if (conflict) return
+              addressesOfTeam = [...addressesOfTeam, { id, name, orgId: org_id, address: parsedAddress }]
+              newAddressBookByTeamId[org_id] = addressesOfTeam
+            }
+          } catch (e) {
+            console.error('Failed to parse contact:')
+            console.error(e)
           }
-        } catch (e) {
-          console.error('Failed to parse contact:')
-          console.error(e)
-        }
-      })
+        })
 
-      if (isEqual(addressBookByTeamId, newAddressBookByTeamId)) return
-      setAddressBookByTeamId(newAddressBookByTeamId)
+        if (isEqual(prev, newAddressBookByTeamId)) return prev
+        return newAddressBookByTeamId
+      })
     },
-    [addressBookByTeamId, selectedMultisig.orgId, setAddressBookByTeamId]
+    [selectedMultisig.orgId, setAddressBookByTeamId]
   )
 
-  const { loading } = useQuery<{
+  const { data, loading } = useQuery<{
     address: { address: string; id: string; org_id: string; name: string }[]
   }>(ADDRESSES_QUERY, {
     variables: {
@@ -215,10 +214,12 @@ export const AddressBookWatcher = () => {
     },
     pollInterval: 10000,
     skip: !selectedAccount || selectedMultisig.id === DUMMY_MULTISIG_ID,
-    onCompleted: data => {
-      if (data.address) updateAddressBook(data.address)
-    },
+    notifyOnNetworkStatusChange: true,
   })
+
+  useEffect(() => {
+    if (data?.address) updateAddressBook(data.address)
+  }, [data?.address, updateAddressBook])
 
   useEffect(() => {
     setLoading(loading)

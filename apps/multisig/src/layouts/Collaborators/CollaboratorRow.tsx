@@ -9,22 +9,24 @@ import { CircularProgressIndicator } from '@talismn/ui'
 import { Address } from '@util/addresses'
 import { useCallback } from 'react'
 
-export const CollaboratorRow: React.FC<{ teamId: string; userId: string; address: Address }> = ({
-  teamId,
+export const CollaboratorRow: React.FC<{ orgId: string; userId: string; address: Address }> = ({
+  orgId,
   userId,
   address,
 }) => {
-  const { contactByAddress } = useKnownAddresses(teamId, { includeContracts: true })
+  const { contactByAddress } = useKnownAddresses(orgId, { includeContracts: true })
   const { deleteCollaborator, deleting } = useDeleteCollaborator()
   const { isCollaborator } = useUser()
 
   const handleDelete = useCallback(() => {
-    deleteCollaborator(teamId, userId)
-  }, [deleteCollaborator, teamId, userId])
+    deleteCollaborator(orgId, userId)
+  }, [deleteCollaborator, orgId, userId])
 
   return (
     <div className="w-full bg-gray-900 p-[16px] rounded-[12px] flex items-center justify-between">
-      <AccountDetails address={address} name={contactByAddress?.[address.toSs58()]?.name} />
+      <div>
+        <AccountDetails address={address} name={contactByAddress?.[address.toSs58()]?.name} withAddressTooltip />
+      </div>
       {!isCollaborator && (
         <Tooltip content="Remove collaborator">
           <Button size="icon" variant="ghost" onClick={handleDelete} disabled={deleting}>

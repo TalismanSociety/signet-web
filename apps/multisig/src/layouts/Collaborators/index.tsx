@@ -35,7 +35,7 @@ export const Collaborators: React.FC = () => {
             ) : (
               <div className="grid gap-[12px]">
                 {selectedMultisig.collaborators.map(({ id, address }) => (
-                  <CollaboratorRow key={id} userId={id} teamId={selectedMultisig.id} address={address} />
+                  <CollaboratorRow key={id} userId={id} orgId={selectedMultisig.orgId} address={address} />
                 ))}
               </div>
             )}
