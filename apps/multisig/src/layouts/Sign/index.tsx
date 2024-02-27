@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Layout } from '../Layout'
 import { useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { Multisig, multisigsState, useSelectedMultisig } from '@domains/multisig'
+import { Multisig, activeMultisigsState, useSelectedMultisig } from '@domains/multisig'
 import { Address } from '@util/addresses'
 import { Chain, filteredSupportedChains } from '@domains/chains'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
@@ -31,7 +31,7 @@ const Wrapper: React.FC<React.PropsWithChildren & { source?: string }> = ({ chil
 
 export const Sign: React.FC = () => {
   const [searchParams] = useSearchParams()
-  const multisigs = useRecoilValue(multisigsState)
+  const multisigs = useRecoilValue(activeMultisigsState)
   const [selectedMultisig, setSelectedMultisig] = useSelectedMultisig()
   const [authTokenBook] = useRecoilState(authTokenBookState)
   const [selectedAddress, setSelectedAddress] = useRecoilState(selectedAddressState)

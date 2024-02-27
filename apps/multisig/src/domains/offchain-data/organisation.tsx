@@ -6,6 +6,9 @@ import { useCallback, useMemo } from 'react'
 import { atom, selector, useRecoilValue, useSetRecoilState } from 'recoil'
 import { Team, parseTeam } from './teams'
 import { selectedMultisigIdState } from '@domains/multisig'
+import { Address } from '@util/addresses'
+import { captureException } from '@sentry/react'
+import { useToast } from '@components/ui/use-toast'
 
 const GET_ORGANISATIONS = gql`
   query GetOrganisations {
@@ -114,6 +117,7 @@ export const useOrganisations = () => {
 
 // sync orgs from backend to in-memory cache, which allows atoms to access the data
 export const OrganisationsWatcher: React.FC = () => {
+  const selectedAccount = useRecoilValue(selectedAccountState)
   const setOrganisations = useSetRecoilState(organisationsState)
   const handleCacheOrgs = useCallback(
     (organisations: Organisation[]) => {
@@ -131,6 +135,7 @@ export const OrganisationsWatcher: React.FC = () => {
   )
 
   useQuery<{ organisation: Organisation[] }>(GET_ORGANISATIONS, {
+    skip: !selectedAccount,
     pollInterval: 10000,
     fetchPolicy: 'cache-and-network',
     onCompleted: data => {
@@ -248,4 +253,78 @@ export const useCreateOrganisation = () => {
   )
 
   return { createOrganisation, data, loading, error }
+}
+
+const ADD_ORG_COLLABORATOR_MUTATION = gql`
+  mutation AddNewOrgCollaborator($collaborator: AddOrgCollaboratorInput!) {
+    addOrgCollaborator(collaborator: $collaborator) {
+      success
+      userId
+      error
+      role
+    }
+  }
+`
+
+export const useAddOrgCollaborator = () => {
+  const setOrganisations = useSetRecoilState(organisationsState)
+  const [mutate, { loading }] = useMutation(ADD_ORG_COLLABORATOR_MUTATION)
+  const { toast } = useToast()
+  const addCollaborator = useCallback(
+    async (address: Address, orgId: string) => {
+      try {
+        const { data } = await mutate({
+          variables: {
+            collaborator: {
+              address: address.toSs58(),
+              org_id: orgId,
+            },
+          },
+        })
+
+        if (data?.addOrgCollaborator?.success) {
+          setOrganisations(prev => {
+            const newOrgs = [...prev]
+            const orgIndex = newOrgs.findIndex(org => org.id === orgId)
+            if (orgIndex === -1) return prev
+
+            const org = newOrgs[orgIndex]
+            if (!org) return prev
+
+            newOrgs[orgIndex] = {
+              ...org,
+              users: [
+                ...org.users,
+                {
+                  role: data.addOrgCollaborator.role,
+                  user: {
+                    id: data.addOrgCollaborator.userId,
+                    identifier: address.toSs58(),
+                    identifier_type: 'address',
+                  },
+                },
+              ],
+            }
+
+            return newOrgs
+          })
+          toast({
+            title: 'Added collaborator',
+          })
+          return true
+        }
+      } catch (e) {
+        console.error(e)
+        captureException(e)
+        toast({
+          title: 'Failed to add collaborator',
+          description: getErrorString(e),
+        })
+        return false
+      }
+    },
+    [mutate, setOrganisations, toast]
+  )
+
+  return { addCollaborator, adding: loading }
 }

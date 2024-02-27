@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request'
-import { atom, selector, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { selector, useRecoilValue } from 'recoil'
 import { SignedInAccount, selectedAccountState, useUser } from '../auth'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { requestSignetBackend } from './hasura'
@@ -7,10 +7,8 @@ import { Address, toMultisigAddress } from '@util/addresses'
 import { Chain, supportedChains } from '../chains'
 import { DUMMY_MULTISIG_ID, Multisig, selectedMultisigIdState, useSelectedMultisig } from '../multisig'
 import { useToast } from '@components/ui/use-toast'
-import { getErrorString } from '@util/misc'
-import { captureException } from '@sentry/react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Organisation, RawTeam, userOrganisationsState } from './organisation'
+import { Organisation, RawTeam, parsedOrganisationsState, userOrganisationsState } from './organisation'
 
 type Collaborator = {
   id: string
@@ -78,10 +76,13 @@ export class Team {
 }
 
 /** a list of all teams known to all signed in users */
-export const teamsState = atom<Team[] | undefined>({
+export const teamsState = selector<Team[]>({
   key: 'teams',
-  default: undefined,
-  dangerouslyAllowMutability: true,
+  get: ({ get }) => {
+    const orgs = get(parsedOrganisationsState)
+    if (!orgs) return []
+    return orgs.map(org => org.teams).flat()
+  },
 })
 
 export const selectedTeamState = selector({
@@ -197,7 +198,6 @@ export const parseTeam = (org: Organisation, rawTeam: RawTeam): { team?: Team; e
 }
 
 export const useUpdateMultisigConfig = () => {
-  const setTeams = useSetRecoilState(teamsState)
   const { toast } = useToast()
 
   const updateMultisigConfig = useCallback(
@@ -269,177 +269,88 @@ export const useUpdateMultisigConfig = () => {
   return { updateMultisigConfig }
 }
 
-export const useAddCollaborator = () => {
-  const [adding, setAdding] = useState(false)
-  const signedInAs = useRecoilValue(selectedAccountState)
-  const [selectedMultisig] = useSelectedMultisig()
-  const setTeams = useSetRecoilState(teamsState)
-  const { toast } = useToast()
-
-  const addCollaborator = useCallback(
-    async (address: Address) => {
-      // this shouldnt happen
-      if (!signedInAs) {
-        toast({
-          title: 'Failed to add collaborator',
-          description: 'Unauthorized',
-        })
-        return false
-      }
-      try {
-        setAdding(true)
-        const res = await requestSignetBackend(
-          gql`
-            mutation AddNewCollaborator($collaborator: AddCollaboratorInput!) {
-              addCollaborator(collaborator: $collaborator) {
-                success
-                userId
-                error
-              }
-            }
-          `,
-          {
-            collaborator: {
-              address: address.toSs58(),
-              team_id: selectedMultisig.id,
-            },
-          },
-          signedInAs
-        )
-
-        if (res.data?.addCollaborator?.error) {
-          toast({
-            title: 'Failed to add collaborator',
-            description: res.data?.addCollaborator?.error,
-          })
-          return false
-        }
-
-        if (res.error) throw new Error(res.error)
-
-        toast({
-          title: 'Added collaborator',
-          description: `Added ${address.toShortSs58(selectedMultisig.chain)} as collaborator`,
-        })
-
-        // update in memory cache for instant UI feedback
-        setTeams(teams => {
-          const newTeams = [...(teams ?? [])]
-          if (!newTeams) return newTeams
-
-          const teamIndex = newTeams.findIndex(team => team.id === selectedMultisig.id)
-          if (teamIndex >= 0) {
-            const newTeam = newTeams[teamIndex]
-            if (!newTeam) return newTeams // this shouldnt happen, only for type safety
-
-            newTeam.collaborators = [...newTeam.collaborators, { id: res.data?.addCollaborator?.userId, address }]
-            newTeams[teamIndex] = newTeam
-          }
-
-          return newTeams
-        })
-        return true
-      } catch (e) {
-        captureException(e)
-        toast({
-          title: 'Failed to add collaborator',
-          description: getErrorString(e),
-        })
-        return false
-      } finally {
-        setAdding(false)
-      }
-    },
-    [selectedMultisig.chain, selectedMultisig.id, setTeams, signedInAs, toast]
-  )
-
-  return { addCollaborator, adding, selectedMultisig }
-}
-
 export const useDeleteCollaborator = () => {
-  const signedInAs = useRecoilValue(selectedAccountState)
-  const [deleting, setDeleting] = useState(false)
-  const [teams, setTeams] = useRecoilState(teamsState)
-  const { toast } = useToast()
+  const [deleting] = useState(false)
+  // const [teams, setTeams] = useRecoilState(teamsState)
 
-  const deleteCollaborator = useCallback(
-    async (teamId: string, userId: string) => {
-      // this shouldnt happen
-      if (!signedInAs) {
-        toast({
-          title: 'Failed to add collaborator',
-          description: 'Unauthorized',
-        })
-        return false
-      }
+  // const deleteCollaborator = useCallback(
+  //   async (teamId: string, userId: string) => {
+  //     // this shouldnt happen
+  //     if (!signedInAs) {
+  //       toast({
+  //         title: 'Failed to add collaborator',
+  //         description: 'Unauthorized',
+  //       })
+  //       return false
+  //     }
 
-      if (!teams) return false
-      const team = teams.find(team => team.id === teamId)
-      if (!team) return false
+  //     if (!teams) return false
+  //     const team = teams.find(team => team.id === teamId)
+  //     if (!team) return false
 
-      const user = team.collaborators.find(collaborator => collaborator.id === userId)
-      if (!user) return false
+  //     const user = team.collaborators.find(collaborator => collaborator.id === userId)
+  //     if (!user) return false
 
-      try {
-        setDeleting(true)
-        const res = await requestSignetBackend(
-          gql`
-            mutation DeleteCollaborator($teamId: uuid!, $userId: uuid!) {
-              delete_team_user_role_by_pk(team_id: $teamId, user_id: $userId) {
-                team_id
-                user_id
-              }
-            }
-          `,
-          {
-            teamId,
-            userId,
-          },
-          signedInAs
-        )
+  //     try {
+  //       setDeleting(true)
+  //       const res = await requestSignetBackend(
+  //         gql`
+  //           mutation DeleteCollaborator($teamId: uuid!, $userId: uuid!) {
+  //             delete_team_user_role_by_pk(team_id: $teamId, user_id: $userId) {
+  //               team_id
+  //               user_id
+  //             }
+  //           }
+  //         `,
+  //         {
+  //           teamId,
+  //           userId,
+  //         },
+  //         signedInAs
+  //       )
 
-        if (res.error) throw new Error(res.error)
+  //       if (res.error) throw new Error(res.error)
 
-        if (res.data?.delete_team_user_role_by_pk?.team_id !== teamId) {
-          throw new Error('Failed to delete collaborator')
-        }
+  //       if (res.data?.delete_team_user_role_by_pk?.team_id !== teamId) {
+  //         throw new Error('Failed to delete collaborator')
+  //       }
 
-        toast({
-          title: 'Deleted collaborator',
-          description: `Removed ${user.address.toShortSs58(team.chain)} as collaborator`,
-        })
+  //       toast({
+  //         title: 'Deleted collaborator',
+  //         description: `Removed ${user.address.toShortSs58(team.chain)} as collaborator`,
+  //       })
 
-        // update in memory cache for instant UI feedback
-        setTeams(teams => {
-          const newTeams = [...(teams ?? [])]
-          if (!newTeams) return newTeams
+  //       // update in memory cache for instant UI feedback
+  //       setTeams(teams => {
+  //         const newTeams = [...(teams ?? [])]
+  //         if (!newTeams) return newTeams
 
-          const teamIndex = newTeams.findIndex(team => team.id === teamId)
-          if (teamIndex >= 0) {
-            const newTeam = newTeams[teamIndex]
-            if (!newTeam) return newTeams // this shouldnt happen, only for type safety
+  //         const teamIndex = newTeams.findIndex(team => team.id === teamId)
+  //         if (teamIndex >= 0) {
+  //           const newTeam = newTeams[teamIndex]
+  //           if (!newTeam) return newTeams // this shouldnt happen, only for type safety
 
-            newTeam.collaborators = newTeam.collaborators.filter(collaborator => collaborator.id !== userId)
-            newTeams[teamIndex] = newTeam
-          }
+  //           newTeam.collaborators = newTeam.collaborators.filter(collaborator => collaborator.id !== userId)
+  //           newTeams[teamIndex] = newTeam
+  //         }
 
-          return newTeams
-        })
-      } catch (e) {
-        captureException(e, { extra: { teamId, userId } })
-        toast({
-          title: 'Failed to delete collaborator',
-          description: getErrorString(e),
-        })
-        return false
-      } finally {
-        setDeleting(false)
-      }
-    },
-    [setTeams, signedInAs, teams, toast]
-  )
+  //         return newTeams
+  //       })
+  //     } catch (e) {
+  //       captureException(e, { extra: { teamId, userId } })
+  //       toast({
+  //         title: 'Failed to delete collaborator',
+  //         description: getErrorString(e),
+  //       })
+  //       return false
+  //     } finally {
+  //       setDeleting(false)
+  //     }
+  //   },
+  //   [setTeams, signedInAs, teams, toast]
+  // )
 
-  return { deleting, deleteCollaborator }
+  return { deleting, deleteCollaborator: async (teamid: string, userId: string) => {} }
 }
 
 export const useTeamFromUrl = () => {

@@ -24,7 +24,7 @@ import { VoteDetails, mapConvictionToIndex } from '../referenda'
 import { selectedAccountState } from '../auth'
 import { TxMetadata, txMetadataByTeamIdState } from '../offchain-data/metadata'
 import { Multisig } from './types'
-import { activeTeamsState, teamsState } from '@domains/offchain-data'
+import { activeTeamsState } from '@domains/offchain-data'
 import { Abi } from '@polkadot/api-contract'
 import { blockCacheState } from '@domains/tx-history'
 import { FrameSystemEventRecord } from '@polkadot/types/lookup'
@@ -53,15 +53,6 @@ const DUMMY_MULTISIG: Multisig = {
   proxyAddress: new Address(new Uint8Array(32)),
   collaborators: [],
 }
-
-/** @deprecated use teamsState */
-export const multisigsState = selector<Multisig[]>({
-  key: 'Multisigs',
-  get: ({ get }) => {
-    const teams = get(teamsState)
-    return teams?.map(team => team.asMultisig) ?? []
-  },
-})
 
 export const selectedMultisigIdState = atom<string | undefined>({
   key: 'SelectedMultisigId',

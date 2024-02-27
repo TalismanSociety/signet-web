@@ -185,7 +185,6 @@ export const AddressBookWatcher = () => {
       const newAddressBookByTeamId = { ...addressBookByTeamId }
       if (!newAddressBookByTeamId[selectedMultisig.orgId]) newAddressBookByTeamId[selectedMultisig.orgId] = []
 
-      console.log(addresses)
       addresses.forEach(({ id, name, address, org_id }) => {
         try {
           const parsedAddress = Address.fromSs58(address)
@@ -208,7 +207,6 @@ export const AddressBookWatcher = () => {
     [addressBookByTeamId, selectedMultisig.orgId, setAddressBookByTeamId]
   )
 
-  console.log(!selectedAccount || selectedMultisig.id === DUMMY_MULTISIG_ID, selectedMultisig.orgId)
   const { loading } = useQuery<{
     address: { address: string; id: string; org_id: string; name: string }[]
   }>(ADDRESSES_QUERY, {

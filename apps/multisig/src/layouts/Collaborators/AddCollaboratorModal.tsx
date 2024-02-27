@@ -5,7 +5,7 @@ import { useSelectedMultisig } from '@domains/multisig'
 import AddressInput from '@components/AddressInput'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import Modal from '@components/Modal'
-import { useAddCollaborator } from '@domains/offchain-data'
+import { useAddOrgCollaborator } from '@domains/offchain-data'
 
 type Props = {
   onClose?: () => void
@@ -16,7 +16,7 @@ export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const [address, setAddress] = useState<Address | undefined>()
   const { addresses } = useKnownAddresses(selectedMultisig.id)
-  const { addCollaborator, adding } = useAddCollaborator()
+  const { addCollaborator, adding } = useAddOrgCollaborator()
 
   const handleClose = useCallback(() => {
     if (adding) return
@@ -26,14 +26,13 @@ export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   const handleCreateContact = useCallback(async () => {
     if (!address) return
-    // TODO: handle add to db
-    const added = await addCollaborator(address)
+    const added = await addCollaborator(address, selectedMultisig.orgId)
     if (added) handleClose()
-  }, [addCollaborator, address, handleClose])
+  }, [addCollaborator, address, handleClose, selectedMultisig.orgId])
 
-  const disabled = !address
   const isCollaboratorConflict = address ? selectedMultisig.isCollaborator(address) : false
   const isSignerConflict = address ? selectedMultisig.isSigner(address) : false
+  const disabled = !address || isCollaboratorConflict || isSignerConflict
   const conflict = isCollaboratorConflict || isSignerConflict
 
   return (
