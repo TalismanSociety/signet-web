@@ -7,6 +7,8 @@ import { useAddressBook, useCreateContact } from '../../domains/offchain-data'
 import { useSelectedMultisig } from '../../domains/multisig'
 import { Input } from '@components/ui/input'
 import AddressInput from '@components/AddressInput'
+import { useToast } from '@components/ui/use-toast'
+import { getErrorString } from '@util/misc'
 
 type Props = {
   onClose?: () => void
@@ -19,6 +21,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { createContact, creating } = useCreateContact()
   const [selectedMultisig] = useSelectedMultisig()
   const { contactsByAddress } = useAddressBook()
+  const { toast } = useToast()
 
   const handleClose = () => {
     if (creating) return
@@ -29,8 +32,17 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   const handleCreateContact = async () => {
     if (!address) return
-    const created = await createContact(address, nameInput.value, selectedMultisig.id)
-    if (created) handleClose()
+    try {
+      const created = await createContact(address, nameInput.value, selectedMultisig.orgId)
+      if (created) {
+        handleClose()
+      }
+    } catch (e) {
+      toast({
+        title: 'Failed to add contact',
+        description: getErrorString(e),
+      })
+    }
   }
 
   const disabled = !address || !nameInput.value

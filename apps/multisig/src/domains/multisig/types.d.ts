@@ -3,6 +3,7 @@ import { Chain } from '../chains'
 
 export interface Multisig {
   id: string
+  orgId: string
   name: string
   chain: Chain
   multisigAddress: Address

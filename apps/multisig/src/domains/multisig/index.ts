@@ -44,6 +44,7 @@ export const combinedViewState = atom<boolean>({
 
 const DUMMY_MULTISIG: Multisig = {
   id: DUMMY_MULTISIG_ID,
+  orgId: 'DUMMY_ORG',
   name: 'DUMMY_MULTISIG',
   chain: filteredSupportedChains[0] as Chain,
   signers: [],
