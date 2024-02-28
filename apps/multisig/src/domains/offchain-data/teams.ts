@@ -1,14 +1,20 @@
-import { gql } from 'graphql-request'
-import { selector, useRecoilValue } from 'recoil'
-import { SignedInAccount, selectedAccountState, useUser } from '../auth'
+import { gql } from 'graphql-tag'
+import { selector, useRecoilValue, useSetRecoilState } from 'recoil'
+import { selectedAccountState, useUser } from '../auth'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { requestSignetBackend } from './hasura'
 import { Address, toMultisigAddress } from '@util/addresses'
 import { Chain, supportedChains } from '../chains'
 import { DUMMY_MULTISIG_ID, Multisig, selectedMultisigIdState, useSelectedMultisig } from '../multisig'
 import { useToast } from '@components/ui/use-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Organisation, RawTeam, parsedOrganisationsState, userOrganisationsState } from './organisation'
+import {
+  Organisation,
+  RawTeam,
+  organisationsState,
+  parsedOrganisationsState,
+  userOrganisationsState,
+} from './organisation'
+import { useMutation } from '@apollo/client'
 
 type Collaborator = {
   id: string
@@ -199,71 +205,70 @@ export const parseTeam = (org: Organisation, rawTeam: RawTeam): { team?: Team; e
 
 export const useUpdateMultisigConfig = () => {
   const { toast } = useToast()
+  const setOrganisations = useSetRecoilState(organisationsState)
+  const [mutate] = useMutation(gql`
+    mutation UpdateMultisigConfig($teamId: String!, $changeConfigDetails: ChangeConfigDetailsInput!) {
+      updateMultisigConfig(teamId: $teamId, changeConfigDetails: $changeConfigDetails) {
+        success
+        team {
+          id
+          name
+          multisig_config
+          proxied_address
+          chain
+        }
+        error
+      }
+    }
+  `)
 
   const updateMultisigConfig = useCallback(
-    async (newMultisig: Multisig, signedInAs: SignedInAccount | null) => {
-      if (signedInAs) {
-        try {
-          const res = await requestSignetBackend(
-            gql`
-              mutation UpdateMultisigConfig($teamId: String!, $changeConfigDetails: ChangeConfigDetailsInput!) {
-                updateMultisigConfig(teamId: $teamId, changeConfigDetails: $changeConfigDetails) {
-                  success
-                  team {
-                    id
-                    name
-                    multisig_config
-                    proxied_address
-                    chain
-                  }
-                  error
-                }
-              }
-            `,
-            {
-              teamId: newMultisig.id,
-              changeConfigDetails: {
-                signers: newMultisig.signers.map(signer => signer.toSs58()),
-                threshold: newMultisig.threshold,
-              },
+    async (newMultisig: Multisig) => {
+      try {
+        const { data, errors } = await mutate({
+          variables: {
+            teamId: newMultisig.id,
+            changeConfigDetails: {
+              signers: newMultisig.signers.map(signer => signer.toSs58()),
+              threshold: newMultisig.threshold,
             },
-            signedInAs
-          )
+          },
+        })
 
-          if (res.error) throw new Error(res.error)
-        } catch (e) {
-          console.error(e)
-          toast({
-            title: 'Failed to save multisig config change.',
-          })
+        if (errors || !data?.updateMultisigConfig?.success) {
+          console.error(data, errors)
+          throw new Error(errors?.[0]?.message ?? 'Failed to update multisig config')
         }
+
+        setOrganisations(prev => {
+          if (!prev) return prev
+          const newOrgs = [...prev]
+          const orgIndex = newOrgs.findIndex(org => org.id === newMultisig.orgId)
+          if (orgIndex < 0) return prev
+          const changedOrg = newOrgs[orgIndex]
+          if (!changedOrg) return prev
+          const newTeams = changedOrg.teams.map(team =>
+            team.id === newMultisig.id
+              ? {
+                  ...team,
+                  multisig_config: {
+                    threshold: newMultisig.threshold,
+                    signers: newMultisig.signers.map(signer => signer.toSs58()),
+                  },
+                }
+              : team
+          )
+          newOrgs[orgIndex] = { ...changedOrg, teams: newTeams }
+          return newOrgs
+        })
+      } catch (e) {
+        console.error(e)
+        toast({
+          title: 'Failed to update multisig config',
+        })
       }
-
-      // const newTeam = parseTeam({
-      //   chain: newMultisig.chain.squidIds.chainData,
-      //   collaborators: newMultisig.collaborators.map(collaborator => ({
-      //     user: {
-      //       id: collaborator.id,
-      //       identifier: collaborator.address.toSs58(),
-      //     },
-      //   })),
-      //   id: newMultisig.id,
-      //   multisig_config: {},
-      //   name: newMultisig.name,
-      //   proxied_address: newMultisig.proxyAddress.toSs58(),
-      //   org_id: newMultisig.orgId,
-      // })
-
-      // setTeams(teams => {
-      //   if (!teams || !newTeam.team) return teams
-      //   const newTeams = [...teams]
-      //   const teamIndex = newTeams.findIndex(team => team.id === newMultisig.id)
-      //   if (teamIndex >= 0) newTeams[teamIndex] = newTeam.team
-
-      //   return newTeams
-      // })
     },
-    [toast]
+    [mutate, setOrganisations, toast]
   )
 
   return { updateMultisigConfig }
