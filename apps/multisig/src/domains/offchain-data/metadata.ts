@@ -318,7 +318,7 @@ export async function getAllChangeAttempts(
 
   const variables = {
     teamId: multisig.id,
-    multisigAddress: multisig.multisigAddress.toSs58(multisig.chain),
+    multisigAddress: multisig.multisigAddress.toSs58(),
     chain: multisig.chain.squidIds.chainData,
   }
 
