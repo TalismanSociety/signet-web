@@ -68,19 +68,8 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
 
   return (
     <div css={{ paddingBottom: '8px' }}>
-      <div
-        className={css`
-          display: grid;
-          gap: 16px;
-          padding-top: 24px;
-          > div {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-          }
-        `}
-      >
-        <div>
+      <div className="grid gap-[16px]">
+        <div className="flex items-center justify-between">
           {!!t.multisig.chain.polkaAssemblyUrl ? (
             <a
               className="text-[16px] text-offWhite hover:text-primary flex items-center"
@@ -98,8 +87,8 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
           )}
           <VotePill details={details} />
         </div>
-        <div>
-          <p>Vote value</p>
+        <div className="flex items-center justify-between">
+          <p className="text-[16px]">Vote value</p>
           <AmountRow
             balance={{
               amount: details.Standard.balance,
@@ -107,7 +96,7 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
             }}
           />
         </div>
-        <div>
+        <div className="flex items-center justify-between">
           <p>Conviction</p>
           <p>{convictionsOptions[details.Standard.vote.conviction]?.headlineText ?? 'Unknown'}</p>
         </div>

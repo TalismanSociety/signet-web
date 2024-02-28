@@ -1,7 +1,7 @@
-import { css } from '@emotion/css'
 import { Fragment } from 'react'
 import { Loadable } from 'recoil'
 import { Price } from '../domains/chains'
+import { cn } from '@util/tailwindcss'
 
 export enum AmountUnit {
   Token,
@@ -38,27 +38,16 @@ const unitOptions = [
 const AmountUnitSelector: React.FC<Props> = ({ onChange, value: selectedAmountUnit, tokenPrices }) => {
   if (tokenPrices.state === 'hasValue' && tokenPrices.contents.averages)
     return (
-      <div
-        className={css`
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          p {
-            font-size: 11px;
-          }
-        `}
-      >
-        <p>Unit:</p>
+      <div className="flex-wrap flex items-center gap-[6px]">
+        <p className="text-[12px]">Unit:</p>
         {unitOptions.map(({ name, value }) => (
           <Fragment key={value}>
             <p
+              className={cn(
+                'text-[12px] cursor-pointer',
+                selectedAmountUnit === value ? 'font-bold text-offWhite mt-[-3px]' : 'text-gray-200'
+              )}
               onClick={() => onChange(value)}
-              css={
-                selectedAmountUnit === value
-                  ? { fontWeight: 'bold', marginTop: -2, cursor: 'pointer', color: 'var(--color-offWhite)' }
-                  : { cursor: 'pointer' }
-              }
             >
               {name}
             </p>

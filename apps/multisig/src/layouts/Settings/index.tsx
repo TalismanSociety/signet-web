@@ -1,5 +1,5 @@
 import { useTheme } from '@emotion/react'
-import { ChevronLeft, ExternalLink } from '@talismn/icons'
+import { ChevronLeft } from '@talismn/icons'
 import { Button, IconButton } from '@talismn/ui'
 import { useNavigate } from 'react-router-dom'
 
@@ -18,6 +18,7 @@ import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { ProxiesSettings } from './ProxiesSettings'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
+import { ExternalLink } from 'lucide-react'
 
 export const BackButton = () => {
   const theme = useTheme()
@@ -161,8 +162,16 @@ const Settings = () => {
             <p>
               On-chain configurations cannot be changed because <span>{multisig.name}</span> does not have{' '}
               <span>Any proxy type</span> to the proxied account.{' '}
-              <a href="https://wiki.polkadot.network/docs/learn-proxies" target="_blank" rel="noreferrer">
-                Learn More <ExternalLink size={16} />
+              <a
+                href="https://wiki.polkadot.network/docs/learn-proxies"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex gap-[4px]"
+              >
+                Learn More{' '}
+                <span>
+                  <ExternalLink size={16} />
+                </span>
               </a>
             </p>
           </div>

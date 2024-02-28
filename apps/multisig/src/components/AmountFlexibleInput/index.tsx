@@ -1,9 +1,10 @@
 import { BaseToken, tokenPriceState } from '@domains/chains'
 import { css } from '@emotion/css'
-import { Select, TextInput } from '@talismn/ui'
 import { useEffect, useMemo, useState } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import AmountUnitSelector, { AmountUnit } from '../AmountUnitSelector'
+import { Input } from '@components/ui/input'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@components/ui/select'
 
 export const AmountFlexibleInput = (props: {
   tokens: BaseToken[]
@@ -65,19 +66,20 @@ export const AmountFlexibleInput = (props: {
           align-items: center;
         `}
       >
-        <TextInput
-          className={css`
-            font-size: 18px !important;
-          `}
+        <Input
           placeholder={`0 ${unit}`}
-          leadingLabel={props.leadingLabel ?? `Amount to send`}
-          trailingLabel={
-            calculatedTokenAmount && calculatedTokenAmount !== 'NaN' && amountUnit !== AmountUnit.Token
-              ? `Amount in ${props.selectedToken?.symbol}: ${calculatedTokenAmount}`
-              : ''
+          label={props.leadingLabel ?? `Amount`}
+          suffix={
+            calculatedTokenAmount && calculatedTokenAmount !== 'NaN' && amountUnit !== AmountUnit.Token ? (
+              <p className="text-gray-200 text-[14px]">
+                {(+calculatedTokenAmount).toFixed(4)} {props.selectedToken?.symbol}
+              </p>
+            ) : null
           }
-          leadingSupportingText={
-            <AmountUnitSelector value={amountUnit} onChange={setAmountUnit} tokenPrices={tokenPrices} />
+          supportingLabel={
+            <div className="w-full flex items-start justify-start mt-[4px] px-[8px]">
+              <AmountUnitSelector value={amountUnit} onChange={setAmountUnit} tokenPrices={tokenPrices} />
+            </div>
           }
           value={input}
           onChange={event => {
@@ -106,64 +108,30 @@ export const AmountFlexibleInput = (props: {
               setInput(event.target.value)
             }
           }}
-        />
-      </div>
-      <div
-        className={css`
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: max-content;
-          margin-top: 25px;
-          button {
-            height: 53.5px;
-            gap: 8px;
-            > div {
-              display: flex;
-              justify-content: center;
-              margin-top: 2px;
-              width: 100%;
-            }
-            svg {
-              display: none;
-            }
+          externalSuffix={
+            <div>
+              <Select
+                {...props}
+                value={props.selectedToken?.id}
+                onValueChange={id => props.setSelectedToken?.(props.tokens.find(t => t.id === id) as BaseToken)}
+              >
+                <SelectTrigger className="h-[56px]" hideArrow>
+                  <SelectValue placeholder="Select Token" />
+                </SelectTrigger>
+                <SelectContent>
+                  {props.tokens.map(t => (
+                    <SelectItem key={t.id} value={t.id} className="px-[8px] pl-[24px] h-[56px]">
+                      <div className="flex items-center w-max gap-[8px]">
+                        <img className="w-[24px] h-auto" src={t.logo} alt={t.symbol} />
+                        <p className="mt-[2px] text-gray-200">{t.symbol}</p>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           }
-        `}
-      >
-        <Select
-          placeholder="Select token"
-          value={props.selectedToken?.id}
-          {...props}
-          onChange={id => props.setSelectedToken?.(props.tokens.find(t => t.id === id) as BaseToken)}
-          width={'100%'}
-        >
-          {props.tokens.map(t => {
-            return (
-              <Select.Item
-                key={t.id}
-                value={t.id}
-                leadingIcon={
-                  <div
-                    className={css`
-                      width: 24px;
-                      height: auto;
-                    `}
-                  >
-                    <img
-                      className={css`
-                        max-width: 100%; // image width will not exceed parent's width
-                        max-height: 100%; // image height will not exceed parent's height
-                      `}
-                      src={t.logo}
-                      alt={t.symbol}
-                    />
-                  </div>
-                }
-                headlineText={t.symbol}
-              />
-            )
-          })}
-        </Select>
+        />
       </div>
     </div>
   )

@@ -309,6 +309,52 @@ export const supportedChains: Chain[] = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/aleph-zero-testnet.svg',
     ss58Prefix: 42,
   },
+  {
+    squidIds: { chainData: 'phala' },
+    genesisHash: '0x1bb969d85965e4bb5a651abbedf21a54b6b31a21f66b5401cc3f1e286268d736',
+    chainName: 'Phala',
+    isTestnet: false,
+    nativeToken: {
+      id: 'phala-substrate-native',
+    },
+    subscanUrl: 'https://phala.subscan.io/',
+    rpcs: [
+      {
+        url: 'wss://phala-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://phala.public.curie.radiumblock.co/ws',
+      },
+      {
+        url: 'wss://api.phala.network/ws',
+      },
+    ],
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/phala.svg',
+    ss58Prefix: 30,
+  },
+  {
+    squidIds: { chainData: 'khala' },
+    genesisHash: '0xd43540ba6d3eb4897c28a77d48cb5b729fea37603cbbfc7a86a73b72adb3be8d',
+    chainName: 'Khala',
+    isTestnet: false,
+    nativeToken: {
+      id: 'khala-substrate-native',
+    },
+    subscanUrl: 'https://khala.subscan.io/',
+    rpcs: [
+      {
+        url: 'wss://khala-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://khala.public.curie.radiumblock.co/ws',
+      },
+      {
+        url: 'wss://khala-api.phala.network/ws',
+      },
+    ],
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/khala.svg',
+    ss58Prefix: 30,
+  },
 ]
 
 export const filteredSupportedChains = supportedChains.filter(chain => {
