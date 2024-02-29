@@ -10,8 +10,6 @@ import { useApi } from '../chains/pjs-api'
 import { txMetadataByTeamIdState } from '../offchain-data/metadata'
 import { makeTransactionID } from '../../util/misc'
 import { allChainTokensSelector, decodeCallData } from '../chains'
-import { FrameSystemEventRecord } from '@polkadot/types/lookup'
-import { getExtrinsicErrorsFromEvents } from '@util/errors'
 
 interface RawResponse {
   data: {
@@ -137,7 +135,6 @@ const fetchRaw = async (vaultAddress: string, chainGenesisHash: string, _offset?
 
 type BlockCache = {
   extrinsics: Vec<GenericExtrinsic<AnyTuple>>
-  events: Vec<FrameSystemEventRecord>
 }
 export const blockCacheState = atom<Record<string, BlockCache>>({
   key: 'blockCacheState',
@@ -182,13 +179,9 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
           hashes.filter(hash => !blockCache[hash]).map(hash => api.rpc.chain.getBlock(hash))
         )
 
-        const eventsOfBlocks = await Promise.all(
-          newBlocks.map(block => api.query.system.events.at(block.block.header.hash))
-        )
         const newBlocksMap = newBlocks.reduce((acc, block) => {
           acc[block.block.header.hash.toString()] = {
             extrinsics: block.block.extrinsics,
-            events: eventsOfBlocks.shift()!,
           }
           return acc
         }, {} as Record<string, BlockCache>)
@@ -271,9 +264,6 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
 
               // get the extrinsic from block to decode
               const ext = block.extrinsics[tx.indexInBlock]
-              const events = block.events.filter(
-                event => event.phase.isApplyExtrinsic && event.phase.asApplyExtrinsic.eq(tx.indexInBlock)
-              )
               if (!ext) return
               const innerExt = ext.method.args[3]! // proxy ext is 3rd arg
               const callData = innerExt.toHex()
@@ -292,8 +282,6 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
                   block: tx.block.height,
                   index: tx.indexInBlock,
                   by: signer,
-                  events,
-                  errors: getExtrinsicErrorsFromEvents(events),
                 },
                 multisig: selectedMultisig,
                 date: new Date(tx.block.timestamp),

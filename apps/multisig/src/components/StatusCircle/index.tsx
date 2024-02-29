@@ -1,4 +1,5 @@
 import { Check, Unknown, X } from '@talismn/icons'
+import { CircularProgressIndicator } from '@talismn/ui'
 import { cn } from '@util/tailwindcss'
 import { ReactNode } from 'react'
 
@@ -7,6 +8,7 @@ export enum StatusCircleType {
   PendingApproval,
   Unknown,
   Error,
+  Loading,
 }
 
 function getColorsAndIcon(type: StatusCircleType): [ReactNode, string] {
@@ -19,6 +21,8 @@ function getColorsAndIcon(type: StatusCircleType): [ReactNode, string] {
       return [<Check />, 'bg-gray-700 text-gray-200']
     case StatusCircleType.Error:
       return [<X />, 'text-red-500 bg-red-700/30 hover:bg-red-500/30']
+    case StatusCircleType.Loading:
+      return [<CircularProgressIndicator />, 'bg-gray-700 text-gray-200']
   }
 }
 

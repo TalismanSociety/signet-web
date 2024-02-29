@@ -11,7 +11,7 @@ import {
 import { Contract, List, Send, Settings, Share2, Unknown, Vote, Zap } from '@talismn/icons'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import truncateMiddle from 'truncate-middle'
 import { formattedDate, formattedHhMm } from './utils'
@@ -19,6 +19,8 @@ import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Upload } from 'lucide-react'
 import { Tooltip } from '@components/ui/tooltip'
+import { useApi } from '@domains/chains/pjs-api'
+import { ExtrinsicErrorsFromEvents, getExtrinsicErrorsFromEvents } from '@util/errors'
 
 const TransactionSummaryRow = ({
   t,
@@ -31,6 +33,8 @@ const TransactionSummaryRow = ({
   shortDate: boolean
   showDraftBadge?: boolean
 }) => {
+  const [status, setStatus] = useState<{ errors?: ExtrinsicErrorsFromEvents; ok: boolean }>()
+  const { api } = useApi(t.multisig.chain.genesisHash)
   const { contactByAddress } = useKnownAddresses(t.multisig.id)
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
   const combinedView = useRecoilValue(combinedViewState)
@@ -45,6 +49,24 @@ const TransactionSummaryRow = ({
     }
     return undefined
   }, [sumOutgoing, tokenPrices])
+
+  const getEvents = useCallback(async () => {
+    if (!api || !t.executedAt) return
+    try {
+      const apiAt = await api.at(t.hash)
+      const allEvents = await apiAt.query.system.events()
+      const events =
+        allEvents?.filter(
+          event => event.phase.isApplyExtrinsic && event.phase.asApplyExtrinsic.eq(t.executedAt?.index)
+        ) ?? []
+      const errors = getExtrinsicErrorsFromEvents(events)
+      setStatus({ errors, ok: !errors })
+    } catch (e) {}
+  }, [api, t.executedAt, t.hash])
+
+  useEffect(() => {
+    if (!status) getEvents()
+  }, [getEvents, status])
 
   const priceUnavailable = useMemo(() => {
     if (tokenPrices.state === 'loading') return true
@@ -158,30 +180,42 @@ const TransactionSummaryRow = ({
             rel="noreferrer"
             onClick={e => e.stopPropagation()}
           >
-            {t.executedAt.errors ? (
-              <Tooltip
-                content={
+            {status ? (
+              status.errors ? (
+                <Tooltip
+                  content={
+                    <div>
+                      {!!status?.errors.systemError && (
+                        <p className="text-[12px]">Extrinsic failed: {status?.errors.systemError}</p>
+                      )}
+                      {!!status?.errors.proxyError && (
+                        <p className="text-[12px]">Proxy call failed: {status?.errors.proxyError}</p>
+                      )}
+                    </div>
+                  }
+                >
                   <div>
-                    {!!t.executedAt.errors.systemError && (
-                      <p className="text-[12px]">Extrinsic failed: {t.executedAt.errors.systemError}</p>
-                    )}
-                    {!!t.executedAt.errors.proxyError && (
-                      <p className="text-[12px]">Proxy call failed: {t.executedAt.errors.proxyError}</p>
-                    )}
+                    <StatusCircle
+                      type={StatusCircleType.Error}
+                      circleDiameter="24px"
+                      iconDimentions={{ width: '11px', height: 'auto' }}
+                    />
                   </div>
-                }
-              >
-                <div>
-                  <StatusCircle
-                    type={StatusCircleType.Error}
-                    circleDiameter="24px"
-                    iconDimentions={{ width: '11px', height: 'auto' }}
-                  />
-                </div>
-              </Tooltip>
+                </Tooltip>
+              ) : (
+                <Tooltip content="Transaction Executed">
+                  <div>
+                    <StatusCircle
+                      type={StatusCircleType.Success}
+                      circleDiameter="24px"
+                      iconDimentions={{ width: '11px', height: 'auto' }}
+                    />
+                  </div>
+                </Tooltip>
+              )
             ) : (
               <StatusCircle
-                type={StatusCircleType.Success}
+                type={StatusCircleType.Loading}
                 circleDiameter="24px"
                 iconDimentions={{ width: '11px', height: 'auto' }}
               />
