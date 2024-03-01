@@ -31,9 +31,11 @@ export const VaultOverview: React.FC = () => {
         padding: 24,
       }}
     >
-      <div css={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 css={({ color }) => ({ color: color.offWhite, fontSize: 20, fontWeight: 700 })}>{selectedMultisig.name}</h2>
-        <ChainPill chain={selectedMultisig.chain} />
+      <div className="w-full flex items-center justify-between flex-1 gap-[8px]">
+        <h2 className="text-[20px] flex-1 w-1 overflow-hidden text-offWhite font-bold whitespace-nowrap text-ellipsis">
+          {selectedMultisig.name}
+        </h2>
+        <ChainPill chain={selectedMultisig.chain} identiconSize={20} />
       </div>
       <div css={{ marginTop: 24 }}>
         <p css={({ color }) => ({ color: color.offWhite, fontSize: 14, marginTop: 3 })}>Vault Address</p>
@@ -104,14 +106,14 @@ export const VaultOverview: React.FC = () => {
       </div>
       <div
         className={cn(
-          'h-max transition-[max-height] duration-300 overflow-x-hidden',
+          'h-max transition-[max-height] duration-300 overflow-x-hidden w-full',
           showMembers ? 'overflow-y-auto max-h-[9999px]' : 'overflow-y-hidden max-h-0'
         )}
       >
-        <div className="flex flex-col-reverse sm:flex-row gap-x-[8px] gap-y-[16px] flex-1 mt-[16px]">
-          <div className="sm:w-[100px] flex flex-col flex-1">
+        <div className="flex flex-wrap-reverse gap-x-[8px] gap-y-[16px] flex-1 mt-[16px] w-full">
+          <div className="flex flex-col overflow-hidden">
             <p css={({ color }) => ({ color: color.lightGrey, marginBottom: 8, fontSize: 14 })}>Signers</p>
-            <div className="flex flex-col gap-[12px] items-start justify-start [&>div]:w-max">
+            <div className="flex flex-col gap-[12px] items-start justify-start">
               {selectedMultisig.signers.map(signer => (
                 <AccountDetails
                   key={signer.toSs58()}
@@ -125,7 +127,7 @@ export const VaultOverview: React.FC = () => {
               ))}
             </div>
           </div>
-          <div className="sm:w-[100px] flex flex-col flex-1">
+          <div className="flex flex-col flex-1">
             <p css={({ color }) => ({ color: color.lightGrey, marginBottom: 8, fontSize: 14 })}>Multisig Address</p>
             <AccountDetails
               chain={selectedMultisig.chain}

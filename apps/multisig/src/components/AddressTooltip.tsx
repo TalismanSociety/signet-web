@@ -103,7 +103,7 @@ export const AddressTooltip: React.FC<
             </div>
           </div>
           {!!token && !!token.tokenSymbol && !!token.tokenDecimals && (
-            <p className="mt-[8px] text-[12px]">
+            <p className="mt-[8px] text-[12px] text-left">
               Available Balance:{' '}
               {balanceBN !== undefined ? (
                 <span className="text-offWhite">
@@ -115,7 +115,7 @@ export const AddressTooltip: React.FC<
             </p>
           )}
           {!!onchainIdentity && (
-            <p className="text-[12px] mb-[2px]">
+            <p className="text-[12px] mb-[2px] text-left">
               On-chain identity: <span className="text-offWhite">{onchainIdentityUi}</span>
             </p>
           )}

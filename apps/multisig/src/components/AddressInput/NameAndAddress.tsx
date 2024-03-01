@@ -26,7 +26,7 @@ export const NameAndAddress: React.FC<{
       <>
         {onchainIdentity.identity}{' '}
         {!!onchainIdentity.subIdentity && (
-          <span className="text-gray-200 text-[12px]">/{onchainIdentity.subIdentity}</span>
+          <span className="text-gray-200 text-[12px] leading-[12px]">/{onchainIdentity.subIdentity}</span>
         )}
       </>
     )
