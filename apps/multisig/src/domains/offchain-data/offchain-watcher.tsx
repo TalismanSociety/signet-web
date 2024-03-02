@@ -1,13 +1,13 @@
 import { AddressBookWatcher } from './address-book'
 import { TxMetadataWatcher } from './metadata'
+import { OrganisationsWatcher } from './organisation'
 import { SmartContractsWatcher } from './smart-contract'
-import { TeamsWatcher } from './teams'
 
 export const OffchainDataWatcher: React.FC = () => (
   <>
     <AddressBookWatcher />
     <SmartContractsWatcher />
-    <TeamsWatcher />
     <TxMetadataWatcher />
+    <OrganisationsWatcher />
   </>
 )

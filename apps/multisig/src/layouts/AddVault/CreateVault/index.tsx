@@ -11,7 +11,7 @@ import {
   tokenByIdWithPrice,
 } from '@domains/chains'
 import { useCreateProxy, useTransferProxyToMultisig } from '@domains/chains/extrinsics'
-import { useCreateTeamOnHasura } from '@domains/offchain-data'
+import { useCreateOrganisation } from '@domains/offchain-data'
 import { useAddressIsProxyDelegatee } from '@domains/chains/storage-getters'
 import { Address, toMultisigAddress } from '@util/addresses'
 
@@ -61,7 +61,7 @@ const CreateMultisig = () => {
     estimatedFee,
   } = useCreateProxy(chain, selectedSigner?.injected.address)
   const { addressIsProxyDelegatee } = useAddressIsProxyDelegatee(chain)
-  const { createTeam, creatingTeam } = useCreateTeamOnHasura()
+  const { createOrganisation, loading } = useCreateOrganisation()
   const { transferProxyToMultisig, ready: transferProxyToMultisigIsReady } = useTransferProxyToMultisig(chain)
   const [transferred, setTransferred] = useState(false)
   const [creatingProxy, setCreatingProxy] = useState(false)
@@ -71,8 +71,8 @@ const CreateMultisig = () => {
   // try to block user if they try to close page before completing the process
   useBlockUnload(
     useMemo(
-      () => !created && (createdProxy !== undefined || creatingTeam || creatingProxy || transferring),
-      [created, createdProxy, creatingProxy, creatingTeam, transferring]
+      () => !created && (createdProxy !== undefined || loading || creatingProxy || transferring),
+      [created, createdProxy, creatingProxy, loading, transferring]
     )
   )
 
@@ -130,16 +130,16 @@ const CreateMultisig = () => {
   }, [createProxy, dismiss, setBlockAccountSwitcher, toast])
 
   const handleCreateTeam = useCallback(async () => {
-    if (!createdProxy) return // cannot happen
+    if (!createdProxy) return // cannot happen UI wise
     try {
-      const { team, error } = await createTeam({
+      const { ok, error } = await createOrganisation({
         name,
         chain: chain.squidIds.chainData,
-        multisigConfig: { signers: augmentedAccounts.map(a => a.address.toSs58()), threshold },
-        proxiedAddress: createdProxy.toSs58(),
+        multisig_config: { signers: augmentedAccounts.map(a => a.address.toSs58()), threshold },
+        proxied_address: createdProxy.toSs58(),
       })
 
-      if (!team || error) throw new Error(error || 'Please try again or submit a bug report.')
+      if (!ok || error) throw new Error(error || 'Please try again or submit a bug report.')
 
       // vault created! `createTeam` will handle adding the team to the cache
       // go to overview to check the newly created vault
@@ -154,7 +154,7 @@ const CreateMultisig = () => {
       setTransferred(true)
       setTransferring(false)
     }
-  }, [augmentedAccounts, chain.squidIds.chainData, createTeam, createdProxy, name, threshold, toast])
+  }, [augmentedAccounts, chain.squidIds.chainData, createOrganisation, createdProxy, name, threshold, toast])
 
   const handleTransferProxy = useCallback(() => {
     setTransferring(true)
@@ -256,7 +256,7 @@ const CreateMultisig = () => {
           chain={chain}
           created={created}
           creating={creatingProxy}
-          creatingTeam={creatingTeam}
+          creatingTeam={loading}
           createdProxy={createdProxy}
           onBack={() => setStep(Step.Confirmation)}
           onCreateProxy={handleCreateProxy}

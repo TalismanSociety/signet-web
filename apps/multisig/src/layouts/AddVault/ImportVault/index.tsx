@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { Address } from '@util/addresses'
 import { Chain, filteredSupportedChains } from '@domains/chains'
-import { useCreateTeamOnHasura } from '@domains/offchain-data'
 
 import NameVault from '../common/NameVault'
 import SelectChain from '../common/SelectChain'
@@ -12,6 +11,7 @@ import { MultisigConfig } from '../MultisigConfig'
 import Confirmation from '../common/Confirmation'
 import { ProxiedAccountSettings } from './ProxiedAccountSettings'
 import { useAugmentedAccounts } from '../common/useAugmentedAccounts'
+import { useCreateOrganisation } from '@domains/offchain-data/organisation'
 
 export enum Step {
   NameVault,
@@ -35,20 +35,20 @@ export const ImportVault: React.FC = () => {
   const [importing, setImporting] = useState(false)
 
   const { augmentedAccounts, setAddedAccounts } = useAugmentedAccounts()
-  const { createTeam } = useCreateTeamOnHasura()
+  const { createOrganisation } = useCreateOrganisation()
 
   const handleImport = useCallback(async () => {
     if (!proxiedAddress) return
     setImporting(true)
     try {
-      const { team, error } = await createTeam({
+      const { ok, error } = await createOrganisation({
         name,
         chain: chain.squidIds.chainData,
-        multisigConfig: { signers: augmentedAccounts.map(a => a.address.toSs58()), threshold },
-        proxiedAddress: proxiedAddress.toSs58(),
+        multisig_config: { signers: augmentedAccounts.map(a => a.address.toSs58()), threshold },
+        proxied_address: proxiedAddress.toSs58(),
       })
 
-      if (!team || error) {
+      if (!ok || error) {
         toast.error(error ?? 'Failed to import vault, please try again later.')
         return
       }
@@ -61,7 +61,7 @@ export const ImportVault: React.FC = () => {
     } finally {
       setImporting(false)
     }
-  }, [augmentedAccounts, chain.squidIds.chainData, createTeam, name, navigate, proxiedAddress, threshold])
+  }, [augmentedAccounts, chain.squidIds.chainData, createOrganisation, name, navigate, proxiedAddress, threshold])
 
   return (
     <>

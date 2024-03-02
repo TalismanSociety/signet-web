@@ -1,20 +1,22 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { atom, selector, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { selectedAccountState } from '../auth'
 import { DUMMY_MULTISIG_ID, useSelectedMultisig } from '../multisig'
-import { gql } from 'graphql-request'
-import { requestSignetBackend } from './hasura'
+import { gql } from 'graphql-tag'
 import { Address } from '@util/addresses'
-import toast from 'react-hot-toast'
 import { isEqual } from 'lodash'
+import { useMutation, useQuery } from '@apollo/client'
+import { captureException } from '@sentry/react'
+import { useToast } from '@components/ui/use-toast'
 
 const ADDRESSES_QUERY = gql`
-  query Addresses($teamId: uuid!) {
-    address(where: { team_id: { _eq: $teamId } }, order_by: { name: asc }, limit: 300) {
+  query Addresses($orgId: uuid!) {
+    address(where: { org_id: { _eq: $orgId } }, order_by: { name: asc }, limit: 1000) {
       id
       name
       address
       team_id
+      org_id
     }
   }
 `
@@ -23,7 +25,7 @@ export type Contact = {
   id: string
   name: string
   address: Address
-  teamId: string
+  orgId: string
 }
 
 export const addressBookLoadingState = atom<boolean>({
@@ -44,10 +46,10 @@ export const addressBookByTeamIdMapState = selector({
 
     const map = {} as Record<string, Record<string, Contact>>
 
-    Object.entries(addressBookByTeamId).forEach(([teamId, contacts]) => {
-      map[teamId] = {}
+    Object.entries(addressBookByTeamId).forEach(([orgId, contacts]) => {
+      map[orgId] = {}
       contacts.forEach(contact => {
-        map[teamId]![contact.address.toSs58()] = contact
+        map[orgId]![contact.address.toSs58()] = contact
       })
     })
     return map
@@ -63,117 +65,107 @@ export const useAddressBook = () => {
   if (selectedMultisig.id === DUMMY_MULTISIG_ID) return { contacts: [], contactsByAddress: {}, loading: false }
 
   return {
-    contacts: addressBookByTeamId[selectedMultisig.id],
-    contactsByAddress: addressBookByTeamIdMap[selectedMultisig.id] ?? {},
+    contacts: addressBookByTeamId[selectedMultisig.orgId],
+    contactsByAddress: addressBookByTeamIdMap[selectedMultisig.orgId] ?? {},
     loading,
   }
 }
 
+const CREATE_ADDRESS_MUTATION = gql`
+  mutation CreateAddress($address: String!, $name: String!, $orgId: uuid!) {
+    insert_address_one(
+      object: { address: $address, name: $name, org_id: $orgId }
+      on_conflict: { constraint: address_address_org_id_team_id_key, update_columns: [address, name] }
+    ) {
+      id
+      org_id
+      team_id
+      name
+      address
+    }
+  }
+`
 export const useCreateContact = () => {
-  const [creating, setCreating] = useState(false)
-  const selectedAccount = useRecoilValue(selectedAccountState)
-  const [addressBookByTeamId, setAddressBookByTeamId] = useRecoilState(addressBookByTeamIdState)
+  const setAddressBookByTeamId = useSetRecoilState(addressBookByTeamIdState)
+  const [mutate, { loading, error }] = useMutation(CREATE_ADDRESS_MUTATION, {
+    onCompleted: data => {
+      const { id, name, address, org_id } = data.insert_address_one
+      setAddressBookByTeamId(prev => {
+        const addresses = [...(prev[org_id] ?? [])]
+        const parsedAddress = Address.fromSs58(address)
+        if (!parsedAddress) {
+          console.error('Failed to parse saved address: ', address)
+          return prev
+        }
+        const conflict = addresses.find(contact => contact.address.isEqual(parsedAddress))
+        if (!conflict) {
+          return { ...prev, [org_id]: [...addresses, { id, name, orgId: org_id, address: Address.fromSs58(address) }] }
+        }
+        return prev
+      })
+    },
+  })
 
   const createContact = useCallback(
-    async (address: Address, name: string, teamId: string) => {
-      if (!selectedAccount) return
-      try {
-        setCreating(true)
-        const { data, error } = await requestSignetBackend(
-          gql`
-            mutation CreateAddress($address: String!, $name: String!, $teamId: uuid!) {
-              insert_address_one(
-                object: { address: $address, name: $name, team_id: $teamId }
-                on_conflict: { constraint: address_address_team_id_key, update_columns: [address, team_id] }
-              ) {
-                id
-              }
-            }
-          `,
-          {
-            address: address.toSs58(),
-            name,
-            teamId,
-          },
-          selectedAccount
-        )
-
-        const id = data?.insert_address_one?.id
-        if (!id || error) {
-          toast.error('Failed to create contact, please try again.')
-          return
-        }
-        let addresses = addressBookByTeamId[teamId] ?? []
-        const conflict = addresses.find(contact => contact.address.isEqual(address))
-        toast.success(`Contact created for ${name}`)
-
-        // dont need to update cache if there's a conflict since no update will be made in backend
-        if (!conflict) {
-          addresses = [...addresses, { id, name, teamId, address }]
-          setAddressBookByTeamId({ ...addressBookByTeamId, [teamId]: addresses })
-        }
-        // inform caller that contact was created
-        return true
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setCreating(false)
-      }
-    },
-    [addressBookByTeamId, selectedAccount, setAddressBookByTeamId]
+    async (address: Address, name: string, orgId: string) =>
+      mutate({
+        variables: {
+          address: address.toSs58(),
+          name,
+          orgId,
+        },
+      }),
+    [mutate]
   )
 
-  return { createContact, creating }
+  return { createContact, creating: loading, error }
 }
 
 export const useDeleteContact = () => {
-  const [deleting, setDeleting] = useState(false)
-  const selectedAccount = useRecoilValue(selectedAccountState)
+  const { toast } = useToast()
   const [addressBookByTeamId, setAddressBookByTeamId] = useRecoilState(addressBookByTeamIdState)
+  const [mutate, { loading: deleting }] = useMutation(gql`
+    mutation DeleteAddress($id: uuid!) {
+      delete_address_by_pk(id: $id) {
+        id
+        org_id
+      }
+    }
+  `)
 
   const deleteContact = useCallback(
     async (id: string) => {
-      if (!selectedAccount) return
       try {
-        setDeleting(true)
-        const { data, error } = await requestSignetBackend(
-          gql`
-            mutation DeleteAddress($id: uuid!) {
-              delete_address_by_pk(id: $id) {
-                id
-                team_id
-              }
-            }
-          `,
-          { id },
-          selectedAccount
-        )
+        const { data, errors } = await mutate({ variables: { id } })
 
         const deletedId = data?.delete_address_by_pk?.id
-        const teamId = data?.delete_address_by_pk?.team_id
-        if (!deletedId || !teamId || error) {
-          toast.error('Failed to delete contact, please try again.')
+        const orgId = data?.delete_address_by_pk?.org_id
+        if (!deletedId || !orgId || errors) {
+          toast({
+            title: 'Failed to delete contact',
+            description: 'Please try again.',
+          })
+          if (errors) captureException(errors)
           return
         }
-        toast.success(`Contact deleted!`)
+        toast({ title: `Contact deleted!` })
 
-        let addresses = addressBookByTeamId[teamId] ?? []
+        let addresses = addressBookByTeamId[orgId] ?? []
         const stillInList = addresses.find(contact => contact.id === id)
 
         if (stillInList) {
           addresses = addresses.filter(contact => contact.id !== id)
-          setAddressBookByTeamId({ ...addressBookByTeamId, [teamId]: addresses })
+          setAddressBookByTeamId({ ...addressBookByTeamId, [orgId]: addresses })
         }
 
         // inform caller that contact was deleted
         return true
       } catch (e) {
         console.error(e)
-      } finally {
-        setDeleting(false)
+        return false
       }
     },
-    [addressBookByTeamId, selectedAccount, setAddressBookByTeamId]
+    [addressBookByTeamId, mutate, setAddressBookByTeamId, toast]
   )
 
   return { deleteContact, deleting }
@@ -181,33 +173,25 @@ export const useDeleteContact = () => {
 
 export const AddressBookWatcher = () => {
   const selectedAccount = useRecoilValue(selectedAccountState)
-  const [selectedMultisig] = useSelectedMultisig()
   const setLoading = useSetRecoilState(addressBookLoadingState)
-  const [addressBookByTeamId, setAddressBookByTeamId] = useRecoilState(addressBookByTeamIdState)
+  const [selectedMultisig] = useSelectedMultisig()
+  const setAddressBookByTeamId = useSetRecoilState(addressBookByTeamIdState)
 
-  const fetchAddressBook = useCallback(async () => {
-    if (!selectedAccount || selectedMultisig.id === DUMMY_MULTISIG_ID) return
+  const updateAddressBook = useCallback(
+    (addresses: { address: string; id: string; org_id: string; name: string }[]) => {
+      setAddressBookByTeamId(prev => {
+        const newAddressBookByTeamId = { ...prev }
+        if (!newAddressBookByTeamId[selectedMultisig.orgId]) newAddressBookByTeamId[selectedMultisig.orgId] = []
 
-    try {
-      setLoading(true)
-      const { data } = await requestSignetBackend<{
-        address: { address: string; id: string; team_id: string; name: string }[]
-      }>(ADDRESSES_QUERY, { teamId: selectedMultisig.id }, selectedAccount)
-
-      if (data?.address) {
-        const newAddressBookByTeamId = { ...addressBookByTeamId }
-        if (!newAddressBookByTeamId[selectedMultisig.id]) newAddressBookByTeamId[selectedMultisig.id] = []
-
-        data.address.forEach(({ id, name, address, team_id }) => {
+        addresses.forEach(({ id, name, address, org_id }) => {
           try {
             const parsedAddress = Address.fromSs58(address)
             if (parsedAddress) {
-              let addressesOfTeam = newAddressBookByTeamId[team_id] ?? []
+              let addressesOfTeam = newAddressBookByTeamId[org_id] ?? []
               const conflict = addressesOfTeam.find(contact => contact.address.isEqual(parsedAddress))
-              if (!conflict) {
-                addressesOfTeam = [...addressesOfTeam, { id, name, teamId: team_id, address: parsedAddress }]
-                newAddressBookByTeamId[team_id] = addressesOfTeam
-              }
+              if (conflict) return
+              addressesOfTeam = [...addressesOfTeam, { id, name, orgId: org_id, address: parsedAddress }]
+              newAddressBookByTeamId[org_id] = addressesOfTeam
             }
           } catch (e) {
             console.error('Failed to parse contact:')
@@ -215,28 +199,31 @@ export const AddressBookWatcher = () => {
           }
         })
 
-        if (isEqual(addressBookByTeamId, newAddressBookByTeamId)) return
-        setAddressBookByTeamId(newAddressBookByTeamId)
-      }
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setLoading(false)
-    }
-  }, [addressBookByTeamId, selectedAccount, selectedMultisig.id, setAddressBookByTeamId, setLoading])
+        if (isEqual(prev, newAddressBookByTeamId)) return prev
+        return newAddressBookByTeamId
+      })
+    },
+    [selectedMultisig.orgId, setAddressBookByTeamId]
+  )
+
+  const { data, loading } = useQuery<{
+    address: { address: string; id: string; org_id: string; name: string }[]
+  }>(ADDRESSES_QUERY, {
+    variables: {
+      orgId: selectedMultisig.orgId,
+    },
+    pollInterval: 10000,
+    skip: !selectedAccount || selectedMultisig.id === DUMMY_MULTISIG_ID,
+    notifyOnNetworkStatusChange: true,
+  })
 
   useEffect(() => {
-    if (!selectedAccount) return
-    // fetch address book for the first time
-    fetchAddressBook()
+    if (data?.address) updateAddressBook(data.address)
+  }, [data?.address, updateAddressBook])
 
-    // refresh every 15secs to update address books in "real-time"
-    const interval = setInterval(() => {
-      fetchAddressBook()
-    }, 15_000)
-
-    return () => clearInterval(interval)
-  }, [fetchAddressBook, selectedAccount])
+  useEffect(() => {
+    setLoading(loading)
+  }, [loading, setLoading])
 
   return null
 }
