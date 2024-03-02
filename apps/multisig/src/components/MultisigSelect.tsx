@@ -1,8 +1,18 @@
 import { PlusCircle } from '@talismn/icons'
-import { Select } from '@talismn/ui'
 import { Multisig } from '@domains/multisig'
-import { Link } from 'react-router-dom'
 import { AccountDetails } from './AddressInput/AccountDetails'
+import { ChevronDown, Stars } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu'
+import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import { openScannerState, unimportedVaultsState } from '@domains/multisig/VaultsScanner'
+import { CircularProgressIndicator } from '@talismn/ui'
+import { Link } from 'react-router-dom'
 
 type Props = {
   multisigs: Multisig[]
@@ -14,7 +24,7 @@ const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; select
   multisig,
   selected,
 }) => (
-  <div className="w-full flex items-center justify-center gap-[12px] select-none">
+  <div className="flex items-center justify-center gap-[12px] select-none w-full">
     {/** Threshold + chain logo circle */}
     <div className="relative h-[40px] w-[40px] min-w-[40px] flex items-center justify-center">
       <div
@@ -47,94 +57,79 @@ const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; select
       </p>
     </div>
 
-    {selected && (
-      <AccountDetails
-        name={multisig.name}
-        address={multisig.proxyAddress}
-        chain={multisig.chain}
-        breakLine
-        hideIdenticon
-      />
-    )}
+    <AccountDetails
+      name={multisig.name}
+      address={multisig.proxyAddress}
+      chain={multisig.chain}
+      breakLine
+      hideIdenticon
+    />
   </div>
 )
 
-const AddVaultButton: React.FC = () => (
-  <Link to="/add-vault">
-    <div
-      css={({ color }) => ({
-        'border': 'none',
-        'display': 'flex',
-        'alignItems': 'center',
-        'gap': 8,
-        'padding': '8px 16px',
-        'marginBottom': 8,
-        'backgroundColor': color.surface,
-        ':hover': { filter: 'brightness(1.2)' },
-        'cursor': 'pointer',
-        'width': '100%',
-        'svg': { color: color.primary },
-      })}
-    >
-      <PlusCircle size={32} />
-      <p css={{ marginTop: 4, fontSize: 16, textAlign: 'left' }}>Add Vault</p>
-    </div>
-  </Link>
-)
-
 export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedMultisig }) => {
+  const unimportedVaultsLoadable = useRecoilValueLoadable(unimportedVaultsState)
+  const setOpenScanner = useSetRecoilState(openScannerState)
+
   const handleChange = (value: string) => {
     const newMultisig = multisigs.find(m => m.id === value)
     if (newMultisig) onChange(newMultisig)
   }
   return (
-    <Select
-      afterOptionsNode={<AddVaultButton />}
-      css={{
-        button: {
-          'gap': 8,
-          'width': 240,
-          'paddingTop': 0,
-          'paddingBottom': 0,
-          'overflowX': 'hidden',
-          '>div': {
-            flex: 1,
-            width: 181, // doesnt matter, only so that flex: 1 works
-            paddingTop: 8,
-            paddingBottom: 8,
-          },
-          '>svg': {
-            minWidth: '24px',
-          },
-        },
-      }}
-      onChange={handleChange}
-      placeholder={<VaultDetails multisig={selectedMultisig} selected />}
-      placeholderPointerEvents
-      value={selectedMultisig.id}
-    >
-      {multisigs.reduce((accumulator, multisig) => {
-        if (selectedMultisig.id === multisig.id) return accumulator
-
-        return accumulator.concat(
-          <Select.Option
-            key={multisig.id}
-            value={multisig.id}
-            leadingIcon={<VaultDetails multisig={multisig} />}
-            headlineText={
-              <div className="w-full max-w-[157px]">
-                <AccountDetails
-                  name={multisig.name}
-                  address={multisig.proxyAddress}
-                  chain={multisig.chain}
-                  breakLine
-                  hideIdenticon
-                />
-              </div>
-            }
-          />
-        )
-      }, [] as any)}
-    </Select>
+    <DropdownMenu>
+      <DropdownMenuTrigger className="bg-gray-900 border-none w-[240px] px-[12px] py-[8px] flex flex-1 items-center gap-[8px] rounded-[12px]">
+        <div className="flex flex-1 w-1">
+          <VaultDetails multisig={selectedMultisig} />
+        </div>
+        <ChevronDown size={20} className="min-w-[20px]" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="bg-gray-900 border border-gray-700 w-max max-w-[240px] flex flex-col items-start"
+        align="start"
+      >
+        <div className="w-full pb-[4px]">
+          <DropdownMenuItem
+            asChild
+            className="w-full text-left items-center gap-[8px] justify-start px-[12px] py-[8px] h-max min-h-max"
+          >
+            <Link to="/add-vault">
+              <PlusCircle size={20} />
+              <p className="mt-[4px] text-[14px]">Add Vault</p>
+            </Link>
+          </DropdownMenuItem>
+          {unimportedVaultsLoadable.state === 'loading' ? (
+            <div className="px-[12px] py-[8px] flex items-center gap-[8px]">
+              <CircularProgressIndicator size={20} />
+              <p className="text-[12px] mt-[4px]">Scanning for importable vaults</p>
+            </div>
+          ) : unimportedVaultsLoadable.state === 'hasValue' ? (
+            unimportedVaultsLoadable.contents.length > 0 ? (
+              <DropdownMenuItem
+                className="w-full text-left items-center gap-[8px] justify-start px-[12px] py-[8px] h-max min-h-max text-primary hover:text-primary focus:text-primary"
+                onClick={() => setOpenScanner(true)}
+              >
+                <Stars size={20} />
+                <p className="mt-[4px] text-[14px]">
+                  {unimportedVaultsLoadable.contents.length} vault
+                  {unimportedVaultsLoadable.contents.length > 1 ? 's' : ''} detected
+                </p>
+              </DropdownMenuItem>
+            ) : null
+          ) : null}
+        </div>
+        <DropdownMenuSeparator />
+        <div className="max-h-[240px] overflow-y-auto p-[4px] w-full">
+          {multisigs.map(multisig => (
+            <DropdownMenuItem
+              key={multisig.id}
+              className="flex items-center focus:bg-gray-800 hover:bg-gray-800 w-full rounded-[8px] py-[8px] px-[12px]"
+              onClick={() => handleChange(multisig.id)}
+            >
+              <VaultDetails multisig={multisig} />
+            </DropdownMenuItem>
+          ))}
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

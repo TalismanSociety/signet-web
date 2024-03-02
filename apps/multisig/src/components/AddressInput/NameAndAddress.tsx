@@ -45,7 +45,11 @@ export const NameAndAddress: React.FC<{
   }, [address, azeroId, chain, name, nameOrAddressOnly, onchainIdentityUi])
 
   if (!secondaryText)
-    return <p className="text-offWhite overflow-hidden text-ellipsis mt-[3px] w-full max-w-max">{primaryText}</p>
+    return (
+      <p className="text-offWhite overflow-hidden text-ellipsis mt-[3px] w-full max-w-max whitespace-nowrap">
+        {primaryText}
+      </p>
+    )
 
   return (
     <div

@@ -2,16 +2,16 @@ import { selectedAccountState } from '@domains/auth'
 import { Address, toMultisigAddress } from '@util/addresses'
 import { gql } from 'graphql-request'
 import fetchGraphQL from '../../graphql/fetch-graphql'
-import { atom, selector, selectorFamily, useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
+import { atom, selector, selectorFamily, useRecoilState, useRecoilValueLoadable } from 'recoil'
 import { Chain, supportedChains } from '@domains/chains'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import persist from '@domains/persist'
-import { activeTeamsState } from '@domains/offchain-data'
+import { Team, activeTeamsState } from '@domains/offchain-data'
 import { Button } from '@components/ui/button'
 import { Dialog, DialogContent } from '@components/ui/dialog'
-import { ChainPill } from '@components/ChainPill'
-import { AccountDetails } from '@components/AddressInput/AccountDetails'
+import { VaultsList } from '@components/ScanVaults/VaultsList'
+import { ImportedTeamsList } from '@components/ScanVaults/ImportedTeamsList'
 
 type RawData = {
   accountExtrinsics: {
@@ -26,7 +26,7 @@ type RawData = {
   }[]
 }
 
-type ScannedVault = {
+export type ScannedVault = {
   proxy: string
   proxiedAddress: Address
   multisig: { multisigAddress: Address; signers: Address[]; threshold: number }
@@ -59,7 +59,7 @@ const getTransactionsOfAccount = selectorFamily({
   },
 })
 
-const vaultsOfAccount = selector({
+export const vaultsOfAccount = selector({
   key: 'vaultsOfAccount',
   get: async ({ get }) => {
     const selectedAccount = get(selectedAccountState)
@@ -144,24 +144,40 @@ const vaultsOfAccount = selector({
         proxies[0].forEach(proxy => {
           // only non delay is supported atm
           // TODO: support delay proxies
-          if (proxy.delay.toNumber() === 0) {
-            const delegate = Address.fromPubKey(proxy.delegate.toHex())
-            if (!delegate) return
-            const multisig = multisigs[delegate.toSs58()]
-            if (multisig) {
-              vaultsCombiniations.push({
-                proxy: proxy.proxyType.toString(),
-                proxiedAddress: proxiedAddresses[i]!.address,
-                multisig,
-                chain: proxiedAddresses[i]!.chain,
-              })
-            }
-          }
+          if (proxy.delay.toNumber() !== 0) return
+
+          const delegate = Address.fromPubKey(proxy.delegate.toHex())
+          if (!delegate) return
+
+          const multisig = multisigs[delegate.toSs58()]
+          if (!multisig) return
+
+          vaultsCombiniations.push({
+            proxy: proxy.proxyType.toString(),
+            proxiedAddress: proxiedAddresses[i]!.address,
+            multisig,
+            chain: proxiedAddresses[i]!.chain,
+          })
         })
       })
     }
-
     return { multisigs, proxiedAccounts, vaultsCombiniations }
+  },
+})
+
+export const unimportedVaultsState = selector({
+  key: 'unimportedVaultsState',
+  get: ({ get }) => {
+    const res = get(vaultsOfAccount)
+    const importedVaults = get(activeTeamsState)
+    return (
+      res?.vaultsCombiniations.filter(
+        v =>
+          !importedVaults?.some(
+            i => v.multisig.multisigAddress.isEqual(i.delegateeAddress) && v.proxiedAddress.isEqual(i.proxiedAddress)
+          )
+      ) ?? []
+    )
   },
 })
 
@@ -171,87 +187,83 @@ const acknowledgedVaultsState = atom<Record<string, boolean>>({
   effects_UNSTABLE: [persist],
 })
 
-const makeId = (proxiedAddress: Address, multisigAddress: Address, chain: Chain) =>
+export const openScannerState = atom<boolean>({
+  key: 'manualOpenState',
+  default: false,
+})
+
+export const importedTeamsState = atom<Team[]>({
+  key: 'importedTeamsState',
+  default: [],
+})
+
+export const makeScannedVaultId = (proxiedAddress: Address, multisigAddress: Address, chain: Chain) =>
   `${proxiedAddress.toSs58()}-${multisigAddress.toSs58()}-${chain.genesisHash}`
 
 export const VaultsScanner: React.FC = () => {
-  const [viewMultisig, setViewMultisig] = useState<ScannedVault>()
-  const res = useRecoilValueLoadable(vaultsOfAccount)
+  const [open, setOpen] = useRecoilState(openScannerState)
+  const unimportedVaultsLoadable = useRecoilValueLoadable(unimportedVaultsState)
   const [acknowledgedVaults, setAcknowledgedVaults] = useRecoilState(acknowledgedVaultsState)
-  const importedVaults = useRecoilValue(activeTeamsState)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   const unimportedVaults = useMemo(() => {
-    if (res.state !== 'hasValue' || !importedVaults) return []
-    return (
-      res.contents?.vaultsCombiniations.filter(
-        v =>
-          !importedVaults.some(
-            i => v.multisig.multisigAddress.isEqual(i.delegateeAddress) && v.proxiedAddress.isEqual(i.proxiedAddress)
-          )
-      ) ?? []
-    )
-  }, [importedVaults, res.contents?.vaultsCombiniations, res.state])
+    if (unimportedVaultsLoadable.state !== 'hasValue') return []
+    return unimportedVaultsLoadable.contents ?? []
+  }, [unimportedVaultsLoadable])
 
   const unacknowledgedVaults = useMemo(
     () =>
       unimportedVaults.filter(
-        v => !acknowledgedVaults[makeId(v.proxiedAddress, v.multisig.multisigAddress, v.chain)]
+        v => !acknowledgedVaults[makeScannedVaultId(v.proxiedAddress, v.multisig.multisigAddress, v.chain)]
       ) ?? [],
     [acknowledgedVaults, unimportedVaults]
   )
 
   const acknowledge = useCallback(() => {
+    setOpen(false)
     setAcknowledgedVaults(old => {
       const newAcknowledged = { ...old }
       unacknowledgedVaults.forEach(v => {
-        newAcknowledged[makeId(v.proxiedAddress, v.multisig.multisigAddress, v.chain)] = true
+        newAcknowledged[makeScannedVaultId(v.proxiedAddress, v.multisig.multisigAddress, v.chain)] = true
       })
       return newAcknowledged
     })
-  }, [setAcknowledgedVaults, unacknowledgedVaults])
+  }, [setAcknowledgedVaults, setOpen, unacknowledgedVaults])
 
   return (
     <Dialog
-      open={unacknowledgedVaults.length > 0}
+      open={unacknowledgedVaults.length > 0 || open}
       onOpenChange={open => {
         if (!open) acknowledge()
       }}
     >
-      <DialogContent>
+      <DialogContent className="max-w-[480px]">
         <div className="w-full flex flex-col gap-[12px] h-full">
-          <h1 className="text-[20px] font-bold">New Vaults Detected</h1>
-          <div className="w-full h-full flex flex-col gap-[12px] overflow-y-auto max-h-[340px]">
-            {unimportedVaults.map(vault => (
-              <button
-                className="p-[16px] py-[8px] w-full rounded-[12px] bg-gray-800 gap-[8px] flex flex-col hover:border-primary border border-gray-800 hover:bg-gray-700"
-                key={`${vault.multisig.multisigAddress.toSs58()}-${vault.proxiedAddress.toSs58()}`}
-              >
-                <div className="w-full flex items-center justify-between">
-                  <div>
-                    <AccountDetails address={vault.proxiedAddress} chain={vault.chain} withAddressTooltip disableCopy />
-                  </div>
-                  <div className="flex items-center justify-end gap-[8px] w-full">
-                    <Button size="sm" variant="outline" onClick={() => setViewMultisig(vault)}>
-                      View Multisig
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      Import
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-[14px]">
-                  Controlled by {vault.multisig.threshold} of {vault.multisig.signers.length} multisg via{' '}
-                  <span className="text-offWhite font-semibold">{vault.proxy}</span> proxy.
-                </p>
-                <div className="[&_p]:text-[14px]">
-                  <ChainPill identiconSize={20} chain={vault.chain} />
-                </div>
-              </button>
-            ))}
+          <h1 className="text-[20px] font-bold">
+            {unacknowledgedVaults.length > 0 ? 'New Vaults Detected' : 'Import Detected Vaults'}
+          </h1>
+          <p className="text-[14px]">
+            Through on-chain activities, we detected that you have {unimportedVaults.length} vaults that can be imported
+            into Signet.
+          </p>
+          <div ref={scrollRef} className="overflow-y-auto max-h-[380px] grid w-full gap-[8px]">
+            <ImportedTeamsList
+              onViewDashboard={() => {
+                acknowledge()
+                setOpen(false)
+              }}
+            />
+            <VaultsList
+              onAdded={() => {
+                if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+            />
           </div>
-          <Button variant="ghost" size="lg" className="self-center" onClick={acknowledge}>
-            Import Later
-          </Button>
+          {unimportedVaults.length > 0 && (
+            <Button variant="ghost" size="lg" className="self-center" onClick={acknowledge}>
+              Import Later
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

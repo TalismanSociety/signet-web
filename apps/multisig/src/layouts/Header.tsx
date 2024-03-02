@@ -34,7 +34,7 @@ const Header = () => {
           gap: 12,
         }}
       >
-        <Logo css={{ cursor: 'pointer', width: 106, marginRight: 16 }} onClick={() => navigate('/')} />
+        <Logo css={{ cursor: 'pointer', width: 106, marginRight: 16, minWidth: 106 }} onClick={() => navigate('/')} />
         {activeMultisigs.length === 0 ? null : (
           <>
             <MultisigSelect

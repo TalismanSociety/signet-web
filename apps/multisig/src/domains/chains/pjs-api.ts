@@ -23,7 +23,6 @@ export const pjsApiSelector = atomFamily({
         await api.isReady
         return api
       } catch (e) {
-        console.error(`Failed to connect to ${chainName}:`, e)
         throw new Error(`Failed to connect to ${chainName} chain:` + getErrorString(e))
       }
     },
@@ -35,11 +34,14 @@ export const pjsApiSelector = atomFamily({
 // returned map key is the genesisHash
 export const allPjsApisSelector = selector({
   key: 'AllPjsApis',
-  get: ({ get }): Map<string, ApiPromise> => {
-    const entries: [string, ApiPromise][] = supportedChains.map(({ genesisHash }) => [
-      genesisHash,
-      get(pjsApiSelector(genesisHash)),
-    ])
+  get: async ({ get }): Promise<Map<string, ApiPromise>> => {
+    const entries: [string, ApiPromise][] = await Promise.all(
+      supportedChains.map(async ({ genesisHash }) => {
+        const api = get(pjsApiSelector(genesisHash))
+        return [genesisHash, api]
+      })
+    )
+
     return new Map(entries)
   },
   dangerouslyAllowMutability: true, // pjs wsprovider mutates itself to track connection msg stats
