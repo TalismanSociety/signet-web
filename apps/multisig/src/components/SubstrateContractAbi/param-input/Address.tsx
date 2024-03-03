@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 export const AddressParamInput: ParamInputComponent<string> = ({ chain, onChange, arg }) => {
   const [query, setQuery] = useState('')
   const [selectedMultisig] = useSelectedMultisig()
-  const { addresses } = useKnownAddresses(selectedMultisig.id, { includeSelectedMultisig: true })
+  const { addresses } = useKnownAddresses(selectedMultisig.orgId, { includeSelectedMultisig: true })
 
   useEffect(() => {
     if (!arg) setQuery('')

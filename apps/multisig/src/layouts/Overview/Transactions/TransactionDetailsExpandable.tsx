@@ -115,7 +115,7 @@ const MultisigCallDataBox: React.FC<{ calldata: `0x${string}`; genesisHash: stri
 }
 
 const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
-  const { contactByAddress } = useKnownAddresses(t.multisig.id)
+  const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
   return (
     <div>
       <div css={{ display: 'grid', gap: 12, marginTop: '8px' }}>
@@ -155,7 +155,7 @@ const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
 const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
   const theme = useTheme()
   const recipients = t.decoded?.recipients || []
-  const { contactByAddress } = useKnownAddresses(t.multisig.id)
+  const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
 
   return (
     <div css={{ paddingBottom: '8px' }}>
@@ -264,7 +264,7 @@ function AdvancedExpendedDetails({
 }
 
 const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) => {
-  const { contactByAddress } = useKnownAddresses(t.multisig.id, {
+  const { contactByAddress } = useKnownAddresses(t.multisig.orgId, {
     includeSelectedMultisig: true,
     includeContracts: true,
   })

@@ -13,7 +13,7 @@ type Props = {
 }
 
 export const SignersSettings: React.FC<Props> = ({ editable, members, multisig, onChange }) => {
-  const { addresses: knownAddresses, contactByAddress } = useKnownAddresses(multisig.id)
+  const { addresses: knownAddresses, contactByAddress } = useKnownAddresses(multisig.orgId)
 
   const handleRemove = (address: Address) => {
     const newMembers = members.filter(m => !m.isEqual(address))

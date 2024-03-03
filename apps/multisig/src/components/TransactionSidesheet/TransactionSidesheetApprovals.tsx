@@ -6,7 +6,7 @@ import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Address } from '@util/addresses'
 
 export const TransactionSidesheetApprovals: React.FC<{ t: Transaction }> = ({ t }) => {
-  const { contactByAddress } = useKnownAddresses(t.multisig.id)
+  const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
   return (
     <div css={{ display: 'grid', gap: '14px' }}>
       {Object.entries(t.approvals).map(([encodedAddress, approval]) => {

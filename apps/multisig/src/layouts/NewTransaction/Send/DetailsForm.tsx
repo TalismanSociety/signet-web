@@ -23,7 +23,7 @@ export const DetailsForm = (props: {
   onNext: () => void
 }) => {
   const [multisig] = useSelectedMultisig()
-  const { addresses } = useKnownAddresses(multisig.id)
+  const { addresses } = useKnownAddresses(multisig.orgId)
   const { hasDelayedPermission, hasNonDelayedPermission } = hasPermission(multisig, 'transfer')
 
   return (

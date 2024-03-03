@@ -19,7 +19,7 @@ const showMemberState = atom<boolean>({
 export const VaultOverview: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const [showMembers, setShowMembers] = useRecoilState(showMemberState)
-  const { contactByAddress } = useKnownAddresses(selectedMultisig.id)
+  const { contactByAddress } = useKnownAddresses(selectedMultisig.orgId)
 
   return (
     <section

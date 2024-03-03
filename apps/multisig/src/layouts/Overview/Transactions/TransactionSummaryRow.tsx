@@ -35,7 +35,7 @@ const TransactionSummaryRow = ({
 }) => {
   const [status, setStatus] = useState<{ errors?: ExtrinsicErrorsFromEvents; ok: boolean }>()
   const { api } = useApi(t.multisig.chain.genesisHash)
-  const { contactByAddress } = useKnownAddresses(t.multisig.id)
+  const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
   const combinedView = useRecoilValue(combinedViewState)
   const tokenPrices = useRecoilValueLoadable(tokenPricesState(sumOutgoing.map(b => b.token)))

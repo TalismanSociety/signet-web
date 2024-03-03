@@ -15,7 +15,7 @@ type Props = {
 export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const [address, setAddress] = useState<Address | undefined>()
-  const { addresses } = useKnownAddresses(selectedMultisig.id)
+  const { addresses } = useKnownAddresses(selectedMultisig.orgId)
   const { addCollaborator, adding } = useAddOrgCollaborator()
 
   const handleClose = useCallback(() => {
