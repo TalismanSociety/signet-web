@@ -112,6 +112,7 @@ export const vaultsOfAccount = selector({
           chain,
         }
       } catch (e) {
+        console.warn('Invalid vault detected, ignoring', e)
         // some weird extrinsic, ignore
         return null
       }
