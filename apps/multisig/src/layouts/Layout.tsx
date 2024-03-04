@@ -10,6 +10,7 @@ import BetaNotice from './Overview/BetaNotice'
 import { useDevMode } from '../domains/common/useDevMode'
 import WalletConnectLogo from '@components/WalletConnectLogo'
 import { WalletConnectRequest } from '@domains/wallet-connect/WalletConnectRequest'
+import { ScanVaultsDialog } from '@components/ScanVaults/ScanVaultsDialog'
 
 export const Layout: React.FC<
   React.PropsWithChildren & { selected?: string; requiresMultisig?: boolean; hideSideBar?: boolean }
@@ -113,6 +114,7 @@ export const Layout: React.FC<
             )}
             {children}
             {!!activeTeams?.length && <BetaNotice />}
+            <ScanVaultsDialog />
             <WalletConnectRequest />
           </>
         )}

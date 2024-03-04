@@ -1,5 +1,5 @@
 import { css } from '@emotion/css'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 import { activeMultisigsState } from '../../domains/multisig'
 import React, { useEffect, useState } from 'react'
 import { Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -8,13 +8,18 @@ import { CancleOrNext } from './common/CancelOrNext'
 import CreateMultisig from './CreateVault'
 import { ImportVault } from './ImportVault'
 import { cn } from '@util/tailwindcss'
+import { CircularProgressIndicator } from '@talismn/ui'
+import { openScannerState, unimportedVaultsState } from '@domains/multisig/vaults-scanner'
+import { Button } from '@components/ui/button'
+import { Stars } from 'lucide-react'
 
-const Option: React.FC<{ title: string; description: string; selected: boolean; onClick: () => void }> = ({
-  title,
-  description,
-  selected,
-  onClick,
-}) => (
+const Option: React.FC<{
+  title: string
+  description: string
+  selected: boolean
+  onClick: () => void
+  belowDescription?: React.ReactNode
+}> = ({ belowDescription, title, description, selected, onClick }) => (
   <div onClick={onClick} className="flex items-start gap-24 cursor-pointer group">
     <div
       className={cn(
@@ -38,11 +43,14 @@ const Option: React.FC<{ title: string; description: string; selected: boolean; 
     <div css={{ display: 'grid', gap: 8 }}>
       <h4 css={({ color }) => ({ margin: 0, lineHeight: 1, color: color.offWhite, fontSize: 20 })}>{title}</h4>
       <p>{description}</p>
+      {belowDescription}
     </div>
   </div>
 )
 
 export const AddVault: React.FC = () => {
+  const unimportedVaultsLoadable = useRecoilValueLoadable(unimportedVaultsState)
+  const setOpenScanner = useSetRecoilState(openScannerState)
   const activeMultisigs = useRecoilValue(activeMultisigsState)
   const [create, setCreate] = useState(true)
   const navigate = useNavigate()
@@ -110,6 +118,29 @@ export const AddVault: React.FC = () => {
                     title="Import Vault"
                     description="Import a Vault from an existing Proxy Account and Multisig Configuration, support Multisig control via All Proxy types"
                     onClick={() => setCreate(false)}
+                    belowDescription={
+                      unimportedVaultsLoadable.state === 'loading' ? (
+                        <div className="px-[8px] py-[8px] flex items-center gap-[8px]">
+                          <CircularProgressIndicator size={20} />
+                          <p className="text-[14px] mt-[4px]">Scanning for importable vaults</p>
+                        </div>
+                      ) : unimportedVaultsLoadable.state === 'hasValue' ? (
+                        unimportedVaultsLoadable.contents.length > 0 ? (
+                          <Button
+                            className="w-full text-left items-center gap-[8px] justify-start px-[8px] py-[8px] h-max min-h-max text-primary hover:text-primary focus:text-primary"
+                            onClick={() => setOpenScanner(true)}
+                            size="lg"
+                            variant="ghost"
+                          >
+                            <Stars size={20} />
+                            <p className="mt-[4px] text-[14px]">
+                              {unimportedVaultsLoadable.contents.length} vault
+                              {unimportedVaultsLoadable.contents.length > 1 ? 's' : ''} detected
+                            </p>
+                          </Button>
+                        ) : null
+                      ) : null
+                    }
                   />
                 </div>
                 <CancleOrNext

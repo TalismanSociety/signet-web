@@ -1,7 +1,7 @@
 import StatusCircle, { StatusCircleType } from '@components/StatusCircle'
 import { Button } from '@components/ui/button'
 import { selectedMultisigIdState } from '@domains/multisig'
-import { importedTeamsState } from '@domains/multisig/VaultsScanner'
+import { importedTeamsState } from '@domains/multisig/vaults-scanner'
 import { X } from 'lucide-react'
 import { useCallback } from 'react'
 import { useRecoilState, useSetRecoilState } from 'recoil'

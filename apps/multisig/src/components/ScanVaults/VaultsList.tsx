@@ -1,4 +1,4 @@
-import { makeScannedVaultId, unimportedVaultsState } from '@domains/multisig/VaultsScanner'
+import { makeScannedVaultId, unimportedVaultsState } from '@domains/multisig/vaults-scanner'
 import { useMemo } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import VaultCard from './VaultCard'

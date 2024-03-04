@@ -7,6 +7,7 @@ import { ThresholdSettings } from './ThresholdSettings'
 
 type Props = {
   chain: Chain
+  header?: string
   members: AugmentedAccount[]
   threshold: number
   onMembersChange: React.Dispatch<React.SetStateAction<Address[]>>
@@ -17,6 +18,7 @@ type Props = {
 
 export const MultisigConfig: React.FC<Props> = ({
   chain,
+  header,
   onBack,
   onMembersChange,
   onNext,
@@ -25,22 +27,13 @@ export const MultisigConfig: React.FC<Props> = ({
   members,
 }) => {
   return (
-    <div
-      css={{
-        display: 'grid',
-        justifyItems: 'center',
-        alignItems: 'center',
-        gap: 48,
-        maxWidth: 540,
-        width: '100%',
-      }}
-    >
-      <h1>Multisig Configuration</h1>
-
+    <div className="grid justify-center items-center gap-[48px] max-w-[540px] w-full">
+      <div className="w-full">
+        <h4 className="text-[14px] text-center font-bold mb-[4px]">{header}</h4>
+        <h1>Multisig Configuration</h1>
+      </div>
       <AddMembers setAddedAccounts={onMembersChange} augmentedAccounts={members} chain={chain} />
-
       <ThresholdSettings membersCount={members.length} onChange={onThresholdChange} threshold={threshold} />
-
       <CancleOrNext
         block
         cancel={{ onClick: onBack, children: 'Back' }}

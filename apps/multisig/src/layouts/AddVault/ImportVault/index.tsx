@@ -67,6 +67,7 @@ export const ImportVault: React.FC = () => {
     <>
       {step === Step.NameVault ? (
         <NameVault
+          header="Import Vault"
           onBack={() => navigate('/add-vault')}
           onNext={() => setStep(Step.SelectFirstChain)}
           setName={setName}
@@ -74,6 +75,7 @@ export const ImportVault: React.FC = () => {
         />
       ) : step === Step.SelectFirstChain ? (
         <SelectChain
+          header="Import Vault"
           onBack={() => setStep(Step.NameVault)}
           onNext={() => setStep(Step.ProxiedAccountAddress)}
           setChain={setChain}
@@ -82,6 +84,7 @@ export const ImportVault: React.FC = () => {
         />
       ) : step === Step.ProxiedAccountAddress || !proxiedAddress ? (
         <ProxiedAccountSettings
+          header="Import Vault"
           address={proxiedAddress}
           chain={chain}
           onBack={() => setStep(Step.SelectFirstChain)}
@@ -90,6 +93,7 @@ export const ImportVault: React.FC = () => {
         />
       ) : step === Step.MultisigConfig ? (
         <MultisigConfig
+          header="Import Vault"
           chain={chain}
           threshold={threshold}
           onThresholdChange={setThreshold}
@@ -100,6 +104,7 @@ export const ImportVault: React.FC = () => {
         />
       ) : step === Step.Confirmation ? (
         <Confirmation
+          header="Import Vault"
           onBack={() => setStep(Step.MultisigConfig)}
           onCreateVault={handleImport}
           proxiedAccount={proxiedAddress}

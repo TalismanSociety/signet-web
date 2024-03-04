@@ -13,7 +13,6 @@ import { selectedAccountState } from '../../domains/auth'
 import VaultOverview from './VaultOverview'
 import { useToast } from '../../components/ui/use-toast'
 import { CONFIG } from '@lib/config'
-import { VaultsScanner } from '@domains/multisig/VaultsScanner'
 
 const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
@@ -116,7 +115,6 @@ const Overview = () => {
         </div>
         <Transactions />
       </div>
-      <VaultsScanner />
     </Layout>
   )
 }

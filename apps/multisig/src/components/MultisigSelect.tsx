@@ -10,9 +10,10 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
-import { openScannerState, unimportedVaultsState } from '@domains/multisig/VaultsScanner'
+import { openScannerState, unimportedVaultsState } from '@domains/multisig/vaults-scanner'
 import { CircularProgressIndicator } from '@talismn/ui'
 import { Link } from 'react-router-dom'
+import { cn } from '@util/tailwindcss'
 
 type Props = {
   multisigs: Multisig[]
@@ -21,6 +22,7 @@ type Props = {
 }
 
 const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; selected?: boolean }> = ({
+  disableCopy,
   multisig,
   selected,
 }) => (
@@ -63,6 +65,8 @@ const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; select
       chain={multisig.chain}
       breakLine
       hideIdenticon
+      withAddressTooltip
+      disableCopy={disableCopy}
     />
   </div>
 )
@@ -79,12 +83,12 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
     <DropdownMenu>
       <DropdownMenuTrigger className="bg-gray-900 border-none w-[240px] px-[12px] py-[8px] flex flex-1 items-center gap-[8px] rounded-[12px]">
         <div className="flex flex-1 w-1">
-          <VaultDetails multisig={selectedMultisig} />
+          <VaultDetails multisig={selectedMultisig} disableCopy />
         </div>
         <ChevronDown size={20} className="min-w-[20px]" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="bg-gray-900 border border-gray-700 w-max max-w-[240px] flex flex-col items-start"
+        className="bg-gray-900 border border-gray-700 w-[260px] flex flex-col items-start"
         align="start"
       >
         <div className="w-full pb-[4px]">
@@ -122,7 +126,10 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
           {multisigs.map(multisig => (
             <DropdownMenuItem
               key={multisig.id}
-              className="flex items-center focus:bg-gray-800 hover:bg-gray-800 w-full rounded-[8px] py-[8px] px-[12px]"
+              className={cn(
+                'flex items-center focus:bg-gray-800 hover:bg-gray-800 w-full rounded-[8px] py-[8px] px-[12px]',
+                selectedMultisig.id === multisig.id ? 'bg-gray-800' : ''
+              )}
               onClick={() => handleChange(multisig.id)}
             >
               <VaultDetails multisig={multisig} />

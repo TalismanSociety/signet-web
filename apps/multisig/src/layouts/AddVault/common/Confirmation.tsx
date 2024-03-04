@@ -176,6 +176,7 @@ const Cost = ({
 const Confirmation = (props: {
   onBack: () => void
   onCreateVault: () => void
+  header?: string
   selectedAccounts: AugmentedAccount[]
   proxiedAccount?: Address
   threshold: number
@@ -229,17 +230,9 @@ const Confirmation = (props: {
   }
 
   return (
-    <div
-      css={{
-        display: 'grid',
-        justifyItems: 'center',
-        alignItems: 'flex-start',
-        gap: 32,
-        maxWidth: 620,
-        width: '100%',
-      }}
-    >
+    <div className="grid justify-center items-center gap-[32px] max-w-[620px] w-full">
       <div>
+        <h4 className="text-[14px] text-center font-bold mb-[4px]">{props.header}</h4>
         <h1>Confirmation</h1>
         <p css={{ textAlign: 'center', marginTop: 16 }}>Please review and confirm details before proceeding.</p>
       </div>

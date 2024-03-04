@@ -3,6 +3,7 @@ import { TextInput } from '@talismn/ui'
 import { CancleOrNext } from './CancelOrNext'
 
 const NameVault = (props: {
+  header?: string
   onBack?: () => void
   onNext: () => void
   setName: React.Dispatch<React.SetStateAction<string>>
@@ -13,17 +14,9 @@ const NameVault = (props: {
     props.onNext()
   }
   return (
-    <form
-      className={css`
-        display: grid;
-        justify-items: center;
-        align-content: center;
-        gap: 48px;
-        max-width: 540px;
-      `}
-      onSubmit={handleNext}
-    >
+    <form className="grid items-center justify-center gap-[48px] max-w-[540px] w-full" onSubmit={handleNext}>
       <div>
+        <h4 className="text-[14px] text-center font-bold mb-[4px]">{props.header}</h4>
         <h1>Name your vault</h1>
         <p css={{ textAlign: 'center', marginTop: 8 }}>
           The Vault represents the overall unit of your Proxy Account and linked Multisig, and the Vault name is stored

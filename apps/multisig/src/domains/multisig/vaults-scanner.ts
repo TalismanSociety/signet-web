@@ -2,16 +2,11 @@ import { selectedAccountState } from '@domains/auth'
 import { Address, toMultisigAddress } from '@util/addresses'
 import { gql } from 'graphql-request'
 import fetchGraphQL from '../../graphql/fetch-graphql'
-import { atom, selector, selectorFamily, useRecoilState, useRecoilValueLoadable } from 'recoil'
+import { atom, selector, selectorFamily } from 'recoil'
 import { Chain, supportedChains } from '@domains/chains'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
-import { useCallback, useMemo, useRef } from 'react'
 import persist from '@domains/persist'
 import { Team, activeTeamsState } from '@domains/offchain-data'
-import { Button } from '@components/ui/button'
-import { Dialog, DialogContent } from '@components/ui/dialog'
-import { VaultsList } from '@components/ScanVaults/VaultsList'
-import { ImportedTeamsList } from '@components/ScanVaults/ImportedTeamsList'
 
 type RawData = {
   accountExtrinsics: {
@@ -181,7 +176,7 @@ export const unimportedVaultsState = selector({
   },
 })
 
-const acknowledgedVaultsState = atom<Record<string, boolean>>({
+export const acknowledgedVaultsState = atom<Record<string, boolean>>({
   key: 'acknowledgedVaults',
   default: {},
   effects_UNSTABLE: [persist],
@@ -199,73 +194,3 @@ export const importedTeamsState = atom<Team[]>({
 
 export const makeScannedVaultId = (proxiedAddress: Address, multisigAddress: Address, chain: Chain) =>
   `${proxiedAddress.toSs58()}-${multisigAddress.toSs58()}-${chain.genesisHash}`
-
-export const VaultsScanner: React.FC = () => {
-  const [open, setOpen] = useRecoilState(openScannerState)
-  const unimportedVaultsLoadable = useRecoilValueLoadable(unimportedVaultsState)
-  const [acknowledgedVaults, setAcknowledgedVaults] = useRecoilState(acknowledgedVaultsState)
-  const scrollRef = useRef<HTMLDivElement>(null)
-
-  const unimportedVaults = useMemo(() => {
-    if (unimportedVaultsLoadable.state !== 'hasValue') return []
-    return unimportedVaultsLoadable.contents ?? []
-  }, [unimportedVaultsLoadable])
-
-  const unacknowledgedVaults = useMemo(
-    () =>
-      unimportedVaults.filter(
-        v => !acknowledgedVaults[makeScannedVaultId(v.proxiedAddress, v.multisig.multisigAddress, v.chain)]
-      ) ?? [],
-    [acknowledgedVaults, unimportedVaults]
-  )
-
-  const acknowledge = useCallback(() => {
-    setOpen(false)
-    setAcknowledgedVaults(old => {
-      const newAcknowledged = { ...old }
-      unacknowledgedVaults.forEach(v => {
-        newAcknowledged[makeScannedVaultId(v.proxiedAddress, v.multisig.multisigAddress, v.chain)] = true
-      })
-      return newAcknowledged
-    })
-  }, [setAcknowledgedVaults, setOpen, unacknowledgedVaults])
-
-  return (
-    <Dialog
-      open={unacknowledgedVaults.length > 0 || open}
-      onOpenChange={open => {
-        if (!open) acknowledge()
-      }}
-    >
-      <DialogContent className="max-w-[480px]">
-        <div className="w-full flex flex-col gap-[12px] h-full">
-          <h1 className="text-[20px] font-bold">
-            {unacknowledgedVaults.length > 0 ? 'New Vaults Detected' : 'Import Detected Vaults'}
-          </h1>
-          <p className="text-[14px]">
-            Through on-chain activities, we detected that you have {unimportedVaults.length} vaults that can be imported
-            into Signet.
-          </p>
-          <div ref={scrollRef} className="overflow-y-auto max-h-[380px] grid w-full gap-[8px]">
-            <ImportedTeamsList
-              onViewDashboard={() => {
-                acknowledge()
-                setOpen(false)
-              }}
-            />
-            <VaultsList
-              onAdded={() => {
-                if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' })
-              }}
-            />
-          </div>
-          {unimportedVaults.length > 0 && (
-            <Button variant="ghost" size="lg" className="self-center" onClick={acknowledge}>
-              Import Later
-            </Button>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-}

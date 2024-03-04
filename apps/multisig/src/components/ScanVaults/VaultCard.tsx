@@ -5,10 +5,12 @@ import { Button } from '@components/ui/button'
 import { Input } from '@components/ui/input'
 import { Toggle } from '@components/ui/toggle'
 import { useToast } from '@components/ui/use-toast'
-import { ScannedVault, importedTeamsState } from '@domains/multisig/VaultsScanner'
+import { ScannedVault, importedTeamsState } from '@domains/multisig/vaults-scanner'
 import { useCreateOrganisation } from '@domains/offchain-data'
+import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { CircularProgressIndicator } from '@talismn/ui'
 import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useSetRecoilState } from 'recoil'
 
 const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ onAdded, vault }) => {
@@ -18,7 +20,8 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
   const { createOrganisation, loading } = useCreateOrganisation()
   const { toast } = useToast()
   const setImportedTeams = useSetRecoilState(importedTeamsState)
-
+  const navigate = useNavigate()
+  const { contactByAddress } = useKnownAddresses()
   useEffect(() => {
     if (add && showMultisig) setShowMultisig(false)
   }, [add, showMultisig])
@@ -36,6 +39,7 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
         proxied_address: vault.proxiedAddress.toSs58(),
       })
       if (parsedTeam?.team !== undefined) {
+        navigate('/overview')
         setImportedTeams(prev => [...prev, parsedTeam.team!])
         onAdded?.()
       }
@@ -44,6 +48,7 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
     [
       createOrganisation,
       name,
+      navigate,
       onAdded,
       setImportedTeams,
       toast,
@@ -129,7 +134,13 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
             <div className="flex flex-col gap-[8px] w-full max-h-[110px] overflow-y-auto">
               {vault.multisig.signers.map(signer => (
                 <div key={signer.toSs58()}>
-                  <AccountDetails address={signer} withAddressTooltip nameOrAddressOnly />
+                  <AccountDetails
+                    address={signer}
+                    chain={vault.chain}
+                    name={contactByAddress[signer.toSs58()]?.name}
+                    withAddressTooltip
+                    nameOrAddressOnly
+                  />
                 </div>
               ))}
             </div>

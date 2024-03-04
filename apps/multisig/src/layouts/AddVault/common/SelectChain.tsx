@@ -1,5 +1,4 @@
 import { Chain } from '@domains/chains'
-import { css } from '@emotion/css'
 import {
   Select,
   SelectContent,
@@ -29,6 +28,7 @@ const Group = (props: { chains: Chain[]; label: string }) => (
 )
 
 const SelectChain = (props: {
+  header?: string
   onNext: () => void
   onBack: () => void
   setChain: React.Dispatch<React.SetStateAction<Chain>>
@@ -38,17 +38,9 @@ const SelectChain = (props: {
   const mainnets = useMemo(() => props.chains.filter(chain => !chain.isTestnet), [props.chains])
   const testnets = useMemo(() => props.chains.filter(chain => chain.isTestnet), [props.chains])
   return (
-    <div
-      className={css`
-        display: grid;
-        justify-items: center;
-        align-content: center;
-        gap: 48px;
-        width: 100%;
-        max-width: 540px;
-      `}
-    >
+    <div className="grid items-center justify-center gap-[48px] w-full max-w-[540px]">
       <div>
+        <h4 className="text-[14px] text-center font-bold mb-[4px]">{props.header}</h4>
         <h1>Select a chain</h1>
         <p css={{ marginTop: 16, textAlign: 'center' }}>Select the chain for your Vault</p>
       </div>

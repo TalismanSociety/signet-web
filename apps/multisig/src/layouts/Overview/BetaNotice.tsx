@@ -3,10 +3,10 @@ import { Checkbox } from '@components/ui/checkbox'
 import persist from '@domains/persist'
 import { Button } from '@talismn/ui'
 import { useCallback, useState } from 'react'
-import { atom, useRecoilState } from 'recoil'
+import { atom, selector, useRecoilState } from 'recoil'
 
 // create atom to track whether it's been opened
-const betaWarningOpenedState = atom({
+export const betaWarningOpenedState = atom({
   key: 'betaWarningOpenedState',
   default: true,
 })
@@ -15,6 +15,15 @@ const dontShowAgainState = atom({
   key: 'dontShowAgainState',
   default: false,
   effects_UNSTABLE: [persist],
+})
+
+export const isBetaNoticeOpenState = selector({
+  key: 'isBetaNoticeOpenState',
+  get: ({ get }) => {
+    const isOpen = get(betaWarningOpenedState)
+    const dontShowAgain = get(dontShowAgainState)
+    return isOpen && !dontShowAgain
+  },
 })
 
 const BetaNotice = () => {
