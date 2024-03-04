@@ -12,7 +12,6 @@ import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import { selectedMultisigChainTokensState, selectedMultisigState } from '@domains/multisig'
 import { SplitVoteParams } from '@domains/referenda'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
-import { Layout } from '../../Layout'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 
@@ -61,33 +60,31 @@ const VoteAction: React.FC = () => {
   }, [voteDetails])
 
   return (
-    <Layout selected="Voting" requiresMultisig>
-      <div css={{ display: 'flex', flex: 1, flexDirection: 'column', padding: '32px 8%' }}>
-        <div css={{ width: '100%', maxWidth: 490 }}>
-          <VotingForm
-            voteDetails={voteDetails}
-            token={nativeToken}
-            onChange={setVoteDetails}
-            onNext={() => setReviewing(true)}
+    <div css={{ display: 'flex', flex: 1, flexDirection: 'column', padding: '32px 8%' }}>
+      <div css={{ width: '100%', maxWidth: 490 }}>
+        <VotingForm
+          voteDetails={voteDetails}
+          token={nativeToken}
+          onChange={setVoteDetails}
+          onNext={() => setReviewing(true)}
+        />
+        {extrinsic && (
+          <TransactionSidesheet
+            calldata={extrinsic.method.toHex()}
+            description={transactionName}
+            onApproveFailed={e => {
+              setReviewing(false)
+              toast({
+                title: 'Failed to create transaction',
+                description: e.message,
+              })
+            }}
+            onClose={() => setReviewing(false)}
+            open={reviewing}
           />
-          {extrinsic && (
-            <TransactionSidesheet
-              calldata={extrinsic.method.toHex()}
-              description={transactionName}
-              onApproveFailed={e => {
-                setReviewing(false)
-                toast({
-                  title: 'Failed to create transaction',
-                  description: e.message,
-                })
-              }}
-              onClose={() => setReviewing(false)}
-              open={reviewing}
-            />
-          )}
-        </div>
+        )}
       </div>
-    </Layout>
+    </div>
   )
 }
 

@@ -6,7 +6,6 @@ import 'ace-builds/src-noconflict/ext-language_tools'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { useState } from 'react'
 import { DetailsForm } from './DetailsForm'
-import { Layout } from '../../Layout'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 
@@ -22,7 +21,7 @@ const AdvancedAction = () => {
   const { toast } = useToast()
 
   return (
-    <Layout selected="Call data" requiresMultisig>
+    <>
       <div css={{ display: 'flex', flex: 1, flexDirection: 'column', padding: '32px 8%' }}>
         {step === Step.Details || step === Step.Review ? (
           <DetailsForm
@@ -46,7 +45,7 @@ const AdvancedAction = () => {
           />
         )}
       </div>
-    </Layout>
+    </>
   )
 }
 

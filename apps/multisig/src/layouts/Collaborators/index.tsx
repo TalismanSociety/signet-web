@@ -1,7 +1,6 @@
 import { Button } from '@components/ui/button'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useState } from 'react'
-import { Layout } from '../../layouts/Layout'
 import { AddCollaboratorModal } from './AddCollaboratorModal'
 import { CollaboratorRow } from './CollaboratorRow'
 import { useUser } from '@domains/auth'
@@ -12,7 +11,7 @@ export const Collaborators: React.FC = () => {
   const { isCollaborator } = useUser()
 
   return (
-    <Layout selected="Collaborators" requiresMultisig>
+    <>
       <div className="flex flex-col py-[32px] px-[8%] gap-[32px] flex-1">
         <div className="w-full max-w-[680px]">
           <div className="w-full flex justify-between items-center">
@@ -43,6 +42,6 @@ export const Collaborators: React.FC = () => {
         </div>
       </div>
       <AddCollaboratorModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} />
-    </Layout>
+    </>
   )
 }

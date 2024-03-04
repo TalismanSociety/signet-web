@@ -214,6 +214,7 @@ const CreateMultisig = () => {
     <>
       {step === Step.NameVault ? (
         <NameVault
+          header="Create Vault"
           onBack={() => navigate('/add-vault')}
           onNext={() => setStep(Step.SelectFirstChain)}
           setName={setName}
@@ -221,6 +222,7 @@ const CreateMultisig = () => {
         />
       ) : step === Step.SelectFirstChain ? (
         <SelectChain
+          header="Create Vault"
           onBack={() => setStep(Step.NameVault)}
           onNext={() => setStep(Step.MultisigConfig)}
           setChain={setChain}
@@ -229,6 +231,7 @@ const CreateMultisig = () => {
         />
       ) : step === Step.MultisigConfig ? (
         <MultisigConfig
+          header="Create Vault"
           chain={chain}
           threshold={threshold}
           onThresholdChange={setThreshold}
@@ -239,6 +242,7 @@ const CreateMultisig = () => {
         />
       ) : step === Step.Confirmation ? (
         <Confirmation
+          header="Create Vault"
           onBack={() => setStep(Step.MultisigConfig)}
           onCreateVault={() => setStep(Step.Transactions)}
           selectedAccounts={augmentedAccounts}

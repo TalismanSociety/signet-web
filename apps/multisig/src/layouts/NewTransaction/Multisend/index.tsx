@@ -9,7 +9,6 @@ import { useRecoilValueLoadable } from 'recoil'
 
 import { MultiSendSend } from './multisend.types'
 import MultiSendForm from './MultiSendForm'
-import { Layout } from '../../Layout'
 import { NewTransactionHeader } from '../NewTransactionHeader'
 import { Share2 } from '@talismn/icons'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
@@ -58,7 +57,7 @@ const MultiSend = () => {
   }, [sends, apiLoadable, multisig.proxyAddress])
 
   return (
-    <Layout selected="Multi-send" requiresMultisig>
+    <>
       <div css={{ display: 'flex', flex: 1, flexDirection: 'column', padding: '32px 8%' }}>
         <div css={{ width: '100%', maxWidth: 620 }}>
           <NewTransactionHeader icon={<Share2 />}>Multi-send</NewTransactionHeader>
@@ -89,7 +88,7 @@ const MultiSend = () => {
           />
         )}
       </div>
-    </Layout>
+    </>
   )
 }
 

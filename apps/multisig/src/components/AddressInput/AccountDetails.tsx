@@ -47,10 +47,11 @@ export const AccountDetails: React.FC<Props> = ({
       />
       {!disableCopy && (
         <div
-          className="text-gray-200 h-[16px] cursor-pointer"
+          className="text-gray-200 h-[16px] cursor-pointer hover:text-offWhite"
           onClick={e => {
-            e.preventDefault()
+            console.log('Here')
             e.stopPropagation()
+            e.preventDefault()
             copy(address.toSs58(chain), 'Address copied!')
           }}
         >

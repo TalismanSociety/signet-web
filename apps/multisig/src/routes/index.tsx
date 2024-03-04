@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { Outlet, createBrowserRouter } from 'react-router-dom'
 
 import Landing from '../layouts/Landing'
 import Overview from '../layouts/Overview'
@@ -25,132 +25,78 @@ const router = createBrowserRouter([
     element: <Landing />,
   },
   {
-    path: '/add-vault/*',
+    path: '/*',
     element: (
       <RequireAuth requireSignIn>
-        <AddVault />
+        <Outlet />
       </RequireAuth>
     ),
-  },
-  {
-    path: '/overview/*',
-    element: (
-      <RequireAuth requireSignIn>
-        <Overview />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/send',
-    element: (
-      <RequireAuth requireSignIn>
-        <Send />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/multisend',
-    element: (
-      <RequireAuth requireSignIn>
-        <MultiSend />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/voting',
-    element: (
-      <RequireAuth requireSignIn>
-        <Vote />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/staking',
-    element: (
-      <RequireAuth requireSignIn>
-        <Staking />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/custom-call-data',
-    element: (
-      <RequireAuth requireSignIn>
-        <Advanced />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/dapps',
-    element: (
-      <RequireAuth requireSignIn>
-        <Dapps />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/collaborators',
-    element: (
-      <RequireAuth requireSignIn>
-        <Collaborators />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/address-book',
-    element: (
-      <RequireAuth requireSignIn>
-        <AddressBook />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/connect',
-    element: (
-      <RequireAuth requireSignIn>
-        <SignetConnect />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/sign',
-    element: (
-      <RequireAuth requireSignIn>
-        <Sign />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/smart-contracts/*',
-    element: (
-      <RequireAuth requireSignIn>
-        <SmartContracts />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/wallet-connect',
-    element: (
-      <RequireAuth requireSignIn>
-        <WalletConnectPage />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/wallet-connect/sessions',
-    element: (
-      <RequireAuth requireSignIn>
-        <WalletConnectSessionsPage />
-      </RequireAuth>
-    ),
-  },
-  {
-    path: '/settings/*',
-    element: (
-      <RequireAuth requireSignIn>
-        <Settings />
-      </RequireAuth>
-    ),
+    children: [
+      {
+        path: 'add-vault/*',
+        element: <AddVault />,
+      },
+      {
+        path: 'overview/*',
+        element: <Overview />,
+      },
+      {
+        path: 'send',
+        element: <Send />,
+      },
+      {
+        path: 'multisend',
+        element: <MultiSend />,
+      },
+      {
+        path: 'voting',
+        element: <Vote />,
+      },
+      {
+        path: 'staking',
+        element: <Staking />,
+      },
+      {
+        path: 'custom-call-data',
+        element: <Advanced />,
+      },
+      {
+        path: 'dapps',
+        element: <Dapps />,
+      },
+      {
+        path: 'collaborators',
+        element: <Collaborators />,
+      },
+      {
+        path: 'address-book',
+        element: <AddressBook />,
+      },
+      {
+        path: 'connect',
+        element: <SignetConnect />,
+      },
+      {
+        path: 'sign',
+        element: <Sign />,
+      },
+      {
+        path: 'smart-contracts/*',
+        element: <SmartContracts />,
+      },
+      {
+        path: 'wallet-connect',
+        element: <WalletConnectPage />,
+      },
+      {
+        path: 'wallet-connect/sessions',
+        element: <WalletConnectSessionsPage />,
+      },
+      {
+        path: 'settings/*',
+        element: <Settings />,
+      },
+    ],
   },
 ])
 

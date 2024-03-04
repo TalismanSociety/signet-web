@@ -259,7 +259,7 @@ export const useCreateOrganisation = () => {
           if (!res.data.createOrgFree.org || res.data.createOrgFree.error) {
             return { ok: false, error: res.data.createOrgFree.error }
           }
-          return { ok: true }
+          return { ok: true, parsedTeam: parseTeam(res.data.createOrgFree.org, res.data.createOrgFree.org.teams[0]!) }
         }
         return { ok: false, error: 'Failed to create vault.' }
       } catch (e) {

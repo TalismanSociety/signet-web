@@ -1,6 +1,5 @@
 import WalletConnectLogo from '@components/WalletConnectLogo'
 import { PairingTypes } from '@walletconnect/types'
-import { Layout } from '../Layout'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Input } from '@components/ui/input'
 import { Button } from '@components/ui/button'
@@ -163,112 +162,110 @@ export const WalletConnectPage: React.FC = () => {
   }, [selectedMultisig.chain.genesisHash, targetNetworks])
 
   return (
-    <Layout selected="Wallet Connect" requiresMultisig>
-      <div className="flex flex-1 py-[32px] px-[8%] flex-col gap-[16px] w-1">
-        <div className="grid gap-[12px] w-full">
-          <div className="w-full flex items-center justify-between">
-            <div className="flex items-center justify-start gap-[12px]">
-              <WalletConnectLogo className="text-[#3396ff] w-[32px] h-[32px] min-w-[32px]" />
-              <h2 className="text-offWhite sm:text-[24px] mt-[4px] font-bold text-[20px]">Wallet Connect</h2>
-            </div>
-            {sessions.length > 0 && (
-              <Button
-                className="flex items-center gap-[8px] border rounded-full border-gray-400 px-[8px] hover:border-offWhite cursor-pointer"
-                asLink
-                to="/wallet-connect/sessions"
-                size="lg"
-                variant="outline"
-              >
-                <div className="w-[12px] h-[12px] bg-green-500/50 rounded-full flex items-center justify-center">
-                  <div className="w-[8px] h-[8px] bg-green-500 rounded-full" />
-                </div>
-                <span className="text-[14px] mt-[3px] text-inherit">
-                  {sessions.length} session{sessions.length > 1 ? 's' : ''}
-                </span>
-              </Button>
-            )}
+    <div className="flex flex-1 py-[32px] px-[8%] flex-col gap-[16px] w-1">
+      <div className="grid gap-[12px] w-full">
+        <div className="w-full flex items-center justify-between">
+          <div className="flex items-center justify-start gap-[12px]">
+            <WalletConnectLogo className="text-[#3396ff] w-[32px] h-[32px] min-w-[32px]" />
+            <h2 className="text-offWhite sm:text-[24px] mt-[4px] font-bold text-[20px]">Wallet Connect</h2>
           </div>
-          <p>Connect to Dapps supporting WalletConnect and manage signing within Signet.</p>
-        </div>
-
-        <form className="grid gap-[16px] max-w-[450px]" onSubmit={handleConnect}>
-          <Input
-            onChange={e => setInput(e.target.value)}
-            value={input}
-            label={<span className="font-bold text-offWhite text-[16px]">WalletConnect Key</span>}
-            placeholder="wc:..."
-          />
-          {web3Wallet ? (
+          {sessions.length > 0 && (
             <Button
-              disabled={!input || connecting || gettingConnectionDetails}
-              loading={connecting || gettingConnectionDetails}
-              className="w-max"
+              className="flex items-center gap-[8px] border rounded-full border-gray-400 px-[8px] hover:border-offWhite cursor-pointer"
+              asLink
+              to="/wallet-connect/sessions"
+              size="lg"
+              variant="outline"
             >
-              Connect
+              <div className="w-[12px] h-[12px] bg-green-500/50 rounded-full flex items-center justify-center">
+                <div className="w-[8px] h-[8px] bg-green-500 rounded-full" />
+              </div>
+              <span className="text-[14px] mt-[3px] text-inherit">
+                {sessions.length} session{sessions.length > 1 ? 's' : ''}
+              </span>
             </Button>
-          ) : (
-            <StatusMessage type="loading" message="Initiating Wallet Connect" />
           )}
-        </form>
-
-        <Modal isOpen={!!sessionProposal} className="max-w-[320px]">
-          {!!sessionProposal && (
-            <div className="flex flex-col gap-[16px] w-full">
-              <div>
-                <p className="text-[18px] mb-[4px]">
-                  <b className="text-offWhite">{sessionProposal.params.proposer.metadata.name}</b> wants to connect to{' '}
-                </p>
-                <AccountDetails
-                  address={selectedMultisig.proxyAddress}
-                  name={selectedMultisig.name}
-                  chain={selectedMultisig.chain}
-                />
-              </div>
-
-              <div className="w-full p-[16px] rounded-[12px] border border-gray-500">
-                <p className="text-[14px] mt-[2px]">
-                  Website: <span className="text-offWhite">{sessionProposal.params.proposer.metadata.url}</span>
-                </p>
-                {sessionProposal.params.requiredNamespaces !== undefined && (
-                  <p className="text-[14px]">
-                    Method:{' '}
-                    <span className="text-offWhite">
-                      {Object.values(sessionProposal.params.requiredNamespaces)
-                        .map(value => value.methods.join(', '))
-                        .join(', ')}
-                    </span>
-                  </p>
-                )}
-              </div>
-
-              {!isNetworkSupported && (
-                <div className="p-[16px] rounded-[12px] bg-gray-800">
-                  <div className="flex gap-[8px] items-center">
-                    <XCircle className="text-red-500" />
-                    <p className="text-offWhite ">Network not supported!</p>
-                  </div>
-                  <p className="ml-[32px] text-[14px]">
-                    {selectedMultisig.name} is on {selectedMultisig.chain.chainName} but{' '}
-                    {sessionProposal.params.proposer.metadata.name} requires{' '}
-                    {targetNetworks.length === 0
-                      ? 'an unsupported network'
-                      : targetNetworks.map(({ chainName }) => chainName).join(', ')}
-                    .
-                  </p>
-                </div>
-              )}
-              <div className="flex flex-col-reverse sm:flex-row items-center gap-[16px] w-full">
-                <Button variant="outline" onClick={handleReject} className="w-full">
-                  Cancel
-                </Button>
-                <Button className="w-full" onClick={handleApproveConnection} loading={approving} disabled={approving}>
-                  Connect{isNetworkSupported ? '' : ' Anyway'}
-                </Button>
-              </div>
-            </div>
-          )}
-        </Modal>
+        </div>
+        <p>Connect to Dapps supporting WalletConnect and manage signing within Signet.</p>
       </div>
-    </Layout>
+
+      <form className="grid gap-[16px] max-w-[450px]" onSubmit={handleConnect}>
+        <Input
+          onChange={e => setInput(e.target.value)}
+          value={input}
+          label={<span className="font-bold text-offWhite text-[16px]">WalletConnect Key</span>}
+          placeholder="wc:..."
+        />
+        {web3Wallet ? (
+          <Button
+            disabled={!input || connecting || gettingConnectionDetails}
+            loading={connecting || gettingConnectionDetails}
+            className="w-max"
+          >
+            Connect
+          </Button>
+        ) : (
+          <StatusMessage type="loading" message="Initiating Wallet Connect" />
+        )}
+      </form>
+
+      <Modal isOpen={!!sessionProposal} className="max-w-[320px]">
+        {!!sessionProposal && (
+          <div className="flex flex-col gap-[16px] w-full">
+            <div>
+              <p className="text-[18px] mb-[4px]">
+                <b className="text-offWhite">{sessionProposal.params.proposer.metadata.name}</b> wants to connect to{' '}
+              </p>
+              <AccountDetails
+                address={selectedMultisig.proxyAddress}
+                name={selectedMultisig.name}
+                chain={selectedMultisig.chain}
+              />
+            </div>
+
+            <div className="w-full p-[16px] rounded-[12px] border border-gray-500">
+              <p className="text-[14px] mt-[2px]">
+                Website: <span className="text-offWhite">{sessionProposal.params.proposer.metadata.url}</span>
+              </p>
+              {sessionProposal.params.requiredNamespaces !== undefined && (
+                <p className="text-[14px]">
+                  Method:{' '}
+                  <span className="text-offWhite">
+                    {Object.values(sessionProposal.params.requiredNamespaces)
+                      .map(value => value.methods.join(', '))
+                      .join(', ')}
+                  </span>
+                </p>
+              )}
+            </div>
+
+            {!isNetworkSupported && (
+              <div className="p-[16px] rounded-[12px] bg-gray-800">
+                <div className="flex gap-[8px] items-center">
+                  <XCircle className="text-red-500" />
+                  <p className="text-offWhite ">Network not supported!</p>
+                </div>
+                <p className="ml-[32px] text-[14px]">
+                  {selectedMultisig.name} is on {selectedMultisig.chain.chainName} but{' '}
+                  {sessionProposal.params.proposer.metadata.name} requires{' '}
+                  {targetNetworks.length === 0
+                    ? 'an unsupported network'
+                    : targetNetworks.map(({ chainName }) => chainName).join(', ')}
+                  .
+                </p>
+              </div>
+            )}
+            <div className="flex flex-col-reverse sm:flex-row items-center gap-[16px] w-full">
+              <Button variant="outline" onClick={handleReject} className="w-full">
+                Cancel
+              </Button>
+              <Button className="w-full" onClick={handleApproveConnection} loading={approving} disabled={approving}>
+                Connect{isNetworkSupported ? '' : ' Anyway'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+    </div>
   )
 }

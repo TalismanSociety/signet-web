@@ -9,7 +9,6 @@ import { BalancesWatcher } from '@domains/balances'
 import { ExtensionWatcher } from '@domains/extension'
 import { balanceModules } from '@talismn/balances-default-modules'
 import { BalancesProvider } from '@talismn/balances-react'
-import { EyeOfSauronProgressIndicator } from '@talismn/ui'
 import { ToastBar } from '@talismn/ui'
 import React, { Suspense } from 'react'
 import { Toaster } from 'react-hot-toast'
@@ -29,24 +28,7 @@ import { Toaster as NewToaster } from '@components/ui/toaster'
 import { HasuraProvider } from '@domains/offchain-data/hasura'
 import { AzeroIDResolverProvider } from '@domains/azeroid/AzeroIDResolver'
 import { WalletConnectProvider } from '@domains/wallet-connect'
-
-const Loader = () => {
-  return (
-    <div
-      style={{
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'absolute',
-        left: 0,
-        right: 0,
-      }}
-    >
-      <EyeOfSauronProgressIndicator />
-    </div>
-  )
-}
+import { SkeletonLayout } from './layouts/SkeletonLayout'
 
 const App: React.FC = () => (
   <ThemeProvider>
@@ -59,7 +41,7 @@ const App: React.FC = () => (
       >
         <HasuraProvider>
           <AzeroIDResolverProvider>
-            <Suspense fallback={<Loader />}>
+            <Suspense fallback={<SkeletonLayout />}>
               <WalletConnectProvider>
                 <PendingTransactionsWatcher />
                 <BalancesWatcher />

@@ -35,7 +35,7 @@ export const VaultOverview: React.FC = () => {
         <h2 className="text-[20px] flex-1 w-1 overflow-hidden text-offWhite font-bold whitespace-nowrap text-ellipsis">
           {selectedMultisig.name}
         </h2>
-        <ChainPill chain={selectedMultisig.chain} identiconSize={20} />
+        <ChainPill chain={selectedMultisig.chain} identiconSize={24} />
       </div>
       <div css={{ marginTop: 24 }}>
         <p css={({ color }) => ({ color: color.offWhite, fontSize: 14, marginTop: 3 })}>Vault Address</p>
