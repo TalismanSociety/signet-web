@@ -157,7 +157,13 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
         />
       ) : add ? (
         <form className="w-full rounded-[12px] gap-[8px] flex flex-col my-[8px]" onSubmit={handleAddVault}>
-          <Input disabled={loading} label="Name" value={name} onChange={e => setName(e.target.value)} />
+          <Input
+            disabled={loading}
+            label="Vault Name"
+            placeholder="e.g. Treasury"
+            value={name}
+            onChange={e => setName(e.target.value)}
+          />
           <Button type="submit" className="gap-[8px]" disabled={!name || loading} loading={loading}>
             Add to Signet
           </Button>
