@@ -8,7 +8,6 @@ import { useToast } from '@components/ui/use-toast'
 import { ScannedVault, importedTeamsState } from '@domains/multisig/vaults-scanner'
 import { useCreateOrganisation } from '@domains/offchain-data'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
-import { CircularProgressIndicator } from '@talismn/ui'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSetRecoilState } from 'recoil'
@@ -60,7 +59,7 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
   )
 
   return (
-    <div className="p-[16px]  w-full rounded-[12px] bg-gray-800 gap-[8px] flex flex-col">
+    <div className="p-[16px]  w-full rounded-[12px] border border-gray-700 gap-[8px] flex flex-col">
       <div className="w-full flex items-center justify-between flex-1 gap-[8px]">
         <div className="flex-1 flex w-1">
           <AccountDetails
@@ -158,21 +157,10 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
         />
       ) : add ? (
         <form className="w-full rounded-[12px] gap-[8px] flex flex-col my-[8px]" onSubmit={handleAddVault}>
-          <Input
-            className="border-gray-500"
-            disabled={loading}
-            label="Name"
-            suffix={
-              <div className="flex items-center gap-[4px]">
-                <Button type="submit" size="lg" className="gap-[8px]" disabled={!name || loading}>
-                  {loading && <CircularProgressIndicator size={16} />}
-                  <span className="mt-[2px]">Add to Signet</span>
-                </Button>
-              </div>
-            }
-            value={name}
-            onChange={e => setName(e.target.value)}
-          />
+          <Input disabled={loading} label="Name" value={name} onChange={e => setName(e.target.value)} />
+          <Button type="submit" className="gap-[8px]" disabled={!name || loading} loading={loading}>
+            Add to Signet
+          </Button>
         </form>
       ) : null}
     </div>

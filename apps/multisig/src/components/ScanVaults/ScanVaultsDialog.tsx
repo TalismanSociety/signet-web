@@ -6,21 +6,17 @@ import {
   unimportedVaultsState,
 } from '@domains/multisig/vaults-scanner'
 import { useCallback, useMemo, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import { ImportedTeamsList } from './ImportedTeamsList'
 import { VaultsList } from './VaultsList'
 import { Button } from '@components/ui/button'
-import { isBetaNoticeOpenState } from '../../layouts/Overview/BetaNotice'
 import { activeTeamsState } from '@domains/offchain-data'
 
 export const ScanVaultsDialog: React.FC = () => {
-  const isBetaNoticeOpen = useRecoilValue(isBetaNoticeOpenState)
   const [open, setOpen] = useRecoilState(openScannerState)
   const unimportedVaultsLoadable = useRecoilValueLoadable(unimportedVaultsState)
   const [acknowledgedVaults, setAcknowledgedVaults] = useRecoilState(acknowledgedVaultsState)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const location = useLocation()
   const activeTeams = useRecoilValue(activeTeamsState)
 
   const unimportedVaults = useMemo(() => {
@@ -54,7 +50,7 @@ export const ScanVaultsDialog: React.FC = () => {
 
   return (
     <Dialog
-      open={(!isBetaNoticeOpen && location.pathname === '/overview' && unacknowledgedVaults.length > 0) || open}
+      open={open}
       onOpenChange={open => {
         if (!open) acknowledge()
       }}
@@ -64,10 +60,14 @@ export const ScanVaultsDialog: React.FC = () => {
           <h1 className="text-[20px] font-bold">
             {unacknowledgedVaults.length > 0 ? 'New Vaults Detected' : 'Import Detected Vaults'}
           </h1>
-          <p className="text-[14px]">
-            Through on-chain activities, we detected that you have {unimportedVaults.length} vaults that can be imported
-            into Signet.
-          </p>
+          {unimportedVaults.length === 0 ? (
+            <p className="text-[14px]">All detected vaults have been imported.</p>
+          ) : (
+            <p className="text-[14px]">
+              Through on-chain activities, we detected that you have{' '}
+              <span className="text-offWhite">{unimportedVaults.length} vaults</span> that can be imported into Signet.
+            </p>
+          )}
           <div ref={scrollRef} className="overflow-y-auto max-h-[380px] grid w-full gap-[8px]">
             <ImportedTeamsList
               onViewDashboard={() => {

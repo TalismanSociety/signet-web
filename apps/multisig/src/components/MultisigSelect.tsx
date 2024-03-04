@@ -9,11 +9,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
-import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
-import { openScannerState, unimportedVaultsState } from '@domains/multisig/vaults-scanner'
+import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import {
+  acknowledgedVaultsState,
+  makeScannedVaultId,
+  openScannerState,
+  unimportedVaultsState,
+} from '@domains/multisig/vaults-scanner'
 import { CircularProgressIndicator } from '@talismn/ui'
 import { Link } from 'react-router-dom'
 import { cn } from '@util/tailwindcss'
+import { useMemo } from 'react'
 
 type Props = {
   multisigs: Multisig[]
@@ -73,7 +79,21 @@ const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; select
 
 export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedMultisig }) => {
   const unimportedVaultsLoadable = useRecoilValueLoadable(unimportedVaultsState)
+  const acknowledgedVaults = useRecoilValue(acknowledgedVaultsState)
   const setOpenScanner = useSetRecoilState(openScannerState)
+
+  const unimportedVaults = useMemo(() => {
+    if (unimportedVaultsLoadable.state !== 'hasValue') return []
+    return unimportedVaultsLoadable.contents ?? []
+  }, [unimportedVaultsLoadable])
+
+  const unacknowledgedVaults = useMemo(
+    () =>
+      unimportedVaults.filter(
+        v => !acknowledgedVaults[makeScannedVaultId(v.proxiedAddress, v.multisig.multisigAddress, v.chain)]
+      ) ?? [],
+    [acknowledgedVaults, unimportedVaults]
+  )
 
   const handleChange = (value: string) => {
     const newMultisig = multisigs.find(m => m.id === value)
@@ -81,7 +101,18 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
   }
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="bg-gray-900 border-none w-[240px] px-[12px] py-[8px] flex flex-1 items-center gap-[8px] rounded-[12px]">
+      <DropdownMenuTrigger
+        className={cn(
+          'bg-gray-900 border-none w-[240px] px-[12px] py-[8px] flex flex-1 items-center gap-[8px] rounded-[12px] relative'
+        )}
+      >
+        {unacknowledgedVaults.length > 0 && (
+          <div className="absolute top-0 right-0 transform translate-x-1/3 -translate-y-1/3 w-[20px] h-[20px]">
+            <div className="relative flex items-center justify-center rounded-full w-full h-full bg-primary">
+              <p className="text-[11px] text-gray-900 font-bold text-center w-max">{unacknowledgedVaults.length}</p>
+            </div>
+          </div>
+        )}
         <div className="flex flex-1 w-1">
           <VaultDetails multisig={selectedMultisig} disableCopy />
         </div>
@@ -109,7 +140,10 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
           ) : unimportedVaultsLoadable.state === 'hasValue' ? (
             unimportedVaultsLoadable.contents.length > 0 ? (
               <DropdownMenuItem
-                className="w-full text-left items-center gap-[8px] justify-start px-[12px] py-[8px] h-max min-h-max text-primary hover:text-primary focus:text-primary"
+                className={cn(
+                  'w-full text-left items-center gap-[8px] justify-start px-[12px] py-[8px] h-max min-h-max text-primary hover:text-primary focus:text-primary',
+                  unacknowledgedVaults.length > 0 ? 'bg-primary/20' : ''
+                )}
                 onClick={() => setOpenScanner(true)}
               >
                 <Stars size={20} />
