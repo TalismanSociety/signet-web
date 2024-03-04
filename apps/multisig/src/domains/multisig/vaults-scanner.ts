@@ -66,7 +66,7 @@ export const vaultsOfAccount = selector({
     data.accountExtrinsics.forEach(tx => {
       try {
         // get the signer that signed the transaction
-        const signer = Address.fromPubKey(parseCallAddressArg(JSON.parse(tx.extrinsic.signer).value))
+        const signer = Address.fromPubKey(parseCallAddressArg(tx.extrinsic.signer))
         if (!signer) throw new Error('Invalid signer')
 
         // check if the multisig is on a supported chain
