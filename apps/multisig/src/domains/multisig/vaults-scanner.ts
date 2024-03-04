@@ -1,5 +1,5 @@
 import { selectedAccountState } from '@domains/auth'
-import { Address, toMultisigAddress } from '@util/addresses'
+import { Address, parseCallAddressArg, toMultisigAddress } from '@util/addresses'
 import { gql } from 'graphql-request'
 import fetchGraphQL from '../../graphql/fetch-graphql'
 import { atom, selector, selectorFamily } from 'recoil'
@@ -66,7 +66,7 @@ export const vaultsOfAccount = selector({
     data.accountExtrinsics.forEach(tx => {
       try {
         // get the signer that signed the transaction
-        const signer = Address.fromPubKey(JSON.parse(tx.extrinsic.signer).value)
+        const signer = Address.fromPubKey(parseCallAddressArg(JSON.parse(tx.extrinsic.signer).value))
         if (!signer) throw new Error('Invalid signer')
 
         // check if the multisig is on a supported chain
@@ -99,7 +99,7 @@ export const vaultsOfAccount = selector({
           throw new Error('No inner call is not a proxy call')
 
         // find the real account of the proxy call
-        const proxiedAccount = Address.fromPubKey(innerCall.value.real.value)
+        const proxiedAccount = Address.fromPubKey(parseCallAddressArg(innerCall.value.real))
         if (!proxiedAccount) throw new Error('Invalid proxied account')
 
         multisigs[multisigAddress.toSs58()] = {
