@@ -1,6 +1,5 @@
 import { Button } from '@components/ui/button'
 import { useWalletConnectSessions } from '@domains/wallet-connect'
-import { Layout } from '../../layouts/Layout'
 import { useCallback, useState } from 'react'
 
 import { ExternalLink, Unlink } from 'lucide-react'
@@ -82,31 +81,29 @@ export const WalletConnectSessionsPage: React.FC = () => {
   }, [refresh, web3Wallet])
 
   return (
-    <Layout selected="Wallet Connect" requiresMultisig>
-      <div className="flex flex-1 py-[32px] px-[8%] flex-col gap-[16px] w-1">
-        <Button size="lg" variant="secondary" asLink to="/wallet-connect">
-          Back
-        </Button>
-        <h1>Wallet Connect Active Sessions</h1>
+    <div className="flex flex-1 py-[32px] px-[8%] flex-col gap-[16px] w-1">
+      <Button size="lg" variant="secondary" asLink to="/wallet-connect">
+        Back
+      </Button>
+      <h1>Wallet Connect Active Sessions</h1>
 
-        {sessions.length === 0 ? (
-          <p>You don't have any active session.</p>
-        ) : (
-          <div>
-            <div className="w-full flex items-center justify-between mb-[8px]">
-              {disconnecting && <StatusMessage type="loading" message="Disconnecting all..." />}
-              <Button className="ml-auto" size="sm" variant="ghost" onClick={disconnectAll} disabled={disconnecting}>
-                Disconnect All
-              </Button>
-            </div>
-            <div className="grid gap-[16px]">
-              {sessions.map(session => (
-                <Row key={session.topic} session={session} />
-              ))}
-            </div>
+      {sessions.length === 0 ? (
+        <p>You don't have any active session.</p>
+      ) : (
+        <div>
+          <div className="w-full flex items-center justify-between mb-[8px]">
+            {disconnecting && <StatusMessage type="loading" message="Disconnecting all..." />}
+            <Button className="ml-auto" size="sm" variant="ghost" onClick={disconnectAll} disabled={disconnecting}>
+              Disconnect All
+            </Button>
           </div>
-        )}
-      </div>
-    </Layout>
+          <div className="grid gap-[16px]">
+            {sessions.map(session => (
+              <Row key={session.topic} session={session} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

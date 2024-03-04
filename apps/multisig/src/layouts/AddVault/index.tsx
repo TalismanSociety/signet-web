@@ -3,7 +3,6 @@ import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoi
 import { activeMultisigsState } from '../../domains/multisig'
 import React, { useEffect, useState } from 'react'
 import { Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { Layout } from '../Layout'
 import { CancleOrNext } from './common/CancelOrNext'
 import CreateMultisig from './CreateVault'
 import { ImportVault } from './ImportVault'
@@ -70,7 +69,7 @@ export const AddVault: React.FC = () => {
   }, [activeMultisigs.length, location.pathname, location.search, navigate])
 
   return (
-    <Layout hideSideBar>
+    <>
       <Routes>
         <Route
           path="/"
@@ -158,6 +157,6 @@ export const AddVault: React.FC = () => {
           <Route path="import" element={<ImportVault />} />
         </Route>
       </Routes>
-    </Layout>
+    </>
   )
 }

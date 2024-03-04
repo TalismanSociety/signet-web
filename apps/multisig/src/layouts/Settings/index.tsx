@@ -3,7 +3,6 @@ import { ChevronLeft } from '@talismn/icons'
 import { Button, IconButton } from '@talismn/ui'
 import { useNavigate } from 'react-router-dom'
 
-import { Layout } from '../Layout'
 import { SettingsInfoRow } from './InfoRow'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { useSelectedMultisig } from '@domains/multisig'
@@ -81,7 +80,7 @@ const Settings = () => {
   }, [multisig])
 
   return (
-    <Layout selected="Settings" requiresMultisig>
+    <>
       <div css={{ display: 'flex', flex: 1, padding: '32px 8%', flexDirection: 'column', gap: 32 }}>
         <h2 className="text-offWhite mt-[4px] font-bold">Vault Settings</h2>
         <div css={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
@@ -198,7 +197,7 @@ const Settings = () => {
           }}
         />
       )}
-    </Layout>
+    </>
   )
 }
 export default Settings

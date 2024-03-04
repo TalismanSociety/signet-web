@@ -1,5 +1,4 @@
 import { useSearchParams } from 'react-router-dom'
-import { Layout } from '../Layout'
 import { useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { Multisig, activeMultisigsState, useSelectedMultisig } from '@domains/multisig'
@@ -15,18 +14,16 @@ import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 
 const Wrapper: React.FC<React.PropsWithChildren & { source?: string }> = ({ children, source }) => (
-  <Layout hideSideBar requiresMultisig>
-    <div className="h-fit grid bg-gray-900 gap-[48px] rounded-[24px] justify-center mx-auto my-[50px] max-w-[863px] w-full py-[80px] px-[16px]">
-      <div className="w-full text-center grid gap-[8px]">
-        <h1 className="text-[32px] leading-[32px] h-max">Sign Transaction</h1>
-        <p className="w-full">
-          A new transaction was requested from{' '}
-          {source ? <span className="text-offWhite">{source}</span> : 'an external source'}.
-        </p>
-      </div>
-      {children}
+  <div className="h-fit grid bg-gray-900 gap-[48px] rounded-[24px] justify-center mx-auto my-[50px] max-w-[863px] w-full py-[80px] px-[16px]">
+    <div className="w-full text-center grid gap-[8px]">
+      <h1 className="text-[32px] leading-[32px] h-max">Sign Transaction</h1>
+      <p className="w-full">
+        A new transaction was requested from{' '}
+        {source ? <span className="text-offWhite">{source}</span> : 'an external source'}.
+      </p>
     </div>
-  </Layout>
+    {children}
+  </div>
 )
 
 export const Sign: React.FC = () => {

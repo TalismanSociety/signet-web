@@ -6,7 +6,6 @@ import {
   TextInput,
   Tooltip,
 } from '@talismn/ui'
-import { Layout } from '../Layout'
 import { Copy, Database, Plus, Trash } from '@talismn/icons'
 import { Contact, useAddressBook, useDeleteContact } from '@domains/offchain-data'
 import { AddContactModal } from './AddContactModal'
@@ -141,7 +140,7 @@ export const AddressBook: React.FC = () => {
   )
 
   return (
-    <Layout selected="Address Book" requiresMultisig>
+    <>
       <div css={{ display: 'flex', flex: 1, padding: '32px 8%' }}>
         <div css={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 680 }}>
           <Header
@@ -180,6 +179,6 @@ export const AddressBook: React.FC = () => {
         </div>
       </div>
       <AddContactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </Layout>
+    </>
   )
 }

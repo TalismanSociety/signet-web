@@ -1,4 +1,3 @@
-import { Layout } from '../Layout'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@components/ui/button'
 import { MessageService } from '@domains/connect/MessageService'
@@ -136,7 +135,7 @@ export const Dapps: React.FC = () => {
   }, [selectedMultisig.id, shouldLoadUrl])
 
   return (
-    <Layout selected="Dapps" requiresMultisig>
+    <>
       <div css={{ display: 'flex', flex: 1, padding: 16, flexDirection: 'column', gap: 16, width: '100px' }}>
         <h2 css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>Dapps</h2>
 
@@ -265,6 +264,6 @@ export const Dapps: React.FC = () => {
           }}
         />
       )}
-    </Layout>
+    </>
   )
 }

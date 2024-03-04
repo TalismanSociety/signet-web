@@ -5,18 +5,28 @@ import Footer from './Footer'
 import { EyeOfSauronProgressIndicator } from '@talismn/ui'
 import { useRecoilValue } from 'recoil'
 import { activeTeamsState } from '../domains/offchain-data'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import BetaNotice from './Overview/BetaNotice'
 import { useDevMode } from '../domains/common/useDevMode'
 import WalletConnectLogo from '@components/WalletConnectLogo'
 import { WalletConnectRequest } from '@domains/wallet-connect/WalletConnectRequest'
 import { ScanVaultsDialog } from '@components/ScanVaults/ScanVaultsDialog'
+import { useMemo } from 'react'
 
-export const Layout: React.FC<
-  React.PropsWithChildren & { selected?: string; requiresMultisig?: boolean; hideSideBar?: boolean }
-> = ({ children, selected, requiresMultisig, hideSideBar }) => {
+export const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const activeTeams = useRecoilValue(activeTeamsState)
   const devMode = useDevMode()
+  const location = useLocation()
+
+  const hideSideBar = useMemo(
+    () =>
+      location.pathname.startsWith('/add-vault') ||
+      location.pathname.startsWith('/connect') ||
+      location.pathname.startsWith('/sign'),
+    [location.pathname]
+  )
+
+  const requiresMultisig = useMemo(() => !location.pathname.startsWith('/add-vault'), [location.pathname])
 
   return (
     <div className="flex flex-col w-full min-h-screen gap-[16px] p-[24px] flex-1">
@@ -35,7 +45,6 @@ export const Layout: React.FC<
           <>
             {!hideSideBar && (
               <Sidebar
-                selected={selected}
                 sections={[
                   {
                     name: 'Vault',

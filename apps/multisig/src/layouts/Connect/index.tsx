@@ -5,7 +5,6 @@ import { Multisig, activeMultisigsState } from '@domains/multisig'
 import { Identicon } from '@talismn/ui'
 import { Button } from '@components/ui/button'
 import { Checkbox } from '@components/ui/checkbox'
-import { Layout } from '../Layout'
 
 /** Signet Conenct is not the actual feature name (yet), just trying to make it cool :) */
 export const SignetConnect: React.FC = () => {
@@ -79,7 +78,7 @@ export const SignetConnect: React.FC = () => {
   }, [activeMultisigs, selectedVaultIds])
 
   return (
-    <Layout hideSideBar requiresMultisig>
+    <>
       {window.opener ? (
         <div className="max-w-[863px] mx-auto my-[64px] rounded-[24px] bg-gray-900 px-[16px] py-[24px] sm:py-[80px] w-full">
           <h1 className=" text-[32px] text-center">Connect Vaults</h1>
@@ -129,6 +128,6 @@ export const SignetConnect: React.FC = () => {
         // Connect page must be opened by another window, like Talisman Extension
         <Navigate to="/" replace />
       )}
-    </Layout>
+    </>
   )
 }

@@ -1,4 +1,3 @@
-import { Layout } from '../Layout'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { SmartContractsDashboard } from './SmartContractsDashboard'
 import { Button } from '@components/ui/button'
@@ -24,40 +23,38 @@ export const SmartContracts: React.FC = () => {
   const { isCollaborator } = useUser()
 
   return (
-    <Layout selected="Smart Contracts" requiresMultisig>
-      <Routes>
-        <Route index path="/" element={<SmartContractsDashboard />} />
-        <Route
-          path="add"
-          element={
-            isCollaborator ? (
-              <Navigate to="/smart-contracts" />
-            ) : (
-              <SubpageWrapper>
-                <AddContractPage />
-              </SubpageWrapper>
-            )
-          }
-        />
-        <Route
-          path="deploy"
-          element={
+    <Routes>
+      <Route index path="/" element={<SmartContractsDashboard />} />
+      <Route
+        path="add"
+        element={
+          isCollaborator ? (
+            <Navigate to="/smart-contracts" />
+          ) : (
             <SubpageWrapper>
-              <DepolyContractPage />
+              <AddContractPage />
             </SubpageWrapper>
-          }
-        />
-        <Route
-          path="call/:smartContractId"
-          element={
-            <SubpageWrapper>
-              <CallSmartContractPage />
-            </SubpageWrapper>
-          }
-        />
-        <Route path="*" element={<Navigate to="/smart-contracts" />} />
-      </Routes>
-    </Layout>
+          )
+        }
+      />
+      <Route
+        path="deploy"
+        element={
+          <SubpageWrapper>
+            <DepolyContractPage />
+          </SubpageWrapper>
+        }
+      />
+      <Route
+        path="call/:smartContractId"
+        element={
+          <SubpageWrapper>
+            <CallSmartContractPage />
+          </SubpageWrapper>
+        }
+      />
+      <Route path="*" element={<Navigate to="/smart-contracts" />} />
+    </Routes>
   )
 }
 

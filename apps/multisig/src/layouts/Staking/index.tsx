@@ -3,7 +3,6 @@ import { ChevronLeft } from '@talismn/icons'
 import { Button, IconButton } from '@talismn/ui'
 import { useNavigate } from 'react-router-dom'
 
-import { Layout } from '../Layout'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { useSelectedMultisig } from '@domains/multisig'
 import { SettingsInfoRow } from '../Settings/InfoRow'
@@ -40,11 +39,9 @@ export const BackButton = () => {
 }
 
 const Wrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <Layout selected="Staking" requiresMultisig>
-    <div css={{ display: 'flex', flex: 1, padding: '32px 8%', flexDirection: 'column', gap: 32, width: '100%' }}>
-      {children}
-    </div>
-  </Layout>
+  <div css={{ display: 'flex', flex: 1, padding: '32px 8%', flexDirection: 'column', gap: 32, width: '100%' }}>
+    {children}
+  </div>
 )
 
 const Staking = () => {

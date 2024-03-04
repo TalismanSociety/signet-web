@@ -8,7 +8,6 @@ import Decimal from 'decimal.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 
-import { Layout } from '../../Layout'
 import { DetailsForm } from './DetailsForm'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
@@ -78,7 +77,7 @@ const SendAction = () => {
   )
 
   return (
-    <Layout selected="Send" requiresMultisig>
+    <>
       <div css={{ display: 'flex', flex: 1, flexDirection: 'column', padding: '32px 8%' }}>
         <div css={{ width: '100%', maxWidth: 490 }}>
           <DetailsForm
@@ -105,7 +104,7 @@ const SendAction = () => {
           )}
         </div>
       </div>
-    </Layout>
+    </>
   )
 }
 

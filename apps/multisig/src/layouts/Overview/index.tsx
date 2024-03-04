@@ -7,7 +7,6 @@ import { useRecoilValue } from 'recoil'
 
 import Assets from './Assets'
 import Transactions from './Transactions'
-import { Layout } from '../Layout'
 import { useUpdateMultisigConfig } from '../../domains/offchain-data'
 import { selectedAccountState } from '../../domains/auth'
 import VaultOverview from './VaultOverview'
@@ -104,18 +103,16 @@ const Overview = () => {
 
   const augmentedTokens = useAugmentedBalances()
   return (
-    <Layout selected="Overview" requiresMultisig>
-      <div className="flex flex-col lg:flex-row gap-[16px] flex-1 w-[100px]">
-        <div
-          className="flex flex-col gap-[16px] h-full w-full flex-1 lg:w-[100px] lg:flex-[5]"
-          css={{ gridArea: 'overview-assets' }}
-        >
-          <VaultOverview />
-          <Assets augmentedTokens={augmentedTokens} />
-        </div>
-        <Transactions />
+    <div className="flex flex-col lg:flex-row gap-[16px] flex-1 w-[100px]">
+      <div
+        className="flex flex-col gap-[16px] h-full w-full flex-1 lg:w-[100px] lg:flex-[5]"
+        css={{ gridArea: 'overview-assets' }}
+      >
+        <VaultOverview />
+        <Assets augmentedTokens={augmentedTokens} />
       </div>
-    </Layout>
+      <Transactions />
+    </div>
   )
 }
 
