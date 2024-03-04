@@ -70,6 +70,9 @@ export const shortenAddress = (address: string, size: 'long' | 'short' = 'short'
 // Sometimes the arg is wrapped in an Id, other times not.
 export const parseCallAddressArg = (callAddressArg: string | { Id: string } | { value: string }): string => {
   if (typeof callAddressArg === 'string') {
+    if (callAddressArg.startsWith('{')) {
+      return parseCallAddressArg(JSON.parse(callAddressArg))
+    }
     return callAddressArg
   }
   if ('Id' in callAddressArg) {
