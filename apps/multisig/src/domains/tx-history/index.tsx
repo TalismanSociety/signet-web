@@ -5,7 +5,7 @@ import { gql } from 'graphql-request'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { atom, useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import fetchGraphQL from '../../graphql/fetch-graphql'
-import { Address } from '../../util/addresses'
+import { Address, parseCallAddressArg } from '../../util/addresses'
 import { useApi } from '../chains/pjs-api'
 import { txMetadataByTeamIdState } from '../offchain-data/metadata'
 import { makeTransactionID } from '../../util/misc'
@@ -110,7 +110,6 @@ const fetchRaw = async (vaultAddress: string, chainGenesisHash: string, _offset?
     const res = (await fetchGraphQL(signetSquidExtrinsicsQuery, variables, 'tx-history')) as RawResponse
 
     res.data.accountExtrinsics.forEach(ext => {
-      const signerObj = JSON.parse(ext.extrinsic.signer)
       extrinsics.push({
         block: {
           hash: ext.extrinsic.block.hash,
@@ -122,7 +121,7 @@ const fetchRaw = async (vaultAddress: string, chainGenesisHash: string, _offset?
           args: ext.extrinsic.callArgs,
           name: ext.extrinsic.callName,
         },
-        signer: signerObj.value as string,
+        signer: parseCallAddressArg(ext.extrinsic.signer),
       })
     })
 
@@ -236,7 +235,7 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
             if (multisigArgs.call.__kind === 'Proxy' && multisigArgs.call.value?.__kind === 'proxy') {
               const innerProxyCall = multisigArgs.call.value as {
                 /** pub key of proxied address */
-                real: { value: string }
+                real: { value: string } | string
                 call: {
                   /** pallet name */
                   __kind: string
@@ -248,7 +247,7 @@ export const useConfirmedTransactions = (): { loading: boolean; transactions: Tr
               }
 
               // make sure this tx is for us
-              const realAddress = Address.fromPubKey(innerProxyCall.real.value)
+              const realAddress = Address.fromPubKey(parseCallAddressArg(innerProxyCall.real))
               if (!realAddress)
                 return console.error(`Invalid realAddress from subsquid at ${tx.block.height}-${tx.indexInBlock}`)
               if (!realAddress.isEqual(selectedMultisig.proxyAddress)) return // not ours

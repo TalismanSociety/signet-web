@@ -13,7 +13,7 @@ import { allPjsApisSelector } from '@domains/chains/pjs-api'
 import { RawPendingTransaction, allRawPendingTransactionsSelector } from '@domains/chains/storage-getters'
 import { InjectedAccount, accountsState } from '@domains/extension'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
-import { Address, toMultisigAddress } from '@util/addresses'
+import { Address, parseCallAddressArg, toMultisigAddress } from '@util/addresses'
 import { makeTransactionID } from '@util/misc'
 import BN from 'bn.js'
 import queryString from 'query-string'
@@ -270,7 +270,7 @@ const isChangeConfigCall = (arg: any): arg is ChangeConfigCall => {
     arg?.args?.calls[1]?.method === 'removeProxy' &&
     arg.args?.calls[0]?.args?.proxy_type === 'Any' &&
     arg.args?.calls[1]?.args?.proxy_type === 'Any' &&
-    (arg.args?.calls[0]?.args?.delegate === 'string' || arg.args?.calls[0]?.args?.delegate?.Id)
+    (typeof arg.args?.calls[0]?.args?.delegate === 'string' || arg.args?.calls[0]?.args?.delegate?.Id)
   )
 }
 
@@ -406,14 +406,6 @@ const callToTransactionRecipient = (arg: any, chainTokens: BaseToken[]): Transac
 
   // Add other token types to support here.
   return null
-}
-
-// Sometimes the arg is wrapped in an Id, other times not.
-const parseCallAddressArg = (callAddressArg: string | { Id: string }): string => {
-  if (typeof callAddressArg === 'string') {
-    return callAddressArg
-  }
-  return callAddressArg.Id
 }
 
 export const extrinsicToDecoded = (

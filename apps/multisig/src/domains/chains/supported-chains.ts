@@ -176,32 +176,26 @@ export const supportedChains: Chain[] = [
     isTestnet: false,
     ss58Prefix: 2,
   },
-  // {
-  //   squidIds: { chainData: 'hydradx' },
-  //   genesisHash: '0xafdc188f45c71dacbaa0b62e16a91f726c7b8699a9748cdf715459de6b7f366d',
-  //   chainName: 'HydraDX',
-  //   nativeToken: {
-  //     id: 'hydradx-substrate-native-hdx',
-  //   },
-  //   subscanUrl: 'https://hydradx.subscan.io/',
-  //   rpcs: [
-  //     {
-  //       url: 'wss://hydradx-rpc.dwellir.com',
-  //     },
-  //     {
-  //       url: 'wss://rpc.hydradx.cloud',
-  //     },
-  //     {
-  //       url: 'wss://rpc-lb.data6.zp-labs.net:8443/hydradx/ws/?token=2ZGuGivPJJAxXiT1hR1Yg2MXGjMrhEBYFjgbdPi',
-  //     },
-  //     {
-  //       url: 'wss://hydradx.api.onfinality.io/public-ws',
-  //     },
-  //   ],
-  //   logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/v3/assets/chains/hydradx.svg',
-  //   isTestnet: false,
-  //   ss58Prefix: 63,
-  // },
+  {
+    squidIds: { chainData: 'hydradx' },
+    genesisHash: '0xafdc188f45c71dacbaa0b62e16a91f726c7b8699a9748cdf715459de6b7f366d',
+    chainName: 'HydraDX',
+    nativeToken: {
+      id: 'hydradx-substrate-native',
+    },
+    subscanUrl: 'https://hydradx.subscan.io/',
+    rpcs: [
+      {
+        url: 'wss://hydradx-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://rpc.hydradx.cloud',
+      },
+    ],
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/hydradx.svg',
+    isTestnet: false,
+    ss58Prefix: 63,
+  },
   // {
   //   squidIds: { chainData: 'aleph-zero' },
   //   genesisHash: '0x70255b4d28de0fc4e1a193d7e175ad1ccef431598211c55538f1018651a0344e',
