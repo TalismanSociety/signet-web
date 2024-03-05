@@ -88,10 +88,18 @@ export const vaultsOfAccount = selector({
         // derive the multisig address
         const multisigAddress = toMultisigAddress(signers, tx.extrinsic.callArgs.threshold)
 
+        multisigs[multisigAddress.toSs58()] = {
+          multisigAddress,
+          signers,
+          threshold: tx.extrinsic.callArgs.threshold,
+        }
+
         // we only want extrinsics where the searched account is a signer of a multisig
         const isRelevant = signers.some(s => s.isEqual(selectedAccount.injected.address))
         if (!isRelevant) return null
 
+        // approve_as_multi does not have inner call
+        if (tx.extrinsic.callName === 'Multisig.approve_as_multi') return null
         const innerCall = tx.extrinsic.callArgs.call
         if (!innerCall) throw new Error('No inner call, not a multisig to proxy call')
 
@@ -102,11 +110,6 @@ export const vaultsOfAccount = selector({
         const proxiedAccount = Address.fromPubKey(parseCallAddressArg(innerCall.value.real))
         if (!proxiedAccount) throw new Error('Invalid proxied account')
 
-        multisigs[multisigAddress.toSs58()] = {
-          multisigAddress,
-          signers,
-          threshold: tx.extrinsic.callArgs.threshold,
-        }
         proxiedAccounts[proxiedAccount.toSs58()] = {
           address: proxiedAccount,
           chain,
@@ -144,6 +147,9 @@ export const vaultsOfAccount = selector({
           const delegate = Address.fromPubKey(proxy.delegate.toHex())
           if (!delegate) return
 
+          if (genesisHash === '0xafdc188f45c71dacbaa0b62e16a91f726c7b8699a9748cdf715459de6b7f366d') {
+            console.log(delegate.toSs58(), multisigs)
+          }
           const multisig = multisigs[delegate.toSs58()]
           if (!multisig) return
 

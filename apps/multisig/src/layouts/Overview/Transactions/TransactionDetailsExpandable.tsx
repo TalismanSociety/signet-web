@@ -425,7 +425,7 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
         type="single"
         collapsible
         className="max-w-[100%]"
-        defaultValue={transactionDetails === null ? undefined : '1'}
+        defaultValue={transactionDetails === null && t.decoded?.type !== TransactionType.Transfer ? undefined : '1'}
       >
         <AccordionItem value="1" className="!border-b-0">
           <AccordionTrigger className="!py-[16px] w-full">
