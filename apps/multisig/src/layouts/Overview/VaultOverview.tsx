@@ -110,7 +110,7 @@ export const VaultOverview: React.FC = () => {
           showMembers ? 'overflow-y-auto max-h-[9999px]' : 'overflow-y-hidden max-h-0'
         )}
       >
-        <div className="flex flex-wrap-reverse gap-x-[8px] gap-y-[16px] flex-1 mt-[16px] w-full">
+        <div className="flex flex-wrap-reverse gap-x-[24px] gap-y-[16px] flex-1 mt-[16px] w-full">
           <div className="flex flex-col overflow-hidden">
             <p css={({ color }) => ({ color: color.lightGrey, marginBottom: 8, fontSize: 14 })}>Signers</p>
             <div className="flex flex-col gap-[12px] items-start justify-start">

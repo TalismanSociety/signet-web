@@ -27,11 +27,12 @@ type Props = {
   onChange: (multisig: Multisig) => void
 }
 
-const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; selected?: boolean }> = ({
-  disableCopy,
-  multisig,
-  selected,
-}) => (
+const VaultDetails: React.FC<{
+  multisig: Multisig
+  disableCopy?: boolean
+  selected?: boolean
+  hideTooltip?: boolean
+}> = ({ disableCopy, hideTooltip, multisig, selected }) => (
   <div className="flex items-center justify-center gap-[12px] select-none w-full">
     {/** Threshold + chain logo circle */}
     <div className="relative h-[40px] w-[40px] min-w-[40px] flex items-center justify-center">
@@ -71,7 +72,7 @@ const VaultDetails: React.FC<{ multisig: Multisig; disableCopy?: boolean; select
       chain={multisig.chain}
       breakLine
       hideIdenticon
-      withAddressTooltip
+      withAddressTooltip={!hideTooltip}
       disableCopy={disableCopy}
     />
   </div>
@@ -114,7 +115,7 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
           </div>
         )}
         <div className="flex flex-1 w-1">
-          <VaultDetails multisig={selectedMultisig} disableCopy />
+          <VaultDetails multisig={selectedMultisig} hideTooltip disableCopy />
         </div>
         <ChevronDown size={20} className="min-w-[20px]" />
       </DropdownMenuTrigger>
