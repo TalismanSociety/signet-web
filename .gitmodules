@@ -1,0 +1,3 @@
+[submodule "apps/multisig/src/signet-premium"]
+	path = apps/multisig/src/signet-premium
+	url = https://github.com/chrisling-dev/signet-really-private-stuff
