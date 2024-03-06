@@ -86,7 +86,7 @@ export const AddressTooltip: React.FC<
               {!!a0Id && (
                 <a
                   className="flex items-center justify-center gap-[4px] hover:text-[#E7FE1B] text-gray-200 cursor-pointer"
-                  href={`https://azero.id/id/${a0Id}`}
+                  href={`https://${a0Id}.id`}
                   target="_blank"
                   rel="noreferrer"
                 >
