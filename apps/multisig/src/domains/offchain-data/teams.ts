@@ -108,7 +108,7 @@ export const activeTeamsState = selector({
 
     const teams = orgs.map(org => org.teams).flat()
 
-    if (!selectedAccount) return []
+    if (!selectedAccount) return undefined
 
     if (!teams) return undefined
 

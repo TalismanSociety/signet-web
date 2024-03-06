@@ -49,7 +49,6 @@ export const AccountDetails: React.FC<Props> = ({
         <div
           className="text-gray-200 h-[16px] cursor-pointer hover:text-offWhite"
           onClick={e => {
-            console.log('Here')
             e.stopPropagation()
             e.preventDefault()
             copy(address.toSs58(chain), 'Address copied!')

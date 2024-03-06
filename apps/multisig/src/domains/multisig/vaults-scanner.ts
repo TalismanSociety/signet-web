@@ -147,9 +147,6 @@ export const vaultsOfAccount = selector({
           const delegate = Address.fromPubKey(proxy.delegate.toHex())
           if (!delegate) return
 
-          if (genesisHash === '0xafdc188f45c71dacbaa0b62e16a91f726c7b8699a9748cdf715459de6b7f366d') {
-            console.log(delegate.toSs58(), multisigs)
-          }
           const multisig = multisigs[delegate.toSs58()]
           if (!multisig) return
 
