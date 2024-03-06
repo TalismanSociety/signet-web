@@ -12,6 +12,7 @@ import { selectedAccountState } from '../../domains/auth'
 import VaultOverview from './VaultOverview'
 import { useToast } from '../../components/ui/use-toast'
 import { CONFIG } from '@lib/config'
+import { hello } from '../../signet-premium/hello'
 
 const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
@@ -26,6 +27,9 @@ const Overview = () => {
     }
   }, [dismiss, selectedMultisig.id, toastedForVault])
 
+  useEffect(() => {
+    console.log(hello())
+  }, [])
   // TODO: consider migrating to top level so it works regardless of page?
   const detectChangeAndAutoUpdate = useCallback(async () => {
     try {
