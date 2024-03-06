@@ -37,6 +37,7 @@ const router = createBrowserRouter([
         element: <AddVault />,
       },
       {
+        index: true,
         path: 'overview/*',
         element: <Overview />,
       },

@@ -1,5 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
-import { resolveAddressToDomain, resolveDomainToAddress, alephzero, alephzeroTestnet } from '@azns/resolver-core'
+import {
+  resolveAddressToDomain,
+  resolveDomainToAddress,
+  alephzero,
+  alephzeroTestnet,
+  CONTRACT_ADDRESSES,
+} from '@azns/resolver-core'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { Address } from '@util/addresses'
 
@@ -50,7 +56,10 @@ const resolveAzeroIDQuery = async (query: string, api: ApiPromise, testnetApi?: 
       const address = Address.fromSs58(query)
       if (!address) return resolve({})
 
-      const testnetAzeroIdQuery = resolveAddressToDomain(query, { customApi: testnetApi })
+      const testnetAzeroIdQuery = resolveAddressToDomain(query, {
+        customApi: testnetApi,
+        customContractAddresses: CONTRACT_ADDRESSES['alephzero-testnet'],
+      })
       const azeroIdQuery = resolveAddressToDomain(query, { customApi: api })
       const [testnetAzeroId, azeroId] = await Promise.all([testnetAzeroIdQuery, azeroIdQuery])
 
