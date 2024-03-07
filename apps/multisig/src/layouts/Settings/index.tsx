@@ -1,8 +1,3 @@
-import { useTheme } from '@emotion/react'
-import { ChevronLeft } from '@talismn/icons'
-import { Button, IconButton } from '@talismn/ui'
-import { useNavigate } from 'react-router-dom'
-
 import { SettingsInfoRow } from './InfoRow'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { useSelectedMultisig } from '@domains/multisig'
@@ -18,27 +13,7 @@ import { ProxiesSettings } from './ProxiesSettings'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 import { ExternalLink } from 'lucide-react'
-
-export const BackButton = () => {
-  const theme = useTheme()
-  const navigate = useNavigate()
-  return (
-    <Button
-      css={{ height: '32px', width: '78px', marginBottom: '56px', padding: '8px' }}
-      variant="secondary"
-      onClick={() => {
-        navigate('/settings')
-      }}
-    >
-      <div css={{ display: 'flex', gap: '4px' }}>
-        <IconButton as={'div'} size={16} contentColor={`rgb(${theme.dim})`}>
-          <ChevronLeft size={16} />
-        </IconButton>
-        <span css={{ fontSize: '16px', color: 'var(--color-dim)' }}>Back</span>
-      </div>
-    </Button>
-  )
-}
+import { Button } from '@components/ui/button'
 
 const Settings = () => {
   const [multisig] = useSelectedMultisig()

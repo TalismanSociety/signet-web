@@ -13,8 +13,9 @@ import { useRecoilValueLoadable } from 'recoil'
 import AmountUnitSelector, { AmountUnit } from '@components/AmountUnitSelector'
 import FileUploadButton from '@components/FileUploadButton'
 import BN from 'bn.js'
-import { Button, Tooltip } from '@talismn/ui'
 import { Info, ToggleLeft, ToggleRight } from '@talismn/icons'
+import { Tooltip } from '@components/ui/tooltip'
+import { Button } from '@components/ui/button'
 
 type Props = {
   label?: string
@@ -291,10 +292,7 @@ export const MultiLineSendInput: React.FC<Props> = ({
       >
         {/** Provide hint on why they cant change the input if they're importing from CSV */}
         {importedFromCsv && editing && (
-          <Tooltip
-            placement="top"
-            content="To prevent accidental changes, please update the CSV file to modify imported data."
-          >
+          <Tooltip content="To prevent accidental changes, please update the CSV file to modify imported data.">
             <div
               css={{
                 position: 'absolute',

@@ -1,5 +1,4 @@
-import { Button } from '@talismn/ui'
-import { css } from '@emotion/css'
+import { Button } from '@components/ui/button'
 import { BaseToken } from '@domains/chains'
 import { useSelectedMultisig } from '@domains/multisig'
 import { VoteDetails, isVoteDetailsComplete } from '@domains/referenda'
@@ -30,14 +29,7 @@ const VotingForm: React.FC<Props> = ({ onChange, onNext, token, voteDetails }) =
   return (
     <>
       <NewTransactionHeader icon={<Vote />}>Vote</NewTransactionHeader>
-      <div
-        className={css`
-          display: grid;
-          gap: 32px;
-          margin-top: 32px;
-          width: 100%;
-        `}
-      >
+      <div className="grid gap-[32px] mt-[32px] w-full">
         <ProposalsDropdown
           chain={multisig.chain}
           referendumId={voteDetails.referendumId}
@@ -60,11 +52,9 @@ const VotingForm: React.FC<Props> = ({ onChange, onNext, token, voteDetails }) =
             </Alert>
           )
         ) : (
-          <div css={{ button: { height: 56, padding: '0 32px' } }}>
-            <Button onClick={onNext} disabled={!isVoteDetailsComplete(voteDetails) || !hasNonDelayedPermission}>
-              Review
-            </Button>
-          </div>
+          <Button onClick={onNext} disabled={!isVoteDetailsComplete(voteDetails) || !hasNonDelayedPermission}>
+            Review
+          </Button>
         )}
       </div>
     </>

@@ -1,8 +1,9 @@
 import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { CallDataPasteForm } from '../../../components/CallDataPasteForm'
-import { Button, TextInput } from '@talismn/ui'
 import { NewTransactionHeader } from '../NewTransactionHeader'
 import { List } from '@talismn/icons'
+import { Input } from '@components/ui/input'
+import { Button } from '@components/ui/button'
 
 export const DetailsForm = (props: {
   extrinsic: SubmittableExtrinsic<'promise'> | undefined
@@ -21,9 +22,8 @@ export const DetailsForm = (props: {
       }}
     >
       <NewTransactionHeader icon={<List />}>Custom call data</NewTransactionHeader>
-      <TextInput
-        leadingLabel="Transaction Description"
-        css={{ fontSize: '16px !important' }}
+      <Input
+        label="Transaction Description"
         placeholder='e.g. "Contract call to update allow list"'
         value={props.name}
         onChange={e => props.setName(e.target.value)}
@@ -39,7 +39,7 @@ export const DetailsForm = (props: {
 
         <CallDataPasteForm extrinsic={props.extrinsic} setExtrinsic={props.setExtrinsic} />
       </div>
-      <div css={{ button: { height: 56, padding: '0 32px' } }}>
+      <div>
         <Button disabled={props.extrinsic === undefined || !props.name} onClick={props.onNext} children="Review" />
       </div>
     </div>

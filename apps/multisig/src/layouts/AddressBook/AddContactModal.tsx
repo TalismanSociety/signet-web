@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button } from '@talismn/ui'
+import { Button } from '@components/ui/button'
 import Modal from '@components/Modal'
 import { useInput } from '@hooks/useInput'
 import { Address } from '@util/addresses'
@@ -75,7 +75,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
             },
           }}
         >
-          <Button type="button" variant="outlined" css={{ width: '100%' }} onClick={handleClose}>
+          <Button type="button" variant="outline" css={{ width: '100%' }} onClick={handleClose}>
             <p>Cancel</p>
           </Button>
           <Button
