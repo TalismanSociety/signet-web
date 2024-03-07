@@ -17,8 +17,8 @@ module.exports = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: process.env.REACT_APP_POLKADOT_MULTISIG === 'true' ? '#DD186E' : '#D5FF5C',
-          foreground: process.env.REACT_APP_POLKADOT_MULTISIG === 'true' ? '#FAFAFA' : 'hsl(var(--primary-foreground))',
+          DEFAULT: '#D5FF5C',
+          foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
