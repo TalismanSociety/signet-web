@@ -7,6 +7,7 @@ import { Address } from '@util/addresses'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { getSdkError } from '@walletconnect/utils'
 import { Button } from '@components/ui/button'
+import { CONFIG } from '@lib/config'
 
 enum SessionRequestError {
   UNKNOWN_ADDRESS = 'UNKNOWN_ADDRESS',
@@ -98,8 +99,8 @@ export const WalletConnectRequest: React.FC = () => {
       <Modal isOpen contentLabel="Session Not Found">
         <h1 className="font-bold text-[20px]">WalletConnect Session Not Found</h1>
         <p className="mt-[8px] max-w-[520px]">
-          An unknown WalletConnect request was received. Please make sure you've selected the vault in Signet that you
-          are using to create a transaction in the dapp.
+          An unknown WalletConnect request was received. Please make sure you've selected the vault in {CONFIG.APP_NAME}{' '}
+          that you are using to create a transaction in the dapp.
         </p>
         <Button variant="outline" className="w-full mt-[16px]" onClick={handleCancel}>
           Close

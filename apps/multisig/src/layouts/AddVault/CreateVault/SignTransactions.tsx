@@ -81,8 +81,8 @@ const SignTransactions: React.FC<{
 }) => {
   const getHelpLink = useMemo(() => {
     let link = `mailto:${CONFIG.CONTACT_EMAIL}`
-    const subject = 'Issue creating Signet vault'
-    let body = `I am having issues creating a vault on Signet. Here are the details of my vault:\n\n`
+    const subject = `Issue creating ${CONFIG.APP_NAME} vault`
+    let body = `I am having issues creating a vault on ${CONFIG.APP_NAME}. Here are the details of my vault:\n\n`
 
     body += vaultDetailsString
     body += `\n\nPlease help me resolve this issue.`

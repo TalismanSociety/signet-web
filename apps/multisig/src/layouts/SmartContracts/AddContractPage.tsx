@@ -13,6 +13,7 @@ import { useAddSmartContract, useSmartContracts } from '@domains/offchain-data'
 import { getErrorString } from '@util/misc'
 import { useNavigate } from 'react-router-dom'
 import { Abi } from '@polkadot/api-contract'
+import { CONFIG } from '@lib/config'
 
 export const AddContractPage: React.FC = () => {
   const navigate = useNavigate()
@@ -120,7 +121,9 @@ export const AddContractPage: React.FC = () => {
   return (
     <div>
       <h1 className="text-[24px]">Add a Smart Contract</h1>
-      <p>Add a smart contract to Signet to start interacting with it using your Signet Vault.</p>
+      <p>
+        Add a smart contract to {CONFIG.APP_NAME} to start interacting with it using your {CONFIG.APP_NAME} Vault.
+      </p>
 
       <div className="mt-[24px] flex flex-col gap-[16px] items-start">
         <h4 className="font-semibold text-offWhite">Contract details</h4>

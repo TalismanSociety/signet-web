@@ -181,7 +181,7 @@ export const Dapps: React.FC = () => {
                       <p className="text-[12px]">
                         Waiting for dapp to establish communication and connect to your vault.
                         <br />
-                        The dapp may not support connecting to Signet vaults.
+                        The dapp may not support connecting to {CONFIG.APP_NAME} vaults.
                       </p>
                     }
                   >
@@ -214,7 +214,7 @@ export const Dapps: React.FC = () => {
             <iframe
               ref={iframeRef}
               src={input.toLowerCase()}
-              title="Signet Dapps"
+              title={`${CONFIG.APP_NAME} Dapps`}
               className="w-full h-full flex flex-1"
             />
           </div>

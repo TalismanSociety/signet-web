@@ -16,6 +16,7 @@ import { Chain, supportedChains } from '@domains/chains'
 import { XCircle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getErrorString } from '@util/misc'
+import { CONFIG } from '@lib/config'
 
 export const WalletConnectPage: React.FC = () => {
   const navigate = useNavigate()
@@ -186,7 +187,7 @@ export const WalletConnectPage: React.FC = () => {
             </Button>
           )}
         </div>
-        <p>Connect to Dapps supporting WalletConnect and manage signing within Signet.</p>
+        <p>Connect to Dapps supporting WalletConnect and manage signing within {CONFIG.APP_NAME}.</p>
       </div>
 
       <form className="grid gap-[16px] max-w-[450px]" onSubmit={handleConnect}>

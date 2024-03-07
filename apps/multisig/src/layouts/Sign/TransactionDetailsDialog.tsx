@@ -3,6 +3,7 @@ import { Button } from '@components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@components/ui/dialog'
 import { useDecodedCalldata } from '@domains/common'
 import useCopied from '@hooks/useCopied'
+import { CONFIG } from '@lib/config'
 
 type Props = {
   callDataHex: `0x${string}`
@@ -34,8 +35,8 @@ export const TransactionDetailsDialog: React.FC<Props & React.PropsWithChildren>
           <div className="w-full flex flex-[1] flex-col overflow-hidden gap-[16px]">
             <div className="flex items-center w-full">
               <p>
-                Signet uses the Dapp&apos;s call data to craft a proxy transaction that will be executed by the multisig
-                of your vault.
+                {CONFIG.APP_NAME} uses the Dapp&apos;s call data to craft a proxy transaction that will be executed by
+                the multisig of your vault.
               </p>
             </div>
             {loading ? (

@@ -92,7 +92,7 @@ const TransactionSummaryRow = ({
   return (
     <div onClick={onClick} className="flex items-center justify-between w-full gap-[16px]">
       <div className="flex items-center justify-start gap-[8px] w-full overflow-x-hidden">
-        <div className="flex items-center justify-center min-w-[36px] w-[36px] h-[36px] bg-gray-500 [&>svg]:h-[15px] [&>svg]:w-[15px] rounded-full text-primary">
+        <div className="flex items-center justify-center min-w-[36px] w-[36px] h-[36px] bg-gray-500 [&>svg]:h-[15px] [&>svg]:w-[15px] rounded-full text-signet-primary">
           {txIcon}
         </div>
 

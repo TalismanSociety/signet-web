@@ -1,6 +1,7 @@
 import Modal from '@components/Modal'
 import { Checkbox } from '@components/ui/checkbox'
 import persist from '@domains/persist'
+import { CONFIG } from '@lib/config'
 import { Button } from '@talismn/ui'
 import { useCallback, useState } from 'react'
 import { atom, selector, useRecoilState } from 'recoil'
@@ -57,10 +58,10 @@ const BetaNotice = () => {
             justifyItems: 'center',
           }}
         >
-          <h1>Welcome to Signet!</h1>
+          <h1>Welcome to {CONFIG.APP_NAME}!</h1>
           <br />
           <span>
-            Signet is under active development and a Beta Service as defined in our{' '}
+            {CONFIG.APP_NAME} is under active development and a Beta Service as defined in our{' '}
             <a
               css={{ textDecoration: 'underline' }}
               href={'https://docs.talisman.xyz/talisman/prepare-for-your-journey/terms-of-use'}

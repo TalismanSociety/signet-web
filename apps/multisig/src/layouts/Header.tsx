@@ -8,6 +8,8 @@ import { selectedAccountState } from '../domains/auth'
 import { accountsState } from '../domains/extension'
 import AccountSwitcher from '../components/AccountSwitcher'
 import { useNavigate } from 'react-router-dom'
+import { cn } from '@util/tailwindcss'
+import { CONFIG } from '@lib/config'
 
 const Header = () => {
   const navigate = useNavigate()
@@ -34,7 +36,13 @@ const Header = () => {
           gap: 12,
         }}
       >
-        <Logo css={{ cursor: 'pointer', width: 106, marginRight: 16, minWidth: 106 }} onClick={() => navigate('/')} />
+        <Logo
+          className={cn(
+            'cursor-pointer mr-[16px]',
+            CONFIG.IS_POLKADOT_MULTISIG ? 'w-[120px] min-w-[120px]' : 'w-[106px] min-w-[106px]'
+          )}
+          onClick={() => navigate('/')}
+        />
         {activeMultisigs.length === 0 ? null : (
           <>
             <MultisigSelect

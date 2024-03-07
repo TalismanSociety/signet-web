@@ -11,6 +11,7 @@ import { ImportedTeamsList } from './ImportedTeamsList'
 import { VaultsList } from './VaultsList'
 import { Button } from '@components/ui/button'
 import { activeTeamsState } from '@domains/offchain-data'
+import { CONFIG } from '@lib/config'
 
 export const ScanVaultsDialog: React.FC = () => {
   const [open, setOpen] = useRecoilState(openScannerState)
@@ -65,7 +66,8 @@ export const ScanVaultsDialog: React.FC = () => {
           ) : (
             <p className="text-[14px]">
               Through on-chain activities, we detected that you have{' '}
-              <span className="text-offWhite">{unimportedVaults.length} vaults</span> that can be imported into Signet.
+              <span className="text-offWhite">{unimportedVaults.length} vaults</span> that can be imported into{' '}
+              {CONFIG.APP_NAME}.
             </p>
           )}
           <div ref={scrollRef} className="overflow-y-auto max-h-[380px] grid w-full gap-[8px]">

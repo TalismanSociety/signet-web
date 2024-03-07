@@ -17,8 +17,8 @@ module.exports = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#D5FF5C',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: process.env.REACT_APP_POLKADOT_MULTISIG === 'true' ? '#DD186E' : '#D5FF5C',
+          foreground: process.env.REACT_APP_POLKADOT_MULTISIG === 'true' ? '#FAFAFA' : 'hsl(var(--primary-foreground))',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
@@ -59,6 +59,15 @@ module.exports = {
           950: '#121212',
         },
         offWhite: '#FAFAFA',
+        signet: {
+          primary: '#D5FF5C',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        polkadot: {
+          'primary': '#DD186E',
+          'primary-light': '#EB6AAB',
+          'foreground': '#FAFAFA',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
