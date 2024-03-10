@@ -219,11 +219,10 @@ export const allChainTokensSelector = selector({
   get: async ({ get }): Promise<Map<string, BaseToken[]>> => {
     const multisigs = get(activeMultisigsState)
 
-    const entries: [string, BaseToken[]][] = await Promise.all(
-      multisigs
-        .filter(({ chain }) => chain !== undefined)
-        .map(({ chain }) => [chain.squidIds.chainData, get(chainTokensByIdQuery(chain.squidIds.chainData))])
-    )
+    const entries: [string, BaseToken[]][] = multisigs
+      .filter(({ chain }) => chain !== undefined)
+      .map(({ chain }) => [chain.squidIds.chainData, get(chainTokensByIdQuery(chain.squidIds.chainData))])
+
     return new Map(entries.filter(([tokens]) => !!tokens[0]))
   },
   dangerouslyAllowMutability: true, // pjs wsprovider mutates itself to track connection msg stats

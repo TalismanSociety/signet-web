@@ -24,18 +24,23 @@ export const ValidatorsWatcher: React.FC = () => {
 
   const fetchIdentities = useCallback(async (addresses: string[], api: ApiPromise) => {
     if (!api.query.identity.identityOf) return []
-    const identities = await api.query.identity.identityOf.multi(addresses)
-    const addressesWithIdentity: [string, string][] = []
-    identities.forEach(({ value }, index) => {
-      const nameRaw = value?.info?.display.toHuman() as { Raw: string }
-      let name = nameRaw?.Raw
-      const address = addresses[index]
+    try {
+      const identities = await api.query.identity.identityOf.multi(addresses)
+      const addressesWithIdentity: [string, string][] = []
+      identities.forEach(({ value }, index) => {
+        const nameRaw = value?.info?.display.toHuman() as { Raw: string }
+        let name = nameRaw?.Raw
+        const address = addresses[index]
 
-      name = u8aToString(u8aUnwrapBytes(name))
+        name = u8aToString(u8aUnwrapBytes(name))
 
-      if (name && address) addressesWithIdentity.push([address, name])
-    })
-    return addressesWithIdentity
+        if (name && address) addressesWithIdentity.push([address, name])
+      })
+      return addressesWithIdentity
+    } catch (e) {
+      console.error(e)
+      return []
+    }
   }, [])
 
   const fetchSupersIdentities = useCallback(

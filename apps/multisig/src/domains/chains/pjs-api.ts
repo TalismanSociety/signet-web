@@ -1,5 +1,5 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { atomFamily, selector, selectorFamily, useRecoilValueLoadable } from 'recoil'
+import { atomFamily, selectorFamily, useRecoilValueLoadable } from 'recoil'
 
 import { supportedChains } from './supported-chains'
 import { getErrorString } from '@util/misc'
@@ -29,22 +29,6 @@ export const pjsApiSelector = atomFamily({
     dangerouslyAllowMutability: true,
   }),
   dangerouslyAllowMutability: true,
-})
-
-// returned map key is the genesisHash
-export const allPjsApisSelector = selector({
-  key: 'AllPjsApis',
-  get: async ({ get }): Promise<Map<string, ApiPromise>> => {
-    const entries: [string, ApiPromise][] = await Promise.all(
-      supportedChains.map(async ({ genesisHash }) => {
-        const api = get(pjsApiSelector(genesisHash))
-        return [genesisHash, api]
-      })
-    )
-
-    return new Map(entries)
-  },
-  dangerouslyAllowMutability: true, // pjs wsprovider mutates itself to track connection msg stats
 })
 
 export const useApi = (genesisHash: string) => {

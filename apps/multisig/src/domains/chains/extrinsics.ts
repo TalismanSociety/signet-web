@@ -17,12 +17,12 @@ import BN from 'bn.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 
-import { rawPendingTransactionsDependency } from './storage-getters'
 import { Chain, isSubstrateAssetsToken, isSubstrateNativeToken, isSubstrateTokensToken, tokenByIdQuery } from './tokens'
 import { TxMetadata, useInsertTxMetadata } from '../offchain-data/metadata'
 import { captureException } from '@sentry/react'
 import { handleSubmittableResultError } from '@util/errors'
 import { useAddSmartContract } from '@domains/offchain-data'
+import { rawPendingTransactionsDependency } from './storage-getters'
 
 export type ExecuteCallbacks = {
   onSuccess: (result: SubmittableResult) => void
@@ -189,19 +189,17 @@ export const useCancelAsMulti = (tx?: Transaction) => {
       }
 
       const { signer } = await web3FromAddress(depositorAddress.toSs58(tx.multisig.chain))
+      let completed = false
       const unsubscribe = await extrinsic
         .signAndSend(depositorAddress.toSs58(tx.multisig.chain), { signer }, result => {
           try {
             handleSubmittableResultError(result)
-            if (!result?.status?.isFinalized) return
-
-            // find event that indicates successful extrinsic
-            result.events.forEach(({ event: { method } }): void => {
-              if (method === 'ExtrinsicSuccess') {
-                setRawPendingTransactionDependency(new Date())
-                onSuccess(result)
-              }
-            })
+            const hasSuccessEvent = result.events.some(({ event: { method } }) => method === 'ExtrinsicSuccess')
+            if ((result.status.isInBlock || result.status.isFinalized) && hasSuccessEvent && !completed) {
+              completed = true
+              setRawPendingTransactionDependency(new Date())
+              onSuccess(result)
+            }
           } catch (e) {
             if (unsubscribe) unsubscribe()
             captureException(e)
@@ -288,43 +286,50 @@ export const useAsMulti = (extensionAddress: Address | undefined, t?: Transactio
         return onFailure('Please try again.')
       }
 
+      let completed = false
       const { signer } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
       const unsubscribe = await extrinsic
         .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
           try {
             handleSubmittableResultError(result)
-
-            const instantiatedEvent = result.events.find(
-              ({ event: { method, section, data } }) =>
-                method === 'Instantiated' && section === 'contracts' && !!(data as any).contract
+            const hasSuccessEvent = result.events.some(
+              ({ event: { section, method } }) => section === 'system' && method === 'ExtrinsicSuccess'
             )
-            if (result.status.isInBlock && instantiatedEvent && t?.decoded?.contractDeployment) {
-              const contractAddressString = (instantiatedEvent.event.data as any).contract.toString() as string
-              const address = Address.fromSs58(contractAddressString)
-              if (!address) {
-                console.error(result.toHuman())
-                throw new Error(
-                  'Invalid contract address returned! Please check console for more details or submit a bug report.'
+
+            if ((result.status.isInBlock || result.status.isFinalized) && hasSuccessEvent && !completed) {
+              completed = true
+              if (t?.decoded?.contractDeployment) {
+                // find the event that tells us that the contract has been initiated
+                const instantiatedEvent = result.events.find(
+                  ({ event: { method, section, data } }) =>
+                    method === 'Instantiated' && section === 'contracts' && !!(data as any).contract
                 )
+                if (!instantiatedEvent)
+                  throw new Error('Could not save contract, failed to retrieve contract instantiated event')
+
+                // save contract to backend
+                const contractAddressString = (instantiatedEvent.event.data as any).contract.toString() as string
+                const address = Address.fromSs58(contractAddressString)
+                if (!address) {
+                  console.error(result.toHuman())
+                  throw new Error(
+                    'Invalid contract address returned! Please check console for more details or submit a bug report.'
+                  )
+                }
+
+                addContract(
+                  address,
+                  t.decoded.contractDeployment.name,
+                  t.multisig.id,
+                  t.decoded.contractDeployment.abi,
+                  JSON.stringify(t.decoded.contractDeployment.abi.json)
+                ).then(() => console.log(`Contract ${t.decoded?.contractDeployment?.name} saved!`))
               }
 
-              addContract(
-                address,
-                t.decoded.contractDeployment.name,
-                t.multisig.id,
-                t.decoded.contractDeployment.abi,
-                JSON.stringify(t.decoded.contractDeployment.abi.json)
-              ).then(() => console.log(`Contract ${t.decoded?.contractDeployment?.name} saved!`))
+              // inform UI that contract has been created
+              onSuccess(result)
+              setRawPendingTransactionDependency(new Date())
             }
-
-            if (!result?.status?.isFinalized) return
-
-            result.events.forEach(({ event: { section, method } }): void => {
-              if (section === 'system' && method === 'ExtrinsicSuccess') {
-                setRawPendingTransactionDependency(new Date())
-                onSuccess(result)
-              }
-            })
           } catch (e) {
             if (unsubscribe) unsubscribe()
             captureException(e)
@@ -449,20 +454,15 @@ export const useApproveAsMulti = (
             const hasSuccessEvent = result.events.some(({ event: { method } }) => method === 'ExtrinsicSuccess')
 
             // save metadata early as soon as tx is included in block
-            if (result.isInBlock && hasSuccessEvent) saveMetadataFn()
-
-            // remaining logic should only be triggered upon finalization
-            if (!result?.status?.isFinalized) return
+            if ((result.isInBlock || result.isFinalized) && hasSuccessEvent && !savedMetadata) {
+              saveMetadataFn()
+              setRawPendingTransactionDependency(new Date())
+              onSuccess(result)
+            }
 
             // handleSubmittableResultError should've captured the error, unless the blockchain has bad error handling
-            if (!hasSuccessEvent) throw new Error('Transaction completed without success event!')
-
-            // try to save again if for whatever reason isInBlock was never true and skipped to finalized
-            if (!savedMetadata) saveMetadataFn()
-
-            // refresh pending transaction list
-            setRawPendingTransactionDependency(new Date())
-            onSuccess(result)
+            if (result?.status?.isFinalized && !hasSuccessEvent)
+              throw new Error('Transaction completed without success event!')
           } catch (e) {
             if (unsubscribe) unsubscribe()
             captureException(e)
@@ -485,7 +485,6 @@ export const useApproveAsMulti = (
 export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefined) => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(chain.nativeToken.id))
-  const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
   const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
 
   const createTx = useCallback(async () => {
@@ -541,7 +540,6 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
                   const pureStr = data[0].toString()
                   const pure = Address.fromSs58(pureStr)
                   if (!pure) throw Error(`chain returned invalid address ${pureStr}`)
-                  setRawPendingTransactionDependency(new Date())
                   onSuccess(pure)
                 } else {
                   throw new Error('No proxies exist')
@@ -561,7 +559,7 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
           onFailure(getErrorString(e))
         })
     },
-    [createTx, extensionAddress, chain, setRawPendingTransactionDependency]
+    [createTx, extensionAddress, chain]
   )
 
   return { createProxy, ready: apiLoadable.state === 'hasValue' && !!estimatedFee, estimatedFee }

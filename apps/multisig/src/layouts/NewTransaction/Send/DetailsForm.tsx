@@ -1,6 +1,6 @@
 import AddressInput from '@components/AddressInput'
 import { AmountFlexibleInput } from '@components/AmountFlexibleInput'
-import { BaseToken } from '@domains/chains'
+import { BaseToken, Chain } from '@domains/chains'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Address } from '@util/addresses'
@@ -14,6 +14,7 @@ export const DetailsForm = (props: {
   destinationAddress?: Address
   amount: string
   name: string
+  chain: Chain
   setName: (n: string) => void
   selectedToken: BaseToken | undefined
   setSelectedToken: (t: BaseToken) => void
@@ -39,7 +40,12 @@ export const DetailsForm = (props: {
         />
       </div>
       <div css={({ color }) => ({ color: color.offWhite, marginTop: 24 })}>
-        <AddressInput onChange={props.setDestinationAddress} addresses={addresses} leadingLabel="Recipient" />
+        <AddressInput
+          onChange={props.setDestinationAddress}
+          addresses={addresses}
+          leadingLabel="Recipient"
+          chain={props.chain}
+        />
       </div>
       <div css={({ color }) => ({ color: color.offWhite, marginTop: 24, marginBottom: 24 })}>
         <TextInput

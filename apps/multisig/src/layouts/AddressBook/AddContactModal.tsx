@@ -55,7 +55,11 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
       <form css={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
         <Input placeholder="Contact Name" label="Name" {...nameInput} />
         <div className="w-full">
-          <AddressInput leadingLabel="Address" onChange={newAddress => setAddress(newAddress)} />
+          <AddressInput
+            leadingLabel="Address"
+            onChange={newAddress => setAddress(newAddress)}
+            chain={selectedMultisig.chain}
+          />
           {conflict ? (
             <p className="text-gray-200 mt-[8px] ml-[12px] text-[14px]">Address already exists in address book.</p>
           ) : null}

@@ -9,16 +9,27 @@ import {
   isSubstrateTokensToken,
   supportedChains,
 } from '@domains/chains'
-import { allPjsApisSelector } from '@domains/chains/pjs-api'
-import { RawPendingTransaction, allRawPendingTransactionsSelector } from '@domains/chains/storage-getters'
+import { pjsApiSelector } from '@domains/chains/pjs-api'
+import {
+  RawPendingTransaction,
+  allRawPendingTransactionsSelector,
+  rawPendingTransactionsSelector,
+} from '@domains/chains/storage-getters'
 import { InjectedAccount, accountsState } from '@domains/extension'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { Address, parseCallAddressArg, toMultisigAddress } from '@util/addresses'
 import { makeTransactionID } from '@util/misc'
 import BN from 'bn.js'
 import queryString from 'query-string'
-import { useCallback, useEffect, useMemo } from 'react'
-import { atom, selector, useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  atom,
+  selector,
+  useRecoilRefresher_UNSTABLE,
+  useRecoilState,
+  useRecoilValue,
+  useRecoilValueLoadable,
+} from 'recoil'
 import persistAtom from '../persist'
 import { VoteDetails, mapConvictionToIndex } from '../referenda'
 import { selectedAccountState } from '../auth'
@@ -662,39 +673,17 @@ export const tempCalldataState = atom<Record<string, `0x${string}`>>({
   default: {},
 })
 
-// transforms raw transaction from the chain into a full Transaction
-export const PendingTransactionsWatcher = () => {
-  const selectedMultisig = useRecoilValue(selectedMultisigState)
-  const combinedView = useRecoilValue(combinedViewState)
-  const allRawPending = useRecoilValueLoadable(allRawPendingTransactionsSelector)
-  const allApisLoadable = useRecoilValueLoadable(allPjsApisSelector)
-  const allActiveChainTokens = useRecoilValueLoadable(allChainTokensSelector)
-  const setLoading = useSetRecoilState(pendingTransactionsLoadingState)
-  const setPendingTransactions = useSetRecoilState(pendingTransactionsState)
-  const txMetadataByTeamId = useRecoilValue(txMetadataByTeamIdState)
-  const tempCalldata = useRecoilValue(tempCalldataState)
-  const blockCache = useRecoilValue(blockCacheState)
+const pendingTransactionsSelector = selector<Transaction[]>({
+  key: 'pendingTransactionsSelector',
+  dangerouslyAllowMutability: true,
+  get: ({ get }) => {
+    const allRawPendingTransactions = get(allRawPendingTransactionsSelector)
+    const txMetadataByTeamId = get(txMetadataByTeamIdState)
+    const tempCalldata = get(tempCalldataState)
+    const blockCache = get(blockCacheState)
 
-  const watchingAddress = useMemo(
-    () => selectedMultisig.multisigAddress.toSs58(selectedMultisig.chain),
-    [selectedMultisig.chain, selectedMultisig.multisigAddress]
-  )
-
-  // show loading indicator when view / selected multisig is changed
-  useEffect(() => {
-    setLoading(true)
-    setPendingTransactions([])
-  }, [watchingAddress, combinedView, setLoading, setPendingTransactions])
-
-  const ready =
-    allRawPending.state === 'hasValue' &&
-    allApisLoadable.state === 'hasValue' &&
-    allActiveChainTokens.state === 'hasValue'
-
-  const loadTransactions = useCallback(async () => {
-    if (!ready) return
-
-    const parsedTransactions = allRawPending.contents.map(rawPending => {
+    const transactions: Transaction[] = []
+    for (const rawPending of allRawPendingTransactions) {
       const timepoint_height = rawPending.onChainMultisig.when.height.toNumber()
       const timepoint_index = rawPending.onChainMultisig.when.index.toNumber()
       const transactionID = makeTransactionID(rawPending.multisig.chain, timepoint_height, timepoint_index)
@@ -702,8 +691,6 @@ export const PendingTransactionsWatcher = () => {
       const metadata = txMetadataByTeamId[rawPending.multisig.id]?.data[transactionID]
       let calldata = metadata?.callData ?? tempCalldata[transactionID]
 
-      // try to find the calldata from confirmed transactions
-      // some transactions created externally may have used asMulti instead of asMultiApprove which contains the calldata
       if (!calldata) {
         const block = blockCache[rawPending.blockHash.toHex()]
         if (block) {
@@ -718,7 +705,7 @@ export const PendingTransactionsWatcher = () => {
       if (calldata) {
         try {
           // Validate calldata from the metadata service matches the hash from the chain
-          const pjsApi = allApisLoadable.contents.get(rawPending.multisig.chain.genesisHash)
+          const pjsApi = get(pjsApiSelector(rawPending.multisig.chain.genesisHash))
           if (!pjsApi) throw Error(`pjsApi found for rpc ${rawPending.multisig.chain.squidIds.chainData}!`)
 
           // create extrinsic from callData
@@ -737,8 +724,9 @@ export const PendingTransactionsWatcher = () => {
             )
           }
 
+          const allActiveChainTokens = get(allChainTokensSelector)
           // get chain tokens
-          const chainTokens = allActiveChainTokens.contents.get(rawPending.multisig.chain.squidIds.chainData)
+          const chainTokens = allActiveChainTokens.get(rawPending.multisig.chain.squidIds.chainData)
           if (!chainTokens) throw Error('Failed to load chainTokens for chain!')
 
           const decoded = extrinsicToDecoded(
@@ -747,11 +735,11 @@ export const PendingTransactionsWatcher = () => {
             chainTokens,
             metadata ?? { callData: calldata }
           )
-          if (decoded === 'not_ours') return null
+          if (decoded === 'not_ours') continue
 
-          return {
+          transactions.push({
             date: rawPending.date,
-            callData: calldata,
+            callData: calldata as `0x${string}`,
             hash: rawPending.callHash,
             rawPending: rawPending,
             multisig: rawPending.multisig,
@@ -759,58 +747,61 @@ export const PendingTransactionsWatcher = () => {
             id: transactionID,
             metadataSaved: true,
             ...decoded,
-          }
+          })
+          continue
         } catch (error) {
           console.error(`Invalid metadata for for transactionID ${transactionID}:`, error)
         }
+
+        // no calldata. return unknown transaction
+        transactions.push({
+          date: rawPending.date,
+          description: `Transaction ${transactionID}`,
+          hash: rawPending.callHash,
+          rawPending: rawPending,
+          multisig: rawPending.multisig,
+          approvals: rawPending.approvals,
+          id: transactionID,
+        })
       }
+    }
+    return transactions
+  },
+})
 
-      // no calldata. return unknown transaction
-      return {
-        date: rawPending.date,
-        description: `Transaction ${transactionID}`,
-        hash: rawPending.callHash,
-        rawPending: rawPending,
-        multisig: rawPending.multisig,
-        approvals: rawPending.approvals,
-        id: transactionID,
-      }
-    })
-
-    const transactions = parsedTransactions.filter(tx => tx !== null)
-
-    setPendingTransactions(transactions as Transaction[])
-    setLoading(false)
-  }, [
-    ready,
-    allRawPending.contents,
-    setPendingTransactions,
-    setLoading,
-    txMetadataByTeamId,
-    tempCalldata,
-    blockCache,
-    allApisLoadable.contents,
-    allActiveChainTokens.contents,
-  ])
-
-  useEffect(() => {
-    loadTransactions()
-  }, [loadTransactions])
-
-  return null
+export const useRefreshMultisigPendingTransactions = (teamId?: string) => {
+  return useRecoilRefresher_UNSTABLE(rawPendingTransactionsSelector(teamId ?? ''))
 }
 
 export const usePendingTransactions = () => {
-  const loading = useRecoilValue(pendingTransactionsLoadingState)
-  const transactions = useRecoilValue(pendingTransactionsState)
+  const aggregatedMultisigs = useRecoilValue(aggregatedMultisigsState)
+  const [loaded, setLoaded] = useState(false)
+  const transactionsLoadable = useRecoilValueLoadable(pendingTransactionsSelector)
   const executingTransactions = useRecoilValue(executingTransactionsState)
+  const [cachedTransactions, setCachedTransactions] = useState<Transaction[]>([])
+
+  useEffect(() => {
+    setLoaded(false)
+    setCachedTransactions([])
+  }, [aggregatedMultisigs])
+
+  useEffect(() => {
+    if (transactionsLoadable.state === 'hasValue') {
+      setLoaded(true)
+      setCachedTransactions(transactionsLoadable.contents ?? [])
+    }
+  }, [transactionsLoadable])
 
   const allTransactions = useMemo(() => {
-    const indexing = executingTransactions.filter(({ hash }) => !transactions.find(t => t.hash === hash))
-    return [...transactions, ...indexing]
-  }, [executingTransactions, transactions])
+    const indexing = executingTransactions.filter(({ hash }) => !cachedTransactions.find(t => t.hash === hash))
+    return [...cachedTransactions, ...indexing]
+  }, [cachedTransactions, executingTransactions])
 
-  return { loading, transactions: allTransactions }
+  return {
+    loading: !loaded && transactionsLoadable.state === 'loading',
+    transactions: allTransactions,
+    error: transactionsLoadable.state === 'hasError' ? transactionsLoadable.contents : undefined,
+  }
 }
 
 export const EMPTY_BALANCE: Balance = {

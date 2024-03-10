@@ -91,6 +91,7 @@ const SendAction = () => {
             setSelectedToken={setSelectedToken}
             name={name}
             setName={setName}
+            chain={multisig.chain}
           />
 
           {extrinsic && (

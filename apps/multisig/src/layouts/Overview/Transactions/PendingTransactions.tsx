@@ -15,7 +15,7 @@ export const PendingTansactions: React.FC<Props> = ({ value }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setRawPendingTransactionDependency(new Date())
-    }, 5000)
+    }, 20000)
     return () => clearInterval(interval)
   })
 

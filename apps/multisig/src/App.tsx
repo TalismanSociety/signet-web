@@ -20,7 +20,7 @@ import router from './routes'
 import { supportedChains } from '@domains/chains'
 import { AccountWatcher } from '@domains/auth'
 import { OffchainDataWatcher } from '@domains/offchain-data/offchain-watcher'
-import { ActiveMultisigWatcher, PendingTransactionsWatcher } from './domains/multisig'
+import { ActiveMultisigWatcher } from './domains/multisig'
 import { NomPoolsWatcher } from './domains/staking'
 import { ValidatorsWatcher } from './domains/staking/ValidatorsWatcher'
 import ConstsWatcher from './domains/chains/ConstsWatcher'
@@ -43,7 +43,7 @@ const App: React.FC = () => (
           <AzeroIDResolverProvider>
             <Suspense fallback={<SkeletonLayout />}>
               <WalletConnectProvider>
-                <PendingTransactionsWatcher />
+                {/* <PendingTransactionsWatcher /> */}
                 <BalancesWatcher />
                 <ExtensionWatcher />
                 <AccountWatcher />
