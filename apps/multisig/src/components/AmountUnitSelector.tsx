@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useMemo } from 'react'
 import { Loadable } from 'recoil'
 import { Price } from '../domains/chains'
 import { cn } from '@util/tailwindcss'
@@ -16,27 +16,38 @@ type Props = {
   tokenPrices: Loadable<Price>
 }
 
-const unitOptions = [
-  {
-    name: 'Tokens',
-    value: AmountUnit.Token,
-  },
-  {
-    name: 'Market (USD)',
-    value: AmountUnit.UsdMarket,
-  },
-  {
-    name: '7D EMA (USD)',
-    value: AmountUnit.Usd7DayEma,
-  },
-  {
-    name: '30D EMA (USD)',
-    value: AmountUnit.Usd30DayEma,
-  },
-]
+const tokenOption = {
+  name: 'Tokens',
+  value: AmountUnit.Token,
+}
+const usdOption = {
+  name: 'Market (USD)',
+  value: AmountUnit.UsdMarket,
+}
+
+const weekUsdOption = {
+  name: '7D EMA (USD)',
+  value: AmountUnit.Usd7DayEma,
+}
+
+const monthUsdOption = {
+  name: '30D EMA (USD)',
+  value: AmountUnit.Usd30DayEma,
+}
 
 const AmountUnitSelector: React.FC<Props> = ({ onChange, value: selectedAmountUnit, tokenPrices }) => {
-  if (tokenPrices.state === 'hasValue' && tokenPrices.contents.averages)
+  const unitOptions = useMemo(() => {
+    if (tokenPrices.state !== 'hasValue') return [tokenOption]
+    const options = [tokenOption]
+    if (tokenPrices.contents.current) options.push(usdOption)
+    if (tokenPrices.contents.averages) {
+      if (tokenPrices.contents.averages.ema7) options.push(weekUsdOption)
+      if (tokenPrices.contents.averages.ema30) options.push(monthUsdOption)
+    }
+    return options
+  }, [tokenPrices.contents, tokenPrices.state])
+
+  if (tokenPrices.state === 'hasValue' && unitOptions.length > 1)
     return (
       <div className="flex-wrap flex items-center gap-[6px]">
         <p className="text-[12px]">Unit:</p>
