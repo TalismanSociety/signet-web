@@ -1,4 +1,3 @@
-import { css } from '@emotion/css'
 import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 import { activeMultisigsState } from '../../domains/multisig'
 import React, { useEffect, useState } from 'react'
@@ -11,6 +10,7 @@ import { CircularProgressIndicator } from '@talismn/ui'
 import { openScannerState, unimportedVaultsState } from '@domains/multisig/vaults-scanner'
 import { Button } from '@components/ui/button'
 import { Stars } from 'lucide-react'
+import { X } from '@talismn/icons'
 
 const Option: React.FC<{
   title: string
@@ -74,28 +74,18 @@ export const AddVault: React.FC = () => {
         <Route
           path="/"
           element={
-            <div
-              className={css`
-                display: grid;
-                background: var(--color-backgroundSecondary);
-                height: fit-content;
-                border-radius: 24px;
-                gap: 48px;
-                justify-items: center;
-                margin: 50px auto;
-                max-width: 863px;
-                transition: height 0.3s ease-in-out, margin-top 0.3s ease-in-out, opacity 0.3s ease-in-out;
-                width: 100%;
-                padding: 80px 16px;
-                h1 {
-                  margin: 0;
-                  font-size: 32px;
-                  line-height: 1;
-                  text-align: center;
-                  color: var(--color-offWhite);
-                }
-              `}
-            >
+            <div className="relative grid bg-gray-900 h-fit rounded-[24px] gap-[48px] justify-center max-w-[863px] my-[50px] mx-auto py-[80px] px-[16px] w-full [&_h1]:text-center">
+              {location.pathname !== '/add-vault' && (
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  className="absolute top-[24px] right-[24px]"
+                  asLink
+                  to="/add-vault"
+                >
+                  <X size={20} />
+                </Button>
+              )}
               <Outlet />
             </div>
           }
