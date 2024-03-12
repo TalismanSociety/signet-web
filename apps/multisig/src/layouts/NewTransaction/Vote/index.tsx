@@ -26,7 +26,8 @@ const VoteAction: React.FC = () => {
   const { toast } = useToast()
 
   // instead of allowing the user to select any token later on, we just use the first native token of the chain
-  const nativeToken = tokens.contents?.[0]
+  const nativeToken =
+    tokens.state === 'hasValue' ? tokens.contents.find(({ type }) => type === 'substrate-native') : undefined
   const isPalletSupported = apiLoadable.state === 'hasValue' ? isVoteFeatureSupported(apiLoadable.contents) : undefined
 
   const extrinsic = useMemo(() => {

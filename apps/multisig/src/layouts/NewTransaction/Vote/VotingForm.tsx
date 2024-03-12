@@ -12,7 +12,7 @@ import { NewTransactionHeader } from '../NewTransactionHeader'
 import { Vote } from '@talismn/icons'
 
 type Props = {
-  token: BaseToken
+  token?: BaseToken
   voteDetails: VoteDetails
   onChange: (v: VoteDetails) => void
   onNext: () => void

@@ -104,12 +104,12 @@ export const activeTeamsState = selector({
   key: 'activeTeams',
   get: ({ get }) => {
     const selectedAccount = get(selectedAccountState)
-    const orgs = get(userOrganisationsState)
-
-    const teams = orgs.map(org => org.teams).flat()
-
     if (!selectedAccount) return undefined
 
+    const orgs = get(userOrganisationsState)
+    if (!orgs) return undefined
+
+    const teams = orgs.map(org => org.teams).flat()
     if (!teams) return undefined
 
     // find all teams where the user is a collaborator or a signer

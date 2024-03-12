@@ -115,7 +115,7 @@ export const AmountFlexibleInput = (props: {
                 value={props.selectedToken?.id}
                 onValueChange={id => props.setSelectedToken?.(props.tokens.find(t => t.id === id) as BaseToken)}
               >
-                <SelectTrigger className="h-[56px]" hideArrow>
+                <SelectTrigger className="h-[56px]" hideArrow={props.tokens.length <= 1}>
                   <SelectValue placeholder="Select Token" />
                 </SelectTrigger>
                 <SelectContent>

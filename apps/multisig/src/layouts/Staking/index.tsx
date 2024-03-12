@@ -56,7 +56,9 @@ const Staking = () => {
   >()
 
   const augmentedTokens = useAugmentedBalances()
-  const balance = augmentedTokens.find(({ details }) => details.id === multisig.chain.nativeToken.id)
+  const balance = augmentedTokens.find(
+    ({ details }) => details.id === multisig.chain.nativeToken.id || details.id.includes(multisig.chain.nativeToken.id)
+  )
 
   // total staked funds
   const locksStaking = balance?.balanceDetails.locks.find(({ label }) => label === 'staking')

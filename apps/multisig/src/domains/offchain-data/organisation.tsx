@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@apollo/client'
 import { selectedAccountState } from '@domains/auth'
 import { getErrorString } from '@util/misc'
 import { gql } from 'graphql-tag'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { atom, selector, useRecoilValue, useSetRecoilState } from 'recoil'
 import { Team, parseTeam } from './teams'
 import { selectedMultisigIdState } from '@domains/multisig'
@@ -74,14 +74,21 @@ export type Organisation<TeamType = RawTeam, OrgUserType = RawOrgUser> = {
   plan: Plan
 }
 
+const organisationsLoadedState = atom<boolean>({
+  key: 'organisationsLoaded',
+  default: false,
+})
+
 export const organisationsState = atom<Organisation[]>({
   key: 'organisations',
   default: [],
 })
 
-export const parsedOrganisationsState = selector<Organisation<Team>[]>({
+export const parsedOrganisationsState = selector<Organisation<Team>[] | undefined>({
   key: 'parsedOrganisations',
   get: ({ get }) => {
+    const loaded = get(organisationsLoadedState)
+    if (!loaded) return undefined
     const organisations = get(organisationsState)
     const orgsWithParsedTeams = organisations.map(org => ({
       ...org,
@@ -96,25 +103,16 @@ export const parsedOrganisationsState = selector<Organisation<Team>[]>({
   },
 })
 
-export const userOrganisationsState = selector<Organisation<Team>[]>({
+export const userOrganisationsState = selector<Organisation<Team>[] | undefined>({
   key: 'userOrganisations',
   get: ({ get }) => {
     const organisations = get(parsedOrganisationsState)
     const user = get(selectedAccountState)
-    if (!user) return []
+    if (!user) return undefined
 
-    return organisations.filter(org => org.users.some(c => c.user.id === user.id))
+    return organisations?.filter(org => org.users.some(c => c.user.id === user.id))
   },
 })
-
-export const useOrganisations = () => {
-  const organisations = useRecoilValue(organisationsState)
-  const userOrganisations = useRecoilValue(userOrganisationsState)
-  // user with orgs on paid plan will see a slightly different layout that allows them to switch between vaults of different orgs
-  const hasPaidPlan = useMemo(() => userOrganisations.some(({ plan }) => plan.max_vault > 1), [userOrganisations])
-
-  return { organisations, hasPaidPlan, userOrganisations }
-}
 
 const isSameOrgs = (a: Organisation, b: Organisation) => {
   const sameName = a.name === b.name
@@ -129,6 +127,7 @@ const isSameOrgs = (a: Organisation, b: Organisation) => {
 
 // sync orgs from backend to in-memory cache, which allows atoms to access the data
 export const OrganisationsWatcher: React.FC = () => {
+  const setOrganisationsLoaded = useSetRecoilState(organisationsLoadedState)
   const selectedAccount = useRecoilValue(selectedAccountState)
   const setOrganisations = useSetRecoilState(organisationsState)
   const handleCacheOrgs = useCallback(
@@ -147,8 +146,9 @@ export const OrganisationsWatcher: React.FC = () => {
         })
         return newOrgs
       })
+      setOrganisationsLoaded(true)
     },
-    [setOrganisations]
+    [setOrganisations, setOrganisationsLoaded]
   )
 
   useQuery<{ organisation: Organisation[] }>(GET_ORGANISATIONS, {
