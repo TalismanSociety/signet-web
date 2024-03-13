@@ -32,8 +32,9 @@ const SendAction = () => {
   const defaultName = name || `Send ${selectedToken?.symbol || 'Token'}`
 
   useEffect(() => {
-    if (!selectedToken && tokens.state === 'hasValue' && tokens.contents.length > 0) {
-      setSelectedToken(tokens.contents[0])
+    if (tokens.state === 'hasValue' && tokens.contents.length > 0) {
+      if (!selectedToken || !tokens.contents.find(token => token.id === selectedToken.id))
+        setSelectedToken(tokens.contents[0])
     }
   }, [tokens, selectedToken])
 
