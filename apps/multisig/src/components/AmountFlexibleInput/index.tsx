@@ -19,8 +19,20 @@ export const AmountFlexibleInput = (props: {
   const tokenPrices = useRecoilValueLoadable(tokenPriceState(props.selectedToken))
 
   useEffect(() => {
-    setAmountUnit(AmountUnit.Token)
-  }, [props.selectedToken])
+    if (tokenPrices.state === 'hasValue') {
+      let newAmountUnit = amountUnit
+      if (newAmountUnit === AmountUnit.Usd30DayEma && !tokenPrices.contents.averages?.ema30) {
+        newAmountUnit = AmountUnit.Usd7DayEma
+      }
+      if (newAmountUnit === AmountUnit.Usd7DayEma && !tokenPrices.contents.averages?.ema7) {
+        newAmountUnit = AmountUnit.UsdMarket
+      }
+      if (newAmountUnit === AmountUnit.UsdMarket && !tokenPrices.contents.current) {
+        newAmountUnit = AmountUnit.Token
+      }
+      setAmountUnit(newAmountUnit)
+    }
+  }, [amountUnit, tokenPrices])
 
   const calculatedTokenAmount = useMemo((): string | undefined => {
     if (amountUnit === AmountUnit.Token) {
@@ -31,13 +43,13 @@ export const AmountFlexibleInput = (props: {
       if (amountUnit === AmountUnit.UsdMarket) {
         return (parseFloat(input) / tokenPrices.contents.current).toString()
       } else if (amountUnit === AmountUnit.Usd7DayEma) {
-        if (!tokenPrices.contents.averages?.ema7) throw Error('Unexpected missing ema7!')
+        if (!tokenPrices.contents.averages?.ema7) return '0'
         return (parseFloat(input) / tokenPrices.contents.averages.ema7).toString()
       } else if (amountUnit === AmountUnit.Usd30DayEma) {
-        if (!tokenPrices.contents.averages?.ema30) throw Error('Unexpected missing ema30!')
+        if (!tokenPrices.contents.averages?.ema30) return '0'
         return (parseFloat(input) / tokenPrices.contents.averages.ema30).toString()
       }
-      throw Error('Unexpected amount unit')
+      return '0'
     }
 
     return '0'
