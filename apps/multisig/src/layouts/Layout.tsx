@@ -73,7 +73,7 @@ export const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
                         name: 'Staking',
                         icon: <Zap />,
                         href: '/staking',
-                        hidden: !devMode,
+                        // hidden: !devMode,
                       },
                       {
                         name: 'Address Book',
