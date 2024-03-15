@@ -40,12 +40,17 @@ export const AddressTooltip: React.FC<
   const onchainIdentityUi = useMemo(() => {
     if (!onchainIdentity) return null
     return (
-      <>
-        {onchainIdentity.identity}{' '}
+      <span className="flex items-center w-full flex-1 max-w-max gap-[3px]">
+        <span className="w-full overflow-hidden text-ellipsis">{onchainIdentity.identity}</span>
         {!!onchainIdentity.subIdentity && (
-          <span className="text-gray-200 text-[12px]">/{onchainIdentity.subIdentity}</span>
+          <span className="text-gray-200 text-[12px] leading-[12px]">/{onchainIdentity.subIdentity}</span>
         )}
-      </>
+        {onchainIdentity.verified && (
+          <span className="flex items-center justify-center bg-green-600 text-white w-[14px] h-[14px] min-w-[14px] rounded-full">
+            <Check size={9} className="min-w-[10px]" />
+          </span>
+        )}
+      </span>
     )
   }, [onchainIdentity])
 
@@ -115,7 +120,7 @@ export const AddressTooltip: React.FC<
             </p>
           )}
           {!!onchainIdentity && (
-            <p className="text-[12px] mb-[2px] text-left">
+            <p className="text-[12px] mb-[2px] text-left flex items-center gap-[4px]">
               On-chain identity: <span className="text-offWhite">{onchainIdentityUi}</span>
             </p>
           )}

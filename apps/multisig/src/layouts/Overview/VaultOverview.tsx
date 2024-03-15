@@ -44,6 +44,7 @@ export const VaultOverview: React.FC = () => {
           address={selectedMultisig.proxyAddress}
           identiconSize={20}
           withAddressTooltip
+          nameOrAddressOnly
         />
       </div>
       <div

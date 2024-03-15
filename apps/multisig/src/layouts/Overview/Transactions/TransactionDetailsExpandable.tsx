@@ -3,15 +3,12 @@ import 'ace-builds/src-noconflict/mode-yaml'
 import 'ace-builds/src-noconflict/theme-twilight'
 import 'ace-builds/src-noconflict/ext-language_tools'
 
-import AddressPill from '@components/AddressPill'
 import { CallDataPasteForm } from '@components/CallDataPasteForm'
 import AmountRow from '@components/AmountRow'
 import MemberRow from '@components/MemberRow'
 import { decodeCallData } from '@domains/chains'
 import { pjsApiSelector, useApi } from '@domains/chains/pjs-api'
 import { Balance, Transaction, TransactionType, calcSumOutgoing, tempCalldataState } from '@domains/multisig'
-import { css } from '@emotion/css'
-import { useTheme } from '@emotion/react'
 import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote, Zap } from '@talismn/icons'
 import { Address } from '@util/addresses'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -153,58 +150,39 @@ const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
 }
 
 const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
-  const theme = useTheme()
   const recipients = t.decoded?.recipients || []
   const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
 
   return (
-    <div css={{ paddingBottom: '8px' }}>
-      {t.decoded?.recipients.map((r, i) => {
-        const { address, balance } = r
-        const last = i === recipients.length - 1
-        return (
-          <div
-            key={`${address.toSs58(t.multisig.chain)}-${JSON.stringify(balance.amount)}`}
-            css={{
-              display: 'grid',
-              gap: '16px',
-              borderBottom: `${last ? '0px' : '1px'} solid rgb(${theme.backgroundLighter})`,
-              padding: `${last ? '8px 0 0 0' : '8px 0'}`,
-            }}
-          >
-            <div css={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <div
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  height: 25px;
-                  border-radius: 100px;
-                  background-color: var(--color-backgroundLighter);
-                  padding: 8px 14px;
-                  font-size: 14px;
-                  gap: 4px;
-                  margin-left: 8px;
-                `}
-              >
-                <span css={{ marginTop: '3px', width: 'max-content' }}>
-                  {i + 1} of {recipients.length}
-                </span>
-              </div>
-              <div>
-                <AccountDetails
-                  name={contactByAddress[address.toSs58()]?.name}
-                  address={address}
-                  chain={t.multisig.chain}
-                  withAddressTooltip
-                />
-              </div>
-              <div css={{ marginLeft: 'auto' }}>
-                <AmountRow balance={balance} />
-              </div>
+    <div>
+      {t.decoded?.recipients.map(({ address, balance }, i) => (
+        <div
+          key={`${address.toSs58(t.multisig.chain)}-${JSON.stringify(balance.amount)}`}
+          className="grid gap-[16px] border-b border-gray-500 py-[8px] last:border-b-0 last:pb-0"
+        >
+          <div className="flex items-center gap-[8px]">
+            <div className="flex items-center justify-center h-[24px] rounded-full bg-gray-500 p-[8px]">
+              <span className="mt-[3px] text-[14px]">
+                {i + 1}/{recipients.length}
+              </span>
+            </div>
+            <div className="[&>div>div]:gap-0 ">
+              <AccountDetails
+                name={contactByAddress[address.toSs58()]?.name}
+                address={address}
+                chain={t.multisig.chain}
+                breakLine
+                withAddressTooltip
+                identiconSize={20}
+                disableCopy
+              />
+            </div>
+            <div className="ml-auto">
+              <AmountRow balance={balance} />
             </div>
           </div>
-        )
-      })}
+        </div>
+      ))}
     </div>
   )
 }
@@ -265,7 +243,6 @@ function AdvancedExpendedDetails({
 
 const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) => {
   const { contactByAddress } = useKnownAddresses(t.multisig.orgId, {
-    includeSelectedMultisig: true,
     includeContracts: true,
   })
   const recipients = t.decoded?.recipients || []
@@ -274,17 +251,15 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
 
   if (t.decoded.type === TransactionType.Transfer)
     return (
-      <div
-        className={css`
-          color: var(--color-foreground);
-          margin-right: 16px;
-          margin-left: auto;
-        `}
-      >
-        <AddressPill
-          name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
+      <div className="bg-gray-500 ml-auto [&>div>p]:text-[14px] [&>div>p]:mt-0 p-[4px] px-[8px] [&>div]:gap-[4px] rounded-full max-w-[180px]">
+        <AccountDetails
           address={recipients[0]?.address as Address}
+          name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
           chain={t.multisig.chain}
+          withAddressTooltip
+          nameOrAddressOnly
+          identiconSize={16}
+          disableCopy
         />
       </div>
     )
