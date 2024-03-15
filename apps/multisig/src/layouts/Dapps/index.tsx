@@ -222,7 +222,7 @@ export const Dapps: React.FC = () => {
           <Tabs defaultValue="apps">
             <TabsList>
               <TabsTrigger value="apps">Dapps</TabsTrigger>
-              <TabsTrigger value="custom-input">Custom Input</TabsTrigger>
+              <TabsTrigger value="custom-url">Custom URL</TabsTrigger>
             </TabsList>
             <TabsContent value="apps">
               <div className="flex flex-wrap gap-[12px]">
@@ -247,7 +247,7 @@ export const Dapps: React.FC = () => {
                 ))}
               </div>
             </TabsContent>
-            <TabsContent value="custom-input">
+            <TabsContent value="custom-url">
               <div className="w-full">
                 <form className="flex flex-col sm:flex-row items-center w-full gap-[12px]" onSubmit={handleVisitDapp}>
                   <div className="w-full [&>div]:w-full">
@@ -257,7 +257,7 @@ export const Dapps: React.FC = () => {
                     Visit Dapp
                   </Button>
                 </form>
-                <div className="w-full p-[16px] mt-[12px] bg-gray-700 rounded-[20px] border-gray-400 border">
+                <div className="w-full p-[16px] mt-[12px] bg-gray-700 rounded-[16px] border-gray-400 border">
                   <p>
                     Note that dapps have to integrate with the{' '}
                     <Link
