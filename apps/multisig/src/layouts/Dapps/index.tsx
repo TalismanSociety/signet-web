@@ -16,6 +16,10 @@ import { Tooltip } from '@components/ui/tooltip'
 import { ChevronsLeftRight, ChevronsRightLeft } from 'lucide-react'
 import { ToastAction } from '@components/ui/toast'
 import { useNavigate } from 'react-router-dom'
+import { SUPPORTED_DAPPS } from './supported-dapps'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs'
+import { CONFIG } from '@lib/config'
+import { Link } from 'react-router-dom'
 
 const isValidUrl = (url: string) => {
   try {
@@ -134,10 +138,18 @@ export const Dapps: React.FC = () => {
     }
   }, [selectedMultisig.id, shouldLoadUrl])
 
+  const selectedDapp = useMemo(() => {
+    return SUPPORTED_DAPPS.find(({ url }) => url === input)
+  }, [input])
   return (
     <>
       <div css={{ display: 'flex', flex: 1, padding: 16, flexDirection: 'column', gap: 16, width: '100px' }}>
-        <h2 css={({ color }) => ({ color: color.offWhite, marginTop: 4 })}>Dapps</h2>
+        {selectedDapp && shouldLoadUrl && (
+          <div className="flex items-center gap-[8px]">
+            <img src={selectedDapp.logo} alt={selectedDapp.name} className="w-[32px] h-[32px] rounded-[8px]" />
+            <h2 className="font-bold text-offWhite mt-[4px]">{selectedDapp.name}</h2>
+          </div>
+        )}
 
         {shouldLoadUrl && url ? (
           <div
@@ -207,14 +219,71 @@ export const Dapps: React.FC = () => {
             />
           </div>
         ) : (
-          <form className="flex flex-col sm:flex-row items-center w-full gap-[12px]" onSubmit={handleVisitDapp}>
-            <div className="w-full [&>div]:w-full">
-              <Input className="w-full" value={input} onChange={handleUrlChange} />
-            </div>
-            <Button disabled={!url || loading || shouldLoadUrl} className="h-[51px] w-full sm:w-auto">
-              Visit Dapp
-            </Button>
-          </form>
+          <Tabs defaultValue="apps">
+            <TabsList>
+              <TabsTrigger value="apps">Dapps</TabsTrigger>
+              <TabsTrigger value="custom-input">Custom Input</TabsTrigger>
+            </TabsList>
+            <TabsContent value="apps">
+              <div className="flex flex-wrap gap-[12px]">
+                {SUPPORTED_DAPPS.map(dapp => (
+                  <Button
+                    className="aspect-square w-full min-w-[160px] max-w-[200px] !h-auto p-[16px]"
+                    variant="secondary"
+                    onClick={() => {
+                      setIsSdkSupported(undefined)
+                      setInput(dapp.url)
+                      setShouldLoadUrl(true)
+                    }}
+                  >
+                    <div className="flex flex-1 h-full w-auto flex-col gap-[8px]">
+                      <img src={dapp.logo} alt={dapp.name} className="flex flex-1 h-1 object-contain" />
+                      <div>
+                        <p className="text-offWhite font-bold">{dapp.name}</p>
+                        <p className="text-gray-200 text-[12px]">{dapp.url}</p>
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </TabsContent>
+            <TabsContent value="custom-input">
+              <div className="w-full">
+                <form className="flex flex-col sm:flex-row items-center w-full gap-[12px]" onSubmit={handleVisitDapp}>
+                  <div className="w-full [&>div]:w-full">
+                    <Input className="w-full" value={input} onChange={handleUrlChange} />
+                  </div>
+                  <Button disabled={!url || loading || shouldLoadUrl} className="h-[51px] w-full sm:w-auto">
+                    Visit Dapp
+                  </Button>
+                </form>
+                <div className="w-full p-[16px] mt-[12px] bg-gray-700 rounded-[20px] border-gray-400 border">
+                  <p>
+                    Note that dapps have to integrate with the{' '}
+                    <Link
+                      to="https://github.com/TalismanSociety/signet-apps-sdk"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      Signet SDK
+                    </Link>{' '}
+                    to offer seamless multisig experience. If you are a developer integrating the SDK, please reach out
+                    to{' '}
+                    <Link
+                      to={`mailto:${CONFIG.CONTACT_EMAIL}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      {CONFIG.CONTACT_EMAIL}
+                    </Link>{' '}
+                    to get your dapp listed.
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         )}
       </div>
       {txRequest && (
