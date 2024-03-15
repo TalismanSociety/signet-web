@@ -210,6 +210,14 @@ const CreateMultisig = () => {
   // unlock account switcher when leaving this page
   useEffect(() => () => setBlockAccountSwitcher(false), [setBlockAccountSwitcher])
 
+  const onNextChain = useCallback(() => {
+    setStep(Step.MultisigConfig)
+  }, [])
+
+  const onBackChain = useCallback(() => {
+    setStep(Step.NameVault)
+  }, [])
+
   return (
     <>
       {step === Step.NameVault ? (
@@ -223,8 +231,8 @@ const CreateMultisig = () => {
       ) : step === Step.SelectFirstChain ? (
         <SelectChain
           header="Create Vault"
-          onBack={() => setStep(Step.NameVault)}
-          onNext={() => setStep(Step.MultisigConfig)}
+          onBack={onBackChain}
+          onNext={onNextChain}
           setChain={setChain}
           chain={chain}
           chains={filteredSupportedChains}

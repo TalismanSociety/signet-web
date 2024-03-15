@@ -9,25 +9,34 @@ import {
   SelectValue,
 } from '@components/ui/select'
 import { CancleOrNext } from './CancelOrNext'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 const Group = (props: { chains: Chain[]; label: string }) => (
   <SelectGroup>
     <SelectLabel>{props.label}</SelectLabel>
-    {props.chains.map(chain => (
-      <SelectItem value={chain.genesisHash} key={chain.genesisHash}>
-        <div className="w-full flex items-center gap-[12px]">
-          <div className="w-[40px] h-[40px] min-h-[40px] min-w-[40px]">
-            <img src={chain.logo} alt={chain.chainName} />
+    <div className="grid grid-cols-2 w-full">
+      {props.chains.map(chain => (
+        <SelectItem value={chain.genesisHash} key={chain.genesisHash}>
+          <div className="w-full flex items-center gap-[12px]">
+            <div className="w-[40px] h-[40px] min-h-[40px] min-w-[40px]">
+              <img src={chain.logo} alt={chain.chainName} />
+            </div>
+            <p>{chain.chainName}</p>
           </div>
-          <p>{chain.chainName}</p>
-        </div>
-      </SelectItem>
-    ))}
+        </SelectItem>
+      ))}
+    </div>
   </SelectGroup>
 )
 
-const SelectChain = (props: {
+const SelectChain = ({
+  header,
+  onNext,
+  onBack,
+  setChain,
+  chain,
+  chains,
+}: {
   header?: string
   onNext: () => void
   onBack: () => void
@@ -35,24 +44,28 @@ const SelectChain = (props: {
   chain: Chain
   chains: Chain[]
 }) => {
-  const mainnets = useMemo(() => props.chains.filter(chain => !chain.isTestnet), [props.chains])
-  const testnets = useMemo(() => props.chains.filter(chain => chain.isTestnet), [props.chains])
+  const mainnets = useMemo(() => chains.filter(chain => !chain.isTestnet), [chains])
+  const testnets = useMemo(() => chains.filter(chain => chain.isTestnet), [chains])
+
+  const onValueChange = useCallback(
+    (value: string) => {
+      setChain(chains.find(chain => chain.genesisHash === value) as Chain)
+    },
+    [setChain, chains]
+  )
+
   return (
     <div className="grid items-center justify-center gap-[48px] w-full max-w-[540px]">
       <div>
-        <h4 className="text-[14px] text-center font-bold mb-[4px]">{props.header}</h4>
+        <h4 className="text-[14px] text-center font-bold mb-[4px]">{header}</h4>
         <h1>Select a chain</h1>
         <p css={{ marginTop: 16, textAlign: 'center' }}>Select the chain for your Vault</p>
       </div>
-      <Select
-        value={props.chain.genesisHash}
-        onValueChange={value => props.setChain(props.chains.find(chain => chain.genesisHash === value) as Chain)}
-        {...props}
-      >
+      <Select value={chain.genesisHash} onValueChange={onValueChange}>
         <SelectTrigger className="max-w-[280px]">
           <SelectValue placeholder="Select Network" />
         </SelectTrigger>
-        <SelectContent className="grid gap-[16px] py-[4px]" position="item-aligned">
+        <SelectContent className="grid gap-[0px] py-[4px]" position="item-aligned">
           {mainnets.length > 0 && <Group chains={mainnets} label="Mainnets" />}
           {mainnets.length > 0 && testnets.length > 0 && <hr className="my-[12px]" />}
           {testnets.length > 0 && <Group chains={testnets} label="Testnets" />}
@@ -61,11 +74,11 @@ const SelectChain = (props: {
       <CancleOrNext
         block
         cancel={{
-          onClick: props.onBack,
+          onClick: onBack,
           children: 'Back',
         }}
         next={{
-          onClick: props.onNext,
+          onClick: onNext,
         }}
       />
     </div>
