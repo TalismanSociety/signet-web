@@ -215,7 +215,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
       <div className="flex-1 flex flex-col items-start justify-start overflow-hidden">
         {t && (
           <div className="px-[32px] w-full flex flex-col flex-1 gap-[32px] overflow-auto pb-[24px]">
-            <TransactionSummaryRow t={t} shortDate={false} />
+            <TransactionSummaryRow t={t} />
             <div className="w-full">
               <h4 className="mb-[8px] text-[16px]">Details</h4>
               <TransactionDetailsExpandable t={t} />

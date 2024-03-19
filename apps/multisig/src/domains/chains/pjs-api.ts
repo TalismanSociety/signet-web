@@ -31,6 +31,21 @@ export const pjsApiSelector = atomFamily({
   dangerouslyAllowMutability: true,
 })
 
+export const pjsApiListSelector = selectorFamily<Record<string, ApiPromise>, string[]>({
+  key: 'ApiList',
+  get:
+    (genesisHashes: string[]) =>
+    async ({ get }) => {
+      const apis: Record<string, ApiPromise> = {}
+      const apisList = await Promise.all(genesisHashes.map(genesisHash => get(pjsApiSelector(genesisHash))))
+      genesisHashes.forEach((genesisHash, index) => {
+        apis[genesisHash] = apisList[index] as ApiPromise
+      })
+      return apis
+    },
+  dangerouslyAllowMutability: true,
+})
+
 export const useApi = (genesisHash: string) => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(genesisHash))
 

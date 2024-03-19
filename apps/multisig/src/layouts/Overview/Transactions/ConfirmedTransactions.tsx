@@ -1,9 +1,10 @@
-import { unknownConfirmedTransactionsState, useConfirmedTransactions } from '@domains/tx-history'
+import { unknownConfirmedTransactionsState, useConfirmed } from '@domains/tx-history'
 import { useRecoilValue } from 'recoil'
 import { TransactionsList } from './TransactionsList'
 import { useMemo } from 'react'
 import { makeTransactionID } from '@util/misc'
 import { useSelectedMultisig } from '@domains/multisig'
+import { selectedTeamsState } from '@domains/offchain-data'
 
 type Props = {
   value: string
@@ -11,7 +12,9 @@ type Props = {
 
 export const ConfirmedTransactions: React.FC<Props> = ({ value }) => {
   const [selectedMultisig] = useSelectedMultisig()
-  const { transactions, loading } = useConfirmedTransactions()
+  const selectedTeams = useRecoilValue(selectedTeamsState)
+  const { transactions, loading, totalTransactions } = useConfirmed(selectedTeams ?? [])
+  // const { transactions, loading } = useConfirmedTransactions()
   const unknownConfirmedTransactions = useRecoilValue(unknownConfirmedTransactionsState)
 
   const realUnknown = useMemo(
@@ -19,7 +22,7 @@ export const ConfirmedTransactions: React.FC<Props> = ({ value }) => {
       unknownConfirmedTransactions
         .filter(
           ut =>
-            !transactions.find(
+            !transactions?.find(
               t =>
                 t.executedAt &&
                 ut === `${t.multisig.id}-${makeTransactionID(t.multisig.chain, t.executedAt.block, t.executedAt.index)}`
@@ -29,5 +32,13 @@ export const ConfirmedTransactions: React.FC<Props> = ({ value }) => {
     [selectedMultisig.id, transactions, unknownConfirmedTransactions]
   )
 
-  return <TransactionsList value={value} loading={loading} transactions={transactions} indexing={realUnknown.length} />
+  return (
+    <TransactionsList
+      value={value}
+      loading={loading}
+      transactions={transactions ?? []}
+      indexing={realUnknown.length}
+      totalTransactions={totalTransactions}
+    />
+  )
 }

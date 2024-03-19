@@ -14,7 +14,7 @@ import { balanceToFloat, formatUsd } from '@util/numbers'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import truncateMiddle from 'truncate-middle'
-import { formattedDate, formattedHhMm } from './utils'
+import { formattedDate } from './utils'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Upload } from 'lucide-react'
@@ -25,12 +25,10 @@ import { ExtrinsicErrorsFromEvents, getExtrinsicErrorsFromEvents } from '@util/e
 const TransactionSummaryRow = ({
   t,
   onClick,
-  shortDate,
   showDraftBadge,
 }: {
   t: Transaction
   onClick?: () => void
-  shortDate: boolean
   showDraftBadge?: boolean
 }) => {
   const [status, setStatus] = useState<{ errors?: ExtrinsicErrorsFromEvents; ok: boolean }>()
@@ -137,9 +135,9 @@ const TransactionSummaryRow = ({
             )}
           </div>
           <div className="flex items-center justify-start">
-            <p className="text-[12px] mt-[2px] leading-[12px] whitespace-nowrap">
-              {shortDate ? formattedHhMm(t.date) : formattedDate(t.date)}
-            </p>
+            <Tooltip content={t.date.toLocaleString()}>
+              <p className="text-[12px] mt-[2px] leading-[12px] whitespace-nowrap">{formattedDate(t.date)}</p>
+            </Tooltip>
             {t.draft && (
               <div className="flex items-center justify-start gap-[8px] ml-[8px]">
                 <div className="w-[3px] h-[3px] bg-gray-200 rounded-full" />

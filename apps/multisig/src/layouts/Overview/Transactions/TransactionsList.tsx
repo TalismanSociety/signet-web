@@ -1,7 +1,6 @@
 import { Transaction, selectedMultisigState } from '@domains/multisig'
 import { useMemo } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { groupTransactionsByDay } from './utils'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { useToast } from '@components/ui/use-toast'
 import { unknownConfirmedTransactionsState } from '@domains/tx-history'
@@ -11,6 +10,16 @@ import TransactionSummaryRow from './TransactionSummaryRow'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { makeTransactionID } from '@util/misc'
 import { CircularProgressIndicator, EyeOfSauronProgressIndicator } from '@talismn/ui'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@components/ui/pagination'
+import { Button } from '@components/ui/button'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { usePage } from '@hooks/usePage'
 
 function extractHash(url: string, value: string) {
   const parts = url.split('/')
@@ -26,21 +35,23 @@ export const TransactionsList = ({
   loading,
   transactions,
   value,
+  totalTransactions,
 }: {
   indexing?: number
   loading: boolean
   transactions: Transaction[]
   value: string
+  totalTransactions?: number
 }) => {
-  let location = useLocation().pathname
+  const location = useLocation()
   const navigate = useNavigate()
-  const groupedTransactions = useMemo(() => {
-    return groupTransactionsByDay(transactions)
-  }, [transactions])
   const _selectedMultisig = useRecoilValue(selectedMultisigState)
+  const page = usePage()
+  const totalPage = useMemo(() => (totalTransactions ? Math.ceil(totalTransactions / 10) : 1), [totalTransactions])
+
   const openTransaction = useMemo(
-    () => transactions.find(t => (t.draft?.id ?? t.hash) === extractHash(location, value)),
-    [transactions, location, value]
+    () => transactions.find(t => (t.draft?.id ?? t.hash) === extractHash(location.pathname, value)),
+    [transactions, location.pathname, value]
   )
 
   const multisig = openTransaction?.multisig || _selectedMultisig
@@ -70,37 +81,31 @@ export const TransactionsList = ({
             </div>
           ) : (
             <div className="gap-[20px] w-full flex flex-col flex-1">
-              {groupedTransactions.map(([day, transactions]) => (
-                <div key={day}>
-                  <p>{day}</p>
-                  <div className="flex flex-col gap-[12px] mt-[4px] w-full">
-                    {transactions.map(t => (
-                      <motion.div
-                        key={
-                          t.draft?.id ??
-                          (t.executedAt
-                            ? makeTransactionID(t.multisig.chain, t.executedAt.block, t.executedAt.index)
-                            : t.id)
+              {transactions.length > 0 && (
+                <div className="flex flex-col gap-[12px] mt-[4px] w-full">
+                  {transactions.map(t => (
+                    <motion.div
+                      key={
+                        t.draft?.id ??
+                        (t.executedAt
+                          ? makeTransactionID(t.multisig.chain, t.executedAt.block, t.executedAt.index)
+                          : t.id)
+                      }
+                      whileHover={{ scale: 1.015 }}
+                      className="cursor-pointer"
+                    >
+                      <TransactionSummaryRow
+                        onClick={() =>
+                          navigate(`/overview/${value}-tx/${t.draft?.id ?? t.hash}?tab=${value}&teamId=${multisig.id}`)
                         }
-                        whileHover={{ scale: 1.015 }}
-                        className="cursor-pointer"
-                      >
-                        <TransactionSummaryRow
-                          onClick={() =>
-                            navigate(
-                              `/overview/${value}-tx/${t.draft?.id ?? t.hash}?tab=${value}&teamId=${multisig.id}`
-                            )
-                          }
-                          t={t}
-                          shortDate={true}
-                          showDraftBadge
-                        />
-                      </motion.div>
-                    ))}
-                  </div>
+                        t={t}
+                        showDraftBadge
+                      />
+                    </motion.div>
+                  ))}
                 </div>
-              ))}
-              {groupedTransactions.length === 0 && <div>All caught up 🏖️</div>}
+              )}
+              {transactions.length === 0 && <div>All caught up 🏖️</div>}
               <Routes>
                 <Route
                   path={`/${value}-tx/:hash`}
@@ -167,6 +172,31 @@ export const TransactionsList = ({
           )}
         </motion.div>
       </AnimatePresence>
+      <Pagination className="items-center justify-end">
+        <p className="text-right text-offWhite text-[14px] mt-[3px] mr-[8px]">
+          Page {page} of {totalPage}
+        </p>
+        <PaginationContent>
+          <PaginationItem>
+            {page === 1 ? (
+              <Button size="icon" disabled variant="secondary">
+                <ChevronLeft className="h-[16px] w-[16px]" />
+              </Button>
+            ) : (
+              <PaginationPrevious href={`#${page - 1}`} />
+            )}
+          </PaginationItem>
+          <PaginationItem>
+            {page === totalPage ? (
+              <Button size="icon" disabled variant="secondary">
+                <ChevronRight className="h-[16px] w-[16px]" />
+              </Button>
+            ) : (
+              <PaginationNext href={`#${page + 1}`} />
+            )}
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </TabsContent>
   )
 }

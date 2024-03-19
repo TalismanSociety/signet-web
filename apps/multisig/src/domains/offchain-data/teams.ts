@@ -100,6 +100,17 @@ export const selectedTeamState = selector({
   },
 })
 
+// TODO: support aggregated view of multiple selected teams
+export const selectedTeamsState = selector<Team[] | undefined>({
+  key: 'selectedTeams',
+  get: ({ get }) => {
+    const selectedTeam = get(selectedTeamState)
+
+    if (!selectedTeam) return undefined
+    return [selectedTeam]
+  },
+})
+
 export const activeTeamsState = selector({
   key: 'activeTeams',
   get: ({ get }) => {

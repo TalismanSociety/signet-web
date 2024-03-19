@@ -7,7 +7,7 @@ import {
   useSelectedMultisig,
 } from '@domains/multisig'
 import { useHasura } from '@domains/offchain-data/hasura'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { allChainTokensSelector } from '@domains/chains'
 import { useRecoilValueLoadable } from 'recoil'
 import { innerCalldataToTransaction } from '@domains/multisig/innerCalldataToTransaction'
@@ -25,7 +25,7 @@ export const DraftTransactionsList: React.FC<Props> = ({ value }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const { api } = useApi(selectedMultisig.chain.genesisHash)
   const allActiveChainTokens = useRecoilValueLoadable(allChainTokensSelector)
-  const { data, loading, refetch } = useHasura<{
+  const { data, loading } = useHasura<{
     tx_metadata_draft: TxMetadataDraftRaw[]
   }>(GET_TX_METADATA_DRAFT_QUERY, {
     skip: selectedMultisig.id === DUMMY_MULTISIG_ID,
@@ -34,19 +34,8 @@ export const DraftTransactionsList: React.FC<Props> = ({ value }) => {
     variables: {
       teamId: selectedMultisig.id,
     },
+    pollInterval: 10_000,
   })
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      refetch({
-        teamId: selectedMultisig.id,
-      })
-    }, 10000)
-
-    return () => {
-      clearInterval(intervalId)
-    }
-  }, [refetch, selectedMultisig.id])
 
   const parsedTransactions = useMemo(() => {
     if (allActiveChainTokens.state !== 'hasValue') return undefined
@@ -125,6 +114,11 @@ export const DraftTransactionsList: React.FC<Props> = ({ value }) => {
   }, [allActiveChainTokens.contents, allActiveChainTokens.state, api, data?.tx_metadata_draft, selectedMultisig])
 
   return (
-    <TransactionsList transactions={parsedTransactions ?? []} loading={loading || !parsedTransactions} value={value} />
+    <TransactionsList
+      transactions={parsedTransactions ?? []}
+      loading={loading || !parsedTransactions}
+      value={value}
+      totalTransactions={parsedTransactions?.length}
+    />
   )
 }
