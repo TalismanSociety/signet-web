@@ -134,7 +134,6 @@ export const vaultsOfAccount = selector({
 
     for (const [genesisHash, proxiedAddresses] of Object.entries(proxiedAccountsByChain)) {
       const api = get(pjsApiSelector(genesisHash))
-      await api.isReady
 
       if (!api.query.proxy?.proxies) continue
       const allProxies = await api.query.proxy.proxies.multi(proxiedAddresses.map(a => a.address.toSs58()))

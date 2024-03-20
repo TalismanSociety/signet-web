@@ -40,7 +40,7 @@ const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
           rel="noopener noreferrer"
           to={CONFIG.SIGNET_LANDING_PAGE}
         >
-          <p className={cn(darkTalisman ? 'text-offWhite lg:text-gray-900' : '', 'text-[14px] text-center')}>
+          <p className={cn(darkTalisman ? 'lg:text-gray-900' : '', 'text-offWhite text-[14px] text-center')}>
             Powered by{' '}
           </p>
           <SignetLogo className={cn('min-w-[80px]', darkTalisman ? 'text-offWhite lg:text-gray-900' : '')} />
