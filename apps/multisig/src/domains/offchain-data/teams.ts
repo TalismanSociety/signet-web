@@ -4,7 +4,7 @@ import { selectedAccountState, useUser } from '../auth'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Address, toMultisigAddress } from '@util/addresses'
 import { Chain, supportedChains } from '../chains'
-import { DUMMY_MULTISIG_ID, Multisig, selectedMultisigIdState, useSelectedMultisig } from '../multisig'
+import { DUMMY_MULTISIG_ID, Multisig, selectedMultisigState, useSelectedMultisig } from '../multisig'
 import { useToast } from '@components/ui/use-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
@@ -94,9 +94,9 @@ export const teamsState = selector<Team[]>({
 export const selectedTeamState = selector({
   key: 'selectedTeam',
   get: ({ get }) => {
-    const selectedMultisigId = get(selectedMultisigIdState)
+    const selectedMultisig = get(selectedMultisigState)
     const teams = get(teamsState)
-    return teams?.find(team => team.id === selectedMultisigId)
+    return teams?.find(team => team.id === selectedMultisig.id)
   },
 })
 
