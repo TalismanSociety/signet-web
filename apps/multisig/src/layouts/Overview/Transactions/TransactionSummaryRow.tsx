@@ -11,7 +11,7 @@ import {
 import { Contract, List, Send, Settings, Share2, Unknown, Vote, Zap } from '@talismn/icons'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import truncateMiddle from 'truncate-middle'
 import { formattedDate } from './utils'
@@ -19,8 +19,8 @@ import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Upload } from 'lucide-react'
 import { Tooltip } from '@components/ui/tooltip'
-import { useApi } from '@domains/chains/pjs-api'
-import { ExtrinsicErrorsFromEvents, getExtrinsicErrorsFromEvents } from '@util/errors'
+import { getExtrinsicErrorsFromEvents } from '@util/errors'
+import { blockEventsSelector } from '@domains/chains/storage-getters'
 
 const TransactionSummaryRow = ({
   t,
@@ -31,8 +31,6 @@ const TransactionSummaryRow = ({
   onClick?: () => void
   showDraftBadge?: boolean
 }) => {
-  const [status, setStatus] = useState<{ errors?: ExtrinsicErrorsFromEvents; ok: boolean }>()
-  const { api } = useApi(t.multisig.chain.genesisHash)
   const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
   const combinedView = useRecoilValue(combinedViewState)
@@ -47,24 +45,20 @@ const TransactionSummaryRow = ({
     }
     return undefined
   }, [sumOutgoing, tokenPrices])
+  const eventsLoadable = useRecoilValueLoadable(
+    blockEventsSelector([t.hash, t.multisig.chain.genesisHash, t.executedAt === undefined])
+  )
 
-  const getEvents = useCallback(async () => {
-    if (!api || !t.executedAt) return
-    try {
-      const apiAt = await api.at(t.hash)
-      const allEvents = await apiAt.query.system.events()
-      const events =
-        allEvents?.filter(
-          event => event.phase.isApplyExtrinsic && event.phase.asApplyExtrinsic.eq(t.executedAt?.index)
-        ) ?? []
-      const errors = getExtrinsicErrorsFromEvents(events)
-      setStatus({ errors, ok: !errors })
-    } catch (e) {}
-  }, [api, t.executedAt, t.hash])
-
-  useEffect(() => {
-    if (!status) getEvents()
-  }, [getEvents, status])
+  const status = useMemo(() => {
+    if (eventsLoadable.state !== 'hasValue') return undefined
+    const allEvents = eventsLoadable.contents
+    const events =
+      allEvents?.filter(
+        event => event.phase.isApplyExtrinsic && event.phase.asApplyExtrinsic.eq(t.executedAt?.index)
+      ) ?? []
+    const errors = getExtrinsicErrorsFromEvents(events)
+    return { errors, ok: !errors }
+  }, [eventsLoadable.contents, eventsLoadable.state, t.executedAt?.index])
 
   const priceUnavailable = useMemo(() => {
     if (tokenPrices.state === 'loading') return true

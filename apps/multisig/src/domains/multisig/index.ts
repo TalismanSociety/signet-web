@@ -13,6 +13,7 @@ import { pjsApiSelector } from '@domains/chains/pjs-api'
 import {
   RawPendingTransaction,
   allRawPendingTransactionsSelector,
+  blockSelector,
   rawPendingTransactionsSelector,
 } from '@domains/chains/storage-getters'
 import { InjectedAccount, accountsState } from '@domains/extension'
@@ -37,7 +38,6 @@ import { TxMetadata, txMetadataByTeamIdState } from '../offchain-data/metadata'
 import { Multisig } from './types'
 import { activeTeamsState } from '@domains/offchain-data'
 import { Abi } from '@polkadot/api-contract'
-import { blockCacheState } from '@domains/tx-history'
 import { FrameSystemEventRecord } from '@polkadot/types/lookup'
 import { ExtrinsicErrorsFromEvents } from '@util/errors'
 
@@ -680,7 +680,6 @@ const pendingTransactionsSelector = selector<Transaction[]>({
     const allRawPendingTransactions = get(allRawPendingTransactionsSelector)
     const txMetadataByTeamId = get(txMetadataByTeamIdState)
     const tempCalldata = get(tempCalldataState)
-    const blockCache = get(blockCacheState)
 
     const transactions: Transaction[] = []
     for (const rawPending of allRawPendingTransactions) {
@@ -692,9 +691,9 @@ const pendingTransactionsSelector = selector<Transaction[]>({
       let calldata = metadata?.callData ?? tempCalldata[transactionID]
 
       if (!calldata) {
-        const block = blockCache[rawPending.blockHash.toHex()]
+        const block = get(blockSelector(`${rawPending.blockHash.toHex()}-${rawPending.multisig.chain.genesisHash}`))
         if (block) {
-          const ext = block.extrinsics[timepoint_index]
+          const ext = block.block.extrinsics[timepoint_index]
           if (ext) {
             const innerExt = ext.method.args[3]! // proxy ext is 3rd arg
             calldata = innerExt.toHex()

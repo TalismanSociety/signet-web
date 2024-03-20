@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import TransactionSummaryRow from './TransactionSummaryRow'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { makeTransactionID } from '@util/misc'
-import { CircularProgressIndicator, EyeOfSauronProgressIndicator } from '@talismn/ui'
+import { CircularProgressIndicator, Skeleton } from '@talismn/ui'
 import {
   Pagination,
   PaginationContent,
@@ -30,7 +30,24 @@ function extractHash(url: string, value: string) {
   return parts[txIndex + 1]
 }
 
+const LoadingSkeleton: React.FC = () => (
+  <div className="w-full h-[42px]">
+    <div className="flex items-center gap-[8px]">
+      <Skeleton.Surface className="h-[36px] w-[36px] !rounded-full" />
+      <div>
+        <Skeleton.Surface css={{ height: 16, width: 160 }} />
+        <Skeleton.Surface css={{ height: 12, width: 120 }} className="mt-[3px]" />
+      </div>
+      <div className="ml-auto flex flex-col items-end">
+        <Skeleton.Surface css={{ height: 16, width: 80 }} />
+        <Skeleton.Surface css={{ height: 12, width: 48 }} className="mt-[3px]" />
+      </div>
+    </div>
+  </div>
+)
+
 export const TransactionsList = ({
+  allowPagination,
   indexing,
   loading,
   transactions,
@@ -42,6 +59,7 @@ export const TransactionsList = ({
   transactions: Transaction[]
   value: string
   totalTransactions?: number
+  allowPagination?: boolean
 }) => {
   const location = useLocation()
   const navigate = useNavigate()
@@ -76,8 +94,12 @@ export const TransactionsList = ({
             </div>
           )}
           {loading && transactions.length === 0 ? (
-            <div className="mx-[24px]">
-              <EyeOfSauronProgressIndicator />
+            <div className="flex flex-col gap-[12px] mt-[4px] w-full">
+              <LoadingSkeleton />
+              <LoadingSkeleton />
+              <LoadingSkeleton />
+              <LoadingSkeleton />
+              <LoadingSkeleton />
             </div>
           ) : (
             <div className="gap-[20px] w-full flex flex-col flex-1">
@@ -172,31 +194,33 @@ export const TransactionsList = ({
           )}
         </motion.div>
       </AnimatePresence>
-      <Pagination className="items-center justify-end">
-        <p className="text-right text-offWhite text-[14px] mt-[3px] mr-[8px]">
-          Page {page} of {totalPage}
-        </p>
-        <PaginationContent>
-          <PaginationItem>
-            {page === 1 ? (
-              <Button size="icon" disabled variant="secondary">
-                <ChevronLeft className="h-[16px] w-[16px]" />
-              </Button>
-            ) : (
-              <PaginationPrevious href={`#${page - 1}`} />
-            )}
-          </PaginationItem>
-          <PaginationItem>
-            {page === totalPage ? (
-              <Button size="icon" disabled variant="secondary">
-                <ChevronRight className="h-[16px] w-[16px]" />
-              </Button>
-            ) : (
-              <PaginationNext href={`#${page + 1}`} />
-            )}
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      {allowPagination && (
+        <Pagination className="items-center justify-end">
+          <p className="text-right text-offWhite text-[14px] mt-[3px] mr-[8px]">
+            Page {page} of {totalPage}
+          </p>
+          <PaginationContent>
+            <PaginationItem>
+              {page === 1 ? (
+                <Button size="icon" disabled variant="secondary">
+                  <ChevronLeft className="h-[16px] w-[16px]" />
+                </Button>
+              ) : (
+                <PaginationPrevious href={`#${page - 1}`} />
+              )}
+            </PaginationItem>
+            <PaginationItem>
+              {page === totalPage ? (
+                <Button size="icon" disabled variant="secondary">
+                  <ChevronRight className="h-[16px] w-[16px]" />
+                </Button>
+              ) : (
+                <PaginationNext href={`#${page + 1}`} />
+              )}
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </TabsContent>
   )
 }
