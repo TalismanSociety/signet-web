@@ -8,6 +8,7 @@ import { captureException } from '@sentry/react'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useToast } from '@components/ui/use-toast'
 import { useAzeroID } from '@domains/azeroid/AzeroIDResolver'
+import { CONFIG } from '@lib/config'
 
 const SIWS_ENDPOINT = process.env.REACT_APP_SIWS_ENDPOINT ?? ''
 
@@ -111,7 +112,7 @@ export const useSignIn = () => {
             domain: 'signet.talisman.xyz',
             nonce,
             uri: window.location.origin,
-            statement: 'Welcome to Signet! Please sign in to continue.',
+            statement: `Welcome to ${CONFIG.APP_NAME}! Please sign in to continue.`,
             chainName: 'Substrate',
             azeroId: resolve(ss58Address)?.a0id,
           })

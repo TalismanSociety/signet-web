@@ -8,6 +8,7 @@ import { useToast } from '@components/ui/use-toast'
 import { ScannedVault, importedTeamsState } from '@domains/multisig/vaults-scanner'
 import { useCreateOrganisation } from '@domains/offchain-data'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
+import { CONFIG } from '@lib/config'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSetRecoilState } from 'recoil'
@@ -103,7 +104,7 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
               setAdd(!add)
             }}
           >
-            Import to Signet
+            Import to {CONFIG.APP_NAME}
           </Toggle>
         )}
       </div>
@@ -165,7 +166,7 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
             onChange={e => setName(e.target.value)}
           />
           <Button type="submit" className="gap-[8px]" disabled={!name || loading} loading={loading}>
-            Add to Signet
+            Add to {CONFIG.APP_NAME}
           </Button>
         </form>
       ) : null}

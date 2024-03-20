@@ -10,6 +10,7 @@ import { Abi, CodePromise } from '@polkadot/api-contract'
 import { AbiMessage } from '@polkadot/api-contract/types'
 import { useCallback, useMemo, useState } from 'react'
 import { useInstantiateDryRun } from '@domains/substrate-contracts/useInstantiateDryRun'
+import { CONFIG } from '@lib/config'
 
 export const DepolyContractPage: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
@@ -103,7 +104,7 @@ export const DepolyContractPage: React.FC = () => {
   return (
     <div>
       <h1 className="text-[24px]">Deploy a Smart Contract</h1>
-      <p>Deploy and manage a smart contract from your Signet vault.</p>
+      <p>Deploy and manage a smart contract from your {CONFIG.APP_NAME} vault.</p>
 
       <div className="mt-[24px] flex flex-col gap-[16px] items-start">
         <Input

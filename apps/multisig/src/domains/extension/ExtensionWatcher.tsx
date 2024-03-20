@@ -6,6 +6,7 @@ import { uniqBy } from 'lodash'
 import { Address } from '@util/addresses'
 import { useToast } from '@components/ui/use-toast'
 import { ToastAction } from '@components/ui/toast'
+import { CONFIG } from '@lib/config'
 
 export const ExtensionWatcher = () => {
   // extensionAllowed is used to trigger web3Enable call
@@ -25,7 +26,7 @@ export const ExtensionWatcher = () => {
     try {
       setExtensionLoading(true)
       // fire Connect Wallet popup and detect accounts allowed in extensions
-      const extensions = await web3Enable(process.env.REACT_APP_APPLICATION_NAME ?? 'Signet')
+      const extensions = await web3Enable(CONFIG.APP_NAME)
 
       // only add to detected list if more than 1 account is available
       const detected: string[] = []

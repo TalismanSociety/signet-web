@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Loadable } from 'recoil'
 import { css } from '@emotion/css'
-import { Button, TextInput } from '@talismn/ui'
 import TokensSelect from '@components/TokensSelect'
 import { BaseToken } from '@domains/chains'
 import { MultiSendSend } from './multisend.types'
@@ -10,6 +9,8 @@ import AmountRow from '@components/AmountRow'
 import BN from 'bn.js'
 import { Alert } from '@components/Alert'
 import { MultiLineSendInput } from './MultiLineSendInput'
+import { Button } from '@components/ui/button'
+import { Input } from '@components/ui/input'
 
 const MultiSendForm = (props: {
   name: string
@@ -44,9 +45,8 @@ const MultiSendForm = (props: {
         width: 100%;
       `}
     >
-      <TextInput
-        leadingLabel="Transaction Description"
-        css={{ fontSize: '18px !important' }}
+      <Input
+        label="Transaction Description"
         placeholder={`e.g. "Contract Payments June 2023"`}
         value={props.name}
         onChange={e => props.setName(e.target.value)}
@@ -110,13 +110,11 @@ const MultiSendForm = (props: {
             )}
           </div>
         ) : (
-          <div css={{ button: { height: 56, padding: '0 32px' } }}>
-            <Button
-              disabled={props.sends.length === 0 || hasInvalidRow || !props.hasNonDelayedPermission || !props.name}
-              onClick={props.onNext}
-              children="Review"
-            />
-          </div>
+          <Button
+            disabled={props.sends.length === 0 || hasInvalidRow || !props.hasNonDelayedPermission || !props.name}
+            onClick={props.onNext}
+            children="Review"
+          />
         )}
       </div>
     </div>

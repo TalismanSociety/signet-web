@@ -13,6 +13,7 @@ import { Tooltip } from '@components/ui/tooltip'
 import Modal from '@components/Modal'
 import { Input } from '@components/ui/input'
 import { useUser } from '@domains/auth'
+import { CONFIG } from '@lib/config'
 
 const Header: React.FC<{ loading: boolean; supported?: boolean; isCollaborator: boolean }> = ({
   loading,
@@ -156,7 +157,7 @@ export const SmartContractsDashboard: React.FC = () => {
           }}
         >
           <p className="mt-[8px] text-[14px]">
-            You are deleting <b className="text-offWhite">{toDelete?.name}</b> from Signet.
+            You are deleting <b className="text-offWhite">{toDelete?.name}</b> from {CONFIG.APP_NAME}.
             <br />
             <br />
             Please repeat the name below to confirm you want to delete it.

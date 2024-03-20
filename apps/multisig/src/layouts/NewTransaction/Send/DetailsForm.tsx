@@ -4,11 +4,12 @@ import { BaseToken, Chain } from '@domains/chains'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Address } from '@util/addresses'
-import { Button, TextInput } from '@talismn/ui'
+import { Button } from '@components/ui/button'
 import { NewTransactionHeader } from '../NewTransactionHeader'
 import { hasPermission } from '@domains/proxy/util'
 import { Alert } from '@components/Alert'
 import { Send } from '@talismn/icons'
+import { Input } from '@components/ui/input'
 
 export const DetailsForm = (props: {
   destinationAddress?: Address
@@ -48,9 +49,8 @@ export const DetailsForm = (props: {
         />
       </div>
       <div css={({ color }) => ({ color: color.offWhite, marginTop: 24, marginBottom: 24 })}>
-        <TextInput
-          leadingLabel="Transaction Description"
-          css={{ fontSize: '18px !important' }}
+        <Input
+          label="Transaction Description"
           placeholder='e.g. "Reimburse transaction fees"'
           value={props.name}
           onChange={e => props.setName(e.target.value)}
@@ -69,20 +69,18 @@ export const DetailsForm = (props: {
           </Alert>
         )
       ) : (
-        <div css={{ button: { height: 56, padding: '0 32px' } }}>
-          <Button
-            disabled={
-              !props.destinationAddress ||
-              isNaN(parseFloat(props.amount)) ||
-              props.amount.endsWith('.') ||
-              !props.selectedToken ||
-              !props.name ||
-              !hasNonDelayedPermission
-            }
-            onClick={props.onNext}
-            children="Review"
-          />
-        </div>
+        <Button
+          disabled={
+            !props.destinationAddress ||
+            isNaN(parseFloat(props.amount)) ||
+            props.amount.endsWith('.') ||
+            !props.selectedToken ||
+            !props.name ||
+            !hasNonDelayedPermission
+          }
+          onClick={props.onNext}
+          children="Review"
+        />
       )}
     </>
   )

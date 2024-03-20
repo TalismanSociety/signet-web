@@ -28,6 +28,7 @@ import { Upload } from 'lucide-react'
 import { DeployContractExpandedDetails } from '../../../layouts/SmartContracts/DeployContractExpandedDetails'
 import { cn } from '@util/tailwindcss'
 import { isExtrinsicProxyWrapped } from '@util/extrinsics'
+import { CONFIG } from '@lib/config'
 
 const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
@@ -346,8 +347,8 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
         return t.decoded ? null : (
           <div className="grid gap-[8px]">
             <p className="text-[14px]">
-              Signet was unable to automatically determine the calldata for this transaction. Perhaps it was created
-              outside of Signet, or the Signet metadata sharing service is down.
+              {CONFIG.APP_NAME} was unable to automatically determine the calldata for this transaction. Perhaps it was
+              created outside of {CONFIG.APP_NAME}.
               <br />
               <br />
               Don't worry though, it's not a problem. Ask someone to share the calldata with you and paste it below, or
@@ -407,7 +408,7 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
             <div className="flex items-center justify-between w-full pr-[8px]">
               <div className="flex gap-[8px] items-center">
                 <p className="text-offWhite mt-[4px]">{name}</p>
-                <div className="text-primary [&>svg]:h-[20px]">{icon}</div>
+                <div className="text-signet-primary [&>svg]:h-[20px]">{icon}</div>
               </div>
               <div className="flex items-center gap-[8px]">
                 <TransactionDetailsHeaderContent t={t} />

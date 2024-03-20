@@ -147,7 +147,7 @@ const CreateMultisig = () => {
       setCreated(true)
     } catch (e) {
       toast({
-        title: 'Failed to save vault to Signet',
+        title: 'Failed to save vault',
         description: getErrorString(e),
       })
     } finally {

@@ -83,7 +83,7 @@ const Overview = () => {
           <p className="text-[12px]">2. Check that the RPC is working.</p>
           <p className="text-[12px]">3. Refresh the page and check if the issue still persist.</p>
           <p className="text-[12px] mt-[8px]">
-            If you think this is a bug, report to Signet at{' '}
+            If you think this is a bug, report to {CONFIG.APP_NAME} at{' '}
             <a className="underline" href={`mailto:${CONFIG.CONTACT_EMAIL}`} target="_blank" rel="noreferrer">
               {CONFIG.CONTACT_EMAIL}
             </a>

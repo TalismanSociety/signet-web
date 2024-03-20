@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from '@talismn/ui'
+import { Button, ButtonProps } from '@components/ui/button'
 
 type Props = {
   block?: boolean
@@ -14,10 +14,9 @@ export const CancleOrNext: React.FC<Props> = ({ block, cancel, next }) => (
       justifyContent: 'center',
       gap: 16,
       width: '100%',
-      button: { height: 56, width: block ? '100%' : undefined },
     }}
   >
-    {cancel && <Button {...cancel} variant={cancel.variant ?? 'outlined'} children={cancel.children ?? 'Cancel'} />}
+    {cancel && <Button {...cancel} variant={cancel.variant ?? 'outline'} children={cancel.children ?? 'Cancel'} />}
     <Button {...next} children={next.children ?? 'Next'} />
   </div>
 )

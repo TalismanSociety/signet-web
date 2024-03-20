@@ -10,6 +10,7 @@ import { SkeletonLayout } from '../../layouts/SkeletonLayout'
 import { Unauthorized } from '../../layouts/Onboarding/Unauthorized'
 import { extensionLoadingState } from '../../domains/extension/index'
 import { Layout } from '../../layouts/Layout'
+import { CONFIG } from '@lib/config'
 
 type Props = {
   requireSignIn?: boolean
@@ -37,7 +38,7 @@ const RequireAuth: React.FC<React.PropsWithChildren & Props> = ({ children, requ
     if (!signedInAccount) return <SignInPage accounts={extensionAccounts} />
     if (loading) return <SkeletonLayout />
     if (!user) return <Unauthorized />
-    if (!user.whitelisted) return <Waitlist />
+    if (!user.whitelisted && !CONFIG.IS_POLKADOT_MULTISIG) return <Waitlist />
   }
 
   if (requireSignIn && !signedInAccount) return <SignInPage accounts={extensionAccounts} />

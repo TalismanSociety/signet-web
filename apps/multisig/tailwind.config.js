@@ -59,6 +59,15 @@ module.exports = {
           950: '#121212',
         },
         offWhite: '#FAFAFA',
+        signet: {
+          primary: '#D5FF5C',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        polkadot: {
+          'primary': '#DD186E',
+          'primary-light': '#EB6AAB',
+          'foreground': '#FAFAFA',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

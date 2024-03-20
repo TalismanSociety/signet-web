@@ -1,11 +1,10 @@
 import React from 'react'
 
-import { ReactComponent as LogoSvg } from './logo.svg'
+import { CONFIG } from '@lib/config'
+import { PolkadotMultisigLogo } from './PolkadotMultisig'
+import { SignetLogo } from './SignetLogo'
 
 export default function Logo(props: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div {...props}>
-      <LogoSvg />
-    </div>
-  )
+  if (CONFIG.IS_POLKADOT_MULTISIG) return <PolkadotMultisigLogo wrapped {...props} />
+  return <SignetLogo {...props} />
 }
