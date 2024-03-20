@@ -6,6 +6,7 @@ import { getErrorString } from '@util/misc'
 
 // Grab the pjs api from a selector. The selector caches the result based on the given rpc, so an
 // api will will only be created once per rpc.
+/** Returns ApiPromise for the provided genesis hash */
 export const pjsApiSelector = atomFamily({
   key: 'apis',
   default: selectorFamily({
@@ -28,6 +29,21 @@ export const pjsApiSelector = atomFamily({
     },
     dangerouslyAllowMutability: true,
   }),
+  dangerouslyAllowMutability: true,
+})
+
+export const pjsApiListSelector = selectorFamily<Record<string, ApiPromise>, string[]>({
+  key: 'ApiList',
+  get:
+    (genesisHashes: string[]) =>
+    async ({ get }) => {
+      const apis: Record<string, ApiPromise> = {}
+      const apisList = await Promise.all(genesisHashes.map(genesisHash => get(pjsApiSelector(genesisHash))))
+      genesisHashes.forEach((genesisHash, index) => {
+        apis[genesisHash] = apisList[index] as ApiPromise
+      })
+      return apis
+    },
   dangerouslyAllowMutability: true,
 })
 

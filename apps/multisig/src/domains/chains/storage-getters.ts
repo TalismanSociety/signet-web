@@ -7,14 +7,20 @@
 import { pjsApiSelector } from '@domains/chains/pjs-api'
 import { Multisig, TransactionApprovals, activeMultisigsState, aggregatedMultisigsState } from '@domains/multisig'
 import { Option } from '@polkadot/types-codec'
-import { BlockHash, BlockNumber, Multisig as OnChainMultisig, ProxyDefinition } from '@polkadot/types/interfaces'
+import {
+  BlockHash,
+  BlockNumber,
+  Multisig as OnChainMultisig,
+  ProxyDefinition,
+  SignedBlock,
+} from '@polkadot/types/interfaces'
 import { Address } from '@util/addresses'
 import { useCallback } from 'react'
 import { atom, selector, selectorFamily, useRecoilValueLoadable } from 'recoil'
 
 import { BaseToken, Chain, tokenByIdQuery } from './tokens'
 import { u8aToString, u8aUnwrapBytes } from '@polkadot/util'
-import { PalletIdentityRegistration } from '@polkadot/types/lookup'
+import { PalletIdentityRegistration, FrameSystemEventRecord } from '@polkadot/types/lookup'
 
 export const useAddressIsProxyDelegatee = (chain: Chain) => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
@@ -195,6 +201,48 @@ export const blockHashSelector = selectorFamily({
       await api.isReady
       return api.rpc.chain.getBlockHash(height)
     },
+})
+
+/** Give a {blockHash}-{chainGenesisHash}, get the block on chain */
+export const blockSelector = selectorFamily<SignedBlock, string>({
+  key: 'blockSelector',
+  get:
+    blockAndChainHash =>
+    async ({ get }) => {
+      const [blockHash, chainHash] = blockAndChainHash.split('-') as [string, string]
+      const api = get(pjsApiSelector(chainHash))
+      const block = await api.rpc.chain.getBlock(blockHash)
+      return block
+    },
+  dangerouslyAllowMutability: true,
+})
+
+export const blocksSelector = selectorFamily<SignedBlock[], string>({
+  key: 'blocksSelector',
+  get:
+    blockAndChainHashes =>
+    async ({ get }) => {
+      return await Promise.all(blockAndChainHashes.split(',').map(async bh => get(blockSelector(bh))))
+    },
+  dangerouslyAllowMutability: true,
+})
+
+export const useBlocksByHashes = (hashesAndGenesisHash: string) => {
+  return useRecoilValueLoadable(blocksSelector(hashesAndGenesisHash))
+}
+
+export const blockEventsSelector = selectorFamily<FrameSystemEventRecord[], [string, string, boolean | undefined]>({
+  key: 'blockEventsSelector',
+  get:
+    ([blockHash, genesisHash, skip]) =>
+    async ({ get }) => {
+      if (skip) return []
+      const api = get(pjsApiSelector(genesisHash))
+      const apiAt = await api.at(blockHash)
+      const allEvents = await apiAt.query.system.events()
+      return allEvents.toArray()
+    },
+  dangerouslyAllowMutability: true,
 })
 
 export const identitySelector = selectorFamily<
