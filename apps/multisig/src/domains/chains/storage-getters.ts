@@ -210,6 +210,7 @@ export const blockSelector = selectorFamily<SignedBlock, string>({
     blockAndChainHash =>
     async ({ get }) => {
       const [blockHash, chainHash] = blockAndChainHash.split('-') as [string, string]
+      console.log(chainHash)
       const api = get(pjsApiSelector(chainHash))
       const block = await api.rpc.chain.getBlock(blockHash)
       return block
@@ -222,6 +223,7 @@ export const blocksSelector = selectorFamily<SignedBlock[], string>({
   get:
     blockAndChainHashes =>
     async ({ get }) => {
+      if (blockAndChainHashes.length === 0) return []
       return await Promise.all(blockAndChainHashes.split(',').map(async bh => get(blockSelector(bh))))
     },
   dangerouslyAllowMutability: true,
