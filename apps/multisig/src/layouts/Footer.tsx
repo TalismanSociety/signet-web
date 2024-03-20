@@ -10,12 +10,15 @@ const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
         <a className="text-offWhite hover:text-gray-200" href={CONFIG.SIGNET_LANDING_PAGE}>
           Signet (Beta)
         </a>
+        <a className="hover:text-gray-200" href="https://guide.polkadotmultisig.com" target="_blank" rel="noreferrer">
+          Guide
+        </a>
         <a className="hover:text-gray-200" href={`mailto:${CONFIG.CONTACT_EMAIL}`} target="_blank" rel="noreferrer">
           Contact
         </a>
         <a
           className="hover:text-gray-200"
-          href="https://docs.talisman.xyz/talisman/prepare-for-your-journey/terms-of-use"
+          href="https://docs.talisman.xyz/talisman/about/terms-of-use"
           target="_blank"
           rel="noreferrer"
         >
@@ -23,7 +26,7 @@ const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
         </a>
         <a
           className="hover:text-gray-200"
-          href="https://docs.talisman.xyz/talisman/prepare-for-your-journey/privacy-policy"
+          href="https://docs.talisman.xyz/talisman/about/privacy-policy"
           target="_blank"
           rel="noreferrer"
         >

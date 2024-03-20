@@ -90,6 +90,7 @@ const signetSquidExtrinsicsQuery = gql`
 
 const fetchRaw = async (accounts: { pubkey: string; chainGenesisHash?: string }[], _offset?: number | null) => {
   const extrinsics: ParsedTransaction[] = []
+  if (accounts.length === 0) return { data: { extrinsics } }
 
   const LIMIT = 120
   const variables: Variables = {
@@ -276,6 +277,7 @@ export const useConfirmedTransactions = (teams: Team[]) => {
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
+    console.log(teams)
     const all = await fetchRaw(
       teams.map(t => ({ pubkey: t.proxiedAddress.toPubKey(), chainGenesisHash: t.chain.genesisHash })),
       nextFetchOffset
