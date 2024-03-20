@@ -12,6 +12,7 @@ import { useEffect } from 'react'
 import { CONFIG } from '@lib/config'
 import { PolkadotMultisigLogo } from '@components/Logo/PolkadotMultisig'
 import { cn } from '@util/tailwindcss'
+import PolkadotMultisigMockup from './PolkadotMultisigMockup'
 
 const shouldRedirectToDashboardState = atom({
   key: 'shouldRedirectToDashboardKey',
@@ -118,32 +119,46 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
         <div
           className={cn(
             'flex flex-1 w-full pt-[28px] pl-[28px] z-10 relative lg:top-1/2 lg:translate-y-[-50%] lg:pl-[68px] lg:w-[40%] lg:py-[104px] lg:h-full',
-            CONFIG.IS_POLKADOT_MULTISIG ? 'bg-polkadot-primary' : 'bg-[#FD4848]'
+            CONFIG.IS_POLKADOT_MULTISIG ? 'bg-[#74163F]' : 'bg-[#FD4848]'
           )}
         >
-          <AppMockup />
-          <div className="absolute w-full h-full flex-1 z-0 top-0 left-0 overflow-hidden">
-            <svg
-              className="transform translate-x-[-25%] translate-y-[-25%] w-[2000px] h-auto"
-              width="1851"
-              height="1761"
-              viewBox="0 0 1851 1761"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M1824.08 713.041L1775.5 563.52L1384.7 679.547C1202.82 733.548 1019.26 600.184 1014.41 410.515L1004 2.99115H846.782L836.368 410.515C831.521 600.184 647.961 733.548 466.077 679.547L75.2809 563.52L26.6986 713.041L411.059 848.877C589.946 912.098 660.06 1127.89 552.497 1284.18L321.386 1619.99L448.576 1712.4L696.538 1388.83C811.944 1238.24 1038.84 1238.24 1154.24 1388.83L1402.2 1712.4L1529.39 1619.99L1298.28 1284.18C1190.72 1127.89 1260.83 912.098 1439.72 848.877L1824.08 713.041Z"
-                fill={CONFIG.IS_POLKADOT_MULTISIG ? '#FFFFFF' : '#FD6868'}
-                stroke={CONFIG.IS_POLKADOT_MULTISIG ? '#FFFFFF' : '#FD6868'}
-                strokeWidth="157.267"
-              />
-            </svg>
-          </div>
+          {CONFIG.IS_POLKADOT_MULTISIG ? (
+            <>
+              <PolkadotMultisigMockup />
+              <div className="absolute w-full h-full flex-1 z-0 top-0 left-0 overflow-hidden">
+                <div className="w-[232px] h-[232px] absolute bg-[#DD186E] rounded-full -top-[10%] -left-[12%]" />
+                <div className="w-[295px] h-[295px] absolute bg-[#DD186E] rounded-full -right-[8%] top-[8px]" />
+                <div className="w-[78px] h-[78px] absolute bg-[#DD186E] rounded-full bottom-[16%] right-[12%]" />
+                <div className="w-[437px] h-[437px] absolute bg-[#DD186E] rounded-full -left-[20%] top-[72%]" />
+              </div>
+            </>
+          ) : (
+            <>
+              <AppMockup />
+              <div className="absolute w-full h-full flex-1 z-0 top-0 left-0 overflow-hidden">
+                <svg
+                  className="transform translate-x-[-25%] translate-y-[-25%] w-[2000px] h-auto"
+                  width="1851"
+                  height="1761"
+                  viewBox="0 0 1851 1761"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M1824.08 713.041L1775.5 563.52L1384.7 679.547C1202.82 733.548 1019.26 600.184 1014.41 410.515L1004 2.99115H846.782L836.368 410.515C831.521 600.184 647.961 733.548 466.077 679.547L75.2809 563.52L26.6986 713.041L411.059 848.877C589.946 912.098 660.06 1127.89 552.497 1284.18L321.386 1619.99L448.576 1712.4L696.538 1388.83C811.944 1238.24 1038.84 1238.24 1154.24 1388.83L1402.2 1712.4L1529.39 1619.99L1298.28 1284.18C1190.72 1127.89 1260.83 912.098 1439.72 848.877L1824.08 713.041Z"
+                    fill="#FD6868"
+                    stroke="#FD6868"
+                    strokeWidth="157.267"
+                  />
+                </svg>
+              </div>
+            </>
+          )}
         </div>
       </div>
       <div className="w-full relative z-20">
         <div className="pt-[16px] w-full lg:translate-y-[-100%] lg:absolute">
-          <Footer darkTalisman />
+          <Footer darkTalisman={!CONFIG.IS_POLKADOT_MULTISIG} />
         </div>
       </div>
     </main>
