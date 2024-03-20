@@ -277,7 +277,6 @@ export const useConfirmedTransactions = (teams: Team[]) => {
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
-    console.log(teams)
     const all = await fetchRaw(
       teams.map(t => ({ pubkey: t.proxiedAddress.toPubKey(), chainGenesisHash: t.chain.genesisHash })),
       nextFetchOffset

@@ -85,14 +85,17 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
                   {CONFIG.CONTACT_EMAIL}
                 </a>
               </p>
-              {!CONFIG.IS_POLKADOT_MULTISIG && (
-                <p className="text-gray-200 mt-[20px] lg:mt-[32px] text-[16px] lg:text-[18px]">
-                  Alternatively, try the community version{' '}
-                  <a className="text-offWhite" href="https://polkadotmultisig.com" target="_blank" rel="noreferrer">
-                    Polkadot Multisig
-                  </a>
-                </p>
-              )}
+              <p className="text-gray-200 mt-[20px] lg:mt-[32px] text-[16px] lg:text-[18px]">
+                Alternatively, try the community version{' '}
+                <a
+                  className="text-offWhite hover:text-gray-200"
+                  href="https://polkadotmultisig.com"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Polkadot Multisig
+                </a>
+              </p>
             </>
           )}
           {extensionAccounts.length > 0 ? (

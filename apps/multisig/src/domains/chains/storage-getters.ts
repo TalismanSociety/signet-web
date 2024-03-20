@@ -210,7 +210,6 @@ export const blockSelector = selectorFamily<SignedBlock, string>({
     blockAndChainHash =>
     async ({ get }) => {
       const [blockHash, chainHash] = blockAndChainHash.split('-') as [string, string]
-      console.log(chainHash)
       const api = get(pjsApiSelector(chainHash))
       const block = await api.rpc.chain.getBlock(blockHash)
       return block

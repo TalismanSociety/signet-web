@@ -29,6 +29,8 @@ import { HasuraProvider } from '@domains/offchain-data/hasura'
 import { AzeroIDResolverProvider } from '@domains/azeroid/AzeroIDResolver'
 import { WalletConnectProvider } from '@domains/wallet-connect'
 import { SkeletonLayout } from './layouts/SkeletonLayout'
+import { Helmet } from 'react-helmet'
+import { CONFIG } from '@lib/config'
 
 const App: React.FC = () => (
   <ThemeProvider>
@@ -43,6 +45,9 @@ const App: React.FC = () => (
           <AzeroIDResolverProvider>
             <Suspense fallback={<SkeletonLayout />}>
               <WalletConnectProvider>
+                <Helmet>
+                  <title>{CONFIG.IS_POLKADOT_MULTISIG ? 'Polkadot Multisig by Signet' : 'Signet'}</title>
+                </Helmet>
                 {/* <PendingTransactionsWatcher /> */}
                 <BalancesWatcher />
                 <ExtensionWatcher />
