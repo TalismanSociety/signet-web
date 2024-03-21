@@ -13,23 +13,13 @@ const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
         <a className="hover:text-gray-200" href="https://guide.polkadotmultisig.com" target="_blank" rel="noreferrer">
           Guide
         </a>
-        <a className="hover:text-gray-200" href={`mailto:${CONFIG.CONTACT_EMAIL}`} target="_blank" rel="noreferrer">
+        <a className="hover:text-gray-200" href="https://t.me/signetmsig" target="_blank" rel="noreferrer">
           Contact
         </a>
-        <a
-          className="hover:text-gray-200"
-          href="https://docs.talisman.xyz/talisman/about/terms-of-use"
-          target="_blank"
-          rel="noreferrer"
-        >
+        <a className="hover:text-gray-200" href={CONFIG.TERMS} target="_blank" rel="noreferrer">
           Terms
         </a>
-        <a
-          className="hover:text-gray-200"
-          href="https://docs.talisman.xyz/talisman/about/privacy-policy"
-          target="_blank"
-          rel="noreferrer"
-        >
+        <a className="hover:text-gray-200" href={CONFIG.PRIVACY_POLICY} target="_blank" rel="noreferrer">
           Privacy Policy
         </a>
       </div>

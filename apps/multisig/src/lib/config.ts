@@ -5,4 +5,6 @@ export const CONFIG = {
   CONTACT_EMAIL: process.env.REACT_APP_CONTACT_EMAIL || 'signet@talisman.xyz',
   APP_NAME: process.env.REACT_APP_APPLICATION_NAME || 'Signet',
   IS_POLKADOT_MULTISIG: IS_POLKADOT_MULTISIG,
+  TERMS: 'https://docs.talisman.xyz/talisman/about/terms-of-use',
+  PRIVACY_POLICY: 'https://docs.talisman.xyz/talisman/about/privacy-policy',
 }

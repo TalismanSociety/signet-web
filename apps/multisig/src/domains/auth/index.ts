@@ -109,10 +109,12 @@ export const useSignIn = () => {
           // construct siws message
           const siws = new SiwsMessage({
             address: ss58Address,
-            domain: 'signet.talisman.xyz',
+            domain: CONFIG.IS_POLKADOT_MULTISIG ? 'polkadotmultisig.com' : 'signet.talisman.xyz',
             nonce,
             uri: window.location.origin,
-            statement: `Welcome to ${CONFIG.APP_NAME}! Please sign in to continue.`,
+            statement: CONFIG.IS_POLKADOT_MULTISIG
+              ? `Welcome to Polkadot Multisig! The product is currently in beta. By signing in, you accept the Terms of Use: ${CONFIG.TERMS}`
+              : `Welcome to ${CONFIG.APP_NAME}! Please sign in to continue.`,
             chainName: 'Substrate',
             azeroId: resolve(ss58Address)?.a0id,
           })

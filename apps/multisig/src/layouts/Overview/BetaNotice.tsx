@@ -62,12 +62,7 @@ const BetaNotice = () => {
           <br />
           <span>
             {CONFIG.APP_NAME} is under active development and a Beta Service as defined in our{' '}
-            <a
-              css={{ textDecoration: 'underline' }}
-              href={'https://docs.talisman.xyz/talisman/prepare-for-your-journey/terms-of-use'}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a css={{ textDecoration: 'underline' }} href={CONFIG.TERMS} target="_blank" rel="noreferrer">
               Terms of Service
             </a>
             .
