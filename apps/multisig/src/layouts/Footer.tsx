@@ -16,6 +16,14 @@ const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
         <a className="hover:text-gray-200" href="https://t.me/signetmsig" target="_blank" rel="noreferrer">
           Contact
         </a>
+        <a
+          className="hover:text-gray-200"
+          href="https://github.com/TalismanSociety/signet-web"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Github
+        </a>
         <a className="hover:text-gray-200" href={CONFIG.TERMS} target="_blank" rel="noreferrer">
           Terms
         </a>
