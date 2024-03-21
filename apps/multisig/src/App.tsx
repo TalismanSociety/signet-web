@@ -10,6 +10,7 @@ import { ExtensionWatcher } from '@domains/extension'
 import { balanceModules } from '@talismn/balances-default-modules'
 import { BalancesProvider } from '@talismn/balances-react'
 import { ToastBar } from '@talismn/ui'
+import { Analytics } from '@vercel/analytics/react'
 import React, { Suspense } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { RouterProvider } from 'react-router-dom'
@@ -48,6 +49,7 @@ const App: React.FC = () => (
                 <Helmet>
                   <title>{CONFIG.IS_POLKADOT_MULTISIG ? 'Polkadot Multisig by Signet' : 'Signet'}</title>
                 </Helmet>
+                <Analytics />
                 {/* <PendingTransactionsWatcher /> */}
                 <BalancesWatcher />
                 <ExtensionWatcher />

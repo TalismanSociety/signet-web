@@ -66,6 +66,7 @@
     "@talismn/util": "^0.2.0",
     "@uiw/codemirror-themes": "^4.21.13",
     "@uiw/react-codemirror": "^4.21.13",
+    "@vercel/analytics": "^1.2.2",
     "@walletconnect/web3wallet": "^1.10.0",
     "ace-builds": "^1.22.0",
     "bignumber.js": "^9.1.1",
