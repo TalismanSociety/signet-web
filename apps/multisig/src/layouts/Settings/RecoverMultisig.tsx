@@ -34,8 +34,7 @@ const ScannedMultisigs: React.FC<{
       {multisigs.map(multisig => (
         <div
           key={multisig.address.toSs58()}
-          className="p-[12px] w-full rounded-[12px] gap-[8px] flex flex-col bg-gray-800 cursor-pointer hover:bg-gray-700"
-          onClick={() => onSelect(multisig)}
+          className="p-[12px] w-full rounded-[12px] gap-[8px] flex flex-col border border-gray-700 "
         >
           <div className="w-full grid grid-cols-2 items-center flex-1 gap-[8px]">
             <div className="flex flex-1 w-full flex-col">
@@ -71,6 +70,11 @@ const ScannedMultisigs: React.FC<{
                 </div>
               ))}
             </div>
+          </div>
+          <div className="mt-[12px]">
+            <Button onClick={() => onSelect(multisig)} size="lg">
+              Use Multisig
+            </Button>
           </div>
         </div>
       ))}
@@ -241,20 +245,25 @@ export const RecoverMultisig: React.FC<Props> = ({ multisig }) => {
                     />
                     <ProxiesSettings proxies={proxy ? [proxy] : []} />
                     {changed && multisig.proxies ? (
-                      !validationError ? (
-                        !proxy || proxy.duration === 0 ? null : (
-                          <div className="flex items-center gap-[8px] border rounded-[12px] border-gray-600 p-[12px]">
-                            <StatusCircle type={StatusCircleType.Error} />
-                            <p className="text-[14px] mt-[3px]">
-                              Found <span className="text-offWhite">{proxy?.proxyType}</span> proxy, but delay isn't
-                              supported at the moment.
-                            </p>
-                          </div>
-                        )
-                      ) : (
+                      validationError || !proxy ? (
                         <div className="flex items-center gap-[8px] border rounded-[12px] border-gray-600 p-[12px]">
                           <StatusCircle type={StatusCircleType.Error} />
                           <p className="text-[14px] mt-[3px]">{validationError}</p>
+                        </div>
+                      ) : proxy.duration === 0 ? (
+                        <div className="flex items-center gap-[8px] border rounded-[12px] border-gray-600 p-[12px]">
+                          <StatusCircle type={StatusCircleType.Success} />
+                          <p className="text-[14px] mt-[3px]">
+                            Found <span className="text-offWhite">{proxy?.proxyType}</span> proxy for multisig!
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-[8px] border rounded-[12px] border-gray-600 p-[12px]">
+                          <StatusCircle type={StatusCircleType.Error} />
+                          <p className="text-[14px] mt-[3px]">
+                            Found <span className="text-offWhite">{proxy?.proxyType}</span> proxy, but delay isn't
+                            supported at the moment.
+                          </p>
                         </div>
                       )
                     ) : null}
