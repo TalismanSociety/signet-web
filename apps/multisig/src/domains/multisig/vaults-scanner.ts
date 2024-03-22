@@ -1,4 +1,5 @@
 import { selectedAccountState } from '@domains/auth'
+import { PalletProxyProxyDefinition } from '@polkadot/types/lookup'
 import { Address, parseCallAddressArg, toMultisigAddress } from '@util/addresses'
 import { gql } from 'graphql-request'
 import fetchGraphQL from '../../graphql/fetch-graphql'
@@ -52,6 +53,18 @@ const getTransactionsOfAccount = selectorFamily({
       data: RawData
     }
   },
+})
+
+const getAddressProxiesSelector = selectorFamily<PalletProxyProxyDefinition[], [string, string]>({
+  key: 'getAddressProxies',
+  get:
+    ([address, chain]) =>
+    async ({ get }) => {
+      const api = get(pjsApiSelector(chain))
+      if (!api.query.proxy?.proxies) return []
+      return (await api.query.proxy.proxies(address))[0].toArray()
+    },
+  dangerouslyAllowMutability: true,
 })
 
 export const vaultsOfAccount = selector({
@@ -110,7 +123,7 @@ export const vaultsOfAccount = selector({
         const proxiedAccount = Address.fromPubKey(parseCallAddressArg(innerCall.value.real))
         if (!proxiedAccount) throw new Error('Invalid proxied account')
 
-        proxiedAccounts[proxiedAccount.toSs58()] = {
+        proxiedAccounts[`${proxiedAccount.toSs58()}-${chain.genesisHash}`] = {
           address: proxiedAccount,
           chain,
         }
@@ -120,44 +133,38 @@ export const vaultsOfAccount = selector({
       }
     })
 
-    // groupd proxied accounts by chain genesis hash
-    const proxiedAccountsByChain: Record<string, { address: Address; chain: Chain }[]> = {}
-    for (const { address, chain } of Object.values(proxiedAccounts)) {
-      if (!proxiedAccountsByChain[chain.genesisHash]) {
-        proxiedAccountsByChain[chain.genesisHash] = []
-      }
-      proxiedAccountsByChain[chain.genesisHash]!.push({ address, chain })
-    }
+    const proxies = await Promise.all(
+      Object.keys(proxiedAccounts).map(async key => {
+        const [address, genesisHash] = key.split('-') as [string, string]
+        return get(getAddressProxiesSelector([address, genesisHash]))
+      })
+    )
 
-    // get all apis for each chains
     const vaultsCombiniations: ScannedVault[] = []
 
-    for (const [genesisHash, proxiedAddresses] of Object.entries(proxiedAccountsByChain)) {
-      const api = get(pjsApiSelector(genesisHash))
+    Object.entries(proxiedAccounts).forEach(([key, { address, chain }], i) => {
+      const proxiesOfAccount = proxies[i]
+      if (!proxiesOfAccount) return
+      proxiesOfAccount.forEach(proxy => {
+        // only non delay is supported atm
+        // TODO: support delay proxies
+        if (proxy.delay.toNumber() !== 0) return
 
-      if (!api.query.proxy?.proxies) continue
-      const allProxies = await api.query.proxy.proxies.multi(proxiedAddresses.map(a => a.address.toSs58()))
-      allProxies.forEach((proxies, i) => {
-        proxies[0].forEach(proxy => {
-          // only non delay is supported atm
-          // TODO: support delay proxies
-          if (proxy.delay.toNumber() !== 0) return
+        const delegate = Address.fromPubKey(proxy.delegate.toHex())
+        if (!delegate) return
 
-          const delegate = Address.fromPubKey(proxy.delegate.toHex())
-          if (!delegate) return
+        const multisig = multisigs[delegate.toSs58()]
+        if (!multisig) return
 
-          const multisig = multisigs[delegate.toSs58()]
-          if (!multisig) return
-
-          vaultsCombiniations.push({
-            proxy: proxy.proxyType.toString(),
-            proxiedAddress: proxiedAddresses[i]!.address,
-            multisig,
-            chain: proxiedAddresses[i]!.chain,
-          })
+        vaultsCombiniations.push({
+          proxy: proxy.proxyType.toString(),
+          proxiedAddress: address,
+          multisig,
+          chain,
         })
       })
-    }
+    })
+
     return { multisigs, proxiedAccounts, vaultsCombiniations }
   },
 })

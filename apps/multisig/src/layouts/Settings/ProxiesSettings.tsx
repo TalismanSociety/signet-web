@@ -27,23 +27,16 @@ const Pill: React.FC<{ value: string | number; suffix?: string }> = ({ value, su
 }
 
 export const ProxiesSettings: React.FC<Props> = ({ proxies }) => (
-  <div css={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-    <p css={({ color }) => ({ color: color.offWhite, fontSize: 14, marginTop: 2 })}>Proxy Relationships</p>
-    <div
-      css={({ color }) => ({
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: 16,
-        p: { color: color.lightGrey, fontSize: 14, marginTop: 2 },
-      })}
-    >
-      <p>Proxy Type</p>
-      <p>Time Delay</p>
+  <div className="flex flex-col gap-[8px]">
+    <p className="text-offWhite text-[14px] mt-[2px]">Proxy Relationships</p>
+    <div className="grid grid-cols-2 gap-[16px]">
+      <p className="text-gray-200 text-[14px] mt-[2px]">Proxy Type</p>
+      <p className="text-gray-200 text-[14px] mt-[2px]">Time Delay</p>
     </div>
     {proxies === undefined ? (
       <CircularProgressIndicator size={16} />
     ) : proxies.length === 0 ? (
-      <p css={({ color }) => ({ color: color.offWhite })}>No proxy relationship found.</p>
+      <p className="text-offWhite">No proxy relationship found.</p>
     ) : (
       <div css={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', alignItems: 'flex-start' }}>
         {proxies.map(({ proxyType, delay, duration }, i) => (

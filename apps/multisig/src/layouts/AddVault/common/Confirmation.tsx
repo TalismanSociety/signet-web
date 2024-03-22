@@ -6,7 +6,6 @@ import { isEqual } from 'lodash'
 
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { ChainPill } from '@components/ChainPill'
-import { Member } from '@components/Member'
 import { BaseToken, Chain, Price, getInitialProxyBalance } from '@domains/chains'
 import {
   AugmentedAccount,
@@ -74,7 +73,16 @@ const Members: React.FC<{ members: AugmentedAccount[]; chain: Chain }> = ({ memb
     <p>Members</p>
     <div css={{ display: 'grid', gap: 8 }}>
       {members.map(account => (
-        <Member key={account.address.toPubKey()} m={account} chain={chain} />
+        <div key={account.address.toPubKey()} className="w-full bg-gray-700 p-[12px] rounded-[12px]">
+          <AccountDetails
+            address={account.address}
+            name={account.nickname}
+            chain={chain}
+            breakLine
+            identiconSize={32}
+            withAddressTooltip
+          />
+        </div>
       ))}
     </div>
   </div>

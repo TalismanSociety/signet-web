@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useProxies } from '../proxy/useProxies'
 import { isEqual } from 'lodash'
 import { Address } from '@util/addresses'
+
 const proxiesState = atom<Record<string, ProxyDefinition[] | undefined>>({
   key: 'proxies',
   default: {},

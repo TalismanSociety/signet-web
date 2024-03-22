@@ -11,7 +11,8 @@ import { useUpdateMultisigConfig } from '../../domains/offchain-data'
 import { selectedAccountState } from '../../domains/auth'
 import VaultOverview from './VaultOverview'
 import { useToast } from '../../components/ui/use-toast'
-import { CONFIG } from '@lib/config'
+import { ToastAction } from '@components/ui/toast'
+import { useNavigate } from 'react-router-dom'
 
 const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
@@ -19,6 +20,7 @@ const Overview = () => {
   const { updateMultisigConfig } = useUpdateMultisigConfig()
   const { toast, dismiss } = useToast()
   const [toastedForVault, setToastedForVault] = useState<string>()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (selectedMultisig.id !== toastedForVault) {
@@ -77,22 +79,23 @@ const Overview = () => {
       title: `Proxy not detected for ${selectedMultisig.name}! `,
       description: (
         <div>
-          <p className="text-[12px]">
-            1. Make sure configuration for <span className="font-bold">{selectedMultisig.name}</span> is up-to-date.
-          </p>
-          <p className="text-[12px]">2. Check that the RPC is working.</p>
-          <p className="text-[12px]">3. Refresh the page and check if the issue still persist.</p>
-          <p className="text-[12px] mt-[8px]">
-            If you think this is a bug, report to {CONFIG.APP_NAME} at{' '}
-            <a className="underline" href={`mailto:${CONFIG.CONTACT_EMAIL}`} target="_blank" rel="noreferrer">
-              {CONFIG.CONTACT_EMAIL}
-            </a>
-          </p>
+          <p className="text-[12px]">Please reconfigure the multisig settings to continue using the vault</p>
         </div>
       ),
       duration: 600000,
+      action: (
+        <ToastAction
+          altText="Go to Settings"
+          onClick={() => {
+            dismiss()
+            navigate('/settings')
+          }}
+        >
+          Go to Settings
+        </ToastAction>
+      ),
     })
-  }, [selectedMultisig, signedInAccount, toast, updateMultisigConfig])
+  }, [dismiss, navigate, selectedMultisig, signedInAccount, toast, updateMultisigConfig])
 
   useEffect(() => {
     // DUMMY MULTISIG, dont need to detect or check for changes
