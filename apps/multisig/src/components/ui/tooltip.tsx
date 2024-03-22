@@ -28,7 +28,7 @@ TooltipContent.displayName = TooltipPrimitive.Content.displayName
 const Tooltip: React.FC<React.PropsWithChildren & { content?: React.ReactNode }> = ({ children, content }) => {
   return (
     <TooltipProvider>
-      <TooltipRoot delayDuration={300}>
+      <TooltipRoot delayDuration={700}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
         <TooltipContent>{content}</TooltipContent>
       </TooltipRoot>

@@ -217,7 +217,7 @@ export const parseTeam = (org: Organisation, rawTeam: RawTeam): { team?: Team; e
 export const useUpdateMultisigConfig = () => {
   const { toast } = useToast()
   const setOrganisations = useSetRecoilState(organisationsState)
-  const [mutate] = useMutation(gql`
+  const [mutate, { loading, error }] = useMutation(gql`
     mutation UpdateMultisigConfig($teamId: String!, $changeConfigDetails: ChangeConfigDetailsInput!) {
       updateMultisigConfig(teamId: $teamId, changeConfigDetails: $changeConfigDetails) {
         success
@@ -234,7 +234,7 @@ export const useUpdateMultisigConfig = () => {
   `)
 
   const updateMultisigConfig = useCallback(
-    async (newMultisig: Multisig) => {
+    async (newMultisig: { orgId: string; id: string; signers: Address[]; threshold: number }) => {
       try {
         const { data, errors } = await mutate({
           variables: {
@@ -272,17 +272,19 @@ export const useUpdateMultisigConfig = () => {
           newOrgs[orgIndex] = { ...changedOrg, teams: newTeams }
           return newOrgs
         })
+        return true
       } catch (e) {
         console.error(e)
         toast({
           title: 'Failed to update multisig config',
         })
+        return false
       }
     },
     [mutate, setOrganisations, toast]
   )
 
-  return { updateMultisigConfig }
+  return { updateMultisigConfig, loading, error }
 }
 
 export const useTeamFromUrl = () => {

@@ -14,6 +14,9 @@ import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 import { ExternalLink } from 'lucide-react'
 import { Button } from '@components/ui/button'
+import { useUser } from '@domains/auth'
+import { NameForm } from './NameForm'
+import { RecoverMultisig } from './RecoverMultisig'
 
 const Settings = () => {
   const [multisig] = useSelectedMultisig()
@@ -21,7 +24,7 @@ const Settings = () => {
   const [newThreshold, setNewThreshold] = useState(multisig.threshold)
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
   const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic<'promise'> | undefined>()
-
+  const { isSigner } = useUser()
   const newMultisigAddress = toMultisigAddress(newMembers, newThreshold)
   const hasAny = multisig.proxies?.find(p => p.proxyType === 'Any') !== undefined
   const { toast } = useToast()
@@ -56,14 +59,14 @@ const Settings = () => {
 
   return (
     <>
-      <div css={{ display: 'flex', flex: 1, padding: '32px 8%', flexDirection: 'column', gap: 32 }}>
-        <h2 className="text-offWhite mt-[4px] font-bold">Vault Settings</h2>
-        <div css={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+      <div className="flex flex-1 p-[16px] lg:py-[32px] lg:px-[4%] flex-col gap-[32px]">
+        <div className="flex items-center justify-between gap-[12px]">
+          <h2 className="text-offWhite mt-[4px] font-bold">Vault Settings</h2>
+        </div>
+        <div className="grid gap-[32px] grid-cols-1 md:grid-cols-2">
           {/** first row: Name */}
-          <SettingsInfoRow label="Vault Name">
-            <p className="text-[16px] text-offWhite font-bold">{multisig.name}</p>
-          </SettingsInfoRow>
-          <div />
+          <NameForm name={multisig.name} editable={isSigner} teamId={multisig.id} />
+          <div className="hidden md:block" />
 
           {/** second row: Proxied Account | Chain */}
           <SettingsInfoRow
@@ -76,23 +79,37 @@ const Settings = () => {
             <ChainPill chain={multisig.chain} />
           </SettingsInfoRow>
 
+          {multisig.proxies?.length === 0 && (
+            <div className="grid md:col-span-2">
+              <RecoverMultisig multisig={multisig} />
+            </div>
+          )}
+
           {/** third row: Multisig Address */}
           <SettingsInfoRow
             label="Multisig Address"
             tooltip="This multisig address is the address that controls the proxied account. It is derived from your vault's members and threshold."
+            labelClassName={multisig.proxies?.length === 0 ? 'text-red-500' : ''}
           >
             <AccountDetails address={newMultisigAddress} chain={multisig.chain} withAddressTooltip />
           </SettingsInfoRow>
-          <div />
+          <div className="hidden md:block" />
 
           {/** forth row: Signers settings | other settings */}
-          <SignersSettings members={newMembers} onChange={setNewMembers} multisig={multisig} editable={hasAny} />
+          <SignersSettings
+            members={newMembers}
+            onChange={setNewMembers}
+            multisig={multisig}
+            editable={hasAny}
+            error={multisig.proxies?.length === 0}
+          />
           <div css={{ display: 'flex', gap: 24, flexDirection: 'column' }}>
             <ThresholdSettings
               membersCount={newMembers.length}
               threshold={newThreshold}
               onChange={setNewThreshold}
               disabled={!hasAny}
+              error={multisig.proxies?.length === 0}
             />
             <ProxiesSettings proxies={multisig.proxies} />
           </div>
@@ -120,7 +137,7 @@ const Settings = () => {
               Review
             </Button>
           </div>
-        ) : (
+        ) : multisig.proxies?.length === 0 ? null : (
           <div
             css={({ color }) => ({
               backgroundColor: color.surface,

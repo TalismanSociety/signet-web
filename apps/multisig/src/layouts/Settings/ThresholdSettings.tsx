@@ -1,4 +1,5 @@
 import { Select } from '@talismn/ui'
+import { cn } from '@util/tailwindcss'
 import { useEffect } from 'react'
 
 type Props = {
@@ -6,18 +7,19 @@ type Props = {
   onChange: (threshold: number) => void
   membersCount: number
   disabled?: boolean
+  error?: boolean
 }
 
-export const ThresholdSettings: React.FC<Props> = ({ disabled, membersCount, onChange, threshold }) => {
+export const ThresholdSettings: React.FC<Props> = ({ disabled, error, membersCount, onChange, threshold }) => {
   useEffect(() => {
     if (threshold > membersCount) onChange(membersCount)
   }, [membersCount, onChange, threshold])
   return (
     <div css={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <p css={({ color }) => ({ color: color.offWhite, fontSize: 14, marginTop: 2 })}>Threshold</p>
-      <p css={({ color }) => ({ color: color.lightGrey, fontSize: 14, marginTop: 2 })}>
-        The number of approvals required to execute a transaction.
-      </p>
+      <div>
+        <p className={cn('text-[14px] mt-[2px]', error ? 'text-red-500' : 'text-offWhite')}>Threshold</p>
+        <p className="text-[14px] text-gray-200 mt-[4px]">The number of approvals required to execute a transaction.</p>
+      </div>
       <div
         css={({ color }) => ({ display: 'flex', gap: 8, alignItems: 'center', color: color.offWhite, marginTop: 8 })}
       >

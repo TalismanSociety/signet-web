@@ -28,8 +28,8 @@ function getColorsAndIcon(type: StatusCircleType): [ReactNode, string] {
 
 const StatusCircle = (props: {
   type: StatusCircleType
-  iconDimentions: { width: string; height: string }
-  circleDiameter: string
+  iconDimentions?: { width: string; height: string }
+  circleDiameter?: string
 }) => {
   const [icon, colors] = getColorsAndIcon(props.type)
   return (
