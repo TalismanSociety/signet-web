@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { atom, selector, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { web3FromSource } from '@polkadot/extension-dapp'
-import { SiwsMessage } from '@talismn/siws'
+import { Siws, SiwsMessage } from '@talismn/siws'
 import { InjectedAccount, accountsState } from '../extension'
 import persistAtom from '../persist'
 import { captureException } from '@sentry/react'
@@ -117,6 +117,7 @@ export const useSignIn = () => {
               : `Welcome to ${CONFIG.APP_NAME}! Please sign in to continue.`,
             chainName: 'Substrate',
             azeroId: resolve(ss58Address)?.a0id,
+            version: Siws.CURRENT_VERSION,
           })
 
           // sign payload for backend verification

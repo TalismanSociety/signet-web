@@ -4,7 +4,7 @@ import {
   resolveDomainToAddress,
   alephzero,
   alephzeroTestnet,
-  CONTRACT_ADDRESSES,
+  SupportedChainId,
 } from '@azns/resolver-core'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { Address } from '@util/addresses'
@@ -57,8 +57,8 @@ const resolveAzeroIDQuery = async (query: string, api: ApiPromise, testnetApi?: 
       if (!address) return resolve({})
 
       const testnetAzeroIdQuery = resolveAddressToDomain(query, {
+        chainId: SupportedChainId.AlephZeroTestnet,
         customApi: testnetApi,
-        customContractAddresses: CONTRACT_ADDRESSES['alephzero-testnet'],
       })
       const azeroIdQuery = resolveAddressToDomain(query, { customApi: api })
       const [testnetAzeroId, azeroId] = await Promise.all([testnetAzeroIdQuery, azeroIdQuery])
