@@ -5785,6 +5785,21 @@ export const ALL_TOKENS = [
     coingeckoId: 'tether',
   },
   {
+    id: 'polkadot-asset-hub-substrate-assets-23-pink',
+    type: 'substrate-assets',
+    isTestnet: false,
+    isDefault: true,
+    symbol: 'PINK',
+    decimals: 10,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/pink.png',
+    existentialDeposit: '1',
+    assetId: '23',
+    isFrozen: false,
+    chain: {
+      id: 'polkadot-asset-hub',
+    },
+  },
+  {
     id: 'polkadot-asset-hub-substrate-native',
     type: 'substrate-native',
     isTestnet: false,
