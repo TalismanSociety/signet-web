@@ -89,7 +89,7 @@ export const RecoverMultisig: React.FC<Props> = ({ multisig }) => {
   const [newThreshold, setNewThreshold] = useState(multisig.threshold)
   const [useScanned, setUseScanned] = useState(false)
   const { updateMultisigConfig, loading } = useUpdateMultisigConfig()
-  const { user } = useUser()
+  const { user, isSigner } = useUser()
 
   useEffect(() => {
     if (!open) {
@@ -150,12 +150,16 @@ export const RecoverMultisig: React.FC<Props> = ({ multisig }) => {
         <p className="mt-[4px] ml-[32px] text-gray-200">
           Your Vault's settings are out of sync, the multisig address no longer has on-chain control for{' '}
           <span className="text-offWhite">{multisig.proxyAddress.toShortSs58(multisig.chain)}</span>. This can happen if
-          the Vault configuration was changed outside of Signet. Click to edit the offchain Multisig details and get the
-          Vault settings back in sync.
+          the Vault configuration was changed outside of Signet.
+          {isSigner && ' Click to edit the offchain Multisig details and get the Vault settings back in sync.'}
         </p>
-        <Button className="ml-[32px] mt-[12px]" size="lg" onClick={() => setOpen(true)}>
-          Reconfigure Multisig
-        </Button>
+        {isSigner ? (
+          <Button className="ml-[32px] mt-[12px]" size="lg" onClick={() => setOpen(true)}>
+            Reconfigure Multisig
+          </Button>
+        ) : (
+          <p className="ml-[32px] mt-[12px]">Please contact a signer to reconfigure the multisig.</p>
+        )}
       </div>
 
       <Modal isOpen={open} width="100%" maxWidth={800} className="!overflow-visible">
