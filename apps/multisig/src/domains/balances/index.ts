@@ -1,8 +1,7 @@
 import { BaseToken, supportedChains } from '@domains/chains'
 import { aggregatedMultisigsState, selectedMultisigState } from '@domains/multisig'
 import { Balances } from '@talismn/balances'
-import { useAllAddresses, useBalances, useTokens } from '@talismn/balances-react'
-import { groupBy } from 'lodash'
+import { useBalances, useSetBalancesAddresses } from '@talismn/balances-react'
 import { useEffect, useMemo } from 'react'
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil'
 
@@ -54,34 +53,21 @@ export const useAugmentedBalances = () => {
 }
 
 export const BalancesWatcher = () => {
-  const tokens = useTokens(true)
   const multisigs = useRecoilValue(aggregatedMultisigsState)
   const selectedMultisig = useRecoilValue(selectedMultisigState)
   const setBalances = useSetRecoilState(balancesState)
-  const [, setAllAddresses] = useAllAddresses()
-
   const addresses = useMemo(() => multisigs.map(({ proxyAddress }) => proxyAddress), [multisigs])
 
+  // clean up for loading state
   useEffect(() => {
-    setAllAddresses(addresses.map(a => a.toSs58(selectedMultisig.chain)))
-  }, [setAllAddresses, addresses, selectedMultisig])
+    setBalances(undefined)
+  }, [multisigs, setBalances])
 
-  const multisigsByChain = useMemo(() => groupBy(multisigs, ({ chain }) => chain.squidIds.chainData), [multisigs])
-  const addressesByToken = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.values(tokens).flatMap(token => {
-          if (!token.chain) return []
-          const multisigs = multisigsByChain[token.chain.id]
-
-          if (!multisigs) return []
-          return [[token.id, multisigs.map(({ proxyAddress }) => proxyAddress.toSs58(selectedMultisig.chain))]]
-        })
-      ),
-    [multisigsByChain, selectedMultisig.chain, tokens]
+  useSetBalancesAddresses(
+    useMemo(() => addresses.map(a => a.toSs58(selectedMultisig.chain)), [addresses, selectedMultisig.chain])
   )
 
-  const balances = useBalances(addressesByToken)
+  const balances = useBalances()
   useEffect(() => {
     setBalances(balances.filterNonZero('total'))
   }, [balances, setBalances])
