@@ -835,6 +835,21 @@ export const ALL_TOKENS = [
     coingeckoId: 'equilibrium-token',
   },
   {
+    id: 'astar-substrate-assets-18446744073709551633-pink',
+    type: 'substrate-assets',
+    isTestnet: false,
+    isDefault: true,
+    symbol: 'PINK',
+    decimals: 10,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/pink.png',
+    existentialDeposit: '1',
+    assetId: '18446744073709551633',
+    isFrozen: false,
+    chain: {
+      id: 'astar',
+    },
+  },
+  {
     id: 'astar-substrate-assets-18446744073709551629-eqd',
     type: 'substrate-assets',
     isTestnet: false,
@@ -5783,6 +5798,21 @@ export const ALL_TOKENS = [
       id: 'polkadot-asset-hub',
     },
     coingeckoId: 'tether',
+  },
+  {
+    id: 'polkadot-asset-hub-substrate-assets-23-pink',
+    type: 'substrate-assets',
+    isTestnet: false,
+    isDefault: true,
+    symbol: 'PINK',
+    decimals: 10,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/pink.png',
+    existentialDeposit: '1',
+    assetId: '23',
+    isFrozen: false,
+    chain: {
+      id: 'polkadot-asset-hub',
+    },
   },
   {
     id: 'polkadot-asset-hub-substrate-native',

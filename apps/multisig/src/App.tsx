@@ -7,7 +7,6 @@ import './index.css'
 
 import { BalancesWatcher } from '@domains/balances'
 import { ExtensionWatcher } from '@domains/extension'
-import { balanceModules } from '@talismn/balances-default-modules'
 import { BalancesProvider } from '@talismn/balances-react'
 import { ToastBar } from '@talismn/ui'
 import { Analytics } from '@vercel/analytics/react'
@@ -37,7 +36,6 @@ const App: React.FC = () => (
   <ThemeProvider>
     <RecoilRoot>
       <BalancesProvider
-        balanceModules={balanceModules}
         withTestnets
         enabledChains={supportedChains.map(chain => chain.genesisHash)}
         coingeckoApiUrl="https://coingecko.talismn.workers.dev"
