@@ -1,7 +1,6 @@
 import { cn } from '@util/tailwindcss'
 import { CONFIG } from '@lib/config'
 import { SignetLogo } from '@components/Logo/SignetLogo'
-import { Link } from 'react-router-dom'
 
 const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
   return (
@@ -32,17 +31,17 @@ const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
         </a>
       </div>
       {CONFIG.IS_POLKADOT_MULTISIG ? (
-        <Link
+        <a
           className="flex items-center gap-[8px] hover:opacity-80"
           target="_blank"
           rel="noopener noreferrer"
-          to={CONFIG.SIGNET_LANDING_PAGE}
+          href={CONFIG.SIGNET_LANDING_PAGE}
         >
           <p className={cn(darkTalisman ? 'lg:text-gray-900' : '', 'text-offWhite text-[14px] text-center')}>
             Powered by{' '}
           </p>
           <SignetLogo className={cn('min-w-[80px]', darkTalisman ? 'text-offWhite lg:text-gray-900' : '')} />
-        </Link>
+        </a>
       ) : (
         <div className="flex items-center justify-center gap-[24px]">
           <a
