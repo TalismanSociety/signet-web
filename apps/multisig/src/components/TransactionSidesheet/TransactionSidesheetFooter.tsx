@@ -58,11 +58,12 @@ export const SignerCta: React.FC<{
   // Check if the user has an account connected which can approve the transaction
   const connectedAccountCanApprove: boolean = useMemo(() => {
     if (!t) return false
+    if (readyToExecute) return true
     return Object.entries(t.approvals).some(([encodedAddress, signed]) => {
       if (signed) return false
       return extensionAccounts.some(account => account.address.toPubKey() === encodedAddress)
     })
-  }, [t, extensionAccounts])
+  }, [t, readyToExecute, extensionAccounts])
 
   const firstApproval = useMemo(() => {
     if (!t) return null

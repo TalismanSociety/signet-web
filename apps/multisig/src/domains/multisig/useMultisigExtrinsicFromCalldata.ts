@@ -94,7 +94,7 @@ export const useMultisigExtrinsicFromCalldata = (
     return approvals >= team.threshold - 1
   }, [team.threshold, t])
 
-  const signer = useNextTransactionSigner(t?.approvals)
+  const signer = useNextTransactionSigner(t?.approvals, team.threshold)
   const {
     approveAsMulti,
     estimatedFee: approveFee,

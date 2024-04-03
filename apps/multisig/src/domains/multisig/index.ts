@@ -110,11 +110,13 @@ export const selectedMultisigChainTokensState = selector<BaseToken[]>({
 
 // Returns the next connected signer that needs to sign the transaction,
 // or undefined if there are none that can sign
-export const useNextTransactionSigner = (approvals: TransactionApprovals | undefined) => {
+export const useNextTransactionSigner = (approvals: TransactionApprovals | undefined, threshold: number) => {
   const [extensionAccounts] = useRecoilState(accountsState)
   const selectedAccount = useRecoilValue(selectedAccountState)
 
   if (!approvals) return
+  // ready to execute, let selected account sign
+  if (Object.values(approvals).length >= threshold) return selectedAccount?.injected
 
   if (selectedAccount?.injected && approvals[selectedAccount.injected.address.toPubKey()] === false) {
     return selectedAccount.injected
