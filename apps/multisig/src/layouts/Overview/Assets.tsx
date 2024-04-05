@@ -2,7 +2,7 @@ import { BaseToken } from '@domains/chains'
 import { css } from '@emotion/css'
 import { Balance } from '@talismn/balances'
 import { Lock } from '@talismn/icons'
-import { AnimatedNumber } from '@talismn/ui'
+import { AnimatedNumber, Skeleton } from '@talismn/ui'
 import { formatDecimals } from '@talismn/util'
 import { formatUsd } from '@util/numbers'
 import { capitalizeFirstLetter } from '@util/strings'
@@ -51,67 +51,74 @@ const TokenRow = ({ augmentedToken, balance }: { augmentedToken: TokenAugmented;
   )
 }
 
-const Assets = ({ augmentedTokens }: { augmentedTokens: TokenAugmented[] }) => {
+const Assets = ({ augmentedTokens }: { augmentedTokens?: TokenAugmented[] }) => {
   const totalFiatBalance = useMemo(() => {
+    if (!augmentedTokens) return undefined
     return augmentedTokens.reduce(
       (acc, { balance, price }) => acc + (balance.avaliable + balance.unavaliable) * price,
       0
     )
   }, [augmentedTokens])
   const totalUnavaliableBalance = useMemo(() => {
+    if (!augmentedTokens) return undefined
     return augmentedTokens.reduce((acc, { balance }) => acc + balance.unavaliable, 0)
   }, [augmentedTokens])
   const totalAvaliableBalance = useMemo(() => {
+    if (!augmentedTokens) return undefined
     return augmentedTokens.reduce((acc, { balance }) => acc + balance.avaliable, 0)
   }, [augmentedTokens])
 
   const avaliableSorted = useMemo(() => {
+    if (!augmentedTokens) return undefined
     return augmentedTokens
       .filter(({ balance }) => balance.avaliable > 0)
       .sort((a1, a2) => a2.balance.avaliable * a2.price - a1.balance.avaliable * a1.price)
   }, [augmentedTokens])
 
   const unavaliableSorted = useMemo(() => {
+    if (!augmentedTokens) return undefined
     return augmentedTokens
       .filter(({ balance }) => balance.unavaliable > 0)
       .sort((a1, a2) => a2.balance.unavaliable * a2.price - a1.balance.unavaliable * a1.price)
   }, [augmentedTokens])
 
   return (
-    <section
-      className={css`
-        background-color: var(--color-grey800);
-        border-radius: 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        height: 100%;
-        padding: 24px;
-      `}
-    >
-      <>
-        <div
-          className={css`
-            display: flex;
-            justify-content: space-between;
-          `}
-        >
-          <h2 css={{ color: 'var(--color-offWhite)', fontWeight: 'bold' }}>Assets</h2>
-          <h2 css={{ fontWeight: 'bold' }}>
+    <section className="bg-gray-800 rounded-[16px] flex flex-col gap-[16px] h-full p-[24px]">
+      <div className="flex justify-between items-center">
+        <h2 className="text-offWhite font-bold">Assets</h2>
+        {totalFiatBalance === undefined ? (
+          <Skeleton.Surface className="h-[29px] w-[100px]" />
+        ) : (
+          <h2 className="font-bold">
             <AnimatedNumber formatter={formatUsd} end={totalFiatBalance} decimals={2} />
           </h2>
+        )}
+      </div>
+      {totalAvaliableBalance === undefined ||
+      totalUnavaliableBalance === undefined ||
+      !avaliableSorted ||
+      !unavaliableSorted ? (
+        <div className="grid gap-[16px]">
+          <p className="text-gray-400 font-bold">Avaliable</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-[8px]">
+              <Skeleton.Surface className="w-[40px] h-[40px] !rounded-full" />
+              <div>
+                <Skeleton.Surface className="w-[48px] h-[20px]" />
+                <Skeleton.Surface className="w-[55px] h-[20px] mt-[2px]" />
+              </div>
+            </div>
+            <div className="flex flex-col items-end">
+              <Skeleton.Surface className="w-[62px] h-[20px]" />
+              <Skeleton.Surface className="w-[42px] h-[20px] mt-[2px]" />
+            </div>
+          </div>
         </div>
-        {totalAvaliableBalance > 0 ? (
-          <div>
-            <div css={{ display: 'grid', gap: '16px' }}>
-              <p
-                className={css`
-                  color: var(--color-dim);
-                  font-weight: bold;
-                `}
-              >
-                Avaliable
-              </p>
+      ) : (
+        <>
+          {totalAvaliableBalance > 0 ? (
+            <div className="grid gap-[16px]">
+              <p className="text-gray-300 font-bold">Avaliable</p>
               {avaliableSorted.map(augmentedToken => {
                 return (
                   <TokenRow
@@ -122,28 +129,12 @@ const Assets = ({ augmentedTokens }: { augmentedTokens: TokenAugmented[] }) => {
                 )
               })}
             </div>
-          </div>
-        ) : null}
-        {totalUnavaliableBalance > 0 ? (
-          <div>
-            <div css={{ display: 'grid', gap: '16px' }}>
-              <div
-                className={css`
-                  display: flex;
-                  align-items: center;
-                  color: var(--color-dim);
-                  font-weight: bold;
-                  svg {
-                    height: 15px;
-                    margin-bottom: 3px;
-                  }
-                  p {
-                    font-weight: bold;
-                  }
-                `}
-              >
-                <p>Unavaliable</p>
-                <Lock />
+          ) : null}
+          {totalUnavaliableBalance > 0 ? (
+            <div className="grid gap-[16px]">
+              <div className="flex items-center">
+                <p className="text-gray-300 font-bold">Unavaliable</p>
+                <Lock className="h-[16px] text-gray-300" />
               </div>
               {unavaliableSorted.map(augmentedToken => {
                 return (
@@ -155,9 +146,9 @@ const Assets = ({ augmentedTokens }: { augmentedTokens: TokenAugmented[] }) => {
                 )
               })}
             </div>
-          </div>
-        ) : null}
-      </>
+          ) : null}
+        </>
+      )}
     </section>
   )
 }

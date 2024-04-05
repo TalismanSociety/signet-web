@@ -30,7 +30,7 @@ const Staking = () => {
   >()
 
   const augmentedTokens = useAugmentedBalances()
-  const balance = augmentedTokens.find(
+  const balance = augmentedTokens?.find(
     ({ details }) => details.id === multisig.chain.nativeToken.id || details.id.includes(multisig.chain.nativeToken.id)
   )
 
