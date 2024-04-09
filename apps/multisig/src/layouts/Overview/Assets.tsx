@@ -36,7 +36,7 @@ const TokenRow = ({ augmentedToken, balance }: { augmentedToken: TokenAugmented;
         }
       `}
     >
-      <img css={{ height: '40px', marginRight: '8px' }} src={details.logo} alt="Token logo" />
+      <img className="h-[40px] w-[40px] mr-[8px]" width={40} height={40} src={details.logo} alt="Token logo" />
       <div>
         <p>{details.symbol}</p>
         <p>{capitalizeFirstLetter(details.chain.chainName)}</p>
