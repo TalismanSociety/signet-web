@@ -55,12 +55,6 @@ export const supportedChains: Chain[] = [
     },
     rpcs: [
       {
-        url: 'wss://statemint-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://statemint-rpc-tn.dwellir.com',
-      },
-      {
         url: 'wss://sys.ibp.network/statemint',
       },
       {
@@ -77,6 +71,12 @@ export const supportedChains: Chain[] = [
       },
       {
         url: 'wss://dot-rpc.stakeworld.io/assethub',
+      },
+      {
+        url: 'wss://statemint-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://statemint-rpc-tn.dwellir.com',
       },
     ],
     squidIds: {
@@ -139,12 +139,6 @@ export const supportedChains: Chain[] = [
     },
     rpcs: [
       {
-        url: 'wss://statemine-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://statemine-rpc-tn.dwellir.com',
-      },
-      {
         url: 'wss://sys.ibp.network/statemine',
       },
       {
@@ -161,6 +155,12 @@ export const supportedChains: Chain[] = [
       },
       {
         url: 'wss://ksm-rpc.stakeworld.io/assethub',
+      },
+      {
+        url: 'wss://statemine-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://statemine-rpc-tn.dwellir.com',
       },
     ],
     squidIds: {
@@ -467,5 +467,24 @@ export const supportedChains: Chain[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://test.azero.dev/#/explorer/',
+  },
+  {
+    chainName: 'Dancebox',
+    genesisHash: '0x27aafd88e5921f5d5c6aebcd728dacbbf5c2a37f63e2eda301f8e0def01c43ea',
+    isTestnet: true,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/dancebox.svg',
+    nativeToken: {
+      id: 'dancebox-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://fraa-dancebox-rpc.a.dancebox.tanssi.network',
+      },
+    ],
+    squidIds: {
+      chainData: 'dancebox',
+    },
+    ss58Prefix: 42,
+    subscanUrl: 'https://dancebox.subscan.io/',
   },
 ]

@@ -40,6 +40,7 @@ const supportedChainIds = [
   'rococo-testnet',
   'shibuya-testnet',
   'aleph-zero-testnet',
+  'dancebox',
 ]
 
 const polkaAssemblyUrl: Record<string, string> = {
@@ -53,6 +54,7 @@ const polkaAssemblyUrl: Record<string, string> = {
 
 const subscanUrlsOverride: Record<string, string> = {
   'aleph-zero-testnet': 'https://test.azero.dev/#/explorer/',
+  'dancebox': 'https://dancebox.subscan.io/',
 }
 
 const CHAINDATA_URL = 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/dist/chains/all.json'
