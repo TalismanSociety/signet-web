@@ -76,14 +76,14 @@ export const useSignIn = () => {
   const { toast, dismiss } = useToast()
 
   const signIn = useCallback(
-    async (account: InjectedAccount) => {
+    async (account: InjectedAccount, force = false) => {
       if (signingIn) return
       setSigningIn(true)
 
       const ss58Address = account.address.toSs58()
       let auth = authTokenBook[ss58Address]
       try {
-        if (typeof auth === 'string' || !auth?.accessToken || !auth.id) {
+        if (typeof auth === 'string' || !auth?.accessToken || !auth.id || force) {
           // to be able to retrieve the signer interface from this account
           // we can use web3FromSource which will return an InjectedExtension type
           const injector = await web3FromSource(account.meta.source)
