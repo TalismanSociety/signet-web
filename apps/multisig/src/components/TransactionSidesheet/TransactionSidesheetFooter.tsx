@@ -58,12 +58,19 @@ export const SignerCta: React.FC<{
   // Check if the user has an account connected which can approve the transaction
   const connectedAccountCanApprove: boolean = useMemo(() => {
     if (!t) return false
-    if (readyToExecute) return true
-    return Object.entries(t.approvals).some(([encodedAddress, signed]) => {
-      if (signed) return false
-      return extensionAccounts.some(account => account.address.toPubKey() === encodedAddress)
-    })
-  }, [t, readyToExecute, extensionAccounts])
+
+    // none of user's extension account can sign
+    const relevantSigners = extensionAccounts.filter(acc => t.approvals[acc.address.toPubKey()] !== undefined)
+    if (relevantSigners.length === 0) return false
+
+    // one of user's extension is a signer and has not yet signed
+    const hasUnapprovedSigner = relevantSigners.some(acc => t.approvals[acc.address.toPubKey()] === false)
+    if (hasUnapprovedSigner) return true
+
+    // all connected extensions have already signed, user can approve only if approvals exceed threshold
+    const approvalsCount = Object.values(t.approvals).filter(approved => approved).length
+    return approvalsCount >= t.multisig.threshold
+  }, [t, extensionAccounts])
 
   const firstApproval = useMemo(() => {
     if (!t) return null

@@ -116,7 +116,7 @@ export const useNextTransactionSigner = (approvals: TransactionApprovals | undef
 
   if (!approvals) return
   // ready to execute, let selected account sign
-  if (Object.values(approvals).length >= threshold) return selectedAccount?.injected
+  if (Object.values(approvals).filter(approved => approved).length >= threshold) return selectedAccount?.injected
 
   if (selectedAccount?.injected && approvals[selectedAccount.injected.address.toPubKey()] === false) {
     return selectedAccount.injected
