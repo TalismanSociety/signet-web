@@ -34,7 +34,7 @@ const SendAction = () => {
   useEffect(() => {
     if (tokens.state === 'hasValue' && tokens.contents.length > 0) {
       if (!selectedToken || !tokens.contents.find(token => token.id === selectedToken.id))
-        setSelectedToken(tokens.contents[0])
+        setSelectedToken(tokens.contents.find(token => token.id === token.chain.nativeToken.id) ?? tokens.contents[0])
     }
   }, [tokens, selectedToken])
 
