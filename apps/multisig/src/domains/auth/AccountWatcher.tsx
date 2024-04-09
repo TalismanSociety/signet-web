@@ -1,7 +1,32 @@
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { authTokenBookState, selectedAddressState } from '.'
 import { accountsState, extensionAllowedState, extensionInitiatedState } from '../extension'
 import { useCallback, useEffect } from 'react'
+
+export const useSignOut = () => {
+  const [authTokenBook, setAuthTokenBook] = useRecoilState(authTokenBookState)
+  const extensionAccounts = useRecoilValue(accountsState)
+  const setSelectedAccount = useSetRecoilState(selectedAddressState)
+
+  const findNextSignedInAccount = useCallback(
+    (exclude?: string) =>
+      extensionAccounts.find(account => {
+        const address = account.address.toSs58()
+        const auth = authTokenBook[address]
+        return address !== exclude && !!auth && typeof auth !== 'string' && auth.accessToken && auth.id
+      }),
+    [authTokenBook, extensionAccounts]
+  )
+
+  return useCallback(
+    (accountAddress: string) => {
+      setAuthTokenBook({ ...authTokenBook, [accountAddress]: undefined })
+      const nextAccount = findNextSignedInAccount(accountAddress)
+      if (nextAccount) setSelectedAccount(nextAccount.address.toSs58())
+    },
+    [authTokenBook, findNextSignedInAccount, setAuthTokenBook, setSelectedAccount]
+  )
+}
 
 export const AccountWatcher: React.FC = () => {
   const [authTokenBook, setAuthTokenBook] = useRecoilState(authTokenBookState)

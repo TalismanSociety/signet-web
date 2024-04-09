@@ -4,19 +4,15 @@ import { css } from '@emotion/css'
 import { useRecoilValue } from 'recoil'
 import { MultisigSelect } from '../components/MultisigSelect'
 
-import { selectedAccountState } from '../domains/auth'
-import { accountsState } from '../domains/extension'
-import AccountSwitcher from '../components/AccountSwitcher'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@util/tailwindcss'
 import { CONFIG } from '@lib/config'
+import { AccountMenu } from '@components/AccountMenu'
 
 const Header = () => {
   const navigate = useNavigate()
   const [selectedMultisig, setSelectedMultisig] = useSelectedMultisig()
   const activeMultisigs = useRecoilValue(activeMultisigsState)
-  const selectedAccount = useRecoilValue(selectedAccountState)
-  const extensionAccounts = useRecoilValue(accountsState)
 
   return (
     <header
@@ -61,9 +57,7 @@ const Header = () => {
         )}
       </div>
 
-      <div>
-        <AccountSwitcher selectedAccount={selectedAccount?.injected} accounts={extensionAccounts} />
-      </div>
+      <AccountMenu />
     </header>
   )
 }
