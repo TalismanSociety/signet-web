@@ -142,7 +142,22 @@ const fetchRaw = async (accounts: { pubkey: string; chainGenesisHash?: string }[
 }
 
 // transaction made from multisig + proxy vault via Multisig.asMulti -> Proxy.proxy call
-const getMultisigCall = (signerString: string, call: { name: string; args: any }) => {
+const getMultisigCall = (
+  signerString: string,
+  call: { name: string; args: any }
+):
+  | {
+      signer: Address
+      otherSigners: Address[]
+      maybeTimepoint: any
+      threshold: number
+      proxy?: {
+        realAddress: Address
+        proxyCallPallet: string
+        proxyCallMethod: string
+      }
+    }
+  | undefined => {
   if (call.name !== 'Multisig.as_multi') return undefined
   const multisigArgs = call.args as {
     call: {
@@ -154,6 +169,9 @@ const getMultisigCall = (signerString: string, call: { name: string; args: any }
     otherSignatories: string[]
     threshold: number
   }
+
+  if (multisigArgs.call.__kind === 'Multisig' && multisigArgs.call.value.__kind === 'as_multi')
+    return getMultisigCall(signerString, { name: 'Multisig.as_multi', args: multisigArgs.call.value })
 
   const signer = Address.fromPubKey(signerString)
   // impossible unless squid is broken
@@ -218,7 +236,7 @@ const isRelevantTransaction = (tx: ParsedTransaction, teams: Team[]) => {
 
   // TODO: get team's change log. Then check if there's any point in time where this multisig was the controller of the proxied account
   // const multisigAddress = toMultisigAddress([signer, ...otherSigners], multisigArgs.threshold)
-  return teams.some(team => multisigCall.proxy.realAddress.isEqual(team.proxiedAddress)) // not ours
+  return teams.some(team => multisigCall.proxy?.realAddress.isEqual(team.proxiedAddress)) // not ours
 }
 
 const ROW_PER_PAGE = 10
@@ -324,7 +342,7 @@ export const useConfirmedTransactions = (teams: Team[]) => {
         // make sure this tx is for us
         const team = teams.find(
           team =>
-            multisigCall.proxy.realAddress.isEqual(team.proxiedAddress) &&
+            multisigCall.proxy?.realAddress.isEqual(team.proxiedAddress) &&
             team.chain.genesisHash === tx.block.chainGenesisHash
         )
         if (!team) return // not ours
