@@ -5,7 +5,7 @@
 1. Clone the repo:
 
 ```sh
-git clone https://github.com/TalismanSociety/talisman-web.git
+git clone https://github.com/TalismanSociety/signet-web.git
 ```
 
 2. Switch to `multisig` branch
