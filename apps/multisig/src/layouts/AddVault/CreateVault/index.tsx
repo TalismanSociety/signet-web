@@ -23,7 +23,7 @@ import { MultisigConfig } from '../MultisigConfig'
 import { useAugmentedAccounts } from '../common/useAugmentedAccounts'
 import { useToast } from '@components/ui/use-toast'
 import { useBlockUnload } from '@hooks/useBlockUnload'
-import { blockAccountSwitcher } from '@components/AccountSwitcher'
+import { blockAccountSwitcher } from '@components/AccountMenu/AccountsList'
 import { getErrorString } from '@util/misc'
 
 export enum Step {
