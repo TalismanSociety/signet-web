@@ -618,4 +618,23 @@ export const supportedChains: Chain[] = [
     ss58Prefix: 42,
     subscanUrl: 'https://paseo.subscan.io/',
   },
+  {
+    chainName: 'Polimec',
+    genesisHash: '0x7eb9354488318e7549c722669dcbdcdc526f1fef1420e7944667212f3601fdbd',
+    isTestnet: false,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/polimec.svg',
+    nativeToken: {
+      id: 'polimec-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://rpc.polimec.org',
+      },
+    ],
+    squidIds: {
+      chainData: 'polimec',
+    },
+    ss58Prefix: 41,
+    subscanUrl: 'https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.polimec.org#/explorer',
+  },
 ]

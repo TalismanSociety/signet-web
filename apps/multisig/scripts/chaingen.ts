@@ -45,6 +45,7 @@ const supportedChainIds = [
   'avail-turing-testnet',
   'dancebox',
   'paseo-testnet',
+  'polimec',
 ]
 
 const polkaAssemblyUrl: Record<string, string> = {
@@ -61,6 +62,7 @@ const subscanUrlsOverride: Record<string, string> = {
   'dancebox': 'https://dancebox.subscan.io/',
   'paseo-testnet': 'https://paseo.subscan.io/',
   'avail-turing-testnet': 'https://temp-explorer.avail.so/#/explorer',
+  'polimec': 'https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc.polimec.org#/explorer',
 }
 
 const networkLogoOverride: Record<string, string> = {
