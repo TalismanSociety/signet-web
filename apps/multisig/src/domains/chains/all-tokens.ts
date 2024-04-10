@@ -951,6 +951,19 @@ export const ALL_TOKENS = [
     },
   },
   {
+    id: 'avail-turing-testnet-substrate-native',
+    type: 'substrate-native',
+    isTestnet: true,
+    isDefault: true,
+    symbol: 'AVAIL',
+    decimals: 18,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
+    existentialDeposit: '10000000000000',
+    chain: {
+      id: 'avail-turing-testnet',
+    },
+  },
+  {
     id: 'aventus-substrate-native',
     type: 'substrate-native',
     isTestnet: false,
