@@ -28,6 +28,8 @@ const supportedChainIds = [
   'kusama-asset-hub',
   'acala',
   'astar',
+  'bifrost-polkadot',
+  'bifrost-kusama',
   // 'aleph-zero',
   'centrifuge',
   'hydradx',
@@ -41,6 +43,7 @@ const supportedChainIds = [
   'shibuya-testnet',
   'aleph-zero-testnet',
   'dancebox',
+  'paseo-testnet',
 ]
 
 const polkaAssemblyUrl: Record<string, string> = {
@@ -55,6 +58,7 @@ const polkaAssemblyUrl: Record<string, string> = {
 const subscanUrlsOverride: Record<string, string> = {
   'aleph-zero-testnet': 'https://test.azero.dev/#/explorer/',
   'dancebox': 'https://dancebox.subscan.io/',
+  'paseo-testnet': 'https://paseo.subscan.io/',
 }
 
 const CHAINDATA_URL = 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/dist/chains/all.json'

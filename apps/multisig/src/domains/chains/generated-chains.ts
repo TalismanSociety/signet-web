@@ -227,6 +227,53 @@ export const supportedChains: Chain[] = [
     polkaAssemblyUrl: 'https://astar.polkassembly.io',
   },
   {
+    chainName: 'Bifrost Polkadot',
+    genesisHash: '0x262e1b2ad728475fd6fe88e62d34c200abe6fd693931ddad144059b1eb884e5b',
+    isTestnet: false,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/bifrost-polkadot.svg',
+    nativeToken: {
+      id: 'bifrost-polkadot-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://hk.p.bifrost-rpc.liebi.com/ws',
+      },
+      {
+        url: 'wss://eu.bifrost-polkadot-rpc.liebi.com/ws',
+      },
+    ],
+    squidIds: {
+      chainData: 'bifrost-polkadot',
+    },
+    ss58Prefix: 6,
+    subscanUrl: 'https://bifrost.subscan.io/',
+  },
+  {
+    chainName: 'Bifrost Kusama',
+    genesisHash: '0x9f28c6a68e0fc9646eff64935684f6eeeece527e37bbe1f213d22caa1d9d6bed',
+    isTestnet: false,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/bifrost-kusama.svg',
+    nativeToken: {
+      id: 'bifrost-kusama-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://bifrost-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://bifrost-rpc.liebi.com/ws',
+      },
+      {
+        url: 'wss://us.bifrost-rpc.liebi.com/ws',
+      },
+    ],
+    squidIds: {
+      chainData: 'bifrost-kusama',
+    },
+    ss58Prefix: 6,
+    subscanUrl: 'https://bifrost-kusama.subscan.io/',
+  },
+  {
     chainName: 'HydraDX',
     genesisHash: '0xafdc188f45c71dacbaa0b62e16a91f726c7b8699a9748cdf715459de6b7f366d',
     isTestnet: false,
@@ -486,5 +533,24 @@ export const supportedChains: Chain[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://dancebox.subscan.io/',
+  },
+  {
+    chainName: 'Paseo',
+    genesisHash: '0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f',
+    isTestnet: true,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/paseo-testnet.svg',
+    nativeToken: {
+      id: 'paseo-testnet-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://paseo.rpc.amforc.com',
+      },
+    ],
+    squidIds: {
+      chainData: 'paseo-testnet',
+    },
+    ss58Prefix: 42,
+    subscanUrl: 'https://paseo.subscan.io/',
   },
 ]
