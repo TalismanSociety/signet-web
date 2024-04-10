@@ -121,7 +121,7 @@ export const CustomRPC: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
         <Button size="icon" className="items-center" variant="ghost" onClick={onBack}>
           <ChevronLeft size={14} />
         </Button>
-        <h4 className="text-[14px] font-semibold mt-[3px]">Custom RPCs</h4>
+        <h4 className="text-[14px] font-semibold mt-[3px]">Custom RPC</h4>
         <div className="w-[30px]" />
       </div>
       <div className="max-h-[160px] overflow-y-auto flex flex-col overflow-x-hidden">
