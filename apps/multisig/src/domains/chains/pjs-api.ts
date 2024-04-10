@@ -3,10 +3,13 @@ import { atom, atomFamily, selectorFamily, useRecoilValueLoadable } from 'recoil
 
 import { supportedChains } from './supported-chains'
 import { getErrorString } from '@util/misc'
+import { parseURL } from '@util/strings'
+import persistAtom from '@domains/persist'
 
-export const customRpcsAtom = atom<Map<string, string>>({
+export const customRpcsAtom = atom<Record<string, string | undefined>>({
   key: 'customRpcs',
-  default: new Map(),
+  default: {},
+  effects_UNSTABLE: [persistAtom],
 })
 
 const defaultPjsApiSelector = selectorFamily({
@@ -34,13 +37,28 @@ export const customPjsApiSelector = selectorFamily({
   key: 'customApis',
   get: (rpcUrl: string) => async (): Promise<ApiPromise> => {
     try {
-      const api = await ApiPromise.create({ provider: new WsProvider(rpcUrl) })
+      // validate url
+      const parsedUrl = parseURL(rpcUrl)
+      if (!parsedUrl) throw new Error('Invalid URL')
+      if (!(parsedUrl.protocol === 'ws:' || parsedUrl.protocol === 'wss:'))
+        throw new Error('Only websocket rpcs are supported at the moment.')
+
+      // create the API with custom rpc
+      const api = await ApiPromise.create({
+        provider: new WsProvider(rpcUrl),
+        throwOnConnect: true,
+      })
       await api.isReady
       return api
     } catch (e) {
-      throw new Error(`Failed to connect to custom chain:` + getErrorString(e))
+      console.error('Failed to connect to custom RPC: ', e)
+      if (e instanceof Error) throw e
+      throw new Error(
+        'Failed to connect to custom RPC. Please make sure the RPC is working or check console log for details.'
+      )
     }
   },
+  dangerouslyAllowMutability: true,
 })
 
 // Grab the pjs api from a selector. The selector caches the result based on the given rpc, so an
@@ -55,11 +73,11 @@ export const pjsApiSelector = atomFamily({
       async ({ get }): Promise<ApiPromise> => {
         const chain = supportedChains.find(({ genesisHash }) => genesisHash === _genesisHash)
         const customRpcs = get(customRpcsAtom)
-        const rpc = customRpcs.get(_genesisHash)
+        const rpc = customRpcs[_genesisHash]
 
         let api: ApiPromise
         if (rpc) {
-          api = await ApiPromise.create({ provider: new WsProvider(rpc) })
+          api = get(customPjsApiSelector(rpc))
         } else {
           api = get(defaultPjsApiSelector(_genesisHash))
         }
