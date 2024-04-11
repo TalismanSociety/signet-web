@@ -68,6 +68,7 @@
     "@vercel/analytics": "^1.2.2",
     "@walletconnect/web3wallet": "^1.10.0",
     "ace-builds": "^1.22.0",
+    "avail-js-sdk": "^0.2.11",
     "bignumber.js": "^9.1.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
