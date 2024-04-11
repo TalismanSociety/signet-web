@@ -21,6 +21,7 @@ import { Upload } from 'lucide-react'
 import { Tooltip } from '@components/ui/tooltip'
 import { getExtrinsicErrorsFromEvents } from '@util/errors'
 import { blockEventsSelector } from '@domains/chains/storage-getters'
+import { cn } from '@util/tailwindcss'
 
 const TransactionSummaryRow = ({
   t,
@@ -120,10 +121,16 @@ const TransactionSummaryRow = ({
                 </div>
               ) : null
             ) : (
-              !t.executedAt &&
-              threshold !== signedCount && (
-                <div className="flex items-center justify-center rounded-[12px] bg-gray-500 text-[11px] text-offWhite pt-[2px] h-[16px] px-[4px]">
-                  {signedCount}/{threshold}
+              !t.executedAt && (
+                <div
+                  className={cn(
+                    'relative flex items-center justify-center rounded-[12px] pt-[2px] h-[16px] px-[4px] ',
+                    signedCount >= threshold ? 'bg-primary text-gray-800' : 'bg-gray-500 text-offWhite'
+                  )}
+                >
+                  <p className="text-[11px] mt-[2px]">
+                    {signedCount}/{threshold}
+                  </p>
                 </div>
               )
             )}

@@ -135,6 +135,7 @@ export const SignerCta: React.FC<{
     }
   }, [feeTokenPrice, fee, connectedAccountCanApprove])
 
+  const approvalsCount = Object.values(t.approvals).filter(approved => approved).length
   // get fee and signable extrinsic
   return (
     <div className="w-full grid gap-[12px]">
@@ -198,7 +199,13 @@ export const SignerCta: React.FC<{
             }
             loading={asDraft ? loading.savingDraft : loading.approving}
           >
-            {asDraft ? 'Save as Draft' : readyToExecute ? 'Approve & Execute' : 'Approve'}
+            {asDraft
+              ? 'Save as Draft'
+              : readyToExecute
+              ? approvalsCount >= t.multisig.threshold
+                ? 'Execute'
+                : 'Approve & Execute'
+              : 'Approve'}
           </Button>
         </div>
       </div>
