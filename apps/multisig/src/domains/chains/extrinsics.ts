@@ -683,7 +683,7 @@ export const useTransferProxyToMultisig = (chain: Chain) => {
 
       // Define the outer batch call
       const signerBatchCall = api?.tx?.utility?.batchAll([
-        api.tx.balances.transferKeepAlive(proxyAddress.bytes, getInitialProxyBalance(existentialDeposit).amount),
+        api.tx.balances.transferKeepAlive(proxyAddress.bytes, existentialDeposit.amount),
         proxyCall,
       ])
 
@@ -717,10 +717,3 @@ export const useTransferProxyToMultisig = (chain: Chain) => {
 
   return { transferProxyToMultisig, ready: apiLoadable.state === 'hasValue' }
 }
-
-// Add 1 whole token onto the ED to make sure there're no weird issues creating the multisig
-// TODO: Look into how to compute an exact initial balance.
-export const getInitialProxyBalance = (ed: Balance) => ({
-  token: ed.token,
-  amount: ed.amount.add(new BN(10).pow(new BN(ed.token.decimals))),
-})
