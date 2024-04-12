@@ -51,7 +51,7 @@ const Header = () => {
               css={{ height: 56, width: 'max-content' }}
               onClick={() => setCombinedView(!combinedView)}
             >
-              <div>{combinedView ? 'Combined' : 'Selected'} Vault View</div>
+              <div>{combinedView ? 'Combined' : 'Selected'} Multisig View</div>
             </Button> */}
           </>
         )}

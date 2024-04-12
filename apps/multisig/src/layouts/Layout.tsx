@@ -20,13 +20,13 @@ export const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   const hideSideBar = useMemo(
     () =>
-      location.pathname.startsWith('/add-vault') ||
+      location.pathname.startsWith('/add-multisig') ||
       location.pathname.startsWith('/connect') ||
       location.pathname.startsWith('/sign'),
     [location.pathname]
   )
 
-  const requiresMultisig = useMemo(() => !location.pathname.startsWith('/add-vault'), [location.pathname])
+  const requiresMultisig = useMemo(() => !location.pathname.startsWith('/add-multisig'), [location.pathname])
 
   return (
     <div className="flex flex-col w-full min-h-screen gap-[16px] p-[24px] flex-1">
@@ -39,7 +39,7 @@ export const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
               <EyeOfSauronProgressIndicator />
             </div>
           ) : (
-            <Navigate to="/add-vault?redirect=self" />
+            <Navigate to="/add-multisig?redirect=self" />
           )
         ) : (
           <>

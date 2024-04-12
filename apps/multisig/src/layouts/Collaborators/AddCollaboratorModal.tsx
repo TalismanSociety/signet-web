@@ -45,7 +45,7 @@ export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
     >
       <h1 className="text-[20px] font-bold">Add new collaborator</h1>
       <p className="mt-[8px]">
-        Collaborators can draft transaction and read data in your vault (e.g. transaction description).
+        Collaborators can draft transaction and read data in your multisig (e.g. transaction description).
       </p>
       <div className="mt-[24px] flex flex-col gap-[24px]">
         <div className="w-full">

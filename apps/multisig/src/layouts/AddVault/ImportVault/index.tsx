@@ -49,15 +49,15 @@ export const ImportVault: React.FC = () => {
       })
 
       if (!ok || error) {
-        toast.error(error ?? 'Failed to import vault, please try again later.')
+        toast.error(error ?? 'Failed to import multisig, please try again later.')
         return
       }
 
-      toast.success('Vault imported successfully!')
+      toast.success('Multisig imported successfully!')
       navigate(`/overview`)
     } catch (e) {
       console.error(e)
-      toast.error('Failed to import vault, please try again later.')
+      toast.error('Failed to import multisig, please try again later.')
     } finally {
       setImporting(false)
     }
@@ -67,15 +67,15 @@ export const ImportVault: React.FC = () => {
     <>
       {step === Step.NameVault ? (
         <NameVault
-          header="Import Vault"
-          onBack={() => navigate('/add-vault')}
+          header="Import Multisig"
+          onBack={() => navigate('/add-multisig')}
           onNext={() => setStep(Step.SelectFirstChain)}
           setName={setName}
           name={name}
         />
       ) : step === Step.SelectFirstChain ? (
         <SelectChain
-          header="Import Vault"
+          header="Import Multisig"
           onBack={() => setStep(Step.NameVault)}
           onNext={() => setStep(Step.ProxiedAccountAddress)}
           setChain={setChain}
@@ -84,7 +84,7 @@ export const ImportVault: React.FC = () => {
         />
       ) : step === Step.ProxiedAccountAddress || !proxiedAddress ? (
         <ProxiedAccountSettings
-          header="Import Vault"
+          header="Import Multisig"
           address={proxiedAddress}
           chain={chain}
           onBack={() => setStep(Step.SelectFirstChain)}
@@ -93,7 +93,7 @@ export const ImportVault: React.FC = () => {
         />
       ) : step === Step.MultisigConfig ? (
         <MultisigConfig
-          header="Import Vault"
+          header="Import Multisig"
           chain={chain}
           threshold={threshold}
           onThresholdChange={setThreshold}
@@ -104,7 +104,7 @@ export const ImportVault: React.FC = () => {
         />
       ) : step === Step.Confirmation ? (
         <Confirmation
-          header="Import Vault"
+          header="Import Multisig"
           onBack={() => setStep(Step.MultisigConfig)}
           onCreateVault={handleImport}
           proxiedAccount={proxiedAddress}

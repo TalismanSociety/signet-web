@@ -229,7 +229,7 @@ export const CollaboratorCta: React.FC<{
       <div className="w-full">
         {!isCreator && (
           <p className="mb-[8px]">
-            Only the creator of this draft or signers of this vault has permission to delete this draft.
+            Only the creator of this draft or signers of this multisig has permission to delete this draft.
           </p>
         )}
         <div className="grid grid-cols-2 gap-[12px] w-full">

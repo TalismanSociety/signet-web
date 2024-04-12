@@ -33,7 +33,7 @@ const AddMembers = (props: {
     >
       <div css={{ width: '100%' }}>
         <h2 css={({ color }) => ({ fontSize: 20, color: color.offWhite })}>Members</h2>
-        <p css={{ marginTop: 4 }}>Select the addresses to act as Members of this Vault.</p>
+        <p css={{ marginTop: 4 }}>Select the addresses to act as signers of this Multisig.</p>
       </div>
       <div css={{ width: '100%' }}>
         <div

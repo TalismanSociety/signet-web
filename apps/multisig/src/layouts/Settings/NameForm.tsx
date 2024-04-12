@@ -37,7 +37,7 @@ export const NameForm: React.FC<Props> = ({ editable, name, teamId }) => {
     },
     onCompleted: data => {
       if (data.update_team_by_pk && data.update_team_by_pk.id === teamId) {
-        toast({ title: 'Vault name updated' })
+        toast({ title: 'Multisig name updated' })
         setEditing(false)
         setOrganisations(prev => {
           const newOrgs = prev.map(org => {
@@ -68,7 +68,7 @@ export const NameForm: React.FC<Props> = ({ editable, name, teamId }) => {
   )
 
   return (
-    <SettingsInfoRow label="Vault Name">
+    <SettingsInfoRow label="Multisig Name">
       <div className="flex items-center justify-start gap-[8px]">
         <p className="text-[16px] text-offWhite font-bold mt-[3px]">{name}</p>
         {editable && (
@@ -83,15 +83,15 @@ export const NameForm: React.FC<Props> = ({ editable, name, teamId }) => {
         )}
       </div>
 
-      <Modal isOpen={editing} width="100%" maxWidth={420} contentLabel="Edit Vault Name">
+      <Modal isOpen={editing} width="100%" maxWidth={420} contentLabel="Edit Multisig Name">
         <form className="grid w-full gap-[16px]" onSubmit={handleChange}>
           <div className="flex items-center justify-between">
-            <h1 css={{ fontSize: 20, fontWeight: 700 }}>Edit Vault Name</h1>
+            <h1 css={{ fontSize: 20, fontWeight: 700 }}>Edit Multisig Name</h1>
             <Button onClick={() => setEditing(false)} disabled={loading} size="icon" variant="secondary" type="button">
               <X size={16} />
             </Button>
           </div>
-          <Input label="Vault Name" value={newName} onChange={e => setNewName(e.target.value)} />
+          <Input label="Multisig Name" value={newName} onChange={e => setNewName(e.target.value)} />
           <div className="grid grid-cols-2 gap-[8px] w-full">
             <Button
               className="w-full"

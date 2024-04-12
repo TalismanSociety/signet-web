@@ -42,7 +42,7 @@ export const smartContractsByTeamIdState = atom<Record<string, SmartContract[]>>
   default: {},
 })
 
-// allow efficient lookup of contacts by vault's team id
+// allow efficient lookup of contacts by multisig's team id
 export const smartContractsByTeamIdMapState = selector({
   key: 'smartContractsByTeamIdMap',
   get: ({ get }) => {

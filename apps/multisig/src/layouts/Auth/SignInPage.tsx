@@ -47,7 +47,7 @@ const SignInPage: React.FC<Props> = ({ accounts }) => {
           }}
         >
           <h1 css={{ textAlign: 'center', marginBottom: 36 }}>
-            {accounts.length > 1 ? 'Select an account to sign in with' : 'Sign in to access Vault.'}
+            {accounts.length > 1 ? 'Select an account to sign in with' : 'Sign in to access Multisig.'}
           </h1>
           <AccountComboBox
             selectedAccount={accountToSignIn}

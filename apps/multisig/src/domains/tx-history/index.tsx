@@ -141,7 +141,7 @@ const fetchRaw = async (accounts: { pubkey: string; chainGenesisHash?: string }[
   return { data: { extrinsics } }
 }
 
-// transaction made from multisig + proxy vault via Multisig.asMulti -> Proxy.proxy call
+// transaction made from multisig + proxy via Multisig.asMulti -> Proxy.proxy call
 const getMultisigCall = (
   signerString: string,
   call: { name: string; args: any }

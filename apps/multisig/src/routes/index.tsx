@@ -33,7 +33,7 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        path: 'add-vault/*',
+        path: 'add-multisig/*',
         element: <AddVault />,
       },
       {

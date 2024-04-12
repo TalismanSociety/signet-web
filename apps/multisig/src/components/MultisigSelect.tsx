@@ -128,15 +128,15 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
             asChild
             className="w-full text-left items-center gap-[8px] justify-start px-[12px] py-[8px] h-max min-h-max"
           >
-            <Link to="/add-vault">
+            <Link to="/add-multisig">
               <PlusCircle size={20} />
-              <p className="mt-[4px] text-[14px]">Add Vault</p>
+              <p className="mt-[4px] text-[14px]">Add Multisig</p>
             </Link>
           </DropdownMenuItem>
           {unimportedVaultsLoadable.state === 'loading' ? (
             <div className="px-[12px] py-[8px] flex items-center gap-[8px]">
               <CircularProgressIndicator size={20} />
-              <p className="text-[12px] mt-[4px]">Scanning for importable vaults</p>
+              <p className="text-[12px] mt-[4px]">Scanning for importable multisigs</p>
             </div>
           ) : unimportedVaultsLoadable.state === 'hasValue' ? (
             unimportedVaultsLoadable.contents.length > 0 ? (
@@ -149,7 +149,7 @@ export const MultisigSelect: React.FC<Props> = ({ multisigs, onChange, selectedM
               >
                 <Stars size={20} />
                 <p className="mt-[4px] text-[14px]">
-                  {unimportedVaultsLoadable.contents.length} vault
+                  {unimportedVaultsLoadable.contents.length} multisig
                   {unimportedVaultsLoadable.contents.length > 1 ? 's' : ''} detected
                 </p>
               </DropdownMenuItem>

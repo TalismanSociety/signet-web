@@ -59,14 +59,14 @@ export const ScanVaultsDialog: React.FC = () => {
       <DialogContent className="max-w-[480px]">
         <div className="w-full flex flex-col gap-[12px] h-full">
           <h1 className="text-[20px] font-bold">
-            {unacknowledgedVaults.length > 0 ? 'New Vaults Detected' : 'Import Detected Vaults'}
+            {unacknowledgedVaults.length > 0 ? 'New Multisigs Detected' : 'Import Detected Multisigs'}
           </h1>
           {unimportedVaults.length === 0 ? (
-            <p className="text-[14px]">All detected vaults have been imported.</p>
+            <p className="text-[14px]">All detected multisigs have been imported.</p>
           ) : (
             <p className="text-[14px]">
               Through on-chain activities, we detected that you have{' '}
-              <span className="text-offWhite">{unimportedVaults.length} vaults</span> that can be imported into{' '}
+              <span className="text-offWhite">{unimportedVaults.length} multisigs</span> that can be imported into{' '}
               {CONFIG.APP_NAME}.
             </p>
           )}
@@ -80,10 +80,10 @@ export const ScanVaultsDialog: React.FC = () => {
             <VaultsList onAdded={handleOnAdded} />
           </div>
           <p className="text-[14px]">
-            Don't see a vault you want to import?{' '}
+            Don't see a multisig you want to import?{' '}
             <Button
               asLink
-              to="/add-vault/import"
+              to="/add-multisig/import"
               size="lg"
               variant="link"
               className="px-0"

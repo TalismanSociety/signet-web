@@ -80,7 +80,11 @@ export const AddContractPage: React.FC = () => {
   const contractAddressSupportingLabel = useMemo(() => {
     if (contractExists)
       return (
-        <StatusMessage className="mt-[8px]" type="error" message="The contract has already been added to your Vault." />
+        <StatusMessage
+          className="mt-[8px]"
+          type="error"
+          message="The contract has already been added to your Multisig."
+        />
       )
     if (checkingAddress) return <StatusMessage type="loading" message="Loading contract..." className="mt-[8px]" />
     if (validContract === undefined) return null
@@ -122,7 +126,7 @@ export const AddContractPage: React.FC = () => {
     <div>
       <h1 className="text-[24px]">Add a Smart Contract</h1>
       <p>
-        Add a smart contract to {CONFIG.APP_NAME} to start interacting with it using your {CONFIG.APP_NAME} Vault.
+        Add a smart contract to {CONFIG.APP_NAME} to start interacting with it using your {CONFIG.APP_NAME} Multisig.
       </p>
 
       <div className="mt-[24px] flex flex-col gap-[16px] items-start">

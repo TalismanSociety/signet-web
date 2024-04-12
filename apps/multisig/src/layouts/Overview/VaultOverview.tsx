@@ -38,7 +38,7 @@ export const VaultOverview: React.FC = () => {
         <ChainPill chain={selectedMultisig.chain} identiconSize={24} />
       </div>
       <div css={{ marginTop: 24 }}>
-        <p css={({ color }) => ({ color: color.offWhite, fontSize: 14, marginTop: 3 })}>Vault Address</p>
+        <p css={({ color }) => ({ color: color.offWhite, fontSize: 14, marginTop: 3 })}>Proxied Address</p>
         <AccountDetails
           chain={selectedMultisig.chain}
           address={selectedMultisig.proxyAddress}
@@ -111,7 +111,7 @@ export const VaultOverview: React.FC = () => {
           showMembers ? 'overflow-y-auto max-h-[9999px]' : 'overflow-y-hidden max-h-0'
         )}
       >
-        <div className="flex flex-wrap-reverse gap-x-[24px] gap-y-[16px] flex-1 mt-[16px] w-full">
+        <div className="flex flex-wrap-reverse gap-x-[32px] gap-y-[16px] flex-1 mt-[16px] w-full">
           <div className="flex flex-col overflow-hidden">
             <p css={({ color }) => ({ color: color.lightGrey, marginBottom: 8, fontSize: 14 })}>Signers</p>
             <div className="flex flex-col gap-[12px] items-start justify-start">
@@ -129,7 +129,9 @@ export const VaultOverview: React.FC = () => {
             </div>
           </div>
           <div className="flex flex-col flex-1">
-            <p css={({ color }) => ({ color: color.lightGrey, marginBottom: 8, fontSize: 14 })}>Multisig Address</p>
+            <p css={({ color }) => ({ color: color.lightGrey, marginBottom: 8, fontSize: 14 })}>
+              Current Multisig Address
+            </p>
             <AccountDetails
               chain={selectedMultisig.chain}
               address={selectedMultisig.multisigAddress}

@@ -41,8 +41,7 @@ const Header: React.FC<{ loading: boolean; supported?: boolean; isCollaborator: 
       {loading ? (
         <CircularProgressIndicator />
       ) : supported ? (
-        // <p>Interact with existing contracts and deploy new contracts from your Vault.</p>
-        <p>Interact with deployed contracts from your Vault.</p>
+        <p>Interact with existing contracts and deploy new contracts from your Multisig.</p>
       ) : (
         <p>Smart contracts not supported on this network.</p>
       )}
@@ -105,7 +104,7 @@ const ContractRow: React.FC<{ contract: SmartContract; onDelete: () => void }> =
           </Button>
         </Tooltip>
         {!isCollaborator && (
-          <Tooltip content="Remove contract from vault">
+          <Tooltip content="Remove contract from multisig">
             <Button size="icon" variant="ghost" onClick={handleDelete}>
               <Trash size={16} />
             </Button>

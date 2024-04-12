@@ -104,7 +104,7 @@ export const DepolyContractPage: React.FC = () => {
   return (
     <div>
       <h1 className="text-[24px]">Deploy a Smart Contract</h1>
-      <p>Deploy and manage a smart contract from your {CONFIG.APP_NAME} vault.</p>
+      <p>Deploy and manage a smart contract from your {CONFIG.APP_NAME} multisig.</p>
 
       <div className="mt-[24px] flex flex-col gap-[16px] items-start">
         <Input

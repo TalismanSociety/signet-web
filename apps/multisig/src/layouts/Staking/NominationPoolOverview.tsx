@@ -37,9 +37,9 @@ const NominationPoolOverview: React.FC<{
   const statementUI = useMemo(() => {
     if (api && !api.query.nominationPools) return <p>Nomination Pool pallet not supported on this network.</p>
     if (!api || nomPool === undefined) return <Skeleton.Surface css={{ height: 22.9, width: 120 }} />
-    if (nomPool === null || !isManager(nomPool.role)) return <p>This vault does not control any nomination pool.</p>
+    if (nomPool === null || !isManager(nomPool.role)) return <p>This multisig does not control any nomination pool.</p>
 
-    return <p>This vault can nominate on behalf of the Nomination Pool</p>
+    return <p>This multisig can nominate on behalf of the Nomination Pool</p>
   }, [api, nomPool])
 
   return (

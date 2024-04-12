@@ -261,7 +261,7 @@ export const useCreateOrganisation = () => {
           }
           return { ok: true, parsedTeam: parseTeam(res.data.createOrgFree.org, res.data.createOrgFree.org.teams[0]!) }
         }
-        return { ok: false, error: 'Failed to create vault.' }
+        return { ok: false, error: 'Failed to create multisig.' }
       } catch (e) {
         return { ok: false, error: getErrorString(e) }
       }

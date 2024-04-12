@@ -208,7 +208,7 @@ const Confirmation = (props: {
     props.threshold
   )
 
-  // Note: this is only updated in import vault flow
+  // Note: this is only updated in import multisig flow
   const [proxies, setProxies] = React.useState<ProxyDefinition[] | undefined>([
     {
       proxyType: 'Any',
@@ -246,7 +246,7 @@ const Confirmation = (props: {
       </div>
       <NameAndSummary name={props.name} chain={chain} proxiedAccount={props.proxiedAccount} />
 
-      {/** Vault config summary */}
+      {/** Multisig config summary */}
       <div
         css={{
           display: 'grid',
@@ -292,7 +292,7 @@ const Confirmation = (props: {
         </div>
       </div>
 
-      {/** Information for create vault flow */}
+      {/** Information for create multisig flow */}
       {!props.proxiedAccount && (
         <div
           className={css`
@@ -309,13 +309,13 @@ const Confirmation = (props: {
             <Info size={54} />
           </IconButton>
           <p>
-            To operate your vault {chain.chainName} requires some funds to be reserved as a deposit. This will be fully
-            refunded when you wind down your vault.
+            To operate your multisig, {chain.chainName} requires some funds to be reserved as a deposit. This will be
+            fully refunded when you wind down your multisig.
           </p>
         </div>
       )}
 
-      {/** Importing vault off-chain, dont need gas fee/reserved amounts */}
+      {/** Importing multisig off-chain, dont need gas fee/reserved amounts */}
       {!props.proxiedAccount && (
         <div css={{ width: '100%' }}>
           <Cost
@@ -331,7 +331,7 @@ const Confirmation = (props: {
             price={tokenWithPrice?.contents?.price?.current}
           />
           <Cost
-            label="Initial Vault Funds"
+            label="Initial Multisig Funds"
             amount={
               existentialDeposit?.state === 'hasValue' ? getInitialProxyBalance(existentialDeposit.contents) : undefined
             }
@@ -360,10 +360,10 @@ const Confirmation = (props: {
               },
             })}
           >
-            The Vault has already been created as <span onClick={goToExistingVault}>{vaultExists.name}</span>
+            The Multisig has already been created as <span onClick={goToExistingVault}>{vaultExists.name}</span>
           </p>
         )}
-        {/** Trying to import a vault unit that does not have any proxy relationship */}
+        {/** Trying to import a multisig unit that does not have any proxy relationship */}
         {proxies?.length === 0 && props.proxiedAccount !== undefined && (
           <p
             css={({ color }) => ({
@@ -384,7 +384,7 @@ const Confirmation = (props: {
             children: 'Back',
           }}
           next={{
-            children: props.proxiedAccount ? (vaultExists ? 'Go to Vault' : 'Import Vault') : 'Create Vault',
+            children: props.proxiedAccount ? (vaultExists ? 'Go to Multisig' : 'Import Multisig') : 'Create Multisig',
             onClick: vaultExists ? goToExistingVault : props.onCreateVault,
             disabled:
               (tokenWithPrice && tokenWithPrice.state !== 'hasValue') ||

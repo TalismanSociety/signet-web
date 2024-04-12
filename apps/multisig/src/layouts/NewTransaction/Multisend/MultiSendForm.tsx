@@ -106,7 +106,8 @@ const MultiSendForm = (props: {
             ) : (
               <Alert>
                 <p>
-                  Your Vault does not have the proxy permission required to send token on behalf of the proxied account.
+                  Your Multisig does not have the proxy permission required to send token on behalf of the proxied
+                  account.
                 </p>
               </Alert>
             )}

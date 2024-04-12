@@ -176,7 +176,7 @@ export const parseTeam = (org: Organisation, rawTeam: RawTeam): { team?: Team; e
       delegateeAddress = toMultisigAddress(signers, threshold)
     }
 
-    // not a valid vault if no delegateeAddress, a signet vault consists of 1 multisig that is proxy to another acc
+    // not a valid multisig if no delegateeAddress, a signet multisig consists of 1 multisig that is proxy to another acc
     if (!delegateeAddress) return { error: `Missing multisig config / delegatee address in ${rawTeam.id}` }
 
     const collaborators: Collaborator[] = []
@@ -317,7 +317,7 @@ export const useTeamFromUrl = () => {
   }, [init, selectedMultisig.id, setSelectedMultisig, teams, urlTeamId, user])
 
   useEffect(() => {
-    // sign page has it's own vault switch mechanism so this shouldnt interupt it
+    // sign page has it's own multisig switch mechanism so this shouldnt interupt it
     if (!init || (selectedMultisig.id === DUMMY_MULTISIG_ID && !location.pathname.includes('sign'))) return
     const curSearch = new URLSearchParams(location.search)
     if (curSearch.get('teamId') === selectedMultisig.id) return

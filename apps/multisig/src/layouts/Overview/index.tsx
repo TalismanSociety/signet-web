@@ -42,12 +42,12 @@ const Overview = () => {
       )
       /**
        * Edge case that may break this:
-       * - Vault A: stash + multisig[1,2,3]
-       * - Vault B: stash + multisig[1,2,3,4]
+       * - Multisig A: stash + multisig[1,2,3]
+       * - Multisig B: stash + multisig[1,2,3,4]
        * - both sets of signers formed multisigs are delegatees of a stash (different department of an org)
-       * - Vault A adds signer 4, multisig[1,2,3,4] now has 2 relationships to the same stash
-       * - Vault B removes signer 4 and add signer 5, but change did not get save, so Vault B's config is still stuck at multisig[1,2,3,4] when it should be multisig[1,2,3,5]
-       * - logic below will not get triggered because Vault B's config is still valid
+       * - Multisig A adds signer 4, multisig[1,2,3,4] now has 2 relationships to the same stash
+       * - Multisig B removes signer 4 and add signer 5, but change did not get save, so Multisig B's config is still stuck at multisig[1,2,3,4] when it should be multisig[1,2,3,5]
+       * - logic below will not get triggered because Multisig B's config is still valid
        * - solution should be to have a settings page where they can manually resolve the change
        */
       const allChangeAttempts = await getAllChangeAttempts(selectedMultisig, signedInAccount)
@@ -79,7 +79,7 @@ const Overview = () => {
       title: `Proxy not detected for ${selectedMultisig.name}! `,
       description: (
         <div>
-          <p className="text-[12px]">Please reconfigure the multisig settings to continue using the vault</p>
+          <p className="text-[12px]">Please reconfigure the multisig settings to continue using the multisig</p>
         </div>
       ),
       duration: 600000,

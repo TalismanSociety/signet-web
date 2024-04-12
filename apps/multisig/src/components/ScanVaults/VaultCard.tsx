@@ -160,7 +160,7 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
         <form className="w-full rounded-[12px] gap-[8px] flex flex-col my-[8px]" onSubmit={handleAddVault}>
           <Input
             disabled={loading}
-            label="Vault Name"
+            label="Multisig Name"
             placeholder="e.g. Treasury"
             value={name}
             onChange={e => setName(e.target.value)}

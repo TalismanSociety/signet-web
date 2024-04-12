@@ -23,13 +23,13 @@ export const Collaborators: React.FC = () => {
             )}
           </div>
           <p className="mt-[8px]">
-            Add non-signers as Collaborators, with access to view onchain and offchain information from this Vault and
-            the ability to create draft transactions
+            Add non-signers as Collaborators, with access to view onchain and offchain information from this Multisig
+            and the ability to create draft transactions
           </p>
           <div className="mt-[32px] w-full">
             {selectedMultisig.collaborators.length === 0 ? (
               <div className="flex items-center justify-center bg-gray-900 rounded-[12px] w-full px-[16px] py-[32px]">
-                Your vault does not have any collaborator yet.
+                Your multisig does not have any collaborator yet.
               </div>
             ) : (
               <div className="grid gap-[12px]">

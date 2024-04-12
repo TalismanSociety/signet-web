@@ -148,7 +148,7 @@ export const ValidatorsRotation: React.FC<{
       <div css={{ display: 'flex', alignItems: 'center', gap: 16, width: '100%' }}>
         <div css={{ width: '100%' }}>
           <h4 css={({ color }) => ({ color: color.offWhite, fontSize: 20, margin: 0 })}>Nominating from Pool</h4>
-          <p css={{ fontSize: 14, marginTop: 8 }}>You are nominating from a pool your Vault controls</p>
+          <p css={{ fontSize: 14, marginTop: 8 }}>You are nominating from a pool your Multisig controls</p>
         </div>
         <div
           css={({ color }) => ({

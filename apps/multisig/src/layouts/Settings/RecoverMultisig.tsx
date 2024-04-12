@@ -148,10 +148,10 @@ export const RecoverMultisig: React.FC<Props> = ({ multisig }) => {
           <h4 className="font-bold text-[16px]">Action Required</h4>
         </div>
         <p className="mt-[4px] ml-[32px] text-gray-200">
-          Your Vault's settings are out of sync, the multisig address no longer has on-chain control for{' '}
+          Your Multisig's settings are out of sync, the multisig address no longer has on-chain control for{' '}
           <span className="text-offWhite">{multisig.proxyAddress.toShortSs58(multisig.chain)}</span>. This can happen if
-          the Vault configuration was changed outside of Signet.
-          {isSigner && ' Click to edit the offchain Multisig details and get the Vault settings back in sync.'}
+          the Multisig configuration was changed outside of Signet.
+          {isSigner && ' Click to edit the offchain Multisig details and get the Multisig settings back in sync.'}
         </p>
         {isSigner ? (
           <Button className="ml-[32px] mt-[12px]" size="lg" onClick={() => setOpen(true)}>
@@ -199,7 +199,7 @@ export const RecoverMultisig: React.FC<Props> = ({ multisig }) => {
             </div>
           ) : (
             <>
-              {/** Scan vaults for quicker import */}
+              {/** Scan multisigs for quicker import */}
               {scanned.state === 'loading' ? (
                 <div className="flex items-center gap-[12px] p-[12px] py-[8px] rounded-[12px] bg-gray-800">
                   <CircularProgressIndicator size={16} />
@@ -226,7 +226,7 @@ export const RecoverMultisig: React.FC<Props> = ({ multisig }) => {
                 <div className="grid md:grid-cols-2 gap-[16px]">
                   <SettingsInfoRow
                     label="Multisig Address"
-                    tooltip="This multisig address is the address that controls the proxied account. It is derived from your vault's members and threshold."
+                    tooltip="This multisig address is the address that controls the proxied account. It is derived from your multisig's members and threshold."
                     labelClassName="text-offWhite"
                   >
                     <AccountDetails address={multisigAddress} chain={multisig.chain} withAddressTooltip />

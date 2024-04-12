@@ -81,8 +81,8 @@ const SignTransactions: React.FC<{
 }) => {
   const getHelpLink = useMemo(() => {
     let link = `mailto:${CONFIG.CONTACT_EMAIL}`
-    const subject = `Issue creating ${CONFIG.APP_NAME} vault`
-    let body = `I am having issues creating a vault on ${CONFIG.APP_NAME}. Here are the details of my vault:\n\n`
+    const subject = `Issue creating ${CONFIG.APP_NAME} multisig`
+    let body = `I am having issues creating a multisig on ${CONFIG.APP_NAME}. Here are the details of my multisig:\n\n`
 
     body += vaultDetailsString
     body += `\n\nPlease help me resolve this issue.`
@@ -100,9 +100,9 @@ const SignTransactions: React.FC<{
       }}
     >
       <div css={{ width: '100%', textAlign: 'center' }}>
-        <h1>Create vault</h1>
+        <h1>Create Multisig</h1>
         <p css={{ marginTop: 16 }}>
-          Create a pure proxy account and transfer the proxy to your multisig to complete the creation of your Vault.
+          Create a pure proxy account and transfer the proxy to your multisig to complete the creation of your Multisig.
         </p>
       </div>
       <Step
@@ -146,14 +146,14 @@ const SignTransactions: React.FC<{
         ) : creatingTeam ? (
           <div className="flex items-center gap-[8px]">
             <CircularProgressIndicator size={16} />
-            <p>Saving your vault to Signet...</p>
+            <p>Saving your multisig to Signet...</p>
           </div>
         ) : (
           <div className="bg-gray-800 w-full max-w-max rounded-[12px] p-[16px] mx-auto">
             <div className="w-full max-w-max flex items-center justify-center gap-[12px]">
               <Info className="text-red-500 min-w-[24px] rotate-180" size={24} />
               <p className="mt-[3px] text-left">
-                There was an issue when saving your Vault to Signet.
+                There was an issue when saving your Multisig to Signet.
                 <br />
                 Please try again or reach out to us.
               </p>
@@ -171,7 +171,7 @@ const SignTransactions: React.FC<{
       ) : (
         <div className="bg-gray-800 w-full max-w-max rounded-[12px] p-[16px] flex items-center justify-center gap-[12px] mx-auto">
           <Info className="text-primary min-w-[24px]" size={24} />
-          <p className="text-center mt-[3px]">Do not close this page until your vault is successfully created.</p>
+          <p className="text-center mt-[3px]">Do not close this page until your multisig is successfully created.</p>
         </div>
       )}
     </div>

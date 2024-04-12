@@ -141,13 +141,13 @@ const CreateMultisig = () => {
 
       if (!ok || error) throw new Error(error || 'Please try again or submit a bug report.')
 
-      // vault created! `createTeam` will handle adding the team to the cache
-      // go to overview to check the newly created vault
-      toast({ title: 'Vault Created!' })
+      // multisig created! `createTeam` will handle adding the team to the cache
+      // go to overview to check the newly created multisig
+      toast({ title: 'Multisig Created!' })
       setCreated(true)
     } catch (e) {
       toast({
-        title: 'Failed to save vault',
+        title: 'Failed to save multisig',
         description: getErrorString(e),
       })
     } finally {
@@ -222,15 +222,15 @@ const CreateMultisig = () => {
     <>
       {step === Step.NameVault ? (
         <NameVault
-          header="Create Vault"
-          onBack={() => navigate('/add-vault')}
+          header="Create Multisig"
+          onBack={() => navigate('/add-multisig')}
           onNext={() => setStep(Step.SelectFirstChain)}
           setName={setName}
           name={name}
         />
       ) : step === Step.SelectFirstChain ? (
         <SelectChain
-          header="Create Vault"
+          header="Create Multisig"
           onBack={onBackChain}
           onNext={onNextChain}
           setChain={setChain}
@@ -239,7 +239,7 @@ const CreateMultisig = () => {
         />
       ) : step === Step.MultisigConfig ? (
         <MultisigConfig
-          header="Create Vault"
+          header="Create Multisig"
           chain={chain}
           threshold={threshold}
           onThresholdChange={setThreshold}
@@ -250,7 +250,7 @@ const CreateMultisig = () => {
         />
       ) : step === Step.Confirmation ? (
         <Confirmation
-          header="Create Vault"
+          header="Create Multisig"
           onBack={() => setStep(Step.MultisigConfig)}
           onCreateVault={() => setStep(Step.Transactions)}
           selectedAccounts={augmentedAccounts}

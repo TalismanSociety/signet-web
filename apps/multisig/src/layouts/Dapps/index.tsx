@@ -179,9 +179,9 @@ export const Dapps: React.FC = () => {
                   <Tooltip
                     content={
                       <p className="text-[12px]">
-                        Waiting for dapp to establish communication and connect to your vault.
+                        Waiting for dapp to establish communication and connect to your multisig.
                         <br />
-                        The dapp may not support connecting to {CONFIG.APP_NAME} vaults.
+                        The dapp may not support connecting to {CONFIG.APP_NAME} multisigs.
                       </p>
                     }
                   >

@@ -70,7 +70,7 @@ export const SignetConnect: React.FC = () => {
     }, 1000)
   }
 
-  // auto select if only 1 vault is available for connection
+  // auto select if only 1 multisig is available for connection
   useEffect(() => {
     if (Object.keys(selectedVaultIds).length === 0 && activeMultisigs.length === 1) {
       setSelectedVaultIds({ [activeMultisigs[0]!.id]: true })
@@ -81,7 +81,7 @@ export const SignetConnect: React.FC = () => {
     <>
       {window.opener ? (
         <div className="max-w-[863px] mx-auto my-[64px] rounded-[24px] bg-gray-900 px-[16px] py-[24px] sm:py-[80px] w-full">
-          <h1 className=" text-[32px] text-center">Connect Vaults</h1>
+          <h1 className=" text-[32px] text-center">Connect Multisigs</h1>
           <div className="w-full max-w-[450px] mx-auto my-[24px] grid gap-[12px]">
             <p className="hover:text-primary ml-auto pr-[8px] cursor-pointer text-[14px]" onClick={handleSelectAll}>
               {selectedVaults.length === activeMultisigs.length ? 'Remove All' : 'Select All'}

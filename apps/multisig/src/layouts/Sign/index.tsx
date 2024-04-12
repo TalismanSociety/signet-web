@@ -85,17 +85,17 @@ export const Sign: React.FC = () => {
     )
   }, [genesisHash, multisigs, proxiedAccount])
 
-  // auto select a vault that can sign the tx across all signed in accounts
+  // auto select a multisig that can sign the tx across all signed in accounts
   useEffect(() => {
     if (!targetVaults || !proxiedAccount || !selectedAddress || skipAutoSelect) return
 
-    // dont need to auto select if the current vault is already the right one
+    // dont need to auto select if the current multisig is already the right one
     if (selectedMultisig.proxyAddress.isEqual(proxiedAccount)) return setSkipAutoSelect(true)
 
     const curSignerAddress = Address.fromSs58(selectedAddress)
     if (!curSignerAddress) return
 
-    // find a vault where the current signed in user is a signer and use that vault
+    // find a multisig where the current signed in user is a signer and use that multisig
     for (const vault of targetVaults) {
       if (vault.signers.find(signer => signer.isEqual(curSignerAddress))) {
         setSkipAutoSelect(true)
@@ -103,7 +103,7 @@ export const Sign: React.FC = () => {
       }
     }
 
-    // find a vault where one of the signers is already signed in, then switch to that signer and vault
+    // find a multisig where one of the signers is already signed in, then switch to that signer and multisig
     for (const vault of targetVaults) {
       const newSelectedAddress = vault.signers.find(signer => authTokenBook[signer.toSs58()])
       if (newSelectedAddress) {
@@ -141,7 +141,7 @@ export const Sign: React.FC = () => {
             <p className="text-offWhite">{dappUrl.origin}</p>
           </div>
           <div className="w-full">
-            <p className="text-[14px]">Vault</p>
+            <p className="text-[14px]">Multisig</p>
             <AccountDetails
               address={proxiedAccount}
               name={targetVaults?.map(({ name }) => name).join(', ')}
@@ -185,7 +185,7 @@ export const Sign: React.FC = () => {
         {!correctVault && (
           <div className="p-[16px] rounded-[8px] bg-gray-800 w-full mt-[4px] flex items-center gap-[8px]">
             <XCircle size={20} className="text-red-600 min-w-[20px]" />
-            <p>Please select a vault that is able to sign the request.</p>
+            <p>Please select a multisig that is able to sign the request.</p>
           </div>
         )}
       </div>

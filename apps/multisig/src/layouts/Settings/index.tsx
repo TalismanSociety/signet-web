@@ -61,7 +61,7 @@ const Settings = () => {
     <>
       <div className="flex flex-1 p-[16px] lg:py-[32px] lg:px-[4%] flex-col gap-[32px]">
         <div className="flex items-center justify-between gap-[12px]">
-          <h2 className="text-offWhite mt-[4px] font-bold">Vault Settings</h2>
+          <h2 className="text-offWhite mt-[4px] font-bold">Multisig Settings</h2>
         </div>
         <div className="grid gap-[32px] grid-cols-1 md:grid-cols-2">
           {/** first row: Name */}
@@ -88,7 +88,7 @@ const Settings = () => {
           {/** third row: Multisig Address */}
           <SettingsInfoRow
             label="Multisig Address"
-            tooltip="This multisig address is the address that controls the proxied account. It is derived from your vault's members and threshold."
+            tooltip="This multisig address is the address that controls the proxied account. It is derived from your multisig's members and threshold."
             labelClassName={multisig.proxies?.length === 0 ? 'text-red-500' : ''}
           >
             <AccountDetails address={newMultisigAddress} chain={multisig.chain} withAddressTooltip />

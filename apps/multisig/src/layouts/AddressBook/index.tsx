@@ -1,11 +1,4 @@
-import {
-  Button,
-  CircularProgressIndicator,
-  EyeOfSauronProgressIndicator,
-  IconButton,
-  TextInput,
-  Tooltip,
-} from '@talismn/ui'
+import { CircularProgressIndicator, EyeOfSauronProgressIndicator, IconButton, TextInput, Tooltip } from '@talismn/ui'
 import { Copy, Database, Plus, Trash } from '@talismn/icons'
 import { Contact, useAddressBook, useDeleteContact } from '@domains/offchain-data'
 import { AddContactModal } from './AddContactModal'
@@ -18,15 +11,16 @@ import { selectedAccountState } from '@domains/auth'
 import useCopied from '@hooks/useCopied'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { CONFIG } from '@lib/config'
+import { Button } from '@components/ui/button'
 
 const Header: React.FC<{ onAddContact: () => void; vaultName: string; hideAddButton: boolean }> = ({
   onAddContact,
   vaultName,
   hideAddButton,
 }) => (
-  <div css={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+  <div className="flex flex-col w-full">
     <div>
-      <div css={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div className="flex items-center gap-[12px]">
         <h2 className="text-offWhite text-[24px] mt-[4px] font-bold">Address Book</h2>
         <Tooltip
           content={
@@ -42,20 +36,20 @@ const Header: React.FC<{ onAddContact: () => void; vaultName: string; hideAddBut
           </div>
         </Tooltip>
       </div>
-      <p css={({ color }) => ({ color: color.primary, span: { color: color.offWhite } })}>
-        Store shared contacts securely for <span>{vaultName}</span>
+      <p>
+        Share contacts securely with all signers of <span className="text-offWhite">{vaultName}</span>
       </p>
     </div>
-    <div css={{ display: 'flex', flex: 1, alignItems: 'flex-end', marginTop: 21 }}>
-      <div css={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
+    <div className="flex justify-end mt-[24px]">
+      {/* <div css={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
         <p css={({ color }) => ({ color: color.offWhite })}>Contacts</p>
         <p>Manage contacts to share and edit with other Multisig members</p>
-      </div>
+      </div> */}
       {!hideAddButton && (
-        <Button variant="outlined" css={{ borderRadius: 12, padding: '8px 12px' }} onClick={onAddContact}>
-          <div css={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <Button variant="outline" className="h-max py-[8px]" size="lg" onClick={onAddContact}>
+          <div className="flex items-center gap-[8px]">
             <Plus size={16} />
-            <p css={{ marginTop: 4, fontSize: 14 }}>Add Contact</p>
+            <p className="mt-[4px]">Add Contact</p>
           </div>
         </Button>
       )}
@@ -141,7 +135,7 @@ export const AddressBook: React.FC = () => {
 
   return (
     <>
-      <div css={{ display: 'flex', flex: 1, padding: '32px 8%' }}>
+      <div className="flex flex-1 md:px-[8%] md:py-[32px] p-[12px] px-0">
         <div css={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 680 }}>
           <Header
             onAddContact={() => setIsModalOpen(true)}

@@ -59,7 +59,7 @@ const SelectChain = ({
       <div>
         <h4 className="text-[14px] text-center font-bold mb-[4px]">{header}</h4>
         <h1>Select a chain</h1>
-        <p css={{ marginTop: 16, textAlign: 'center' }}>Select the chain for your Vault</p>
+        <p css={{ marginTop: 16, textAlign: 'center' }}>Select the chain for your Multisig</p>
       </div>
       <Select value={chain.genesisHash} onValueChange={onValueChange}>
         <SelectTrigger className="max-w-[280px]">

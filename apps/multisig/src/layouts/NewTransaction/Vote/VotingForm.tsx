@@ -48,7 +48,7 @@ const VotingForm: React.FC<Props> = ({ onChange, onNext, token, voteDetails }) =
             </Alert>
           ) : (
             <Alert>
-              <p>Your Vault does not have the proxy permission required to vote on behalf of the proxied account.</p>
+              <p>Your Multisig does not have the proxy permission required to vote on behalf of the proxied account.</p>
             </Alert>
           )
         ) : (

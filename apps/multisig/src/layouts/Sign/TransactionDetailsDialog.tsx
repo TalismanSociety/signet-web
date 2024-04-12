@@ -36,7 +36,7 @@ export const TransactionDetailsDialog: React.FC<Props & React.PropsWithChildren>
             <div className="flex items-center w-full">
               <p>
                 {CONFIG.APP_NAME} uses the Dapp&apos;s call data to craft a proxy transaction that will be executed by
-                the multisig of your vault.
+                your multisig.
               </p>
             </div>
             {loading ? (

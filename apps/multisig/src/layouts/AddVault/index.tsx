@@ -62,7 +62,7 @@ export const AddVault: React.FC = () => {
   }
 
   useEffect(() => {
-    if (activeMultisigs.length > 0 && location.pathname === '/add-vault') {
+    if (activeMultisigs.length > 0 && location.pathname === '/add-multisig') {
       const search = new URLSearchParams(location.search)
       if (search.get('redirect') === 'self') navigate(-1)
     }
@@ -75,13 +75,13 @@ export const AddVault: React.FC = () => {
           path="/"
           element={
             <div className="relative grid bg-gray-900 h-fit rounded-[24px] gap-[48px] justify-center max-w-[863px] my-[50px] mx-auto py-[80px] px-[16px] w-full [&_h1]:text-center">
-              {location.pathname !== '/add-vault' && (
+              {location.pathname !== '/add-multisig' && (
                 <Button
                   size="icon"
                   variant="secondary"
                   className="absolute top-[24px] right-[24px]"
                   asLink
-                  to="/add-vault"
+                  to="/add-multisig"
                 >
                   <X size={20} />
                 </Button>
@@ -94,24 +94,24 @@ export const AddVault: React.FC = () => {
             index
             element={
               <>
-                <h1>Add a Vault{isNewAccount && ' to get started'}</h1>
+                <h1>Add a Multisig{isNewAccount && ' to get started'}</h1>
                 <div css={{ display: 'grid', gap: 36, maxWidth: 700 }}>
                   <Option
                     selected={create}
-                    title="Create Vault"
-                    description="Creates a Vault with a Pure Proxy Account controlled by Multisig"
+                    title="Create Multisig"
+                    description="Creates a Pure Proxy Account that is controlled by a Multisig"
                     onClick={() => setCreate(true)}
                   />
                   <Option
                     selected={!create}
-                    title="Import Vault"
-                    description="Import a Vault from an existing Proxy Account and Multisig Configuration, support Multisig control via All Proxy types"
+                    title="Import Multisig"
+                    description="Import an existing Proxy Account and Multisig configuration, supports Multisig control via All Proxy types"
                     onClick={() => setCreate(false)}
                     belowDescription={
                       unimportedVaultsLoadable.state === 'loading' ? (
                         <div className="px-[8px] py-[8px] flex items-center gap-[8px]">
                           <CircularProgressIndicator size={20} />
-                          <p className="text-[14px] mt-[4px]">Scanning for importable vaults</p>
+                          <p className="text-[14px] mt-[4px]">Scanning for importable multisigs</p>
                         </div>
                       ) : unimportedVaultsLoadable.state === 'hasValue' ? (
                         unimportedVaultsLoadable.contents.length > 0 ? (
@@ -123,7 +123,7 @@ export const AddVault: React.FC = () => {
                           >
                             <Stars size={20} />
                             <p className="mt-[4px] text-[14px]">
-                              {unimportedVaultsLoadable.contents.length} vault
+                              {unimportedVaultsLoadable.contents.length} multisig
                               {unimportedVaultsLoadable.contents.length > 1 ? 's' : ''} detected
                             </p>
                           </Button>
@@ -135,7 +135,7 @@ export const AddVault: React.FC = () => {
                 <CancleOrNext
                   cancel={isNewAccount ? undefined : { onClick: () => navigate('/overview') }}
                   next={{
-                    children: 'Add Vault',
+                    children: 'Add Multisig',
                     onClick: handleAddVault,
                   }}
                 />

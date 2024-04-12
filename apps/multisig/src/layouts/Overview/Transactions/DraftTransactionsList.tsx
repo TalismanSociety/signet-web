@@ -52,12 +52,12 @@ export const DraftTransactionsList: React.FC<Props> = ({ value }) => {
           const signers: Address[] = []
           for (const addr of tx.change_config_details.newMembers) {
             const signerAddress = Address.fromSs58(addr)
-            if (!signerAddress) return console.error('Invalid change vault details in tx: ', tx.id)
+            if (!signerAddress) return console.error('Invalid change multisig details in tx: ', tx.id)
             signers.push(signerAddress)
           }
 
           const newThreshold = +tx.change_config_details.newThreshold
-          if (Number.isNaN(newThreshold)) return console.error('Invalid change vault details in tx: ', tx.id)
+          if (Number.isNaN(newThreshold)) return console.error('Invalid change multisig details in tx: ', tx.id)
 
           if (signers.length > 0 && newThreshold > 0)
             changeConfigDetails = {
