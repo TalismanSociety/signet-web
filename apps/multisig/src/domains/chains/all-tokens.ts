@@ -5751,6 +5751,7 @@ export const ALL_TOKENS = [
     chain: {
       id: 'polimec',
     },
+    coingeckoId: 'polimec',
   },
   {
     id: 'polkadex-polkadot-substrate-native',
