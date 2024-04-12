@@ -14,7 +14,7 @@ export const customRpcsAtom = atom<Record<string, string | undefined>>({
   effects_UNSTABLE: [persistAtom],
 })
 
-const customExtensions: Record<
+export const customExtensions: Record<
   string,
   { types: ApiOptions['types']; signedExtensions: ApiOptions['signedExtensions']; rpc: ApiOptions['rpc'] }
 > = {

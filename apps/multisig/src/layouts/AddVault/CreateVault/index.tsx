@@ -187,12 +187,12 @@ const CreateMultisig = () => {
           handleCreateTeam()
         },
         err => {
-          resolve()
           setTransferring(false)
           toast({
             title: 'Failed to transfer proxy.',
             description: err,
           })
+          resolve()
         }
       )
     })
