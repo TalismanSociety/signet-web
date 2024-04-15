@@ -8,9 +8,11 @@ import Decimal from 'decimal.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 
-import { DetailsForm } from './DetailsForm'
+import { DetailsForm, VestedSendConfig } from './DetailsForm'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
+import { useLatestBlockNumber } from '@domains/chains/useLatestBlockNumber'
+import { expectedBlockTime } from '@domains/common/substratePolyfills'
 
 enum Step {
   Details,
@@ -26,8 +28,39 @@ const SendAction = () => {
   const [selectedToken, setSelectedToken] = useState<BaseToken | undefined>()
   const [amountInput, setAmountInput] = useState('')
   const multisig = useRecoilValue(selectedMultisigState)
+  const [vested, setVested] = useState<VestedSendConfig>({
+    on: false,
+    startBlock: 0,
+    endBlock: 0,
+  })
+
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
   const { toast } = useToast()
+  const blockNumber = useLatestBlockNumber(multisig.chain.genesisHash)
+  const blockTime = useMemo(() => {
+    if (apiLoadable.state !== 'hasValue') return
+    return expectedBlockTime(apiLoadable.contents)
+  }, [apiLoadable])
+
+  const [startBlock, endBlock] = useMemo(() => {
+    if (blockTime !== undefined && blockNumber !== undefined) {
+      const startBlock = (24 * 60 * 60 * 1000) / blockTime.toNumber() + blockNumber
+      const endBlock = (30 * 24 * 60 * 60 * 1000) / blockTime.toNumber() + startBlock
+      return [startBlock, endBlock]
+    }
+    return [0, 0]
+  }, [blockNumber, blockTime])
+
+  // set the default values to start in 1 day and end in 31 days
+  useEffect(() => {
+    if (vested.startBlock === 0 && vested.endBlock === 0 && startBlock && endBlock) {
+      setVested({
+        on: vested.on,
+        startBlock,
+        endBlock,
+      })
+    }
+  }, [endBlock, startBlock, vested])
 
   const defaultName = name || `Send ${selectedToken?.symbol || 'Token'}`
 
@@ -79,8 +112,8 @@ const SendAction = () => {
 
   return (
     <>
-      <div css={{ display: 'flex', flex: 1, flexDirection: 'column', padding: '32px 8%' }}>
-        <div css={{ width: '100%', maxWidth: 490 }}>
+      <div className="flex flex-1 flex-col py-[16px] md:py-[32px] md:px-[8%]">
+        <div className="w-full max-w-[490px]">
           <DetailsForm
             onNext={() => setStep(Step.Review)}
             selectedToken={selectedToken}
@@ -93,6 +126,14 @@ const SendAction = () => {
             name={name}
             setName={setName}
             chain={multisig.chain}
+            vestedConfig={{
+              ...vested,
+              startBlock: vested.startBlock || startBlock,
+              endBlock: vested.endBlock || endBlock,
+            }}
+            onChangeVestedConfig={setVested}
+            currentBlock={blockNumber}
+            blockTime={blockTime?.toNumber()}
           />
 
           {extrinsic && (

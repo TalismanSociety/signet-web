@@ -17,7 +17,7 @@ import { ChevronsLeftRight, ChevronsRightLeft } from 'lucide-react'
 import { ToastAction } from '@components/ui/toast'
 import { useNavigate } from 'react-router-dom'
 import { SUPPORTED_DAPPS } from './supported-dapps'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@components/ui/tabs'
+import { PageTabs, PageTabsContent, PageTabsList, PageTabsTrigger } from '@components/ui/page-tabs'
 import { CONFIG } from '@lib/config'
 import { Link } from 'react-router-dom'
 
@@ -219,12 +219,12 @@ export const Dapps: React.FC = () => {
             />
           </div>
         ) : (
-          <Tabs defaultValue="apps">
-            <TabsList>
-              <TabsTrigger value="apps">Dapps</TabsTrigger>
-              <TabsTrigger value="custom-input">Custom Input</TabsTrigger>
-            </TabsList>
-            <TabsContent value="apps">
+          <PageTabs defaultValue="apps">
+            <PageTabsList>
+              <PageTabsTrigger value="apps">Dapps</PageTabsTrigger>
+              <PageTabsTrigger value="custom-input">Custom Input</PageTabsTrigger>
+            </PageTabsList>
+            <PageTabsContent value="apps">
               <div className="flex flex-wrap gap-[12px]">
                 {SUPPORTED_DAPPS.map(dapp => (
                   <Button
@@ -246,8 +246,8 @@ export const Dapps: React.FC = () => {
                   </Button>
                 ))}
               </div>
-            </TabsContent>
-            <TabsContent value="custom-input">
+            </PageTabsContent>
+            <PageTabsContent value="custom-input">
               <div className="w-full">
                 <form className="flex flex-col sm:flex-row items-center w-full gap-[12px]" onSubmit={handleVisitDapp}>
                   <div className="w-full [&>div]:w-full">
@@ -282,8 +282,8 @@ export const Dapps: React.FC = () => {
                   </p>
                 </div>
               </div>
-            </TabsContent>
-          </Tabs>
+            </PageTabsContent>
+          </PageTabs>
         )}
       </div>
       {txRequest && (
