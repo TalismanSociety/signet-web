@@ -1,6 +1,23 @@
 # Signet
 
-## How to start Signet locally
+## How to build on Signet
+
+```sh
+# 1. Run yarn so it automatically links all the dependencies
+yarn
+
+# 2. cd into the web app
+cd apps/multisig
+
+# 3. set up environment variables and replace the variables with appropriate values
+cp .env.example .env
+
+# 4. Start the dev server
+yarn dev
+
+```
+
+## How to self host Signet with Docker
 
 1. Clone the repo:
 
