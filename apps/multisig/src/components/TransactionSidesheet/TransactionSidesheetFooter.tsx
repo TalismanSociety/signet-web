@@ -60,16 +60,16 @@ export const SignerCta: React.FC<{
 
   const missingExecutionCallData = useMemo(() => readyToExecute && !t.callData, [readyToExecute, t.callData])
 
-  // checks if the connected account has enough balance to approve the transaction
+  // checks if the connected account has enough balance to cover the tx cost
   const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
     const txCost = fee?.amount.add(multisigDepositTotal.contents.amount) ?? new BN(0)
     const connectedWalletAddr = user?.injected.address.toSs58(fee?.token.chain)
     const [connectedWalletBal] = balances?.find(b => b.address === connectedWalletAddr) || []
-    const available = connectedWalletBal?.transferable.planck
+    const availableBalance = connectedWalletBal?.transferable.planck
       ? new BN(connectedWalletBal.transferable.planck.toString())
       : new BN(0)
 
-    return available.gte(txCost)
+    return availableBalance.gte(txCost)
   }, [balances, fee, multisigDepositTotal, user?.injected.address])
 
   // Check if the user has an account connected which can approve the transaction
@@ -152,6 +152,27 @@ export const SignerCta: React.FC<{
     }
   }, [feeTokenPrice, fee, connectedAccountCanApprove])
 
+  const getButtonLabel = (): string => {
+    // Return 'Save as Draft' if the draft option is chosen
+    if (asDraft) {
+      return 'Save as Draft'
+    }
+
+    // Return 'Execute' or 'Approve & Execute' based on approvals count and multisig threshold
+    if (readyToExecute) {
+      if (approvalsCount >= t.multisig.threshold) {
+        return 'Execute'
+      }
+      return 'Approve & Execute'
+    }
+    // Check for sufficient balance before defaulting to 'Approve'
+    if (!connectedAccountHasEnoughBalance) {
+      return 'Insufficient Balance'
+    }
+    // Default to 'Approve' if no other conditions are met
+    return 'Approve'
+  }
+
   const approvalsCount = Object.values(t.approvals).filter(approved => approved).length
   // get fee and signable extrinsic
   return (
@@ -217,13 +238,7 @@ export const SignerCta: React.FC<{
             }
             loading={asDraft ? loading.savingDraft : loading.approving}
           >
-            {asDraft
-              ? 'Save as Draft'
-              : readyToExecute
-              ? approvalsCount >= t.multisig.threshold
-                ? 'Execute'
-                : 'Approve & Execute'
-              : 'Approve'}
+            {getButtonLabel()}
           </Button>
         </div>
       </div>
