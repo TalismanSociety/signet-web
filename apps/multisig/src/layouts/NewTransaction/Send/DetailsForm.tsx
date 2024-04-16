@@ -1,6 +1,6 @@
 import AddressInput from '@components/AddressInput'
 import { AmountFlexibleInput } from '@components/AmountFlexibleInput'
-import { BaseToken, Chain } from '@domains/chains'
+import { BaseToken, Chain, vestingConstsSelector } from '@domains/chains'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Address } from '@util/addresses'
@@ -13,11 +13,16 @@ import { Input } from '@components/ui/input'
 import { BlockInput } from '@components/BlockInput'
 import { secondsToDuration } from '@util/misc'
 import { Switch } from '@components/ui/switch'
+import BN from 'bn.js'
+import { useMemo } from 'react'
+import { Skeleton } from '@talismn/ui'
+import { useRecoilValueLoadable } from 'recoil'
 
 export type VestedSendConfig = {
   on: boolean
   endBlock: number
   startBlock: number
+  amountByBlock: boolean
 }
 
 type Props = {
@@ -36,10 +41,14 @@ type Props = {
   onChangeVestedConfig: (vestedConfig: VestedSendConfig) => void
   currentBlock?: number
   blockTime?: number
+  amountPerBlockBn?: BN
+  vestingSupported?: boolean
+  loading?: boolean
 }
 
 export const DetailsForm: React.FC<Props> = ({
   amount,
+  amountPerBlockBn,
   chain,
   name,
   onNext,
@@ -54,27 +63,38 @@ export const DetailsForm: React.FC<Props> = ({
   currentBlock,
   blockTime,
   onChangeVestedConfig,
+  vestingSupported,
+  loading,
 }) => {
   const [multisig] = useSelectedMultisig()
   const { addresses } = useKnownAddresses(multisig.orgId)
   const { hasDelayedPermission, hasNonDelayedPermission } = hasPermission(multisig, 'transfer')
+  const vestingConsts = useRecoilValueLoadable(vestingConstsSelector(multisig.chain.genesisHash))
 
   const blocksDiff = vestedConfig.endBlock - vestedConfig.startBlock
   const vestingTime = blocksDiff * (blockTime ?? 0)
+  const invalidVesting = useMemo(() => {
+    if (!vestedConfig.on) return false
+    return !currentBlock || blocksDiff <= 0 || vestedConfig.startBlock < currentBlock
+  }, [blocksDiff, currentBlock, vestedConfig.on, vestedConfig.startBlock])
 
   return (
     <>
       <NewTransactionHeader icon={<Send />} title="Send">
-        <div className="flex items-center gap-[4px]">
-          <label htmlFor="vested" className="text-right mt-[3px]">
-            Vested
-          </label>
-          <Switch
-            id="vested"
-            checked={vestedConfig.on}
-            onCheckedChange={() => onChangeVestedConfig({ ...vestedConfig, on: !vestedConfig.on })}
-          />
-        </div>
+        {vestingSupported ? (
+          <div className="flex items-center gap-[8px]">
+            <label htmlFor="vested" className="text-right mt-[3px]">
+              Vested
+            </label>
+            <Switch
+              id="vested"
+              checked={vestedConfig.on}
+              onCheckedChange={() => onChangeVestedConfig({ ...vestedConfig, on: !vestedConfig.on })}
+            />
+          </div>
+        ) : vestingSupported === undefined ? (
+          <Skeleton.Surface className="w-[80px] h-[24px]" />
+        ) : null}
       </NewTransactionHeader>
       <div className="grid gap-[24px] mt-[32px]">
         {vestedConfig.on && (
@@ -112,8 +132,8 @@ export const DetailsForm: React.FC<Props> = ({
             tokens={tokens}
             selectedToken={selectedToken}
             setSelectedToken={setSelectedToken}
-            amount={amount}
             setAmount={setAmount}
+            amountPerBlockBn={amountPerBlockBn}
           />
         </div>
         <div className="text-offWhite">
@@ -143,13 +163,16 @@ export const DetailsForm: React.FC<Props> = ({
         ) : (
           <Button
             className="w-max"
+            loading={loading || vestingConsts.state === 'loading'}
             disabled={
+              loading ||
               !destinationAddress ||
               isNaN(parseFloat(amount)) ||
               amount.endsWith('.') ||
               !selectedToken ||
               !name ||
-              !hasNonDelayedPermission
+              !hasNonDelayedPermission ||
+              invalidVesting
             }
             onClick={onNext}
             children="Review"

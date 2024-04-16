@@ -1,7 +1,6 @@
 import { BaseToken, buildTransferExtrinsic } from '@domains/chains'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
 import { selectedMultisigChainTokensState, selectedMultisigState } from '@domains/multisig'
-import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { Address } from '@util/addresses'
 import BN from 'bn.js'
 import Decimal from 'decimal.js'
@@ -23,7 +22,6 @@ const SendAction = () => {
   const [step, setStep] = useState(Step.Details)
   const [name, setName] = useState('')
   const [destinationAddress, setDestinationAddress] = useState<Address | undefined>()
-  const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic<'promise'> | undefined>()
   const tokens = useRecoilValueLoadable(selectedMultisigChainTokensState)
   const [selectedToken, setSelectedToken] = useState<BaseToken | undefined>()
   const [amountInput, setAmountInput] = useState('')
@@ -32,6 +30,7 @@ const SendAction = () => {
     on: false,
     startBlock: 0,
     endBlock: 0,
+    amountByBlock: false,
   })
 
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
@@ -43,26 +42,23 @@ const SendAction = () => {
   }, [apiLoadable])
 
   const [startBlock, endBlock] = useMemo(() => {
-    if (blockTime !== undefined && blockNumber !== undefined) {
-      const startBlock = (24 * 60 * 60 * 1000) / blockTime.toNumber() + blockNumber
-      const endBlock = (30 * 24 * 60 * 60 * 1000) / blockTime.toNumber() + startBlock
-      return [startBlock, endBlock]
-    }
-    return [0, 0]
+    if (blockTime === undefined || blockNumber === undefined) return [0, 0]
+    const startBlock = (24 * 60 * 60 * 1000) / blockTime.toNumber() + blockNumber
+    const endBlock = (30 * 24 * 60 * 60 * 1000) / blockTime.toNumber() + startBlock
+    return [startBlock, endBlock]
   }, [blockNumber, blockTime])
 
   // set the default values to start in 1 day and end in 31 days
   useEffect(() => {
-    if (vested.startBlock === 0 && vested.endBlock === 0 && startBlock && endBlock) {
-      setVested({
-        on: vested.on,
-        startBlock,
-        endBlock,
-      })
-    }
+    if (vested.startBlock === 0 && vested.endBlock === 0 && startBlock && endBlock)
+      setVested(prev => ({ ...prev, startBlock, endBlock }))
   }, [endBlock, startBlock, vested])
 
-  const defaultName = name || `Send ${selectedToken?.symbol || 'Token'}`
+  // reset if chain is changed
+  useEffect(() => {
+    if (blockTime === undefined || blockNumber === undefined)
+      setVested(prev => ({ ...prev, startBlock: 0, endBlock: 0 }))
+  }, [blockNumber, blockTime])
 
   useEffect(() => {
     if (tokens.state === 'hasValue' && tokens.contents.length > 0) {
@@ -81,23 +77,27 @@ const SendAction = () => {
     return new BN(stringValueRounded)
   }, [amountInput, selectedToken])
 
-  useEffect(() => {
-    if (selectedToken && apiLoadable.state === 'hasValue' && amountBn && destinationAddress) {
-      if (!apiLoadable.contents.tx.balances?.transferKeepAlive || !apiLoadable.contents.tx.proxy?.proxy) {
-        throw Error('chain missing balances pallet')
-      }
-      try {
-        const balance = {
-          amount: amountBn,
-          token: selectedToken,
-        }
-        const innerExtrinsic = buildTransferExtrinsic(apiLoadable.contents, destinationAddress, balance)
-        setExtrinsic(innerExtrinsic)
-      } catch (error) {
-        console.error(error)
-      }
+  const amountPerBlockBn = useMemo(() => {
+    if (!vested.on) return undefined
+    if (!amountBn) return undefined
+    if (vested.endBlock - vested.startBlock === 0) return new BN(0)
+    return amountBn.div(new BN(vested.endBlock - vested.startBlock))
+  }, [amountBn, vested.endBlock, vested.on, vested.startBlock])
+
+  const { extrinsic, loading } = useMemo(() => {
+    if (apiLoadable.state !== 'hasValue') return { loading: true }
+    if (!selectedToken || !amountBn || !destinationAddress) return { loading: false }
+    if (!apiLoadable.contents.tx.balances?.transferKeepAlive || !apiLoadable.contents.tx.proxy?.proxy)
+      return { palletSupported: false, loading: false }
+
+    try {
+      const balance = { amount: amountBn, token: selectedToken }
+      const extrinsic = buildTransferExtrinsic(apiLoadable.contents, destinationAddress, balance)
+      return { extrinsic, palletSupported: true, loading: false }
+    } catch (error) {
+      return {}
     }
-  }, [destinationAddress, selectedToken, apiLoadable, amountBn, multisig])
+  }, [amountBn, apiLoadable.contents, apiLoadable.state, destinationAddress, selectedToken])
 
   const handleFailed = useCallback(
     (err: Error) => {
@@ -115,6 +115,13 @@ const SendAction = () => {
       <div className="flex flex-1 flex-col py-[16px] md:py-[32px] md:px-[8%]">
         <div className="w-full max-w-[490px]">
           <DetailsForm
+            vestingSupported={
+              apiLoadable.state === 'hasValue'
+                ? !!apiLoadable.contents.tx.vesting &&
+                  !!apiLoadable.contents.tx.vesting.vestedTransfer &&
+                  selectedToken?.type === 'substrate-native'
+                : undefined
+            }
             onNext={() => setStep(Step.Review)}
             selectedToken={selectedToken}
             tokens={tokens.state === 'hasValue' ? tokens.contents : []}
@@ -122,7 +129,16 @@ const SendAction = () => {
             amount={amountInput}
             setDestinationAddress={setDestinationAddress}
             setAmount={setAmountInput}
-            setSelectedToken={setSelectedToken}
+            setSelectedToken={token => {
+              setSelectedToken(token)
+              if (token.type !== 'substrate-native' && vested.on) {
+                toast({ title: `Vesting is not supported for ${token.symbol} on ${multisig.chain.chainName}` })
+                setVested({
+                  ...vested,
+                  on: false,
+                })
+              }
+            }}
             name={name}
             setName={setName}
             chain={multisig.chain}
@@ -134,11 +150,13 @@ const SendAction = () => {
             onChangeVestedConfig={setVested}
             currentBlock={blockNumber}
             blockTime={blockTime?.toNumber()}
+            amountPerBlockBn={amountPerBlockBn}
+            loading={loading}
           />
 
           {extrinsic && (
             <TransactionSidesheet
-              description={name || defaultName}
+              description={name || name || `Send ${selectedToken?.symbol || 'Token'}`}
               calldata={extrinsic.method.toHex()}
               open={step === Step.Review}
               onClose={() => setStep(Step.Details)}
