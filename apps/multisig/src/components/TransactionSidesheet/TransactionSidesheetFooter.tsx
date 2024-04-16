@@ -3,13 +3,16 @@ import { Checkbox } from '@components/ui/checkbox'
 import { selectedAccountState } from '@domains/auth'
 import { multisigDepositTotalSelector, tokenPriceState } from '@domains/chains'
 import { accountsState } from '@domains/extension'
+import { balancesState } from '@domains/balances'
 import { Balance, Transaction, TransactionType, usePendingTransactions, useSelectedMultisig } from '@domains/multisig'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { cn } from '@util/tailwindcss'
+import { BN } from '@polkadot/util'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
+import { useUser } from '@domains/auth'
 
 export type TransactionSidesheetLoading = {
   any: boolean
@@ -32,6 +35,7 @@ export const SignerCta: React.FC<{
   loading: TransactionSidesheetLoading
 }> = ({ canReject, onApprove, onCancel, onDeleteDraft, onReject, onSaveDraft, fee, loading, readyToExecute, t }) => {
   const extensionAccounts = useRecoilValue(accountsState)
+  const balances = useRecoilValue(balancesState)
   const [asDraft, setAsDraft] = useState(false)
   const { transactions: pendingTransactions, loading: pendingLoading } = usePendingTransactions()
   const feeTokenPrice = useRecoilValueLoadable(tokenPriceState(fee?.token))
@@ -41,6 +45,7 @@ export const SignerCta: React.FC<{
       signatories: t?.approvals ? Object.keys(t.approvals).length : 0,
     })
   )
+  const { user } = useUser()
 
   const isCreating = useMemo(() => !t.draft && !t.rawPending && !t.executedAt, [t.draft, t.executedAt, t.rawPending])
 
@@ -54,6 +59,18 @@ export const SignerCta: React.FC<{
   }, [isCreating, loading])
 
   const missingExecutionCallData = useMemo(() => readyToExecute && !t.callData, [readyToExecute, t.callData])
+
+  // checks if the connected account has enough balance to approve the transaction
+  const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
+    const txCost = fee?.amount.add(multisigDepositTotal.contents.amount) ?? new BN(0)
+    const connectedWalletAddr = user?.injected.address.toSs58(fee?.token.chain)
+    const [connectedWalletBal] = balances?.find(b => b.address === connectedWalletAddr) || []
+    const available = connectedWalletBal?.transferable.planck
+      ? new BN(connectedWalletBal.transferable.planck.toString())
+      : new BN(0)
+
+    return available.gte(txCost)
+  }, [balances, fee, multisigDepositTotal, user?.injected.address])
 
   // Check if the user has an account connected which can approve the transaction
   const connectedAccountCanApprove: boolean = useMemo(() => {
@@ -194,6 +211,7 @@ export const SignerCta: React.FC<{
             onClick={handleApprove}
             disabled={
               missingExecutionCallData ||
+              !connectedAccountHasEnoughBalance ||
               loading.any ||
               (!asDraft && (!connectedAccountCanApprove || !canApproveAsChangeConfig || !fee))
             }
