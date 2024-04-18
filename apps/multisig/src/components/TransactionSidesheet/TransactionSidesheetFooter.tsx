@@ -8,7 +8,7 @@ import { Balance, Transaction, TransactionType, usePendingTransactions, useSelec
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { cn } from '@util/tailwindcss'
-import { BN } from '@polkadot/util'
+import { Address } from '../../util/addresses'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
@@ -60,17 +60,18 @@ export const SignerCta: React.FC<{
 
   const missingExecutionCallData = useMemo(() => readyToExecute && !t.callData, [readyToExecute, t.callData])
 
-  // checks if the connected account has enough balance to cover the tx cost
   const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
-    const txCost = fee?.amount.add(multisigDepositTotal.contents.amount) ?? new BN(0)
-    const connectedWalletAddr = user?.injected.address.toSs58(fee?.token.chain)
-    const [connectedWalletBal] = balances?.find(b => b.address === connectedWalletAddr) || []
-    const availableBalance = connectedWalletBal?.transferable.planck
-      ? new BN(connectedWalletBal.transferable.planck.toString())
-      : new BN(0)
+    const txCost = BigInt(fee?.amount.add(multisigDepositTotal.contents.amount).toString() ?? 0)
+    const [connectedWalletBal] =
+      balances?.find(({ address }) => {
+        const parsedAddress = Address.fromSs58(address)
+        return parsedAddress && !!user && parsedAddress.isEqual(user.injected.address)
+      }) || []
+    const availableBalance = connectedWalletBal?.transferable.planck ?? 0n
 
-    return availableBalance.gte(txCost)
-  }, [balances, fee, multisigDepositTotal, user?.injected.address])
+    console.log({ availableBalance, txCost })
+    return availableBalance >= txCost
+  }, [balances, fee, multisigDepositTotal, user])
 
   // Check if the user has an account connected which can approve the transaction
   const connectedAccountCanApprove: boolean = useMemo(() => {
@@ -152,28 +153,23 @@ export const SignerCta: React.FC<{
     }
   }, [feeTokenPrice, fee, connectedAccountCanApprove])
 
-  const getButtonLabel = (): string => {
-    // Return 'Save as Draft' if the draft option is chosen
-    if (asDraft) {
-      return 'Save as Draft'
-    }
+  const approvalsCount = Object.values(t.approvals).filter(approved => approved).length
 
+  const buttonLabel = useMemo(() => {
+    // Return 'Save as Draft' if the draft option is chosen
+    if (asDraft) return 'Save as Draft'
+    // Check for sufficient balance
+    if (!connectedAccountHasEnoughBalance) return 'Insufficient Balance'
     // Return 'Execute' or 'Approve & Execute' based on approvals count and multisig threshold
     if (readyToExecute) {
-      if (approvalsCount >= t.multisig.threshold) {
-        return 'Execute'
-      }
+      if (approvalsCount >= t.multisig.threshold) return 'Execute'
       return 'Approve & Execute'
     }
-    // Check for sufficient balance before defaulting to 'Approve'
-    if (!connectedAccountHasEnoughBalance) {
-      return 'Insufficient Balance'
-    }
+
     // Default to 'Approve' if no other conditions are met
     return 'Approve'
-  }
+  }, [approvalsCount, asDraft, connectedAccountHasEnoughBalance, readyToExecute, t.multisig.threshold])
 
-  const approvalsCount = Object.values(t.approvals).filter(approved => approved).length
   // get fee and signable extrinsic
   return (
     <div className="w-full grid gap-[12px]">
@@ -238,7 +234,7 @@ export const SignerCta: React.FC<{
             }
             loading={asDraft ? loading.savingDraft : loading.approving}
           >
-            {getButtonLabel()}
+            {buttonLabel}
           </Button>
         </div>
       </div>
