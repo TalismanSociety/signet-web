@@ -59,9 +59,19 @@ export const SignerCta: React.FC<{
   }, [isCreating, loading])
 
   const missingExecutionCallData = useMemo(() => readyToExecute && !t.callData, [readyToExecute, t.callData])
+  const firstApproval = useMemo(() => {
+    if (!t) return null
+    return !Object.values(t.approvals).find(v => v === true)
+  }, [t])
 
   const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
-    const txCost = BigInt(fee?.amount.add(multisigDepositTotal.contents.amount).toString() ?? 0)
+    if (asDraft) return true
+
+    let txCost = BigInt(fee?.amount.toString() ?? 0)
+    if (firstApproval) {
+      txCost += BigInt(multisigDepositTotal.contents.amount?.toString() ?? 0)
+    }
+
     const [connectedWalletBal] =
       balances?.find(({ address }) => {
         const parsedAddress = Address.fromSs58(address)
@@ -69,9 +79,8 @@ export const SignerCta: React.FC<{
       }) || []
     const availableBalance = connectedWalletBal?.transferable.planck ?? 0n
 
-    console.log({ availableBalance, txCost })
     return availableBalance >= txCost
-  }, [balances, fee, multisigDepositTotal, user])
+  }, [asDraft, fee?.amount, firstApproval, balances, multisigDepositTotal.contents.amount, user])
 
   // Check if the user has an account connected which can approve the transaction
   const connectedAccountCanApprove: boolean = useMemo(() => {
@@ -89,11 +98,6 @@ export const SignerCta: React.FC<{
     const approvalsCount = Object.values(t.approvals).filter(approved => approved).length
     return approvalsCount >= t.multisig.threshold
   }, [t, extensionAccounts])
-
-  const firstApproval = useMemo(() => {
-    if (!t) return null
-    return !Object.values(t.approvals).find(v => v === true)
-  }, [t])
 
   const canApproveAsChangeConfig = useMemo(() => {
     if (t.decoded?.type !== TransactionType.ChangeConfig || !t.rawPending) return true
