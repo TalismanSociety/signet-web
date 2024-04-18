@@ -117,6 +117,7 @@ const MultiSendForm = (props: {
             disabled={props.sends.length === 0 || hasInvalidRow || !props.hasNonDelayedPermission || !props.name}
             onClick={props.onNext}
             children="Review"
+            className="w-max mt-[16px]"
           />
         )}
       </div>
