@@ -5,6 +5,7 @@ import { useBalances, useSetBalancesAddresses } from '@talismn/balances-react'
 import { useUser } from '@domains/auth'
 import { useEffect, useMemo } from 'react'
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil'
+import { Address } from '../../util/addresses'
 
 import { TokenAugmented } from '../../layouts/Overview/Assets'
 
@@ -20,7 +21,10 @@ export const useAugmentedBalances = () => {
 
   const multisigBalances = !user
     ? balances
-    : balances?.find(({ address, chain }) => address !== user.injected.address.toSs58(chain))
+    : balances?.find(({ address }) => {
+        const parsedAddress = Address.fromSs58(address)
+        return parsedAddress && !parsedAddress.isEqual(user.injected.address)
+      })
 
   return useMemo(() => {
     if (!multisigBalances) return undefined
@@ -73,10 +77,7 @@ export const BalancesWatcher = () => {
 
   useSetBalancesAddresses(
     useMemo(
-      () =>
-        user
-          ? [...multisigAddresses, user?.injected.address].map(a => a.toSs58(selectedMultisig.chain))
-          : multisigAddresses.map(a => a.toSs58(selectedMultisig.chain)),
+      () => multisigAddresses.concat(user ? [user.injected.address] : []).map(a => a.toSs58(selectedMultisig.chain)),
       [multisigAddresses, selectedMultisig.chain, user]
     )
   )
