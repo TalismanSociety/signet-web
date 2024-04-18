@@ -28,7 +28,7 @@ export const useOnchainIdentity = (address: Address, chain?: Chain) => {
       const verified = identity.contents.identity.value.judgements?.some(
         judgement => judgement[1].isReasonable || judgement[1].isKnownGood
       )
-      const superIdentity = identity.contents.identity.value.info.display
+      const superIdentity = identity.contents.identity?.value?.info?.display
       const subIdentity = identity.contents.subIdentity
       if (superIdentity.isRaw) {
         const superIdentityString = u8aToString(u8aUnwrapBytes(superIdentity.asRaw.toString()))
