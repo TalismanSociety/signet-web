@@ -9,6 +9,7 @@ import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { cn } from '@util/tailwindcss'
 import { Address } from '../../util/addresses'
+import { existentialDepositSelector } from '@domains/chains'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
@@ -39,6 +40,9 @@ export const SignerCta: React.FC<{
   const [asDraft, setAsDraft] = useState(false)
   const { transactions: pendingTransactions, loading: pendingLoading } = usePendingTransactions()
   const feeTokenPrice = useRecoilValueLoadable(tokenPriceState(fee?.token))
+  const existentialDepositLoadable = useRecoilValueLoadable(
+    existentialDepositSelector(t.multisig.chain.squidIds.chainData)
+  )
   const multisigDepositTotal = useRecoilValueLoadable(
     multisigDepositTotalSelector({
       chain_id: t.multisig.chain.squidIds.chainData,
@@ -65,9 +69,9 @@ export const SignerCta: React.FC<{
   }, [t])
 
   const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
-    if (asDraft) return true
+    if (asDraft || existentialDepositLoadable.state === 'loading') return true
 
-    let txCost = BigInt(fee?.amount.toString() ?? 0)
+    let txCost = BigInt(fee?.amount.toString() ?? 0) + BigInt(existentialDepositLoadable.contents.amount.toString())
     if (firstApproval) {
       txCost += BigInt(multisigDepositTotal.contents.amount?.toString() ?? 0)
     }
@@ -80,7 +84,15 @@ export const SignerCta: React.FC<{
     const availableBalance = connectedWalletBal?.transferable.planck ?? 0n
 
     return availableBalance >= txCost
-  }, [asDraft, fee?.amount, firstApproval, balances, multisigDepositTotal.contents.amount, user])
+  }, [
+    asDraft,
+    fee?.amount,
+    firstApproval,
+    existentialDepositLoadable,
+    balances,
+    multisigDepositTotal.contents.amount,
+    user,
+  ])
 
   // Check if the user has an account connected which can approve the transaction
   const connectedAccountCanApprove: boolean = useMemo(() => {
