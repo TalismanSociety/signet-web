@@ -1,4 +1,4 @@
-import { Loadable, useRecoilValue, useRecoilValueLoadable } from 'recoil'
+import { Loadable, useRecoilValue } from 'recoil'
 import React, { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/css'
@@ -6,7 +6,7 @@ import { isEqual } from 'lodash'
 
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { ChainPill } from '@components/ChainPill'
-import { BaseToken, Chain, initialVaultFundSelector, Price } from '@domains/chains'
+import { BaseToken, Chain, Price } from '@domains/chains'
 import {
   AugmentedAccount,
   Balance,
@@ -202,7 +202,6 @@ const Confirmation = (props: {
   const { tokenWithPrice, reserveAmount, estimatedFee, chain, existentialDeposit } = props
   const activeMultisigs = useRecoilValue(activeMultisigsState)
   const [, setSelectedMultisig] = useSelectedMultisig()
-  const initialVaultFundsLoadable = useRecoilValueLoadable(initialVaultFundSelector(chain.squidIds.chainData))
 
   const multisigAddress = toMultisigAddress(
     props.selectedAccounts.map(a => a.address),
@@ -326,7 +325,7 @@ const Confirmation = (props: {
             price={tokenWithPrice?.contents?.price?.current}
           />
           <Cost
-            label="Initial Funds"
+            label="Initial Multisig Funds"
             amount={existentialDeposit?.state === 'hasValue' ? existentialDeposit.contents : undefined}
             symbol={tokenWithPrice?.contents?.token?.symbol}
             price={tokenWithPrice?.contents?.price?.current}
@@ -334,12 +333,6 @@ const Confirmation = (props: {
           <Cost
             label="Estimated Transaction Fee"
             amount={estimatedFee}
-            symbol={tokenWithPrice?.contents?.token?.symbol}
-            price={tokenWithPrice?.contents?.price?.current}
-          />
-          <Cost
-            label="Initial Multisig Funds"
-            amount={initialVaultFundsLoadable?.state === 'hasValue' ? initialVaultFundsLoadable.contents : undefined}
             symbol={tokenWithPrice?.contents?.token?.symbol}
             price={tokenWithPrice?.contents?.price?.current}
           />
