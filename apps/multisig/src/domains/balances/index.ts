@@ -2,8 +2,10 @@ import { BaseToken, supportedChains } from '@domains/chains'
 import { aggregatedMultisigsState, selectedMultisigState } from '@domains/multisig'
 import { Balances } from '@talismn/balances'
 import { useBalances, useSetBalancesAddresses } from '@talismn/balances-react'
+import { useUser } from '@domains/auth'
 import { useEffect, useMemo } from 'react'
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil'
+import { Address } from '../../util/addresses'
 
 import { TokenAugmented } from '../../layouts/Overview/Assets'
 
@@ -15,9 +17,18 @@ export const balancesState = atom<Balances | undefined>({
 
 export const useAugmentedBalances = () => {
   const balances = useRecoilValue(balancesState)
+  const { user } = useUser()
+
+  const multisigBalances = !user
+    ? balances
+    : balances?.find(({ address }) => {
+        const parsedAddress = Address.fromSs58(address)
+        return parsedAddress && !parsedAddress.isEqual(user.injected.address)
+      })
+
   return useMemo(() => {
-    if (!balances) return undefined
-    return balances.filterNonZero('total').sorted.reduce((acc: TokenAugmented[], b) => {
+    if (!multisigBalances) return undefined
+    return multisigBalances.filterNonZero('total').sorted.reduce((acc: TokenAugmented[], b) => {
       if (b.chain === null || !b.token) return acc
       const balanceChain = b.chain
 
@@ -49,14 +60,15 @@ export const useAugmentedBalances = () => {
         { details: token, balance: { avaliable, unavaliable }, price: b.rates?.usd || 0, id: b.id, balanceDetails: b },
       ]
     }, [])
-  }, [balances])
+  }, [multisigBalances])
 }
 
 export const BalancesWatcher = () => {
   const multisigs = useRecoilValue(aggregatedMultisigsState)
   const selectedMultisig = useRecoilValue(selectedMultisigState)
   const setBalances = useSetRecoilState(balancesState)
-  const addresses = useMemo(() => multisigs.map(({ proxyAddress }) => proxyAddress), [multisigs])
+  const { user } = useUser()
+  const multisigAddresses = useMemo(() => multisigs.map(({ proxyAddress }) => proxyAddress), [multisigs])
 
   // clean up for loading state
   useEffect(() => {
@@ -64,7 +76,10 @@ export const BalancesWatcher = () => {
   }, [multisigs, setBalances])
 
   useSetBalancesAddresses(
-    useMemo(() => addresses.map(a => a.toSs58(selectedMultisig.chain)), [addresses, selectedMultisig.chain])
+    useMemo(
+      () => multisigAddresses.concat(user ? [user.injected.address] : []).map(a => a.toSs58(selectedMultisig.chain)),
+      [multisigAddresses, selectedMultisig.chain, user]
+    )
   )
 
   const balances = useBalances()

@@ -3,13 +3,17 @@ import { Checkbox } from '@components/ui/checkbox'
 import { selectedAccountState } from '@domains/auth'
 import { multisigDepositTotalSelector, tokenPriceState } from '@domains/chains'
 import { accountsState } from '@domains/extension'
+import { balancesState } from '@domains/balances'
 import { Balance, Transaction, TransactionType, usePendingTransactions, useSelectedMultisig } from '@domains/multisig'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { cn } from '@util/tailwindcss'
+import { Address } from '../../util/addresses'
+import { existentialDepositSelector } from '@domains/chains'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
+import { useUser } from '@domains/auth'
 
 export type TransactionSidesheetLoading = {
   any: boolean
@@ -32,15 +36,20 @@ export const SignerCta: React.FC<{
   loading: TransactionSidesheetLoading
 }> = ({ canReject, onApprove, onCancel, onDeleteDraft, onReject, onSaveDraft, fee, loading, readyToExecute, t }) => {
   const extensionAccounts = useRecoilValue(accountsState)
+  const balances = useRecoilValue(balancesState)
   const [asDraft, setAsDraft] = useState(false)
   const { transactions: pendingTransactions, loading: pendingLoading } = usePendingTransactions()
   const feeTokenPrice = useRecoilValueLoadable(tokenPriceState(fee?.token))
+  const existentialDepositLoadable = useRecoilValueLoadable(
+    existentialDepositSelector(t.multisig.chain.squidIds.chainData)
+  )
   const multisigDepositTotal = useRecoilValueLoadable(
     multisigDepositTotalSelector({
       chain_id: t.multisig.chain.squidIds.chainData,
       signatories: t?.approvals ? Object.keys(t.approvals).length : 0,
     })
   )
+  const { user } = useUser()
 
   const isCreating = useMemo(() => !t.draft && !t.rawPending && !t.executedAt, [t.draft, t.executedAt, t.rawPending])
 
@@ -54,6 +63,44 @@ export const SignerCta: React.FC<{
   }, [isCreating, loading])
 
   const missingExecutionCallData = useMemo(() => readyToExecute && !t.callData, [readyToExecute, t.callData])
+  const firstApproval = useMemo(() => {
+    if (!t) return null
+    return !Object.values(t.approvals).find(v => v === true)
+  }, [t])
+
+  const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
+    if (asDraft || existentialDepositLoadable.state === 'loading') return true
+
+    let txCost = BigInt(fee?.amount.toString() ?? 0) + BigInt(existentialDepositLoadable.contents.amount.toString())
+    if (firstApproval) {
+      txCost += BigInt(multisigDepositTotal.contents.amount?.toString() ?? 0)
+    }
+
+    const [connectedWalletBal] =
+      balances?.find(({ address, chainId }) => {
+        const parsedAddress = Address.fromSs58(address)
+        return (
+          parsedAddress &&
+          !!user &&
+          parsedAddress.isEqual(user.injected.address) &&
+          chainId === t.multisig.chain.squidIds.chainData
+        )
+      }) || []
+
+    const availableBalance = connectedWalletBal?.transferable.planck ?? 0n
+
+    return availableBalance >= txCost
+  }, [
+    asDraft,
+    existentialDepositLoadable.state,
+    existentialDepositLoadable.contents.amount,
+    fee?.amount,
+    firstApproval,
+    balances,
+    multisigDepositTotal.contents.amount,
+    user,
+    t.multisig.chain.squidIds.chainData,
+  ])
 
   // Check if the user has an account connected which can approve the transaction
   const connectedAccountCanApprove: boolean = useMemo(() => {
@@ -71,11 +118,6 @@ export const SignerCta: React.FC<{
     const approvalsCount = Object.values(t.approvals).filter(approved => approved).length
     return approvalsCount >= t.multisig.threshold
   }, [t, extensionAccounts])
-
-  const firstApproval = useMemo(() => {
-    if (!t) return null
-    return !Object.values(t.approvals).find(v => v === true)
-  }, [t])
 
   const canApproveAsChangeConfig = useMemo(() => {
     if (t.decoded?.type !== TransactionType.ChangeConfig || !t.rawPending) return true
@@ -136,6 +178,22 @@ export const SignerCta: React.FC<{
   }, [feeTokenPrice, fee, connectedAccountCanApprove])
 
   const approvalsCount = Object.values(t.approvals).filter(approved => approved).length
+
+  const buttonLabel = useMemo(() => {
+    // Return 'Save as Draft' if the draft option is chosen
+    if (asDraft) return 'Save as Draft'
+    // Check for sufficient balance
+    if (!connectedAccountHasEnoughBalance) return 'Insufficient Balance'
+    // Return 'Execute' or 'Approve & Execute' based on approvals count and multisig threshold
+    if (readyToExecute) {
+      if (approvalsCount >= t.multisig.threshold) return 'Execute'
+      return 'Approve & Execute'
+    }
+
+    // Default to 'Approve' if no other conditions are met
+    return 'Approve'
+  }, [approvalsCount, asDraft, connectedAccountHasEnoughBalance, readyToExecute, t.multisig.threshold])
+
   // get fee and signable extrinsic
   return (
     <div className="w-full grid gap-[12px]">
@@ -194,18 +252,13 @@ export const SignerCta: React.FC<{
             onClick={handleApprove}
             disabled={
               missingExecutionCallData ||
+              !connectedAccountHasEnoughBalance ||
               loading.any ||
               (!asDraft && (!connectedAccountCanApprove || !canApproveAsChangeConfig || !fee))
             }
             loading={asDraft ? loading.savingDraft : loading.approving}
           >
-            {asDraft
-              ? 'Save as Draft'
-              : readyToExecute
-              ? approvalsCount >= t.multisig.threshold
-                ? 'Execute'
-                : 'Approve & Execute'
-              : 'Approve'}
+            {buttonLabel}
           </Button>
         </div>
       </div>
