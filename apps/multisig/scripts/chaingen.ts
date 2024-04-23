@@ -30,7 +30,7 @@ const supportedChainIds = [
   'astar',
   'bifrost-polkadot',
   'bifrost-kusama',
-  // 'aleph-zero',
+  'aleph-zero',
   'centrifuge',
   'hydradx',
   'interlay',

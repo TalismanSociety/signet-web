@@ -292,6 +292,28 @@ export const supportedChains: Chain[] = [
     subscanUrl: 'https://bifrost-kusama.subscan.io/',
   },
   {
+    chainName: 'Aleph Zero',
+    genesisHash: '0x70255b4d28de0fc4e1a193d7e175ad1ccef431598211c55538f1018651a0344e',
+    isTestnet: false,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/aleph-zero.svg',
+    nativeToken: {
+      id: 'aleph-zero-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://aleph-zero-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://ws.azero.dev',
+      },
+    ],
+    squidIds: {
+      chainData: 'aleph-zero',
+    },
+    ss58Prefix: 42,
+    subscanUrl: 'https://alephzero.subscan.io/',
+  },
+  {
     chainName: 'HydraDX',
     genesisHash: '0xafdc188f45c71dacbaa0b62e16a91f726c7b8699a9748cdf715459de6b7f366d',
     isTestnet: false,
