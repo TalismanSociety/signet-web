@@ -29,10 +29,16 @@ export const supportedChains: Chain[] = [
         url: 'wss://1rpc.io/dot',
       },
       {
+        url: 'wss://polkadot-public-rpc.blockops.network/ws',
+      },
+      {
         url: 'wss://rpc-polkadot.luckyfriday.io',
       },
       {
         url: 'wss://polkadot.public.curie.radiumblock.co/ws',
+      },
+      {
+        url: 'wss://rockx-dot.w3node.com/polka-public-dot/ws',
       },
       {
         url: 'wss://dot-rpc.stakeworld.io',
@@ -113,10 +119,16 @@ export const supportedChains: Chain[] = [
         url: 'wss://1rpc.io/ksm',
       },
       {
+        url: 'wss://kusama-public-rpc.blockops.network/ws',
+      },
+      {
         url: 'wss://rpc-kusama.luckyfriday.io',
       },
       {
         url: 'wss://kusama.public.curie.radiumblock.co/ws',
+      },
+      {
+        url: 'wss://rockx-ksm.w3node.com/polka-public-ksm/ws',
       },
       {
         url: 'wss://ksm-rpc.stakeworld.io',
@@ -190,6 +202,9 @@ export const supportedChains: Chain[] = [
       {
         url: 'wss://acala-rpc-3.aca-api.network/ws',
       },
+      {
+        url: 'wss://rpc-acala.luckyfriday.io',
+      },
     ],
     squidIds: {
       chainData: 'acala',
@@ -207,13 +222,13 @@ export const supportedChains: Chain[] = [
     },
     rpcs: [
       {
-        url: 'wss://rpc.astar.network',
-      },
-      {
         url: 'wss://astar-rpc.dwellir.com',
       },
       {
         url: 'wss://1rpc.io/astr',
+      },
+      {
+        url: 'wss://rpc.astar.network',
       },
       {
         url: 'wss://astar.public.curie.radiumblock.co/ws',
@@ -235,6 +250,9 @@ export const supportedChains: Chain[] = [
       id: 'bifrost-polkadot-substrate-native',
     },
     rpcs: [
+      {
+        url: 'wss://bifrost-polkadot-rpc.dwellir.com',
+      },
       {
         url: 'wss://hk.p.bifrost-rpc.liebi.com/ws',
       },
@@ -287,6 +305,9 @@ export const supportedChains: Chain[] = [
       },
       {
         url: 'wss://rpc.hydradx.cloud',
+      },
+      {
+        url: 'wss://rpc.helikon.io/hydradx',
       },
     ],
     squidIds: {
@@ -341,6 +362,9 @@ export const supportedChains: Chain[] = [
       },
       {
         url: 'wss://karura-rpc-3.aca-api.network/ws',
+      },
+      {
+        url: 'wss://rpc-karura.luckyfriday.io',
       },
     ],
     squidIds: {
@@ -415,10 +439,10 @@ export const supportedChains: Chain[] = [
         url: 'wss://wss.api.moonbeam.network',
       },
       {
-        url: 'wss://moonbeam.unitedbloc.com',
+        url: 'wss://moonbeam.public.curie.radiumblock.co/ws',
       },
       {
-        url: 'wss://moonbeam.public.curie.radiumblock.co/ws',
+        url: 'wss://moonbeam.unitedbloc.com',
       },
     ],
     squidIds: {
