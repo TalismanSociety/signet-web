@@ -29,8 +29,18 @@ export type ExecuteCallbacks = {
   onFailure: (message: string) => void
 }
 
-export const buildTransferExtrinsic = (api: ApiPromise, to: Address, balance: Balance) => {
-  if (isSubstrateNativeToken(balance.token)) {
+export const buildTransferExtrinsic = (
+  api: ApiPromise,
+  to: Address,
+  balance: Balance,
+  vestingSchedule?: any | null
+) => {
+  if (vestingSchedule) {
+    if (!api.tx.vesting?.vestedTransfer) {
+      throw Error('trying to send chain missing vesting pallet')
+    }
+    return api.tx.vesting.vestedTransfer(to.bytes, vestingSchedule)
+  } else if (isSubstrateNativeToken(balance.token)) {
     if (!api.tx.balances?.transferKeepAlive) {
       throw Error('trying to send chain missing balances pallet')
     }

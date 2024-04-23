@@ -72,6 +72,13 @@ export const DetailsForm: React.FC<Props> = ({
   const vestingConsts = useRecoilValueLoadable(vestingConstsSelector(multisig.chain.genesisHash))
 
   const blocksDiff = vestedConfig.endBlock - vestedConfig.startBlock
+  const vestingError = useMemo(() => {
+    if (!currentBlock) return undefined
+    if (vestedConfig.startBlock < currentBlock + 1) return 'Start block is in the past.'
+    if (vestedConfig.endBlock < vestedConfig.startBlock) return 'End block must be after start block.'
+    return null
+  }, [currentBlock, vestedConfig.endBlock, vestedConfig.startBlock])
+
   const vestingTime = blocksDiff * (blockTime ?? 0)
   const invalidVesting = useMemo(() => {
     if (!vestedConfig.on) return false
@@ -99,7 +106,7 @@ export const DetailsForm: React.FC<Props> = ({
       <div className="grid gap-[24px] mt-[32px]">
         {vestedConfig.on && (
           <div>
-            <div className="flex items-center gap-[12px]">
+            <div className="flex items-center gap-[12px] flex-col sm:flex-row">
               <BlockInput
                 blockTime={blockTime}
                 currentBlock={currentBlock}
@@ -117,13 +124,13 @@ export const DetailsForm: React.FC<Props> = ({
                 minBlock={currentBlock ? Math.max(vestedConfig.startBlock, currentBlock ?? 0) + 1 : undefined}
               />
             </div>
-            {blocksDiff > 0 ? (
+            {!!vestingError ? (
+              <p className="mt-[4px] text-[14px] text-red-400">{vestingError}</p>
+            ) : blocksDiff > 0 ? (
               <p className="mt-[4px] text-[14px]">
                 The transfer would be vested in{' '}
                 <span className="text-offWhite">&asymp;{secondsToDuration(vestingTime)}</span>
               </p>
-            ) : blockTime !== undefined && currentBlock !== undefined ? (
-              <p className="mt-[4px] text-[14px] text-red-400">End block must happen after start block.</p>
             ) : null}
           </div>
         )}

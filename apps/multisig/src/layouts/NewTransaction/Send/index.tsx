@@ -12,6 +12,7 @@ import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 import { useLatestBlockNumber } from '@domains/chains/useLatestBlockNumber'
 import { expectedBlockTime } from '@domains/common/substratePolyfills'
+import { useVestingScheduleCreator } from '@hooks/useVestingScheduleCreator'
 
 enum Step {
   Details,
@@ -34,6 +35,7 @@ const SendAction = () => {
   })
 
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
+  const vestingScheduleCreator = useVestingScheduleCreator(multisig.chain.genesisHash)
   const { toast } = useToast()
   const blockNumber = useLatestBlockNumber(multisig.chain.genesisHash)
   const blockTime = useMemo(() => {
@@ -84,6 +86,12 @@ const SendAction = () => {
     return amountBn.div(new BN(vested.endBlock - vested.startBlock))
   }, [amountBn, vested.endBlock, vested.on, vested.startBlock])
 
+  const vestingSchedule = useMemo(() => {
+    const period = vested.endBlock - vested.startBlock
+    if (!vestingScheduleCreator || !amountBn || period === 0) return undefined
+    return vested.on ? vestingScheduleCreator(amountBn, vested.startBlock, period) : undefined
+  }, [amountBn, vested.endBlock, vested.on, vested.startBlock, vestingScheduleCreator])
+
   const { extrinsic, loading } = useMemo(() => {
     if (apiLoadable.state !== 'hasValue') return { loading: true }
     if (!selectedToken || !amountBn || !destinationAddress) return { loading: false }
@@ -92,12 +100,12 @@ const SendAction = () => {
 
     try {
       const balance = { amount: amountBn, token: selectedToken }
-      const extrinsic = buildTransferExtrinsic(apiLoadable.contents, destinationAddress, balance)
+      const extrinsic = buildTransferExtrinsic(apiLoadable.contents, destinationAddress, balance, vestingSchedule)
       return { extrinsic, palletSupported: true, loading: false }
     } catch (error) {
       return {}
     }
-  }, [amountBn, apiLoadable.contents, apiLoadable.state, destinationAddress, selectedToken])
+  }, [amountBn, apiLoadable.contents, apiLoadable.state, destinationAddress, selectedToken, vestingSchedule])
 
   const handleFailed = useCallback(
     (err: Error) => {
@@ -116,10 +124,11 @@ const SendAction = () => {
         <div className="w-full max-w-[490px]">
           <DetailsForm
             vestingSupported={
-              apiLoadable.state === 'hasValue'
+              apiLoadable.state === 'hasValue' && vestingScheduleCreator !== undefined
                 ? !!apiLoadable.contents.tx.vesting &&
                   !!apiLoadable.contents.tx.vesting.vestedTransfer &&
-                  selectedToken?.type === 'substrate-native'
+                  selectedToken?.type === 'substrate-native' &&
+                  vestingScheduleCreator !== null
                 : undefined
             }
             onNext={() => setStep(Step.Review)}

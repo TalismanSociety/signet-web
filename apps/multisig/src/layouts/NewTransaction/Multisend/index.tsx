@@ -41,10 +41,7 @@ const MultiSend = () => {
       }
       try {
         const sendExtrinsics = sends.map(send => {
-          const balance = {
-            amount: send.amountBn,
-            token: send.token,
-          }
+          const balance = { amount: send.amountBn, token: send.token }
           return buildTransferExtrinsic(apiLoadable.contents, send.address, balance)
         })
 

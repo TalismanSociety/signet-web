@@ -10,7 +10,6 @@ import { decodeCallData } from '@domains/chains'
 import { pjsApiSelector, useApi } from '@domains/chains/pjs-api'
 import { Balance, Transaction, TransactionType, calcSumOutgoing, tempCalldataState } from '@domains/multisig'
 import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote, Zap } from '@talismn/icons'
-import { Address } from '@util/addresses'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import AceEditor from 'react-ace'
 import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
@@ -26,6 +25,7 @@ import {
 import { useDecodedCalldata } from '@domains/common'
 import { Upload } from 'lucide-react'
 import { DeployContractExpandedDetails } from '../../../layouts/SmartContracts/DeployContractExpandedDetails'
+import { SendExpandableDetails } from '../../../layouts/NewTransaction/Send/SendExpandableDetails'
 import { cn } from '@util/tailwindcss'
 import { isExtrinsicProxyWrapped } from '@util/extrinsics'
 import { CONFIG } from '@lib/config'
@@ -250,21 +250,23 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
 
   if (!t.decoded) return null
 
-  if (t.decoded.type === TransactionType.Transfer)
-    return (
-      <div className="bg-gray-500 ml-auto [&>div>p]:text-[14px] [&>div>p]:mt-0 p-[4px] px-[8px] [&>div]:gap-[4px] rounded-full max-w-[180px]">
-        <AccountDetails
-          address={recipients[0]?.address as Address}
-          name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
-          chain={t.multisig.chain}
-          withAddressTooltip
-          nameOrAddressOnly
-          identiconSize={16}
-          disableCopy
-        />
-      </div>
-    )
-
+  if (t.decoded.type === TransactionType.Transfer) {
+    const [recipient] = t.decoded.recipients
+    if (recipient)
+      return (
+        <div className="bg-gray-500 p-[4px] px-[8px] rounded-[8px] max-w-[180px] [&_p]:text-[14px]">
+          <AccountDetails
+            address={recipient.address}
+            name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
+            chain={t.multisig.chain}
+            withAddressTooltip
+            nameOrAddressOnly
+            identiconSize={16}
+            disableCopy
+          />
+        </div>
+      )
+  }
   if (t.decoded.type === TransactionType.MultiSend)
     return (
       <div className="flex items-center justify-end gap-[4px] py-[2px] px-[8px] bg-gray-800 rounded-[12px]">
@@ -306,7 +308,7 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
       case TransactionType.MultiSend:
         return { name: 'Multi-Send', icon: <Share2 /> }
       case TransactionType.Transfer:
-        return { name: 'Send', icon: <Send /> }
+        return { name: t.decoded.recipients[0]?.vestingSchedule ? 'Vested Transfer' : 'Send', icon: <Send /> }
       case TransactionType.Advanced:
         return { name: 'Advanced', icon: <List /> }
       case TransactionType.ChangeConfig:
@@ -328,6 +330,8 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
 
   const transactionDetails = useMemo(() => {
     switch (t.decoded?.type) {
+      case TransactionType.Transfer:
+        return <SendExpandableDetails t={t} />
       case TransactionType.MultiSend:
         return <MultiSendExpandedDetails t={t} />
       case TransactionType.ChangeConfig:
@@ -406,16 +410,16 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
         <AccordionItem value="1" className="!border-b-0">
           <AccordionTrigger className="!py-[16px] w-full">
             <div className="flex items-center justify-between w-full pr-[8px]">
-              <div className="flex gap-[8px] items-center">
-                <p className="text-offWhite mt-[4px]">{name}</p>
-                <div className="text-signet-primary [&>svg]:h-[20px]">{icon}</div>
+              <div className="flex gap-[4px] items-center">
+                <div className="text-signet-primary [&>svg]:h-[16px]">{icon}</div>
+                <p className="text-offWhite mt-[4px] text-left">{name}</p>
               </div>
               <div className="flex items-center gap-[8px]">
                 <TransactionDetailsHeaderContent t={t} />
                 {t.decoded && t.decoded.type !== TransactionType.Advanced && sumOutgoing.length > 0 && (
                   <div className="flex items-end flex-col">
                     {sumOutgoing.map(b => (
-                      <AmountRow key={b.token.id} balance={b} />
+                      <AmountRow key={b.token.id} balance={b} sameLine />
                     ))}
                   </div>
                 )}
