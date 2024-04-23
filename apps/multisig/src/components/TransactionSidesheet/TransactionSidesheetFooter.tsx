@@ -77,21 +77,29 @@ export const SignerCta: React.FC<{
     }
 
     const [connectedWalletBal] =
-      balances?.find(({ address }) => {
+      balances?.find(({ address, chainId }) => {
         const parsedAddress = Address.fromSs58(address)
-        return parsedAddress && !!user && parsedAddress.isEqual(user.injected.address)
+        return (
+          parsedAddress &&
+          !!user &&
+          parsedAddress.isEqual(user.injected.address) &&
+          chainId === t.multisig.chain.squidIds.chainData
+        )
       }) || []
+
     const availableBalance = connectedWalletBal?.transferable.planck ?? 0n
 
     return availableBalance >= txCost
   }, [
     asDraft,
+    existentialDepositLoadable.state,
+    existentialDepositLoadable.contents.amount,
     fee?.amount,
     firstApproval,
-    existentialDepositLoadable,
     balances,
     multisigDepositTotal.contents.amount,
     user,
+    t.multisig.chain.squidIds.chainData,
   ])
 
   // Check if the user has an account connected which can approve the transaction
