@@ -43,18 +43,20 @@ const SendAction = () => {
     return expectedBlockTime(apiLoadable.contents)
   }, [apiLoadable])
 
-  const [startBlock, endBlock] = useMemo(() => {
+  const [defaultStartBlock, defaultEndBlock] = useMemo(() => {
     if (blockTime === undefined || blockNumber === undefined) return [0, 0]
+    // default to one day from now
     const startBlock = (24 * 60 * 60 * 1000) / blockTime.toNumber() + blockNumber
+    // default to one month from default start date
     const endBlock = (30 * 24 * 60 * 60 * 1000) / blockTime.toNumber() + startBlock
     return [startBlock, endBlock]
   }, [blockNumber, blockTime])
 
   // set the default values to start in 1 day and end in 31 days
   useEffect(() => {
-    if (vested.startBlock === 0 && vested.endBlock === 0 && startBlock && endBlock)
-      setVested(prev => ({ ...prev, startBlock, endBlock }))
-  }, [endBlock, startBlock, vested])
+    if (vested.startBlock === 0 && vested.endBlock === 0 && defaultStartBlock && defaultEndBlock)
+      setVested(prev => ({ ...prev, startBlock: defaultStartBlock, endBlock: defaultEndBlock }))
+  }, [defaultEndBlock, defaultStartBlock, vested])
 
   // reset if chain is changed
   useEffect(() => {
@@ -80,12 +82,12 @@ const SendAction = () => {
   }, [amountInput, selectedToken])
 
   const amountPerBlockBn = useMemo(() => {
-    if (!vested.on) return undefined
-    if (!amountBn) return undefined
-    if (vested.endBlock - vested.startBlock === 0) return new BN(0)
+    if (!vested.on || !amountBn) return undefined
+    if (vested.endBlock - vested.startBlock <= 0) return amountBn
     return amountBn.div(new BN(vested.endBlock - vested.startBlock))
   }, [amountBn, vested.endBlock, vested.on, vested.startBlock])
 
+  // create a vesting schedule object that complies to the chain's vestedTransfer type
   const vestingSchedule = useMemo(() => {
     const period = vested.endBlock - vested.startBlock
     if (!vestingScheduleCreator || !amountBn || period === 0) return undefined
@@ -153,8 +155,8 @@ const SendAction = () => {
             chain={multisig.chain}
             vestedConfig={{
               ...vested,
-              startBlock: vested.startBlock || startBlock,
-              endBlock: vested.endBlock || endBlock,
+              startBlock: vested.startBlock || defaultStartBlock,
+              endBlock: vested.endBlock || defaultEndBlock,
             }}
             onChangeVestedConfig={setVested}
             currentBlock={blockNumber}

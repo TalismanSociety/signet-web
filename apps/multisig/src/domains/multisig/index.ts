@@ -427,6 +427,11 @@ const callToTransactionRecipient = (arg: any, chainTokens: BaseToken[]): Transac
   return null
 }
 
+/**
+ * schedule could be in two formats:
+ * - { startingBlock: string, perBlock: string, locked: string }
+ * - { start: string, period_count: string, perPeriod: string, period: string }
+ */
 const callToVestingSchedule = (schedule: any): VestingSchedule | null => {
   if (schedule.startingBlock && schedule.perBlock && schedule.locked) {
     const totalAmount = new BN(schedule.locked.replaceAll(',', ''))
@@ -438,11 +443,12 @@ const callToVestingSchedule = (schedule: any): VestingSchedule | null => {
     }
   }
 
-  if (schedule.start && schedule.period_count && schedule.perPeriod) {
+  if (schedule.start && schedule.periodCount && schedule.perPeriod) {
+    const period = +`${schedule.periodCount}`.replaceAll(',', '')
     return {
       start: +schedule.start.replaceAll(',', ''),
-      period: +schedule.period_count.replaceAll(',', ''),
-      totalAmount: new BN(schedule.perPeriod.replaceAll(',', '')).mul(new BN(schedule.period)),
+      period,
+      totalAmount: new BN(schedule.perPeriod.replaceAll(',', '')).mul(new BN(period)),
     }
   }
   return null
@@ -674,23 +680,23 @@ export const extrinsicToDecoded = (
       const obj: any = arg.toHuman()
       if (obj?.section === 'vesting') {
         if (obj.method === 'vestedTransfer' || obj.method === 'removeProxy') {
-          const recipients: TransactionRecipient[] = []
-          const { target, schedule } = obj.args
-          const targetAddress = Address.fromSs58(parseCallAddressArg(target))
+          const { target, dest, schedule } = obj.args
+          const targetAddress = Address.fromSs58(parseCallAddressArg(target ?? dest))
           const vestingSchedule = callToVestingSchedule(schedule)
           if (targetAddress && vestingSchedule) {
-            recipients.push({
-              address: targetAddress,
-              balance: {
-                token: chainTokens.find(t => t.type === 'substrate-native')!,
-                amount: vestingSchedule.totalAmount,
-              },
-              vestingSchedule,
-            })
             return {
               decoded: {
                 type: TransactionType.Transfer,
-                recipients,
+                recipients: [
+                  {
+                    address: targetAddress,
+                    balance: {
+                      token: chainTokens.find(t => t.type === 'substrate-native')!,
+                      amount: vestingSchedule.totalAmount,
+                    },
+                    vestingSchedule,
+                  },
+                ],
               },
               description: metadata?.description ?? `Vested transfer to ${targetAddress.toShortSs58(multisig.chain)}`,
             }

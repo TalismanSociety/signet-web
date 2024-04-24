@@ -72,6 +72,8 @@ export const DetailsForm: React.FC<Props> = ({
   const vestingConsts = useRecoilValueLoadable(vestingConstsSelector(multisig.chain.genesisHash))
 
   const blocksDiff = vestedConfig.endBlock - vestedConfig.startBlock
+  const vestingTime = blocksDiff * (blockTime ?? 0)
+
   const vestingError = useMemo(() => {
     if (!vestedConfig.on) return null
     if (!currentBlock) return undefined
@@ -80,8 +82,6 @@ export const DetailsForm: React.FC<Props> = ({
     if (vestedConfig.endBlock < vestedConfig.startBlock) return 'End block must be after start block.'
     return null
   }, [blocksDiff, currentBlock, vestedConfig.endBlock, vestedConfig.on, vestedConfig.startBlock])
-
-  const vestingTime = blocksDiff * (blockTime ?? 0)
 
   return (
     <>

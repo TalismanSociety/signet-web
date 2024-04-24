@@ -4,6 +4,13 @@ import BN from 'bn.js'
 
 export type VestingScheduleCreator = (totalAmount: BN, startBlock: number, period: number) => any
 
+/**
+ * There are mainly two types of vested transfer on Substrate:
+ * - Substrate's native vesting pallet
+ * - Orml vesting pallet
+ *
+ * Both pallets have different types for vesting schedule, this hook will find the right type for creating a vesting schedule
+ */
 export const useVestingScheduleCreator = (genesisHash: string) => {
   const { api } = useApi(genesisHash)
 
@@ -15,8 +22,8 @@ export const useVestingScheduleCreator = (genesisHash: string) => {
       return (totalAmount: BN, startBlock: number, period: number) => {
         return api.createType('OrmlVestingVestingSchedule', {
           start: startBlock,
-          period,
-          periodCount: 1,
+          period: 1,
+          periodCount: period,
           perPeriod: totalAmount.div(new BN(period)),
         })
       }

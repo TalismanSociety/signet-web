@@ -254,10 +254,10 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
     const [recipient] = t.decoded.recipients
     if (recipient)
       return (
-        <div className="bg-gray-500 p-[4px] px-[8px] rounded-[8px] max-w-[180px] [&_p]:text-[14px]">
+        <div className="bg-gray-500 p-[4px] px-[8px] rounded-[8px] max-w-[180px] [&>div>p]:text-[14px]">
           <AccountDetails
             address={recipient.address}
-            name={contactByAddress[recipients[0]!.address.toSs58()]?.name}
+            name={contactByAddress[recipient.address.toSs58()]?.name}
             chain={t.multisig.chain}
             withAddressTooltip
             nameOrAddressOnly

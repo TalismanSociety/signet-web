@@ -73,5 +73,5 @@ export const SendExpandableDetails: React.FC<Props> = ({ t }) => {
   const recipient = t.decoded?.recipients[0]
   if (!recipient || !recipient.vestingSchedule) return null
 
-  return <div>{recipient.vestingSchedule && <VestingInfo t={t} vestingSchedule={recipient.vestingSchedule} />}</div>
+  return <VestingInfo t={t} vestingSchedule={recipient.vestingSchedule} />
 }

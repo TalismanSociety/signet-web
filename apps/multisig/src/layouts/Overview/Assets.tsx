@@ -22,7 +22,7 @@ const TokenRow = ({ augmentedToken, balance }: { augmentedToken: TokenAugmented;
   const { details, price } = augmentedToken
   return (
     <div className="w-full flex items-center">
-      <img className="h-[36px] w-[36px] mr-[8px]" width={40} height={40} src={details.logo} alt="Token logo" />
+      <img className="h-[36px] w-[36px] mr-[8px]" width={36} height={36} src={details.logo} alt="Token logo" />
       <div className="flex items-center justify-between w-full">
         <div className="flex flex-col gap-[4px]">
           <p className="text-[16px] leading-none font-bold text-offWhite">{details.symbol}</p>
