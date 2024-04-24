@@ -1,3 +1,4 @@
+import { Tooltip } from '@components/ui/tooltip'
 import { useApi } from '@domains/chains/pjs-api'
 import { useLatestBlockNumber } from '@domains/chains/useLatestBlockNumber'
 import { expectedBlockTime } from '@domains/common/substratePolyfills'
@@ -35,6 +36,9 @@ const VestingInfo: React.FC<Props & { vestingSchedule: VestingSchedule }> = ({ t
     return new Date(now.getTime() + msDiff)
   }, [blockNumber, blockTime, vestingSchedule.period, vestingSchedule.start])
 
+  const startDateString = startDate?.toLocaleDateString()
+  const endDateString = endDate?.toLocaleDateString()
+  const sameDay = startDateString === endDateString
   const duration = useMemo(() => {
     if (blockTime === undefined) return undefined
     return vestingSchedule.period * blockTime.toNumber()
@@ -43,12 +47,23 @@ const VestingInfo: React.FC<Props & { vestingSchedule: VestingSchedule }> = ({ t
     <div>
       <div className="flex items-center justify-between">
         <p className="text-[14px]">Vesting Period</p>
-        <p className="text-right text-offWhite text-[14px]">
-          {startDate?.toLocaleDateString()} &rarr; {endDate?.toLocaleDateString()}
-          {!!duration && (
-            <span className="text-right text-gray-200 text-[14px]">&nbsp;(&asymp;{secondsToDuration(duration)})</span>
-          )}
-        </p>
+        <Tooltip
+          delayDuration={300}
+          content={
+            <p className="text-[14px]">
+              {startDate?.toLocaleString()} &rarr; {endDate?.toLocaleString()}
+            </p>
+          }
+        >
+          <p className="text-right text-offWhite text-[14px] cursor-default">
+            {sameDay ? `${startDateString}, ` : ''}
+            {sameDay ? `≈${startDate?.toLocaleTimeString()}` : startDateString} &rarr;{' '}
+            {sameDay ? `≈${endDate?.toLocaleTimeString()}` : endDate?.toLocaleDateString()}
+            {!!duration && (
+              <span className="text-right text-gray-200 text-[14px]">&nbsp;(&asymp;{secondsToDuration(duration)})</span>
+            )}
+          </p>
+        </Tooltip>
       </div>
     </div>
   )
@@ -56,7 +71,7 @@ const VestingInfo: React.FC<Props & { vestingSchedule: VestingSchedule }> = ({ t
 
 export const SendExpandableDetails: React.FC<Props> = ({ t }) => {
   const recipient = t.decoded?.recipients[0]
-  if (!recipient) return null
+  if (!recipient || !recipient.vestingSchedule) return null
 
   return <div>{recipient.vestingSchedule && <VestingInfo t={t} vestingSchedule={recipient.vestingSchedule} />}</div>
 }

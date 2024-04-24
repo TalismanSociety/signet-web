@@ -73,17 +73,15 @@ export const DetailsForm: React.FC<Props> = ({
 
   const blocksDiff = vestedConfig.endBlock - vestedConfig.startBlock
   const vestingError = useMemo(() => {
+    if (!vestedConfig.on) return null
     if (!currentBlock) return undefined
+    if (blocksDiff <= 0) return 'End block must be after start block.'
     if (vestedConfig.startBlock < currentBlock + 1) return 'Start block is in the past.'
     if (vestedConfig.endBlock < vestedConfig.startBlock) return 'End block must be after start block.'
     return null
-  }, [currentBlock, vestedConfig.endBlock, vestedConfig.startBlock])
+  }, [blocksDiff, currentBlock, vestedConfig.endBlock, vestedConfig.on, vestedConfig.startBlock])
 
   const vestingTime = blocksDiff * (blockTime ?? 0)
-  const invalidVesting = useMemo(() => {
-    if (!vestedConfig.on) return false
-    return !currentBlock || blocksDiff <= 0 || vestedConfig.startBlock < currentBlock
-  }, [blocksDiff, currentBlock, vestedConfig.on, vestedConfig.startBlock])
 
   return (
     <>
@@ -179,7 +177,7 @@ export const DetailsForm: React.FC<Props> = ({
               !selectedToken ||
               !name ||
               !hasNonDelayedPermission ||
-              invalidVesting
+              vestingError !== null
             }
             onClick={onNext}
             children="Review"
