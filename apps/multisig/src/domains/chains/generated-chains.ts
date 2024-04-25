@@ -562,6 +562,25 @@ export const supportedChains: Chain[] = [
     subscanUrl: 'https://test.azero.dev/#/explorer/',
   },
   {
+    chainName: 'Avail Turing Testnet',
+    genesisHash: '0xd3d2f3a3495dc597434a99d7d449ebad6616db45e4e4f178f31cc6fa14378b70',
+    isTestnet: true,
+    logo: 'https://www.availproject.org/_next/static/media/logo_large.80d5666f.png',
+    nativeToken: {
+      id: 'avail-turing-testnet-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://turing-rpc.avail.so',
+      },
+    ],
+    squidIds: {
+      chainData: 'avail-turing-testnet',
+    },
+    ss58Prefix: 42,
+    subscanUrl: 'https://temp-explorer.avail.so/#/explorer',
+  },
+  {
     chainName: 'Dancebox',
     genesisHash: '0x27aafd88e5921f5d5c6aebcd728dacbbf5c2a37f63e2eda301f8e0def01c43ea',
     isTestnet: true,
@@ -598,24 +617,5 @@ export const supportedChains: Chain[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://paseo.subscan.io/',
-  },
-  {
-    chainName: 'Avail Turing Network',
-    genesisHash: '0xd3d2f3a3495dc597434a99d7d449ebad6616db45e4e4f178f31cc6fa14378b70',
-    isTestnet: true,
-    logo: 'https://www.availproject.org/_next/static/media/logo_large.80d5666f.png',
-    nativeToken: {
-      id: 'avail-turing-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://turing-rpc.avail.so',
-      },
-    ],
-    squidIds: {
-      chainData: 'avail-turing-testnet',
-    },
-    ss58Prefix: 42,
-    subscanUrl: 'https://temp-explorer.avail.so/#/explorer',
   },
 ]
