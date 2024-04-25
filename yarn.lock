@@ -10493,6 +10493,7 @@ __metadata:
     "@vercel/analytics": ^1.2.2
     "@walletconnect/web3wallet": ^1.10.0
     ace-builds: ^1.22.0
+    avail-js-sdk: ^0.2.11
     babel-jest: ^29.4.3
     babel-plugin-relay: ^15.0.0
     bignumber.js: ^9.1.1
@@ -13742,6 +13743,15 @@ __metadata:
   bin:
     autoprefixer: bin/autoprefixer
   checksum: 8f017672fbac248db0cf4e86aa707d8b148d9abadb842b5cf4c6be306d80fa6a654fadefd17e46213234c1f0947612acce2864f93e903f3e736b183fc1aedc45
+  languageName: node
+  linkType: hard
+
+"avail-js-sdk@npm:^0.2.11":
+  version: 0.2.11
+  resolution: "avail-js-sdk@npm:0.2.11"
+  dependencies:
+    "@polkadot/api": ^10.11.3
+  checksum: 8607af3783d9132410c774efcfd1a05ecdec3dbe2be9e71062d31479172cdde47900c0c5af5ef7380d76b82e4bc20ec367a6924baa103342b4f6789d90c3c37c
   languageName: node
   linkType: hard
 

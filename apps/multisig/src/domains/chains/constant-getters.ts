@@ -112,6 +112,18 @@ export const proxyDepositTotalSelector = selectorFamily({
   dangerouslyAllowMutability: true, // pjs wsprovider mutates itself to track connection msg stats
 })
 
+export const initialVaultFundSelector = selectorFamily({
+  key: 'initialVaultFundSelector',
+  get:
+    (chain_id: string) =>
+    ({ get }): Balance => {
+      const existentialDeposit = get(existentialDepositSelector(chain_id))
+      const proxyDepositFactor = get(proxyDepositFactorSelector(chain_id))
+      return { amount: existentialDeposit.amount.add(proxyDepositFactor.amount), token: existentialDeposit.token }
+    },
+  dangerouslyAllowMutability: true, // pjs wsprovider mutates itself to track connection msg stats
+})
+
 const multisigDepositBaseSelector = selectorFamily({
   key: 'multisigDepositBaseSelector',
   get:
