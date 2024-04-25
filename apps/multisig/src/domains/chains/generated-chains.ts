@@ -630,6 +630,12 @@ export const supportedChains: Chain[] = [
     },
     rpcs: [
       {
+        url: 'wss://polimec.rpc.amforc.com',
+      },
+      {
+        url: 'wss://rpc.helikon.io/polimec',
+      },
+      {
         url: 'wss://rpc.polimec.org',
       },
     ],
