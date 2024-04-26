@@ -1,22 +1,33 @@
 import { BaseToken, tokenPriceState } from '@domains/chains'
-import { css } from '@emotion/css'
 import { useEffect, useMemo, useState } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import AmountUnitSelector, { AmountUnit } from '../AmountUnitSelector'
 import { Input } from '@components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@components/ui/select'
+import BN from 'bn.js'
+import { formatUnits } from '@util/numbers'
+import { Skeleton } from '@talismn/ui'
 
-export const AmountFlexibleInput = (props: {
+type Props = {
   tokens: BaseToken[]
   selectedToken: BaseToken | undefined
-  amount: string
   leadingLabel?: string
   setAmount: (a: string) => void
   setSelectedToken?: (t: BaseToken) => void
+  amountPerBlockBn?: BN
+}
+
+export const AmountFlexibleInput: React.FC<Props> = ({
+  amountPerBlockBn,
+  tokens,
+  selectedToken,
+  leadingLabel,
+  setAmount,
+  setSelectedToken,
 }) => {
   const [input, setInput] = useState<string>('')
   const [amountUnit, setAmountUnit] = useState<AmountUnit>(AmountUnit.Token)
-  const tokenPrices = useRecoilValueLoadable(tokenPriceState(props.selectedToken))
+  const tokenPrices = useRecoilValueLoadable(tokenPriceState(selectedToken))
 
   useEffect(() => {
     if (tokenPrices.state === 'hasValue') {
@@ -56,35 +67,33 @@ export const AmountFlexibleInput = (props: {
   }, [amountUnit, input, tokenPrices])
 
   useEffect(() => {
-    if (calculatedTokenAmount || calculatedTokenAmount === '') {
-      props.setAmount(calculatedTokenAmount)
-    }
-  }, [calculatedTokenAmount, props])
+    if (calculatedTokenAmount || calculatedTokenAmount === '') setAmount(calculatedTokenAmount)
+  }, [calculatedTokenAmount, setAmount])
 
-  const unit = useMemo(() => {
-    if (amountUnit === AmountUnit.Token) {
-      return props.selectedToken?.symbol
-    } else {
-      return 'USD'
-    }
-  }, [amountUnit, props.selectedToken])
+  const unit = useMemo(
+    () => (amountUnit === AmountUnit.Token ? selectedToken?.symbol : 'USD'),
+    [amountUnit, selectedToken]
+  )
 
   return (
-    <div css={{ display: 'flex', width: '100%', gap: '12px' }}>
-      <div
-        className={css`
-          display: 'flex';
-          flex-grow: 1;
-          align-items: center;
-        `}
-      >
+    <div className="flex w-full gap-[12px]">
+      <div className="flex flex-1 items-center">
         <Input
           placeholder={`0 ${unit}`}
-          label={props.leadingLabel ?? `Amount`}
+          label={leadingLabel ?? `Amount`}
+          labelTrailing={
+            amountPerBlockBn ? (
+              selectedToken ? (
+                `(${formatUnits(amountPerBlockBn, selectedToken.decimals)} ${selectedToken?.symbol} per block)`
+              ) : (
+                <Skeleton.Surface className="h-[21px] w-[120px]" />
+              )
+            ) : undefined
+          }
           suffix={
             calculatedTokenAmount && calculatedTokenAmount !== 'NaN' && amountUnit !== AmountUnit.Token ? (
               <p className="text-gray-200 text-[14px]">
-                {(+calculatedTokenAmount).toFixed(4)} {props.selectedToken?.symbol}
+                {(+calculatedTokenAmount).toFixed(4)} {selectedToken?.symbol}
               </p>
             ) : null
           }
@@ -95,14 +104,14 @@ export const AmountFlexibleInput = (props: {
           }
           value={input}
           onChange={event => {
-            if (!props.selectedToken) return
+            if (!selectedToken) return
 
             // Create a dynamic regular expression.
             // This regex will:
             // - Match any string of up to `digits` count of digits, optionally separated by a decimal point.
             // - The total count of digits, either side of the decimal point, can't exceed `digits`.
             // - It will also match an empty string, making it a valid input.
-            const digits = props.selectedToken.decimals
+            const digits = selectedToken.decimals
             let regex = new RegExp(
               '^(?:(\\d{1,' +
                 digits +
@@ -123,15 +132,14 @@ export const AmountFlexibleInput = (props: {
           externalSuffix={
             <div>
               <Select
-                {...props}
-                value={props.selectedToken?.id}
-                onValueChange={id => props.setSelectedToken?.(props.tokens.find(t => t.id === id) as BaseToken)}
+                value={selectedToken?.id}
+                onValueChange={id => setSelectedToken?.(tokens.find(t => t.id === id) as BaseToken)}
               >
-                <SelectTrigger className="h-[56px]" hideArrow={props.tokens.length <= 1}>
+                <SelectTrigger className="h-[56px]" hideArrow={tokens.length <= 1}>
                   <SelectValue placeholder="Select Token" />
                 </SelectTrigger>
                 <SelectContent>
-                  {props.tokens.map(t => (
+                  {tokens.map(t => (
                     <SelectItem key={t.id} value={t.id} className="px-[8px] pl-[24px] h-[56px]">
                       <div className="flex items-center w-max gap-[8px]">
                         <img className="w-[24px] h-auto" src={t.logo} alt={t.symbol} />

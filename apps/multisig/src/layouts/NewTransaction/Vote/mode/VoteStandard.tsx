@@ -2,7 +2,6 @@ import { AmountFlexibleInput } from '@components/AmountFlexibleInput'
 import { BaseToken } from '@domains/chains'
 import { StandardVoteParams, VoteDetails } from '@domains/referenda'
 import ConvictionsDropdown from '../ConvictionsDropdown'
-import { useState } from 'react'
 import { parseUnits } from '@util/numbers'
 import BN from 'bn.js'
 
@@ -13,12 +12,9 @@ type Props = {
 }
 
 const VoteStandard = ({ params, onChange, token }: Props) => {
-  const [amount, setAmount] = useState('')
-
   const handleAmountChange = (amount: string) => {
     if (!token) return
 
-    setAmount(amount)
     let balance = new BN(0)
     try {
       balance = parseUnits(amount, token.decimals)
@@ -53,7 +49,6 @@ const VoteStandard = ({ params, onChange, token }: Props) => {
         // the tokens list should only contain the chain's native token
         tokens={token ? [token] : []}
         selectedToken={token}
-        amount={amount}
         leadingLabel="Amount to vote"
         setAmount={handleAmountChange}
       />

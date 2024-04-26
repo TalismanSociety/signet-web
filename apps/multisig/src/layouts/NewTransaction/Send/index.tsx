@@ -1,16 +1,18 @@
 import { BaseToken, buildTransferExtrinsic } from '@domains/chains'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
 import { selectedMultisigChainTokensState, selectedMultisigState } from '@domains/multisig'
-import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { Address } from '@util/addresses'
 import BN from 'bn.js'
 import Decimal from 'decimal.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 
-import { DetailsForm } from './DetailsForm'
+import { DetailsForm, VestedSendConfig } from './DetailsForm'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
+import { useLatestBlockNumber } from '@domains/chains/useLatestBlockNumber'
+import { expectedBlockTime } from '@domains/common/substratePolyfills'
+import { useVestingScheduleCreator } from '@hooks/useVestingScheduleCreator'
 
 enum Step {
   Details,
@@ -21,15 +23,46 @@ const SendAction = () => {
   const [step, setStep] = useState(Step.Details)
   const [name, setName] = useState('')
   const [destinationAddress, setDestinationAddress] = useState<Address | undefined>()
-  const [extrinsic, setExtrinsic] = useState<SubmittableExtrinsic<'promise'> | undefined>()
   const tokens = useRecoilValueLoadable(selectedMultisigChainTokensState)
   const [selectedToken, setSelectedToken] = useState<BaseToken | undefined>()
   const [amountInput, setAmountInput] = useState('')
   const multisig = useRecoilValue(selectedMultisigState)
-  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
-  const { toast } = useToast()
+  const [vested, setVested] = useState<VestedSendConfig>({
+    on: false,
+    startBlock: 0,
+    endBlock: 0,
+    amountByBlock: false,
+  })
 
-  const defaultName = name || `Send ${selectedToken?.symbol || 'Token'}`
+  const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
+  const vestingScheduleCreator = useVestingScheduleCreator(multisig.chain.genesisHash)
+  const { toast } = useToast()
+  const blockNumber = useLatestBlockNumber(multisig.chain.genesisHash)
+  const blockTime = useMemo(() => {
+    if (apiLoadable.state !== 'hasValue') return
+    return expectedBlockTime(apiLoadable.contents)
+  }, [apiLoadable])
+
+  const [defaultStartBlock, defaultEndBlock] = useMemo(() => {
+    if (blockTime === undefined || blockNumber === undefined) return [0, 0]
+    // default to one day from now
+    const startBlock = (24 * 60 * 60 * 1000) / blockTime.toNumber() + blockNumber
+    // default to one month from default start date
+    const endBlock = (30 * 24 * 60 * 60 * 1000) / blockTime.toNumber() + startBlock
+    return [startBlock, endBlock]
+  }, [blockNumber, blockTime])
+
+  // set the default values to start in 1 day and end in 31 days
+  useEffect(() => {
+    if (vested.startBlock === 0 && vested.endBlock === 0 && defaultStartBlock && defaultEndBlock)
+      setVested(prev => ({ ...prev, startBlock: defaultStartBlock, endBlock: defaultEndBlock }))
+  }, [defaultEndBlock, defaultStartBlock, vested])
+
+  // reset if chain is changed
+  useEffect(() => {
+    if (blockTime === undefined || blockNumber === undefined)
+      setVested(prev => ({ ...prev, startBlock: 0, endBlock: 0 }))
+  }, [blockNumber, blockTime])
 
   useEffect(() => {
     if (tokens.state === 'hasValue' && tokens.contents.length > 0) {
@@ -48,23 +81,33 @@ const SendAction = () => {
     return new BN(stringValueRounded)
   }, [amountInput, selectedToken])
 
-  useEffect(() => {
-    if (selectedToken && apiLoadable.state === 'hasValue' && amountBn && destinationAddress) {
-      if (!apiLoadable.contents.tx.balances?.transferKeepAlive || !apiLoadable.contents.tx.proxy?.proxy) {
-        throw Error('chain missing balances pallet')
-      }
-      try {
-        const balance = {
-          amount: amountBn,
-          token: selectedToken,
-        }
-        const innerExtrinsic = buildTransferExtrinsic(apiLoadable.contents, destinationAddress, balance)
-        setExtrinsic(innerExtrinsic)
-      } catch (error) {
-        console.error(error)
-      }
+  const amountPerBlockBn = useMemo(() => {
+    if (!vested.on || !amountBn) return undefined
+    if (vested.endBlock - vested.startBlock <= 0) return amountBn
+    return amountBn.div(new BN(vested.endBlock - vested.startBlock))
+  }, [amountBn, vested.endBlock, vested.on, vested.startBlock])
+
+  // create a vesting schedule object that complies to the chain's vestedTransfer type
+  const vestingSchedule = useMemo(() => {
+    const period = vested.endBlock - vested.startBlock
+    if (!vestingScheduleCreator || !amountBn || period === 0) return undefined
+    return vested.on ? vestingScheduleCreator(amountBn, vested.startBlock, period) : undefined
+  }, [amountBn, vested.endBlock, vested.on, vested.startBlock, vestingScheduleCreator])
+
+  const { extrinsic, loading } = useMemo(() => {
+    if (apiLoadable.state !== 'hasValue') return { loading: true }
+    if (!selectedToken || !amountBn || !destinationAddress) return { loading: false }
+    if (!apiLoadable.contents.tx.balances?.transferKeepAlive || !apiLoadable.contents.tx.proxy?.proxy)
+      return { palletSupported: false, loading: false }
+
+    try {
+      const balance = { amount: amountBn, token: selectedToken }
+      const extrinsic = buildTransferExtrinsic(apiLoadable.contents, destinationAddress, balance, vestingSchedule)
+      return { extrinsic, palletSupported: true, loading: false }
+    } catch (error) {
+      return {}
     }
-  }, [destinationAddress, selectedToken, apiLoadable, amountBn, multisig])
+  }, [amountBn, apiLoadable.contents, apiLoadable.state, destinationAddress, selectedToken, vestingSchedule])
 
   const handleFailed = useCallback(
     (err: Error) => {
@@ -79,9 +122,17 @@ const SendAction = () => {
 
   return (
     <>
-      <div css={{ display: 'flex', flex: 1, flexDirection: 'column', padding: '32px 8%' }}>
-        <div css={{ width: '100%', maxWidth: 490 }}>
+      <div className="flex flex-1 flex-col py-[16px] md:py-[32px] md:px-[8%]">
+        <div className="w-full max-w-[490px]">
           <DetailsForm
+            vestingSupported={
+              apiLoadable.state === 'hasValue' && vestingScheduleCreator !== undefined
+                ? !!apiLoadable.contents.tx.vesting &&
+                  !!apiLoadable.contents.tx.vesting.vestedTransfer &&
+                  selectedToken?.type === 'substrate-native' &&
+                  vestingScheduleCreator !== null
+                : undefined
+            }
             onNext={() => setStep(Step.Review)}
             selectedToken={selectedToken}
             tokens={tokens.state === 'hasValue' ? tokens.contents : []}
@@ -89,15 +140,34 @@ const SendAction = () => {
             amount={amountInput}
             setDestinationAddress={setDestinationAddress}
             setAmount={setAmountInput}
-            setSelectedToken={setSelectedToken}
+            setSelectedToken={token => {
+              setSelectedToken(token)
+              if (token.type !== 'substrate-native' && vested.on) {
+                toast({ title: `Vesting is not supported for ${token.symbol} on ${multisig.chain.chainName}` })
+                setVested({
+                  ...vested,
+                  on: false,
+                })
+              }
+            }}
             name={name}
             setName={setName}
             chain={multisig.chain}
+            vestedConfig={{
+              ...vested,
+              startBlock: vested.startBlock || defaultStartBlock,
+              endBlock: vested.endBlock || defaultEndBlock,
+            }}
+            onChangeVestedConfig={setVested}
+            currentBlock={blockNumber}
+            blockTime={blockTime?.toNumber()}
+            amountPerBlockBn={amountPerBlockBn}
+            loading={loading}
           />
 
           {extrinsic && (
             <TransactionSidesheet
-              description={name || defaultName}
+              description={name || name || `Send ${selectedToken?.symbol || 'Token'}`}
               calldata={extrinsic.method.toHex()}
               open={step === Step.Review}
               onClose={() => setStep(Step.Details)}

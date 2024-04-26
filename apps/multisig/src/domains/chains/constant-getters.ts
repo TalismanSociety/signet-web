@@ -194,3 +194,19 @@ export const multisigDepositTotalSelector = selectorFamily({
     },
   dangerouslyAllowMutability: true, // pjs wsprovider mutates itself to track connection msg stats
 })
+
+export const vestingConstsSelector = selectorFamily({
+  key: 'minVestedTransferSelector',
+  get:
+    (chainGenesisHash: string) =>
+    ({ get }) => {
+      const api = get(pjsApiSelector(chainGenesisHash))
+      if (!api.consts.vesting) return { enabled: false }
+
+      const minVestedTransfer = api.consts.vesting.minVestedTransfer
+      const maxVestingSchedules = api.consts.vesting.maxVestingSchedules
+
+      return { enabled: true, minVestedTransfer, maxVestingSchedules }
+    },
+  dangerouslyAllowMutability: true,
+})

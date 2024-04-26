@@ -21,7 +21,7 @@ export const DetailsForm = (props: {
         maxWidth: 623,
       }}
     >
-      <NewTransactionHeader icon={<List />}>Custom call data</NewTransactionHeader>
+      <NewTransactionHeader icon={<List />} title="Custom call data" />
       <Input
         label="Transaction Description"
         placeholder='e.g. "Contract call to update allow list"'

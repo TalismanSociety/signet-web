@@ -97,9 +97,9 @@ const TransactionSummaryRow = ({
           {txIcon}
         </div>
 
-        <div className="flex flex-col items-start gap-[2px] w-1 flex-1">
-          <div className="flex items-center gap-[8px] text-offWhite pt-[4px] w-full">
-            <p className="whitespace-nowrap leading-[16px] pt-[6px] w-full overflow-hidden text-ellipsis overflow-y-visible max-w-max">
+        <div className="flex flex-col items-start w-1 flex-1">
+          <div className="flex items-center gap-[8px] text-offWhite w-full">
+            <p className="whitespace-nowrap leading-[16px] pt-[3px] w-full overflow-hidden text-ellipsis overflow-y-visible max-w-max">
               {t.description}
             </p>
             {combinedView ? (
