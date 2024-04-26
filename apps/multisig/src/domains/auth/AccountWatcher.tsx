@@ -2,6 +2,16 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { authTokenBookState, selectedAddressState } from '.'
 import { accountsState, extensionAllowedState, extensionInitiatedState } from '../extension'
 import { useCallback, useEffect } from 'react'
+import jwt from 'jsonwebtoken'
+
+const isJwtValid = (jwtToken: string) => {
+  const decoded = jwt.decode(jwtToken)
+  if (typeof decoded === 'string') return false
+
+  const expiry = decoded?.exp
+  if (!expiry) return false
+  return expiry * 1000 > Date.now()
+}
 
 export const useSignOut = () => {
   const [authTokenBook, setAuthTokenBook] = useRecoilState(authTokenBookState)
@@ -13,7 +23,8 @@ export const useSignOut = () => {
       extensionAccounts.find(account => {
         const address = account.address.toSs58()
         const auth = authTokenBook[address]
-        return address !== exclude && !!auth && typeof auth !== 'string' && auth.accessToken && auth.id
+        if (!auth || typeof auth === 'string') return false
+        return address !== exclude && isJwtValid(auth.accessToken) && auth.id
       }),
     [authTokenBook, extensionAccounts]
   )
@@ -41,7 +52,8 @@ export const AccountWatcher: React.FC = () => {
       extensionAccounts.find(account => {
         const address = account.address.toSs58()
         const auth = authTokenBook[address]
-        return address !== exclude && !!auth && typeof auth !== 'string' && auth.accessToken && auth.id
+        if (!auth || typeof auth === 'string') return false
+        return address !== exclude && !!auth && isJwtValid(auth.accessToken) && auth.id
       }),
     [authTokenBook, extensionAccounts]
   )
@@ -58,9 +70,9 @@ export const AccountWatcher: React.FC = () => {
     // since extensionAllowed is true, if extensionAccounts list is empty,
     // we're in the process of connecting wallet and should not do any clean up yet
     if (extensionInitiated && extensionAccounts.length > 0) {
-      Object.keys(authTokenBook).forEach(address => {
+      Object.entries(authTokenBook).forEach(([address, auth]) => {
         const account = extensionAccounts.find(account => account.address.toSs58() === address)
-        if (!account && authTokenBook[address]) {
+        if (!account || (auth && (typeof auth === 'string' || !isJwtValid(auth.accessToken) || !auth.id))) {
           setAuthTokenBook({ ...authTokenBook, [address]: undefined })
           if (selectedAccount === address) setSelectedAccount(null)
         }
