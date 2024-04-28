@@ -51,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: false
+          push: true
           build-args: |
             HASURA_ENDPOINT=${{ matrix.hasuraUrl }}
             SIWS_ENDPOINT=${{ matrix.siwsUrl }}
