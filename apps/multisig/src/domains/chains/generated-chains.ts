@@ -599,4 +599,23 @@ export const supportedChains: Chain[] = [
     ss58Prefix: 42,
     subscanUrl: 'https://paseo.subscan.io/',
   },
+  {
+    chainName: 'NeuroWeb Testnet',
+    genesisHash: '0xf2b8faefcf9c370872d0b4d2eee31d46b4de4a8688153d23d82a39e2d6bc8bbc',
+    isTestnet: true,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/unknown.svg',
+    nativeToken: {
+      id: 'rococo-neuro-web-testnet-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://parachain-testnet-rpc.origin-trail.network/',
+      },
+    ],
+    squidIds: {
+      chainData: 'rococo-neuro-web-testnet',
+    },
+    ss58Prefix: 101,
+    subscanUrl: 'https://neuroweb-testnet.subscan.io/',
+  },
 ]
