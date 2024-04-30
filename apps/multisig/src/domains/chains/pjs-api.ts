@@ -5,6 +5,8 @@ import { supportedChains } from './supported-chains'
 import { getErrorString } from '@util/misc'
 import { parseURL } from '@util/strings'
 import persistAtom from '@domains/persist'
+import { types, rpc, signedExtensions } from 'avail-js-sdk'
+import { ApiOptions } from '@polkadot/api/types'
 
 export const customRpcsAtom = atom<Record<string, string | undefined>>({
   key: 'customRpcs',
@@ -12,18 +14,37 @@ export const customRpcsAtom = atom<Record<string, string | undefined>>({
   effects_UNSTABLE: [persistAtom],
 })
 
+export const customExtensions: Record<
+  string,
+  { types: ApiOptions['types']; signedExtensions: ApiOptions['signedExtensions']; rpc: ApiOptions['rpc'] }
+> = {
+  'avail-turing-testnet': { types, signedExtensions, rpc },
+}
+
 const defaultPjsApiSelector = selectorFamily({
   key: 'defaultPjsApis',
   get: (_genesisHash: string) => async (): Promise<ApiPromise> => {
-    const { rpcs, chainName } = supportedChains.find(({ genesisHash }) => genesisHash === _genesisHash) || {
+    const { rpcs, chainName, squidIds } = supportedChains.find(({ genesisHash }) => genesisHash === _genesisHash) || {
       rpcs: [],
     }
 
     // Return a dummy provider when rpcs are not known
     if (rpcs.length === 0) return ApiPromise.create({ provider: new WsProvider([]) })
 
+    let opt: ApiOptions = {
+      provider: new WsProvider(rpcs.map(({ url }) => url)),
+    }
+
+    const customExtension = squidIds ? customExtensions[squidIds.chainData] : undefined
+    if (customExtension) {
+      opt = {
+        ...opt,
+        ...customExtension,
+      }
+    }
+
     try {
-      const api = await ApiPromise.create({ provider: new WsProvider(rpcs.map(({ url }) => url)) })
+      const api = await ApiPromise.create(opt)
       await api.isReady
       return api
     } catch (e) {

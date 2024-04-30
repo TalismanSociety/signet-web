@@ -7,7 +7,7 @@ export const useDecodedCalldata = (calldata: `0x${string}`, genesisHash?: string
   const { api } = useApi(chain?.genesisHash ?? filteredSupportedChains[0]?.genesisHash ?? '')
 
   const decodedCalldata = useMemo(() => {
-    if (!api || !chain || !api) return undefined
+    if (!api || !chain) return undefined
     const extrinsic = decodeCallData(api, calldata)
     if (!extrinsic) return undefined
 

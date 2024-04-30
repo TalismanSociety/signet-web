@@ -28,7 +28,7 @@ const VotingForm: React.FC<Props> = ({ onChange, onNext, token, voteDetails }) =
 
   return (
     <>
-      <NewTransactionHeader icon={<Vote />}>Vote</NewTransactionHeader>
+      <NewTransactionHeader icon={<Vote />} title="Vote" />
       <div className="grid gap-[32px] mt-[32px] w-full">
         <ProposalsDropdown
           chain={multisig.chain}

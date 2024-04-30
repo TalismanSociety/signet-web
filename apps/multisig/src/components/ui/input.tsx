@@ -7,6 +7,7 @@ import { X } from '@talismn/icons'
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: React.ReactNode
+  labelSuffix?: React.ReactNode
   labelTrailing?: React.ReactNode
   loading?: boolean
   supportingLabel?: React.ReactNode
@@ -22,6 +23,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       className,
       externalSuffix,
       label,
+      labelSuffix,
       labelTrailing,
       loading,
       onClear,
@@ -43,8 +45,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className="w-full">
-        <div className="w-full flex items-center">
+        <div className="w-full flex items-center gap-[8px]">
           {!!label && <label className="text-[14px] text-gray-200">{label}</label>}
+          {!!labelSuffix && <div className="text-[14px] text-gray-200">{labelSuffix}</div>}
           {!!labelTrailing && <div className="ml-auto text-[14px] text-gray-200">{labelTrailing}</div>}
         </div>
         <div className="w-full flex gap-[8px] items-center">

@@ -160,9 +160,15 @@ export interface Balance {
   amount: BN
 }
 
+export type VestingSchedule = {
+  start: number
+  period: number
+  totalAmount: BN
+}
 export interface TransactionRecipient {
   address: Address
   balance: Balance
+  vestingSchedule?: VestingSchedule
 }
 
 export interface TransactionApprovals {
@@ -421,6 +427,33 @@ const callToTransactionRecipient = (arg: any, chainTokens: BaseToken[]): Transac
   return null
 }
 
+/**
+ * schedule could be in two formats:
+ * - { startingBlock: string, perBlock: string, locked: string }
+ * - { start: string, period_count: string, perPeriod: string, period: string }
+ */
+const callToVestingSchedule = (schedule: any): VestingSchedule | null => {
+  if (schedule.startingBlock && schedule.perBlock && schedule.locked) {
+    const totalAmount = new BN(schedule.locked.replaceAll(',', ''))
+    const period = totalAmount.div(new BN(schedule.perBlock.replaceAll(',', ''))).toNumber()
+    return {
+      start: +schedule.startingBlock.replaceAll(',', ''),
+      period,
+      totalAmount,
+    }
+  }
+
+  if (schedule.start && schedule.periodCount && schedule.perPeriod) {
+    const period = +`${schedule.periodCount}`.replaceAll(',', '')
+    return {
+      start: +schedule.start.replaceAll(',', ''),
+      period,
+      totalAmount: new BN(schedule.perPeriod.replaceAll(',', '')).mul(new BN(period)),
+    }
+  }
+  return null
+}
+
 export const extrinsicToDecoded = (
   multisig: Multisig,
   extrinsic: SubmittableExtrinsic<'promise'>,
@@ -637,6 +670,36 @@ export const extrinsicToDecoded = (
             },
             description:
               metadata?.description ?? `${action} ${address.toShortSs58(multisig.chain)} as ${proxy_type} proxy`,
+          }
+        }
+      }
+    }
+
+    // check for vested transfer/ remove proxy
+    for (const arg of args) {
+      const obj: any = arg.toHuman()
+      if (obj?.section === 'vesting') {
+        if (obj.method === 'vestedTransfer' || obj.method === 'removeProxy') {
+          const { target, dest, schedule } = obj.args
+          const targetAddress = Address.fromSs58(parseCallAddressArg(target ?? dest))
+          const vestingSchedule = callToVestingSchedule(schedule)
+          if (targetAddress && vestingSchedule) {
+            return {
+              decoded: {
+                type: TransactionType.Transfer,
+                recipients: [
+                  {
+                    address: targetAddress,
+                    balance: {
+                      token: chainTokens.find(t => t.type === 'substrate-native')!,
+                      amount: vestingSchedule.totalAmount,
+                    },
+                    vestingSchedule,
+                  },
+                ],
+              },
+              description: metadata?.description ?? `Vested transfer to ${targetAddress.toShortSs58(multisig.chain)}`,
+            }
           }
         }
       }

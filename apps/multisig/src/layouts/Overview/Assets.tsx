@@ -1,5 +1,4 @@
 import { BaseToken } from '@domains/chains'
-import { css } from '@emotion/css'
 import { Balance } from '@talismn/balances'
 import { Lock } from '@talismn/icons'
 import { AnimatedNumber, Skeleton } from '@talismn/ui'
@@ -22,30 +21,20 @@ export interface TokenAugmented {
 const TokenRow = ({ augmentedToken, balance }: { augmentedToken: TokenAugmented; balance: number }) => {
   const { details, price } = augmentedToken
   return (
-    <div
-      className={css`
-        height: 43px;
-        width: 100%;
-        display: flex;
-        div > p:nth-child(1) {
-          font-weight: bold;
-          color: var(--color-offWhite);
-        }
-        div > p:nth-child(2) {
-          font-size: 14px;
-        }
-      `}
-    >
-      <img className="h-[40px] w-[40px] mr-[8px]" width={40} height={40} src={details.logo} alt="Token logo" />
-      <div>
-        <p>{details.symbol}</p>
-        <p>{capitalizeFirstLetter(details.chain.chainName)}</p>
-      </div>
-      <div css={{ marginLeft: 'auto', textAlign: 'right' }}>
-        <p>
-          {formatDecimals(balance)} {details.symbol}
-        </p>
-        <p>{formatUsd(balance * price)}</p>
+    <div className="w-full flex items-center">
+      <img className="h-[36px] w-[36px] mr-[8px]" width={36} height={36} src={details.logo} alt="Token logo" />
+      <div className="flex items-center justify-between w-full">
+        <div className="flex flex-col gap-[4px]">
+          <p className="text-[16px] leading-none font-bold text-offWhite">{details.symbol}</p>
+          <p className="text-[12px] leading-none">{capitalizeFirstLetter(details.chain.chainName)}</p>
+        </div>
+        <div className="flex flex-col items-end gap-[4px]">
+          <p className="text-[16px] leading-none font-bold text-offWhite text-right">
+            {formatDecimals(balance)}
+            <span className="hidden sm:inline"> {details.symbol}</span>
+          </p>
+          <p className="text-[12px] leading-none text-right">{formatUsd(balance * price)}</p>
+        </div>
       </div>
     </div>
   )

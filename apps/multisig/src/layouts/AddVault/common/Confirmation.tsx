@@ -6,7 +6,7 @@ import { isEqual } from 'lodash'
 
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { ChainPill } from '@components/ChainPill'
-import { BaseToken, Chain, Price, getInitialProxyBalance } from '@domains/chains'
+import { BaseToken, Chain, Price } from '@domains/chains'
 import {
   AugmentedAccount,
   Balance,
@@ -319,22 +319,20 @@ const Confirmation = (props: {
       {!props.proxiedAccount && (
         <div css={{ width: '100%' }}>
           <Cost
-            label="Deposit Amount (Reserved)"
+            label="Reserved Amount"
             amount={reserveAmount?.state === 'hasValue' ? reserveAmount.contents : undefined}
+            symbol={tokenWithPrice?.contents?.token?.symbol}
+            price={tokenWithPrice?.contents?.price?.current}
+          />
+          <Cost
+            label="Initial Multisig Funds"
+            amount={existentialDeposit?.state === 'hasValue' ? existentialDeposit.contents : undefined}
             symbol={tokenWithPrice?.contents?.token?.symbol}
             price={tokenWithPrice?.contents?.price?.current}
           />
           <Cost
             label="Estimated Transaction Fee"
             amount={estimatedFee}
-            symbol={tokenWithPrice?.contents?.token?.symbol}
-            price={tokenWithPrice?.contents?.price?.current}
-          />
-          <Cost
-            label="Initial Multisig Funds"
-            amount={
-              existentialDeposit?.state === 'hasValue' ? getInitialProxyBalance(existentialDeposit.contents) : undefined
-            }
             symbol={tokenWithPrice?.contents?.token?.symbol}
             price={tokenWithPrice?.contents?.price?.current}
           />

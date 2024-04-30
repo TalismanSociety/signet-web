@@ -2,8 +2,9 @@
 // When CAPI is ready, the internals of these hooks can be replaced without needing to make many
 // changes in other areas of the codebase.
 // TODO: refactor code to remove repititon
-
-import { pjsApiSelector, useApi } from '@domains/chains/pjs-api'
+import { customExtensions, pjsApiSelector, useApi } from '@domains/chains/pjs-api'
+import { isNumber } from '@polkadot/util'
+import { InjectedMetadata } from '@polkadot/extension-inject/types'
 import { accountsState } from '@domains/extension'
 import { Balance, Multisig, Transaction, useSelectedMultisig } from '@domains/multisig'
 import { ApiPromise, SubmittableResult } from '@polkadot/api'
@@ -23,14 +24,25 @@ import { captureException } from '@sentry/react'
 import { handleSubmittableResultError } from '@util/errors'
 import { useAddSmartContract } from '@domains/offchain-data'
 import { rawPendingTransactionsDependency } from './storage-getters'
+import { supportedChains } from './generated-chains'
 
 export type ExecuteCallbacks = {
   onSuccess: (result: SubmittableResult) => void
   onFailure: (message: string) => void
 }
 
-export const buildTransferExtrinsic = (api: ApiPromise, to: Address, balance: Balance) => {
-  if (isSubstrateNativeToken(balance.token)) {
+export const buildTransferExtrinsic = (
+  api: ApiPromise,
+  to: Address,
+  balance: Balance,
+  vestingSchedule?: any | null
+) => {
+  if (vestingSchedule) {
+    if (!api.tx.vesting?.vestedTransfer) {
+      throw Error('trying to send chain missing vesting pallet')
+    }
+    return api.tx.vesting.vestedTransfer(to.bytes, vestingSchedule)
+  } else if (isSubstrateNativeToken(balance.token)) {
     if (!api.tx.balances?.transferKeepAlive) {
       throw Error('trying to send chain missing balances pallet')
     }
@@ -122,13 +134,46 @@ export const decodeCallData = (api: ApiPromise, callData: string) => {
   }
 }
 
+const useInjectMetadata = (chainGenesisHash: string) => {
+  const { api } = useApi(chainGenesisHash)
+  const chain = useMemo(() => supportedChains.find(c => c.genesisHash === chainGenesisHash), [chainGenesisHash])
+
+  const inject = useCallback(
+    async (metadata: InjectedMetadata) => {
+      if (!chain || !api) return
+      const customExtension = customExtensions[chain.squidIds.chainData]
+      const curMetadata = await metadata.get()
+      const specVersion = api.runtimeVersion.specVersion.toNumber()
+      const genesisHash = api.genesisHash.toHex()
+      const updated = curMetadata.find(m => m.genesisHash === genesisHash && m.specVersion === specVersion)
+      if (customExtension && !updated) {
+        await metadata.provide({
+          chain: api.runtimeChain.toString(),
+          genesisHash: api.genesisHash.toHex(),
+          specVersion: api.runtimeVersion.specVersion.toNumber(),
+          tokenDecimals: api.registry.chainDecimals[0] ?? 18,
+          tokenSymbol: api.registry.chainTokens[0] ?? 'DOT',
+          icon: chain.logo,
+          ss58Format: isNumber(api.registry.chainSS58) ? api.registry.chainSS58 : 0,
+          types: customExtension.types as any,
+
+          userExtensions: customExtension.signedExtensions,
+        })
+      }
+    },
+    [api, chain]
+  )
+
+  return inject
+}
+
 export const useCancelAsMulti = (tx?: Transaction) => {
   const extensionAddresses = useRecoilValue(accountsState)
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(tx?.multisig.chain.genesisHash || ''))
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(tx?.multisig.chain.nativeToken.id))
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
   const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
-
+  const injectMetadata = useInjectMetadata(tx?.multisig.chain.genesisHash ?? supportedChains[0]!.genesisHash)
   // Only the original signer can cancel
   const depositorAddress: Address | undefined = useMemo(() => {
     const depositorAddressString = tx?.rawPending?.onChainMultisig.depositor.toString()
@@ -188,7 +233,9 @@ export const useCancelAsMulti = (tx?: Transaction) => {
         return onFailure('Please try again.')
       }
 
-      const { signer } = await web3FromAddress(depositorAddress.toSs58(tx.multisig.chain))
+      const { signer, metadata } = await web3FromAddress(depositorAddress.toSs58(tx.multisig.chain))
+      if (metadata) await injectMetadata(metadata)
+
       let completed = false
       const unsubscribe = await extrinsic
         .signAndSend(depositorAddress.toSs58(tx.multisig.chain), { signer }, result => {
@@ -213,7 +260,15 @@ export const useCancelAsMulti = (tx?: Transaction) => {
           onFailure(getErrorString(e))
         })
     },
-    [depositorAddress, createExtrinsic, loading, setRawPendingTransactionDependency, canCancel, tx?.multisig.chain]
+    [
+      createExtrinsic,
+      loading,
+      depositorAddress,
+      canCancel,
+      tx?.multisig.chain,
+      injectMetadata,
+      setRawPendingTransactionDependency,
+    ]
   )
 
   return { cancelAsMulti, ready: !loading && !!estimatedFee, estimatedFee, canCancel }
@@ -227,6 +282,7 @@ export const useAsMulti = (extensionAddress: Address | undefined, t?: Transactio
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
   const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
   const { addContract } = useAddSmartContract()
+  const injectMetadata = useInjectMetadata(multisig?.chain.genesisHash ?? supportedChains[0]!.genesisHash)
 
   const extrinsic = useMemo(() => {
     if (!api || !t?.callData) return undefined
@@ -287,7 +343,9 @@ export const useAsMulti = (extensionAddress: Address | undefined, t?: Transactio
       }
 
       let completed = false
-      const { signer } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
+      const { signer, metadata } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
+      if (metadata) await injectMetadata(metadata)
+
       const unsubscribe = await extrinsic
         .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
           try {
@@ -343,7 +401,16 @@ export const useAsMulti = (extensionAddress: Address | undefined, t?: Transactio
           onFailure(getErrorString(e))
         })
     },
-    [createExtrinsic, extensionAddress, multisig.chain, t, addContract, setRawPendingTransactionDependency]
+    [
+      createExtrinsic,
+      extensionAddress,
+      multisig.chain,
+      injectMetadata,
+      t?.decoded?.contractDeployment,
+      t?.multisig.id,
+      setRawPendingTransactionDependency,
+      addContract,
+    ]
   )
 
   return { asMulti, ready: ready && !!estimatedFee, estimatedFee }
@@ -360,6 +427,7 @@ export const useApproveAsMulti = (
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
   const insertTxMetadata = useInsertTxMetadata()
   const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
+  const injectMetadata = useInjectMetadata(multisig?.chain.genesisHash ?? supportedChains[0]!.genesisHash)
 
   const ready =
     apiLoadable.state === 'hasValue' &&
@@ -424,7 +492,9 @@ export const useApproveAsMulti = (
         return onFailure('Please try again.')
       }
 
-      const { signer } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
+      const { signer, metadata: extensionMetadata } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
+      if (extensionMetadata) await injectMetadata(extensionMetadata)
+
       let savedMetadata = false
       const unsubscribe = await extrinsic
         .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
@@ -476,7 +546,15 @@ export const useApproveAsMulti = (
           onFailure(getErrorString(e))
         })
     },
-    [createExtrinsic, extensionAddress, hash, multisig, setRawPendingTransactionDependency, insertTxMetadata]
+    [
+      createExtrinsic,
+      extensionAddress,
+      hash,
+      multisig,
+      injectMetadata,
+      insertTxMetadata,
+      setRawPendingTransactionDependency,
+    ]
   )
 
   return { approveAsMulti, ready: ready && !!estimatedFee, estimatedFee }
@@ -486,6 +564,7 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(chain.nativeToken.id))
   const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
+  const injectMetadata = useInjectMetadata(chain.genesisHash)
 
   const createTx = useCallback(async () => {
     if (apiLoadable.state !== 'hasValue' || !extensionAddress) {
@@ -524,12 +603,15 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
       const tx = await createTx()
       if (!tx || !extensionAddress) return
 
-      const { signer } = await web3FromAddress(extensionAddress.toSs58(chain))
+      const { signer, metadata } = await web3FromAddress(extensionAddress.toSs58(chain))
+      if (metadata) await injectMetadata(metadata)
 
       const unsubscribe = await tx
         .signAndSend(extensionAddress.toSs58(chain), { signer }, result => {
           try {
             handleSubmittableResultError(result)
+            // typically we wait for inclusion only but for create proxy we wait for finalization
+            // so in case there is a chain reorg, users wouldn't have deposited into an account that doesn't exist
             if (!result?.status?.isFinalized) return
 
             result.events.forEach(({ event }): void => {
@@ -559,7 +641,7 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
           onFailure(getErrorString(e))
         })
     },
-    [createTx, extensionAddress, chain]
+    [createTx, extensionAddress, chain, injectMetadata]
   )
 
   return { createProxy, ready: apiLoadable.state === 'hasValue' && !!estimatedFee, estimatedFee }
@@ -572,6 +654,7 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
  */
 export const useTransferProxyToMultisig = (chain: Chain) => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
+  const injectMetadata = useInjectMetadata(chain.genesisHash)
 
   const transferProxyToMultisig = useCallback(
     async (
@@ -587,7 +670,7 @@ export const useTransferProxyToMultisig = (chain: Chain) => {
       }
 
       const api = apiLoadable.contents
-      const { signer } = await web3FromAddress(extensionAddress.toSs58(chain))
+      const { signer, metadata } = await web3FromAddress(extensionAddress.toSs58(chain))
 
       if (
         !api.tx.balances?.transferKeepAlive ||
@@ -610,9 +693,11 @@ export const useTransferProxyToMultisig = (chain: Chain) => {
 
       // Define the outer batch call
       const signerBatchCall = api?.tx?.utility?.batchAll([
-        api.tx.balances.transferKeepAlive(proxyAddress.bytes, getInitialProxyBalance(existentialDeposit).amount),
+        api.tx.balances.transferKeepAlive(proxyAddress.bytes, existentialDeposit.amount),
         proxyCall,
       ])
+
+      if (metadata) await injectMetadata(metadata)
 
       // Send the batch call
       const unsubscribe = await signerBatchCall
@@ -637,15 +722,8 @@ export const useTransferProxyToMultisig = (chain: Chain) => {
           onFailure(getErrorString(e))
         })
     },
-    [apiLoadable, chain]
+    [apiLoadable.contents, apiLoadable.state, chain, injectMetadata]
   )
 
   return { transferProxyToMultisig, ready: apiLoadable.state === 'hasValue' }
 }
-
-// Add 1 whole token onto the ED to make sure there're no weird issues creating the multisig
-// TODO: Look into how to compute an exact initial balance.
-export const getInitialProxyBalance = (ed: Balance) => ({
-  token: ed.token,
-  amount: ed.amount.add(new BN(10).pow(new BN(ed.token.decimals))),
-})

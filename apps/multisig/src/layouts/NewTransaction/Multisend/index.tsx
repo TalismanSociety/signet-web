@@ -41,10 +41,7 @@ const MultiSend = () => {
       }
       try {
         const sendExtrinsics = sends.map(send => {
-          const balance = {
-            amount: send.amountBn,
-            token: send.token,
-          }
+          const balance = { amount: send.amountBn, token: send.token }
           return buildTransferExtrinsic(apiLoadable.contents, send.address, balance)
         })
 
@@ -60,7 +57,7 @@ const MultiSend = () => {
     <>
       <div css={{ display: 'flex', flex: 1, flexDirection: 'column', padding: '32px 8%' }}>
         <div css={{ width: '100%', maxWidth: 620 }}>
-          <NewTransactionHeader icon={<Share2 />}>Multi-send</NewTransactionHeader>
+          <NewTransactionHeader icon={<Share2 />} title="Multi-send" />
           <MultiSendForm
             {...permissions}
             name={name}

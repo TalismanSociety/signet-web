@@ -5,8 +5,8 @@ import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoi
 import { selectedAccountState } from '@domains/auth'
 import {
   Chain,
-  existentialDepositSelector,
   filteredSupportedChains,
+  initialVaultFundSelector,
   proxyDepositTotalSelector,
   tokenByIdWithPrice,
 } from '@domains/chains'
@@ -48,7 +48,7 @@ const CreateMultisig = () => {
   const setBlockAccountSwitcher = useSetRecoilState(blockAccountSwitcher)
   const selectedSigner = useRecoilValue(selectedAccountState)
   const tokenWithPrice = useRecoilValueLoadable(tokenByIdWithPrice(chain.nativeToken.id))
-  const existentialDepositLoadable = useRecoilValueLoadable(existentialDepositSelector(chain.squidIds.chainData))
+  const initialVaultFundsLoadable = useRecoilValueLoadable(initialVaultFundSelector(chain.squidIds.chainData))
 
   const proxyDepositTotalLoadable = useRecoilValueLoadable(proxyDepositTotalSelector(chain.squidIds.chainData))
 
@@ -172,7 +172,7 @@ const CreateMultisig = () => {
         selectedSigner?.injected.address,
         createdProxy,
         multisigAddress,
-        existentialDepositLoadable.contents,
+        initialVaultFundsLoadable.contents,
         async () => {
           const { isProxyDelegatee } = await addressIsProxyDelegatee(createdProxy, multisigAddress)
 
@@ -187,19 +187,19 @@ const CreateMultisig = () => {
           handleCreateTeam()
         },
         err => {
-          resolve()
           setTransferring(false)
           toast({
             title: 'Failed to transfer proxy.',
             description: err,
           })
+          resolve()
         }
       )
     })
   }, [
     addressIsProxyDelegatee,
     createdProxy,
-    existentialDepositLoadable.contents,
+    initialVaultFundsLoadable.contents,
     handleCreateTeam,
     multisigAddress,
     selectedSigner?.injected.address,
@@ -261,7 +261,7 @@ const CreateMultisig = () => {
           estimatedFee={estimatedFee}
           tokenWithPrice={tokenWithPrice}
           extrinsicsReady={transferProxyToMultisigIsReady && createProxyIsReady}
-          existentialDeposit={existentialDepositLoadable}
+          existentialDeposit={initialVaultFundsLoadable}
         />
       ) : step === Step.Transactions ? (
         <SignTransactions

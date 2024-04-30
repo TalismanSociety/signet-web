@@ -1,4 +1,4 @@
-import { Tabs, TabsList, TabsTrigger } from '@components/ui/tabs'
+import { PageTabs, PageTabsList, PageTabsTrigger } from '@components/ui/page-tabs'
 import { PendingTansactions } from './PendingTransactions'
 import { ConfirmedTransactions } from './ConfirmedTransactions'
 import { DraftTransactionsList } from './DraftTransactionsList'
@@ -23,27 +23,27 @@ const Transactions = () => {
   }, [searchParam])
 
   return (
-    <Tabs
+    <PageTabs
       defaultValue={defaultTab}
       value={defaultTab}
       className="bg-gray-800 rounded-[16px] flex flex-col p-[24px] lg:w-[100px] lg:flex-[6]"
     >
-      <TabsList className="flex items-center justify-start font-bold">
-        <TabsTrigger value="pending" onClick={() => navigate(`/overview`)}>
+      <PageTabsList className="flex items-center justify-start font-bold">
+        <PageTabsTrigger value="pending" onClick={() => navigate(`/overview`)}>
           Pending
-        </TabsTrigger>
-        <TabsTrigger value="draft" onClick={() => navigate(`/overview?tab=draft`)}>
+        </PageTabsTrigger>
+        <PageTabsTrigger value="draft" onClick={() => navigate(`/overview?tab=draft`)}>
           Draft
-        </TabsTrigger>
-        <TabsTrigger value="history" onClick={() => navigate(`/overview?tab=history`)}>
+        </PageTabsTrigger>
+        <PageTabsTrigger value="history" onClick={() => navigate(`/overview?tab=history`)}>
           History
-        </TabsTrigger>
-      </TabsList>
+        </PageTabsTrigger>
+      </PageTabsList>
 
       <PendingTansactions value="pending" />
       <DraftTransactionsList value="draft" />
       <ConfirmedTransactions value="history" />
-    </Tabs>
+    </PageTabs>
   )
 }
 

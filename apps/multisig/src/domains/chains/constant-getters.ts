@@ -112,6 +112,18 @@ export const proxyDepositTotalSelector = selectorFamily({
   dangerouslyAllowMutability: true, // pjs wsprovider mutates itself to track connection msg stats
 })
 
+export const initialVaultFundSelector = selectorFamily({
+  key: 'initialVaultFundSelector',
+  get:
+    (chain_id: string) =>
+    ({ get }): Balance => {
+      const existentialDeposit = get(existentialDepositSelector(chain_id))
+      const proxyDepositFactor = get(proxyDepositFactorSelector(chain_id))
+      return { amount: existentialDeposit.amount.add(proxyDepositFactor.amount), token: existentialDeposit.token }
+    },
+  dangerouslyAllowMutability: true, // pjs wsprovider mutates itself to track connection msg stats
+})
+
 const multisigDepositBaseSelector = selectorFamily({
   key: 'multisigDepositBaseSelector',
   get:
@@ -181,4 +193,20 @@ export const multisigDepositTotalSelector = selectorFamily({
       }
     },
   dangerouslyAllowMutability: true, // pjs wsprovider mutates itself to track connection msg stats
+})
+
+export const vestingConstsSelector = selectorFamily({
+  key: 'minVestedTransferSelector',
+  get:
+    (chainGenesisHash: string) =>
+    ({ get }) => {
+      const api = get(pjsApiSelector(chainGenesisHash))
+      if (!api.consts.vesting) return { enabled: false }
+
+      const minVestedTransfer = api.consts.vesting.minVestedTransfer
+      const maxVestingSchedules = api.consts.vesting.maxVestingSchedules
+
+      return { enabled: true, minVestedTransfer, maxVestingSchedules }
+    },
+  dangerouslyAllowMutability: true,
 })

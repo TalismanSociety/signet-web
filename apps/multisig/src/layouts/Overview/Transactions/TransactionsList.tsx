@@ -4,7 +4,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { useToast } from '@components/ui/use-toast'
 import { unknownConfirmedTransactionsState } from '@domains/tx-history'
-import { TabsContent } from '@components/ui/tabs'
+import { PageTabsContent } from '@components/ui/page-tabs'
 import { AnimatePresence, motion } from 'framer-motion'
 import TransactionSummaryRow from './TransactionSummaryRow'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
@@ -78,7 +78,10 @@ export const TransactionsList = ({
   const setUnknownTransactions = useSetRecoilState(unknownConfirmedTransactionsState)
 
   return (
-    <TabsContent value={value} className="flex-col flex-1 items-start gap-[16px] w-full [&[data-state=active]]:flex">
+    <PageTabsContent
+      value={value}
+      className="flex-col flex-1 items-start gap-[16px] w-full [&[data-state=active]]:flex"
+    >
       <AnimatePresence mode="wait">
         <motion.div
           initial={{ y: -10, opacity: 0 }}
@@ -221,6 +224,6 @@ export const TransactionsList = ({
           </PaginationContent>
         </Pagination>
       )}
-    </TabsContent>
+    </PageTabsContent>
   )
 }
