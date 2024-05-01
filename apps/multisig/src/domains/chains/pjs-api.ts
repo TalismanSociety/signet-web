@@ -92,7 +92,6 @@ export const pjsApiSelector = atomFamily({
     get:
       (_genesisHash: string) =>
       async ({ get }): Promise<ApiPromise> => {
-        const chain = supportedChains.find(({ genesisHash }) => genesisHash === _genesisHash)
         const customRpcs = get(customRpcsAtom)
         const rpc = customRpcs[_genesisHash]
 
@@ -103,12 +102,7 @@ export const pjsApiSelector = atomFamily({
           api = get(defaultPjsApiSelector(_genesisHash))
         }
 
-        try {
-          await api.isReady
-          return api
-        } catch (e) {
-          throw new Error(`Failed to connect to ${chain?.chainName} chain:` + getErrorString(e))
-        }
+        return api
       },
     dangerouslyAllowMutability: true,
   }),

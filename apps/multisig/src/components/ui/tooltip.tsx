@@ -34,7 +34,7 @@ const Tooltip: React.FC<React.PropsWithChildren & { content?: React.ReactNode; d
     <TooltipProvider>
       <TooltipRoot delayDuration={delayDuration}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent>{content}</TooltipContent>
+        <TooltipContent className={!content ? 'hidden' : ''}>{content}</TooltipContent>
       </TooltipRoot>
     </TooltipProvider>
   )

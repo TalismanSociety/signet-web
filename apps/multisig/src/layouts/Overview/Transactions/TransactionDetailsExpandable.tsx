@@ -29,6 +29,8 @@ import { SendExpandableDetails } from '../../../layouts/NewTransaction/Send/Send
 import { cn } from '@util/tailwindcss'
 import { isExtrinsicProxyWrapped } from '@util/extrinsics'
 import { CONFIG } from '@lib/config'
+import { VestingDateRange } from '@components/VestingDateRange'
+import { Table, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
 
 const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
@@ -151,39 +153,83 @@ const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
 }
 
 const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
-  const recipients = t.decoded?.recipients || []
   const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
 
   return (
-    <div>
-      {t.decoded?.recipients.map(({ address, balance }, i) => (
-        <div
-          key={`${address.toSs58(t.multisig.chain)}-${JSON.stringify(balance.amount)}`}
-          className="grid gap-[16px] border-b border-gray-500 py-[8px] last:border-b-0 last:pb-0"
-        >
-          <div className="flex items-center gap-[8px]">
-            <div className="flex items-center justify-center h-[24px] rounded-full bg-gray-500 p-[8px]">
-              <span className="mt-[3px] text-[14px]">
-                {i + 1}/{recipients.length}
-              </span>
-            </div>
-            <div className="[&>div>div]:gap-0 ">
+    <div className="border border-gray-500 rounded-[8px] overflow-hidden">
+      <Table className="border-b-0">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Recipient</TableHead>
+            <TableHead className="text-right">Vested</TableHead>
+            <TableHead className="text-right">Amount</TableHead>
+          </TableRow>
+        </TableHeader>
+
+        {t.decoded?.recipients.map(({ address, balance, vestingSchedule }, i) => (
+          <TableRow key={i} className="last:border-b-0">
+            <TableCell>
               <AccountDetails
                 name={contactByAddress[address.toSs58()]?.name}
                 address={address}
                 chain={t.multisig.chain}
                 breakLine
                 withAddressTooltip
-                identiconSize={20}
+                identiconSize={28}
                 disableCopy
               />
-            </div>
-            <div className="ml-auto">
-              <AmountRow balance={balance} />
-            </div>
-          </div>
-        </div>
-      ))}
+            </TableCell>
+            <TableCell>
+              {vestingSchedule ? (
+                <div className="[&>p>span]:block [&>p]:whitespace-nowrap">
+                  <VestingDateRange chainGenesisHash={t.multisig.chain.genesisHash} vestingSchedule={vestingSchedule} />
+                </div>
+              ) : null}
+            </TableCell>
+            <TableCell>
+              <div className="flex flex-col items-end">
+                <AmountRow balance={balance} />
+              </div>
+            </TableCell>
+          </TableRow>
+
+          // <div
+          //   key={`${address.toSs58(t.multisig.chain)}-${JSON.stringify(balance.amount)}`}
+          //   className="grid gap-[16px] border-b border-gray-500 py-[8px] last:border-b-0 last:pb-0"
+          // >
+          //   <div className="flex items-center gap-[8px]">
+          //     <div className="w-full flex flex-col">
+          //       <div className="flex items-center justify-between">
+          //         <div className="[&>div>div]:gap-0">
+          //           <AccountDetails
+          //             name={contactByAddress[address.toSs58()]?.name}
+          //             address={address}
+          //             chain={t.multisig.chain}
+          //             breakLine
+          //             withAddressTooltip
+          //             identiconSize={28}
+          //             disableCopy
+          //           />
+          //         </div>
+          //         <div className="text-right flex flex-col items-end">
+          //           <AmountRow balance={balance} />
+          //         </div>
+          //       </div>
+          //       {vestingSchedule ? (
+          //         <div className="w-full flex items-center justify-between pl-[36px]">
+          //           <p className="text-[14px] text-offWhite">Vesting Period</p>
+          //           <VestingDateRange
+          //             className="text-center"
+          //             chainGenesisHash={t.multisig.chain.genesisHash}
+          //             vestingSchedule={vestingSchedule}
+          //           />
+          //         </div>
+          //       ) : null}
+          //     </div>
+          //   </div>
+          // </div>
+        ))}
+      </Table>
     </div>
   )
 }
@@ -271,7 +317,7 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
     return (
       <div className="flex items-center justify-end gap-[4px] py-[2px] px-[8px] bg-gray-800 rounded-[12px]">
         <Users size={12} className="text-primary" />
-        <p className="text-[14px] mt-[4px] text-offWhite">
+        <p className="text-[14px] mt-[4px] text-offWhite whitespace-nowrap">
           {recipients.length} Send{recipients.length > 1 && 's'}
         </p>
       </div>
@@ -412,7 +458,7 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
             <div className="flex items-center justify-between w-full pr-[8px]">
               <div className="flex gap-[4px] items-center">
                 <div className="text-signet-primary [&>svg]:h-[16px]">{icon}</div>
-                <p className="text-offWhite mt-[4px] text-left">{name}</p>
+                <p className="text-offWhite mt-[4px] text-left whitespace-nowrap">{name}</p>
               </div>
               <div className="flex items-center gap-[8px]">
                 <TransactionDetailsHeaderContent t={t} />
