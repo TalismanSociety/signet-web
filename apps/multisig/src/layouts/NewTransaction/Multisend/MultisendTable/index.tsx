@@ -13,12 +13,16 @@ import { useLatestBlockNumber } from '@domains/chains/useLatestBlockNumber'
 import { useApi } from '@domains/chains/pjs-api'
 import { expectedBlockTime } from '@domains/common/substratePolyfills'
 import { Button } from '@components/ui/button'
-import { PlusIcon, XIcon } from 'lucide-react'
+import { Info, PlusIcon, XIcon } from 'lucide-react'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { MultisendTableAmountUnitDropdown } from './MultisendTableAmountUnitDropdown'
 import { multisendAmountUnitAtom, multisendSendsAtom, multisendTokenAtom } from './atom'
 import { AmountUnit } from '@components/AmountUnitSelector'
 import { Tooltip } from '@components/ui/tooltip'
+import FileUploadButton from '@components/FileUploadButton'
+import { Address } from '@util/addresses'
+import { useToast } from '@components/ui/use-toast'
+import multisendCopyPastaGif from './multisend-copy-pasta.gif'
 
 type Props = {
   contacts?: AddressWithName[]
@@ -54,6 +58,7 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, di
   const [sends, setSends] = useRecoilState(multisendSendsAtom)
   const setAmountUnit = useSetRecoilState(multisendAmountUnitAtom)
   const token = useRecoilValue(multisendTokenAtom)
+  const { toast } = useToast()
 
   const blockTime = useMemo(() => {
     if (!api) return
@@ -162,12 +167,13 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, di
   }, [])
 
   const handleSendChange = useCallback(
-    (sends: MultisendSend[], index: number) => {
+    (sends: (MultisendSend | null)[], index: number) => {
       if (sends.length + index > lines) setLines(sends.length + index)
 
       setSends(prev => {
         const newSends = [...prev]
         sends.forEach((send, i) => {
+          if (send === null) return
           newSends[index + i] = send
           if (send.vested?.end === 0 && send.vested?.start === 0) {
             newSends[index + i] = {
@@ -188,6 +194,124 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, di
 
   return (
     <div className="grid gap-[4px] pr-[32px] relative">
+      <div className="flex items-center justify-end mb-[12px] gap-[8px]">
+        <Tooltip
+          content={
+            <div className="p-[4px]">
+              <p className="text-[14px]">The CSV should have the following columns:</p>
+              <ul className="[&>li>span]:text-offWhite mt-[4px] mb-[8px]">
+                <li>
+                  <span>Recipient</span>: The address of the recipient
+                </li>
+                <li>
+                  <span>Amount</span>: The amount to send
+                </li>
+                <li>
+                  <span>Start Block</span> (Optional): The block number to start vesting
+                </li>
+                <li>
+                  <span>End Block</span> (Optional): The block number to end vesting
+                </li>
+              </ul>
+              <a
+                download="multisend-template.csv"
+                href={encodeURI(
+                  `data:text/csv;filename=multisend.csvcharset=utf-8,Recipient,Amount,Start Block,End Block\n`
+                )}
+                className="text-primary text-[14px] hover:opacity-80"
+              >
+                Download CSV Template
+              </a>
+
+              <p className="mt-[16px] text-[14px]">
+                Alternatively, you can copy and paste the rows directly into the table below.
+              </p>
+              <img
+                src={multisendCopyPastaGif}
+                alt="Multisend copy-paste example"
+                className="w-full max-w-[420px] rounded-[12px] mt-[8px] mb-[12px] border border-gray-400"
+              />
+            </div>
+          }
+        >
+          <Info size={16} />
+        </Tooltip>
+        <FileUploadButton
+          accept=".csv"
+          label="Import CSV"
+          multiple={false}
+          onFiles={async files => {
+            const [file] = files
+            if (!file) return
+            const text = await file.text()
+            const lines = text.split('\n').map(line => line.replaceAll('\r', '').split(','))
+            const headerIndex = lines.findIndex(line => line.includes('Recipient') && line.includes('Amount'))
+
+            let addressCol = 0
+            let amountCol = 1
+            let startCol = 2
+            let endCol = 3
+
+            if (headerIndex > -1) {
+              const header = lines[headerIndex]
+              if (header) {
+                addressCol = header.indexOf('Recipient')
+                amountCol = header.indexOf('Amount')
+                startCol = header.indexOf('Start Block')
+                endCol = header.indexOf('End Block')
+              }
+            }
+
+            let invalidRows: number[] = []
+            const sends = lines
+              .slice(headerIndex > -1 ? headerIndex + 1 : 0)
+              .map((line, index): MultisendSend | null => {
+                const address = line[addressCol]
+                const amount = line[amountCol]
+                const start = line[startCol]
+                const end = line[endCol]
+
+                if (!address || !amount) return null
+
+                const recipient = Address.fromSs58(address)
+                if (!recipient) {
+                  invalidRows.push(index)
+                  return null
+                }
+                if (isNaN(+amount)) {
+                  invalidRows.push(index)
+                  return null
+                }
+
+                if (start && end && start?.length > 0 && end?.length > 0) {
+                  if (isNaN(parseInt(start)) || isNaN(parseInt(end))) {
+                    invalidRows.push(index)
+                    return null
+                  }
+                  return {
+                    recipient,
+                    amount,
+                    vested: { start: parseInt(start), end: parseInt(end) },
+                  }
+                }
+                return {
+                  recipient,
+                  amount,
+                  vested: undefined,
+                }
+              })
+
+            if (invalidRows.length === 0) {
+              handleSendChange(sends, 0)
+            } else {
+              toast({
+                title: 'Invalid CSV',
+                description: `Invalid rows: ${invalidRows.map(index => index + 2 + headerIndex).join(', ')}`,
+              })
+            }
+          }}
+        />
+      </div>
       <div className="border border-gray-500 rounded-[8px] bg-gray-900 overflow-auto">
         <Table className="text-left w-full min-w-max">
           <TableHeader className="w-full h-[40px]">
@@ -236,7 +360,7 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, di
             ))}
           </TableBody>
         </Table>
-        <div className="absolute pt-[40px] right-0 top-0">
+        <div className="absolute pt-[90px] right-0 top-0">
           {[...Array(lines)].map((_, i) => (
             <div className="h-[48px] flex items-center justify-center" key={i}>
               <Button size="icon" variant="ghost" onClick={() => removeLine(i)}>

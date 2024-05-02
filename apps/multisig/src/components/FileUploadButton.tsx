@@ -1,6 +1,6 @@
 import { Plus } from '@talismn/icons'
-import { Button } from '@talismn/ui'
 import { useRef } from 'react'
+import { Button } from './ui/button'
 
 type Props = {
   label?: string
@@ -27,22 +27,13 @@ const FileUploadButton: React.FC<Props> = ({ accept, label, multiple, onFiles })
         type="file"
         ref={inputRef}
         accept={accept}
-        css={{ visibility: 'hidden', height: 0, width: 0, opacity: 0 }}
+        className="hidden h-0 w-0 opacity-0"
         multiple={multiple}
         onChange={handleFileChange}
         // @ts-ignore clear the input value so that the same file can be uploaded again
         onClick={e => (e.target.value = null)}
       />
-      <Button
-        css={{
-          backgroundColor: 'var(--color-backgroundLight)',
-          borderRadius: 24,
-          height: '30px',
-          padding: '8px 16px',
-        }}
-        variant="secondary"
-        onClick={handleClick}
-      >
+      <Button variant="secondary" onClick={handleClick} size="lg">
         <div
           css={{
             display: 'flex',

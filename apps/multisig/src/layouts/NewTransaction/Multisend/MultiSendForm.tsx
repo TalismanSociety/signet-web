@@ -57,14 +57,6 @@ const MultiSendForm = (props: {
         chainGenesisHash={props.chain.genesisHash}
         disableVesting={props.disableVesting}
       />
-      {/* <MultiLineSendInput
-        token={selectedToken}
-        onChange={(sends, invalidRows) => {
-          // prevent unnecessary re-render if sends are the same
-          if (!isEqual(sends, props.sends)) props.setSends(sends)
-          setHasInvalidRow(invalidRows.length > 0)
-        }}
-      /> */}
       <div className="flex flex-col [&>div]:flex [&>div]:justify-between [&>div]:gap-[16px] [&>div>p]:text-[16px]">
         {props.totalSends > 0 && selectedToken && (
           <>

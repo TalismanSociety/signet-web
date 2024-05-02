@@ -135,7 +135,8 @@ export const MultisendTableRow: React.FC<Props> = ({
                     })
                   }
                 }
-
+                e.preventDefault()
+                e.currentTarget.blur()
                 onSendsChange?.(validSends)
               }}
             />
