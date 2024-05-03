@@ -6,15 +6,17 @@ type Props = {
   label: string
   tooltip?: React.ReactNode
   labelClassName?: string
+  className?: string
 }
 
 export const SettingsInfoRow: React.FC<React.PropsWithChildren<Props>> = ({
   labelClassName,
+  className,
   label,
   tooltip,
   children,
 }) => (
-  <div className="flex flex-col gap-[4px] w-full">
+  <div className={cn('flex flex-col gap-[4px] w-full', className)}>
     <div className="flex items-center gap-[8px] text-gray-200">
       <p className={cn('text-[14px] mt-[2px] text-gray-200', labelClassName)}>{label}</p>
       {tooltip && (
