@@ -5,6 +5,7 @@ export interface Multisig {
   id: string
   orgId: string
   name: string
+  description: string
   chain: Chain
   multisigAddress: Address
   proxyAddress: Address

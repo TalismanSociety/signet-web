@@ -20,7 +20,7 @@ const GET_ORGANISATIONS = gql`
       teams {
         id
         name
-        # description
+        description
         chain
         multisig_config
         proxied_address
@@ -55,6 +55,7 @@ type RawOrgUser = {
 export type RawTeam = {
   id: string
   name: string
+  description: string
   multisig_config: any
   proxied_address: string
   chain: string
