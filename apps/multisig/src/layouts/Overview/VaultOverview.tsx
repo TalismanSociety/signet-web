@@ -9,6 +9,7 @@ import persist from '@domains/persist'
 import { Fragment } from 'react'
 import { secondsToDuration } from '@util/misc'
 import { cn } from '@util/tailwindcss'
+import { clsx } from 'clsx'
 
 const showMemberState = atom<boolean>({
   key: 'dashboardShowMemberState',
@@ -22,19 +23,18 @@ export const VaultOverview: React.FC = () => {
   const { contactByAddress } = useKnownAddresses(selectedMultisig.orgId)
 
   return (
-    <section
-      css={{
-        backgroundColor: 'var(--color-grey800)',
-        borderRadius: 16,
-        display: 'flex',
-        flexDirection: 'column',
-        padding: 24,
-      }}
-    >
+    <section className="flex flex-col p-[24px] rounded-2xl bg-gray-800">
       <div className="w-full flex items-center justify-between flex-1 gap-[8px]">
-        <h2 className="text-[20px] flex-1 w-1 overflow-hidden text-offWhite font-bold whitespace-nowrap text-ellipsis">
-          {selectedMultisig.name}
-        </h2>
+        <div className="text-[20px] flex-1 w-1 text-offWhite font-bold">
+          <h2 className="truncate">{selectedMultisig.name} </h2>
+          <h2
+            className={clsx('text-[14px] truncate text-offWhite', {
+              hidden: !selectedMultisig.description,
+            })}
+          >
+            {selectedMultisig.description}
+          </h2>
+        </div>
         <ChainPill chain={selectedMultisig.chain} identiconSize={24} />
       </div>
       <div css={{ marginTop: 24 }}>
