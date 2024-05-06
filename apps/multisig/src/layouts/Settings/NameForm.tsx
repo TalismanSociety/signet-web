@@ -68,9 +68,9 @@ export const NameForm: React.FC<Props> = ({ editable, name, teamId }) => {
   )
 
   return (
-    <SettingsInfoRow label="Multisig Name">
+    <SettingsInfoRow label="Multisig Name" className="w-[50%]">
       <div className="flex items-center justify-start gap-[8px]">
-        <p className="text-[16px] text-offWhite font-bold mt-[3px]">{name}</p>
+        <p className="text-[16px] text-offWhite font-bold mt-[3px] truncate">{name}</p>
         {editable && (
           <Button
             size="icon"

@@ -66,9 +66,13 @@ const Settings = () => {
         </div>
         <div className="grid gap-[32px] grid-cols-1 md:grid-cols-2">
           {/** first row: Name */}
-          <div className="flex">
+          <div className="flex gap-4 justify-between">
             <NameForm name={multisig.name} editable={isSigner} teamId={multisig.id} />
-            <DescriptionForm description={'Add a Multisig description'} editable={isSigner} teamId={multisig.id} />
+            <DescriptionForm
+              description={multisig.description || 'Add a Multisig description'}
+              editable={isSigner}
+              teamId={multisig.id}
+            />
           </div>
           <div className="hidden md:block" />
 

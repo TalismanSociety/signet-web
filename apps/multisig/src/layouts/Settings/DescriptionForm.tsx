@@ -73,9 +73,9 @@ export const DescriptionForm: React.FC<Props> = ({ editable, description, teamId
   )
 
   return (
-    <SettingsInfoRow label="Multisig Description" className="w-fit text-wrap xl:text-nowrap">
+    <SettingsInfoRow label="Multisig Description" className="max-w-[50%] w-fit text-wrap xl:text-nowrap">
       <div className="flex items-center gap-[8px]">
-        <p className="text-[16px] text-offWhite font-bold mt-[3px]">{description}</p>
+        <p className="text-[16px] text-offWhite font-bold mt-[3px] truncate">{description}</p>
         {editable && (
           <Button
             size="icon"
