@@ -13,6 +13,7 @@ export interface TokenAugmented {
   balance: {
     avaliable: number
     unavaliable: number
+    keepAliveAvailable: number
   }
   balanceDetails: Balance
   price: number
@@ -44,7 +45,7 @@ const Assets = ({ augmentedTokens }: { augmentedTokens?: TokenAugmented[] }) => 
   const totalFiatBalance = useMemo(() => {
     if (!augmentedTokens) return undefined
     return augmentedTokens.reduce(
-      (acc, { balance, price }) => acc + (balance.avaliable + balance.unavaliable) * price,
+      (acc, { balance, price }) => acc + (balance.keepAliveAvailable + balance.unavaliable) * price,
       0
     )
   }, [augmentedTokens])
@@ -54,14 +55,14 @@ const Assets = ({ augmentedTokens }: { augmentedTokens?: TokenAugmented[] }) => 
   }, [augmentedTokens])
   const totalAvaliableBalance = useMemo(() => {
     if (!augmentedTokens) return undefined
-    return augmentedTokens.reduce((acc, { balance }) => acc + balance.avaliable, 0)
+    return augmentedTokens.reduce((acc, { balance }) => acc + balance.keepAliveAvailable, 0)
   }, [augmentedTokens])
 
-  const avaliableSorted = useMemo(() => {
+  const keepAliveAvailableSorted = useMemo(() => {
     if (!augmentedTokens) return undefined
     return augmentedTokens
-      .filter(({ balance }) => balance.avaliable > 0)
-      .sort((a1, a2) => a2.balance.avaliable * a2.price - a1.balance.avaliable * a1.price)
+      .filter(({ balance }) => balance.keepAliveAvailable > 0)
+      .sort((a1, a2) => a2.balance.keepAliveAvailable * a2.price - a1.balance.keepAliveAvailable * a1.price)
   }, [augmentedTokens])
 
   const unavaliableSorted = useMemo(() => {
@@ -85,7 +86,7 @@ const Assets = ({ augmentedTokens }: { augmentedTokens?: TokenAugmented[] }) => 
       </div>
       {totalAvaliableBalance === undefined ||
       totalUnavaliableBalance === undefined ||
-      !avaliableSorted ||
+      !keepAliveAvailableSorted ||
       !unavaliableSorted ? (
         <div className="grid gap-[16px]">
           <p className="text-gray-400 font-bold">Avaliable</p>
@@ -108,12 +109,12 @@ const Assets = ({ augmentedTokens }: { augmentedTokens?: TokenAugmented[] }) => 
           {totalAvaliableBalance > 0 ? (
             <div className="grid gap-[16px]">
               <p className="text-gray-300 font-bold">Avaliable</p>
-              {avaliableSorted.map(augmentedToken => {
+              {keepAliveAvailableSorted.map(augmentedToken => {
                 return (
                   <TokenRow
                     key={augmentedToken.id}
                     augmentedToken={augmentedToken}
-                    balance={augmentedToken.balance.avaliable}
+                    balance={augmentedToken.balance.keepAliveAvailable}
                   />
                 )
               })}

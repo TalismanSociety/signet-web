@@ -6,6 +6,7 @@ import { useUser } from '@domains/auth'
 import { useEffect, useMemo } from 'react'
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil'
 import { Address } from '../../util/addresses'
+import { formatUnits } from '@util/numbers'
 
 import { TokenAugmented } from '../../layouts/Overview/Assets'
 
@@ -46,6 +47,8 @@ export const useAugmentedBalances = () => {
 
       const avaliable = parseFloat(b.transferable.tokens)
       const unavaliable = parseFloat(b.total.tokens) - avaliable
+      const keepAliveAvailablePlank = b.transferable.planck - BigInt(b.token.existentialDeposit)
+      const keepAliveAvailable = parseFloat(formatUnits(keepAliveAvailablePlank, b.token.decimals))
       const token: BaseToken = {
         id: b.tokenId,
         chain,
@@ -57,7 +60,13 @@ export const useAugmentedBalances = () => {
       }
       return [
         ...acc,
-        { details: token, balance: { avaliable, unavaliable }, price: b.rates?.usd || 0, id: b.id, balanceDetails: b },
+        {
+          details: token,
+          balance: { avaliable, keepAliveAvailable, unavaliable },
+          price: b.rates?.usd || 0,
+          id: b.id,
+          balanceDetails: b,
+        },
       ]
     }, [])
   }, [multisigBalances])
