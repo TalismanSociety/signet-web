@@ -85,8 +85,9 @@ export const AddressInputCell: React.FC<Props> = ({
         </div>
       ) : null}
       <Popover open={focus}>
-        <PopoverTrigger>
+        <PopoverTrigger className="w-full">
           <input
+            className="w-full"
             ref={ref => {
               inputRef(ref)
               // @ts-ignore

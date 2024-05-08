@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Loadable, useRecoilState } from 'recoil'
+import { Loadable, useRecoilState, useRecoilValue } from 'recoil'
 import TokensSelect from '@components/TokensSelect'
 import { BaseToken, Chain } from '@domains/chains'
 import AmountRow from '@components/AmountRow'
@@ -10,6 +10,8 @@ import { Input } from '@components/ui/input'
 import { MultiSendTable } from './MultisendTable'
 import { AddressWithName } from '@components/AddressInput'
 import { multisendTokenAtom } from './MultisendTable/atom'
+import { useSelectedMultisig } from '@domains/multisig'
+import { userOrganisationsState } from '@domains/offchain-data'
 
 const MultiSendForm = (props: {
   name: string
@@ -25,6 +27,9 @@ const MultiSendForm = (props: {
   disabled: boolean
   disableVesting: boolean
 }) => {
+  const [selectedMultisig] = useSelectedMultisig()
+  const orgs = useRecoilValue(userOrganisationsState)
+  const org = orgs?.find(o => o.id === selectedMultisig.orgId)
   const [selectedToken, setSelectedToken] = useRecoilState<BaseToken | undefined>(multisendTokenAtom)
 
   useEffect(() => {
@@ -56,6 +61,7 @@ const MultiSendForm = (props: {
         contacts={props.contacts}
         chainGenesisHash={props.chain.genesisHash}
         disableVesting={props.disableVesting}
+        hideVesting={org === undefined || org.plan.id === 0}
       />
       <div className="flex flex-col [&>div]:flex [&>div]:justify-between [&>div]:gap-[16px] [&>div>p]:text-[16px]">
         {props.totalSends > 0 && selectedToken && (

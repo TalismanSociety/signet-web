@@ -23,11 +23,13 @@ import FileUploadButton from '@components/FileUploadButton'
 import { Address } from '@util/addresses'
 import { useToast } from '@components/ui/use-toast'
 import multisendCopyPastaGif from './multisend-copy-pasta.gif'
+import { CONFIG } from '@lib/config'
 
 type Props = {
   contacts?: AddressWithName[]
   chainGenesisHash: string
   disableVesting: boolean
+  hideVesting: boolean
 }
 
 const columnsOrder: TableColumnKeys[] = ['recipient', 'amount', 'vested', 'start', 'end']
@@ -48,7 +50,7 @@ const isInputKeyboardEvent = (
   return key !== 'vested'
 }
 
-export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, disableVesting }) => {
+export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, disableVesting, hideVesting }) => {
   const [lines, setLines] = useState(5)
   const inputRefs = useRef<ColumnsInputType[]>([])
   const lastAddedLine = useRef<number>(4)
@@ -59,6 +61,31 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, di
   const setAmountUnit = useSetRecoilState(multisendAmountUnitAtom)
   const token = useRecoilValue(multisendTokenAtom)
   const { toast } = useToast()
+
+  useEffect(() => {
+    if (hideVesting) {
+      let needsUpdate = false
+      for (const send of sends) {
+        if (send.vested) {
+          needsUpdate = true
+          break
+        }
+      }
+      if (needsUpdate) {
+        setSends(
+          sends.map(send => {
+            if (send.vested) {
+              return {
+                ...send,
+                vested: undefined,
+              }
+            }
+            return send
+          })
+        )
+      }
+    }
+  }, [hideVesting, sends, setSends])
 
   const blockTime = useMemo(() => {
     if (!api) return
@@ -169,7 +196,6 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, di
   const handleSendChange = useCallback(
     (sends: (MultisendSend | null)[], index: number) => {
       if (sends.length + index > lines) setLines(sends.length + index)
-
       setSends(prev => {
         const newSends = [...prev]
         sends.forEach((send, i) => {
@@ -184,20 +210,26 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, di
               },
             }
           }
+          if (hideVesting)
+            newSends[index + i] = {
+              ...send,
+              vested: undefined,
+            }
         })
 
         return newSends
       })
     },
-    [defaultEndBlock, defaultStartBlock, lines, setSends]
+    [defaultEndBlock, defaultStartBlock, hideVesting, lines, setSends]
   )
 
   return (
     <div className="grid gap-[4px] pr-[32px] relative">
       <div className="flex items-center justify-end mb-[12px] gap-[8px]">
         <Tooltip
+          delayDuration={0}
           content={
-            <div className="p-[4px]">
+            <div className="p-[4px] max-w-[440px]">
               <p className="text-[14px]">The CSV should have the following columns:</p>
               <ul className="[&>li>span]:text-offWhite mt-[4px] mb-[8px]">
                 <li>
@@ -231,10 +263,21 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, di
                 alt="Multisend copy-paste example"
                 className="w-full max-w-[420px] rounded-[12px] mt-[8px] mb-[12px] border border-gray-400"
               />
+              {hideVesting && (
+                <div className="w-full max-w-[420px] border-gray-400 border p-[12px] rounded-[12px] text-offWhite">
+                  Vested transfer is only available to teams and enterprises. Please reach out to{' '}
+                  <a className="text-primary" href={`mailto:${CONFIG.CONTACT_EMAIL}`} target="_blank" rel="noreferrer">
+                    {CONFIG.CONTACT_EMAIL}
+                  </a>{' '}
+                  to upgrade.
+                </div>
+              )}
             </div>
           }
         >
-          <Info size={16} />
+          <div>
+            <Info size={16} />
+          </div>
         </Tooltip>
         <FileUploadButton
           accept=".csv"
@@ -337,9 +380,13 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, di
                   <MultisendTableAmountUnitDropdown />
                 </div>
               </TableHead>
-              <TableHead className="w-[60px] border-r border-gray-500">Vested</TableHead>
-              <TableHead className="w-[120px] border-r border-gray-500">Start Block</TableHead>
-              <TableHead className="w-[120px]">End Block</TableHead>
+              {hideVesting ? null : (
+                <>
+                  <TableHead className="w-[60px] border-r border-gray-500">Vested</TableHead>
+                  <TableHead className="w-[120px] border-r border-gray-500">Start Block</TableHead>
+                  <TableHead className="w-[120px]">End Block</TableHead>
+                </>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody className="w-full">
@@ -356,6 +403,7 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, di
                 send={sends?.[i] ?? {}}
                 onSendsChange={sends => handleSendChange(sends, i)}
                 disableVesting={disableVesting}
+                hideVesting={hideVesting}
               />
             ))}
           </TableBody>

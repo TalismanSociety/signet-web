@@ -27,6 +27,7 @@ type Props = {
   currentBlock?: number
   blockTime?: number
   disableVesting: boolean
+  hideVesting: boolean
 }
 
 /* try to find an address and amount from given string and perform required formatting */
@@ -97,6 +98,7 @@ export const MultisendTableRow: React.FC<Props> = ({
   canVest,
   disableVesting,
   send,
+  hideVesting,
 }) => {
   const unit = useRecoilValue(multisendAmountUnitAtom)
   const token = useRecoilValue(multisendTokenAtom)
@@ -169,68 +171,74 @@ export const MultisendTableRow: React.FC<Props> = ({
         </Tooltip>
       </TableCell>
 
-      <TableCell className="w-[60px] border-r border-gray-500">
-        {currentBlock === undefined || blockTime === undefined ? (
-          <p className="text-[14px] whitespace-nowrap">-</p>
-        ) : canVest && !disableVesting ? (
-          <div className="flex items-center justify-center">
-            <Switch
-              ref={ref => handleRef(ref, index, 'vested')}
-              onKeyDown={e => handleKeyDown(e, index, 'vested')}
-              checked={!!send.vested}
-              onCheckedChange={checked =>
-                onSendsChange?.([{ ...send, vested: checked ? { start: 0, end: 0 } : undefined }])
-              }
-            />
-          </div>
-        ) : (
-          <p className="text-[14px] whitespace-nowrap">-</p>
-        )}
-      </TableCell>
-      <TableCell className={cn('w-[120px] border-r border-gray-500', errors?.start ? 'bg-red-600/10' : '')}>
-        {canVest && !disableVesting && send.vested ? (
-          <Tooltip content={errors?.start}>
-            <div className="w-full">
-              <MultisendTableBlockInput
-                blockTime={blockTime}
-                currentBlock={currentBlock}
-                inputRef={ref => handleRef(ref, index, 'start')}
-                onChange={blockNumber =>
-                  onSendsChange?.([
-                    { ...send, vested: send.vested ? { ...send.vested, start: blockNumber } : undefined },
-                  ])
-                }
-                onKeyDown={e => handleKeyDown(e, index, 'start')}
-                value={send.vested.start}
-                minBlock={currentBlock === undefined ? undefined : currentBlock + 1}
-              />
-            </div>
-          </Tooltip>
-        ) : (
-          '-'
-        )}
-      </TableCell>
-      <TableCell className={cn('w-[120px]', errors?.end ? 'bg-red-600/10' : '')}>
-        {canVest && !disableVesting && send.vested ? (
-          <Tooltip content={errors?.end}>
-            <div className="w-full">
-              <MultisendTableBlockInput
-                blockTime={blockTime}
-                currentBlock={currentBlock}
-                inputRef={ref => handleRef(ref, index, 'end')}
-                onChange={blockNumber => {
-                  onSendsChange?.([{ ...send, vested: send.vested ? { ...send.vested, end: blockNumber } : undefined }])
-                }}
-                onKeyDown={e => handleKeyDown(e, index, 'end')}
-                value={send.vested.end}
-                minBlock={send.vested.start + 1}
-              />
-            </div>
-          </Tooltip>
-        ) : (
-          '-'
-        )}
-      </TableCell>
+      {hideVesting ? null : (
+        <>
+          <TableCell className="w-[60px] border-r border-gray-500">
+            {currentBlock === undefined || blockTime === undefined ? (
+              <p className="text-[14px] whitespace-nowrap">-</p>
+            ) : canVest && !disableVesting ? (
+              <div className="flex items-center justify-center">
+                <Switch
+                  ref={ref => handleRef(ref, index, 'vested')}
+                  onKeyDown={e => handleKeyDown(e, index, 'vested')}
+                  checked={!!send.vested}
+                  onCheckedChange={checked =>
+                    onSendsChange?.([{ ...send, vested: checked ? { start: 0, end: 0 } : undefined }])
+                  }
+                />
+              </div>
+            ) : (
+              <p className="text-[14px] whitespace-nowrap">-</p>
+            )}
+          </TableCell>
+          <TableCell className={cn('w-[120px] border-r border-gray-500', errors?.start ? 'bg-red-600/10' : '')}>
+            {canVest && !disableVesting && send.vested ? (
+              <Tooltip content={errors?.start}>
+                <div className="w-full">
+                  <MultisendTableBlockInput
+                    blockTime={blockTime}
+                    currentBlock={currentBlock}
+                    inputRef={ref => handleRef(ref, index, 'start')}
+                    onChange={blockNumber =>
+                      onSendsChange?.([
+                        { ...send, vested: send.vested ? { ...send.vested, start: blockNumber } : undefined },
+                      ])
+                    }
+                    onKeyDown={e => handleKeyDown(e, index, 'start')}
+                    value={send.vested.start}
+                    minBlock={currentBlock === undefined ? undefined : currentBlock + 1}
+                  />
+                </div>
+              </Tooltip>
+            ) : (
+              '-'
+            )}
+          </TableCell>
+          <TableCell className={cn('w-[120px]', errors?.end ? 'bg-red-600/10' : '')}>
+            {canVest && !disableVesting && send.vested ? (
+              <Tooltip content={errors?.end}>
+                <div className="w-full">
+                  <MultisendTableBlockInput
+                    blockTime={blockTime}
+                    currentBlock={currentBlock}
+                    inputRef={ref => handleRef(ref, index, 'end')}
+                    onChange={blockNumber => {
+                      onSendsChange?.([
+                        { ...send, vested: send.vested ? { ...send.vested, end: blockNumber } : undefined },
+                      ])
+                    }}
+                    onKeyDown={e => handleKeyDown(e, index, 'end')}
+                    value={send.vested.end}
+                    minBlock={send.vested.start + 1}
+                  />
+                </div>
+              </Tooltip>
+            ) : (
+              '-'
+            )}
+          </TableCell>
+        </>
+      )}
     </TableRow>
   )
 }
