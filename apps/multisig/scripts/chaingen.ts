@@ -45,6 +45,7 @@ const supportedChainIds = [
   'avail-turing-testnet',
   'dancebox',
   'paseo-testnet',
+  'rococo-neuro-web-testnet',
   'polimec',
 ]
 
@@ -61,6 +62,7 @@ const subscanUrlsOverride: Record<string, string> = {
   'aleph-zero-testnet': 'https://test.azero.dev/#/explorer/',
   'dancebox': 'https://dancebox.subscan.io/',
   'paseo-testnet': 'https://paseo.subscan.io/',
+  'rococo-neuro-web-testnet': 'https://neuroweb-testnet.subscan.io/',
   'avail-turing-testnet': 'https://temp-explorer.avail.so/#/explorer',
   'polimec': 'https://explorer.polimec.org/polimec/',
 }

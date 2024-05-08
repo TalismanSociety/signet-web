@@ -1,19 +1,29 @@
 import { BaseToken, supportedChains } from '@domains/chains'
 import { aggregatedMultisigsState, selectedMultisigState } from '@domains/multisig'
-import { Balances } from '@talismn/balances'
+import { Balance, Balances } from '@talismn/balances'
 import { useBalances, useSetBalancesAddresses } from '@talismn/balances-react'
 import { useUser } from '@domains/auth'
 import { useEffect, useMemo } from 'react'
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil'
 import { Address } from '../../util/addresses'
 
-import { TokenAugmented } from '../../layouts/Overview/Assets'
-
 export const balancesState = atom<Balances | undefined>({
   key: 'Balances',
   default: undefined,
   dangerouslyAllowMutability: true,
 })
+
+/** @deprecated use balances library directly*/
+export interface TokenAugmented {
+  id: string
+  details: BaseToken
+  balance: {
+    avaliable: number
+    unavaliable: number
+  }
+  balanceDetails: Balance
+  price: number
+}
 
 export const useAugmentedBalances = () => {
   const balances = useRecoilValue(balancesState)

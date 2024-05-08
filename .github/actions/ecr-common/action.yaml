@@ -1,19 +1,19 @@
-name: "Docker init"
-description: "Initializes Docker environment"
+name: 'Docker init'
+description: 'Initializes Docker environment'
 
 inputs:
   registry_root:
-    description: "Domain of the container registry (i.e. docker.io)"
+    description: 'Domain of the container registry (i.e. docker.io)'
     required: true
   registry_username:
-    description: "Username for image registry"
+    description: 'Username for image registry'
     required: true
   registry_password:
-    description: "Password for image registry"
+    description: 'Password for image registry'
     required: true
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2

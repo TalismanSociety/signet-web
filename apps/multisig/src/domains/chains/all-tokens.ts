@@ -6744,6 +6744,19 @@ export const ALL_TOKENS = [
     },
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
+  {
+    id: 'rococo-neuro-web-testnet-substrate-native',
+    type: 'substrate-native',
+    isTestnet: true,
+    isDefault: true,
+    symbol: 'NEURO',
+    decimals: 12,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
+    existentialDeposit: '1000000000000', // 10**12 Planck
+    chain: {
+      id: 'rococo-neuro-web-testnet',
+    },
+  },
 ]
 
 export const ALL_TOKENS_BY_ID = ALL_TOKENS.reduce((a, b) => {
