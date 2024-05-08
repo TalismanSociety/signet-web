@@ -1,4 +1,3 @@
-import { useAugmentedBalances } from '@domains/balances'
 import { DUMMY_MULTISIG_ID, useSelectedMultisig } from '@domains/multisig'
 import { getAllChangeAttempts } from '@domains/offchain-data/metadata'
 import { toMultisigAddress } from '@util/addresses'
@@ -104,7 +103,6 @@ const Overview = () => {
     detectChangeAndAutoUpdate()
   }, [detectChangeAndAutoUpdate, selectedMultisig.id, selectedMultisig.proxies])
 
-  const augmentedTokens = useAugmentedBalances()
   return (
     <div className="flex flex-col lg:flex-row gap-[16px] flex-1 w-[100px]">
       <div
@@ -112,7 +110,7 @@ const Overview = () => {
         css={{ gridArea: 'overview-assets' }}
       >
         <VaultOverview />
-        <Assets augmentedTokens={augmentedTokens} />
+        <Assets />
       </div>
       <Transactions />
     </div>
