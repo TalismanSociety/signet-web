@@ -191,9 +191,9 @@ export type Rpc = {
   url: string
 }
 
-export type Chain = {
+export type Chain<ChainIds = string> = {
   squidIds: {
-    chainData: string
+    chainData: ChainIds
   }
   genesisHash: string
   chainName: string
