@@ -69,7 +69,7 @@ export const MultisendTableAmountUnitDropdown: React.FC = () => {
           {unit === AmountUnit.Token ? (
             <img src={token.logo} alt={token.symbol} width={16} height={16} />
           ) : (
-            <DollarSignIcon size={16} className="text-gray-200" />
+            <DollarSignIcon size={16} className="text-gray-200 lol" />
           )}
           <ChevronDown size={12} className="text-gray-200" />
         </Button>
