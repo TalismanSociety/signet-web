@@ -1,29 +1,36 @@
-import { useEffect, useState } from 'react'
-import { Loadable } from 'recoil'
-import { css } from '@emotion/css'
+import { useEffect } from 'react'
+import { Loadable, useRecoilState, useRecoilValue } from 'recoil'
 import TokensSelect from '@components/TokensSelect'
-import { BaseToken } from '@domains/chains'
-import { MultiSendSend } from './multisend.types'
-import { isEqual } from 'lodash'
+import { BaseToken, Chain } from '@domains/chains'
 import AmountRow from '@components/AmountRow'
 import BN from 'bn.js'
 import { Alert } from '@components/Alert'
-import { MultiLineSendInput } from './MultiLineSendInput'
 import { Button } from '@components/ui/button'
 import { Input } from '@components/ui/input'
+import { MultiSendTable } from './MultisendTable'
+import { AddressWithName } from '@components/AddressInput'
+import { multisendTokenAtom } from './MultisendTable/atom'
+import { useSelectedMultisig } from '@domains/multisig'
+import { userOrganisationsState } from '@domains/offchain-data'
 
 const MultiSendForm = (props: {
   name: string
   tokens: Loadable<BaseToken[]>
-  sends: MultiSendSend[]
   setName: (n: string) => void
-  setSends: (s: MultiSendSend[]) => void
   onNext: () => void
   hasNonDelayedPermission?: boolean
   hasDelayedPermission?: boolean
+  contacts?: AddressWithName[]
+  chain: Chain
+  totalAmount: BN
+  totalSends: number
+  disabled: boolean
+  disableVesting: boolean
 }) => {
-  const [selectedToken, setSelectedToken] = useState<BaseToken | undefined>()
-  const [hasInvalidRow, setHasInvalidRow] = useState(false)
+  const [selectedMultisig] = useSelectedMultisig()
+  const orgs = useRecoilValue(userOrganisationsState)
+  const org = orgs?.find(o => o.id === selectedMultisig.orgId)
+  const [selectedToken, setSelectedToken] = useRecoilState<BaseToken | undefined>(multisendTokenAtom)
 
   useEffect(() => {
     if (
@@ -34,19 +41,10 @@ const MultiSendForm = (props: {
       setSelectedToken(
         props.tokens.contents.find(token => token.id === token.chain.nativeToken.id) ?? props.tokens.contents[0]
       )
-  }, [props.tokens, selectedToken])
+  }, [props.tokens, selectedToken, setSelectedToken])
 
   return (
-    <div
-      className={css`
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-        max-width: 620px;
-        padding-top: 32px;
-        width: 100%;
-      `}
-    >
+    <div className="flex flex-col gap-[24px] pt-[32px] w-full">
       <Input
         label="Transaction Description"
         placeholder={`e.g. "Contract Payments June 2023"`}
@@ -59,31 +57,18 @@ const MultiSendForm = (props: {
         selectedToken={selectedToken}
         onChange={token => setSelectedToken(token)}
       />
-      <MultiLineSendInput
-        token={selectedToken}
-        onChange={(sends, invalidRows) => {
-          // prevent unnecessary re-render if sends are the same
-          if (!isEqual(sends, props.sends)) props.setSends(sends)
-          setHasInvalidRow(invalidRows.length > 0)
-        }}
+      <MultiSendTable
+        contacts={props.contacts}
+        chainGenesisHash={props.chain.genesisHash}
+        disableVesting={props.disableVesting}
+        hideVesting={org === undefined || org.plan.id === 0}
       />
-      <div
-        css={{
-          'display': 'flex',
-          'flexDirection': 'column',
-          '> div': {
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: 16,
-            p: { fontSize: 16 },
-          },
-        }}
-      >
-        {props.sends.length > 0 && selectedToken && !hasInvalidRow && (
+      <div className="flex flex-col [&>div]:flex [&>div]:justify-between [&>div]:gap-[16px] [&>div>p]:text-[16px]">
+        {props.totalSends > 0 && selectedToken && (
           <>
             <div>
               <p>Total Sends</p>
-              <p>{props.sends.length}</p>
+              <p>{props.totalSends}</p>
             </div>
             <div>
               <p>Total Amount</p>
@@ -91,7 +76,7 @@ const MultiSendForm = (props: {
                 hideIcon
                 balance={{
                   token: selectedToken,
-                  amount: props.sends.reduce((acc, send) => acc.add(send.amountBn), new BN(0)),
+                  amount: props.totalAmount,
                 }}
               />
             </div>
@@ -114,10 +99,11 @@ const MultiSendForm = (props: {
           </div>
         ) : (
           <Button
-            disabled={props.sends.length === 0 || hasInvalidRow || !props.hasNonDelayedPermission || !props.name}
+            disabled={!props.hasNonDelayedPermission || !props.name || props.disabled}
             onClick={props.onNext}
             children="Review"
             className="w-max mt-[16px]"
+            loading={props.hasNonDelayedPermission === undefined}
           />
         )}
       </div>
