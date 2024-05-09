@@ -7,4 +7,5 @@ export const CONFIG = {
   IS_POLKADOT_MULTISIG: IS_POLKADOT_MULTISIG,
   TERMS: 'https://docs.talisman.xyz/talisman/about/terms-of-use',
   PRIVACY_POLICY: 'https://docs.talisman.xyz/talisman/about/privacy-policy',
+  USE_PAYWALL: Boolean(JSON.parse(`${process.env.REACT_APP_USE_PAYWALL ?? false}`)),
 }

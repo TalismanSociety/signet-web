@@ -12,6 +12,7 @@ import { AddressWithName } from '@components/AddressInput'
 import { multisendTokenAtom } from './MultisendTable/atom'
 import { useSelectedMultisig } from '@domains/multisig'
 import { userOrganisationsState } from '@domains/offchain-data'
+import { CONFIG } from '@lib/config'
 
 const MultiSendForm = (props: {
   name: string
@@ -61,7 +62,7 @@ const MultiSendForm = (props: {
         contacts={props.contacts}
         chainGenesisHash={props.chain.genesisHash}
         disableVesting={props.disableVesting}
-        hideVesting={org === undefined || org.plan.id === 0}
+        hideVesting={CONFIG.USE_PAYWALL ? org === undefined || org.plan.id === 0 : false}
       />
       <div className="flex flex-col [&>div]:flex [&>div]:justify-between [&>div]:gap-[16px] [&>div>p]:text-[16px]">
         {props.totalSends > 0 && selectedToken && (
