@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react'
 import {
   SplitAbstainVoteParams,
   StandardVoteParams,
-  VoteDetails,
-  defaultVoteDetails,
+  VoteDetailsState,
+  defaultVote,
   isVoteDetailsComplete,
   isVoteFeatureSupported,
 } from '@domains/referenda'
@@ -20,9 +20,7 @@ const VoteAction: React.FC = () => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
   const tokens = useRecoilValueLoadable(selectedMultisigChainTokensState)
   const [reviewing, setReviewing] = useState(false)
-  const [voteDetails, setVoteDetails] = useState<VoteDetails>({
-    details: { Standard: defaultVoteDetails.Standard },
-  })
+  const [voteDetails, setVoteDetails] = useState<VoteDetailsState>(defaultVote)
   const { toast } = useToast()
 
   // instead of allowing the user to select any token later on, we just use the first native token of the chain
@@ -42,13 +40,19 @@ const VoteAction: React.FC = () => {
     )
       return
     try {
+      const selectedConviction = {
+        ...defaultVote.details,
+        [voteDetails.convictionVote]: voteDetails.details[voteDetails.convictionVote],
+      }
+
       const voteExtrinsic = apiLoadable.contents.tx?.convictionVoting.vote(
         voteDetails.referendumId,
-        voteDetails.details as
+        selectedConviction as
           | { Standard: StandardVoteParams }
           | { Split: SplitVoteParams }
           | { SplitAbstain: SplitAbstainVoteParams }
       )
+
       return voteExtrinsic
     } catch (e) {
       console.error(e)

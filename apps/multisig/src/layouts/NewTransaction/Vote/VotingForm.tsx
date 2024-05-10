@@ -1,7 +1,7 @@
 import { Button } from '@components/ui/button'
 import { BaseToken } from '@domains/chains'
 import { useSelectedMultisig } from '@domains/multisig'
-import { VoteDetails, isVoteDetailsComplete } from '@domains/referenda'
+import { VoteDetailsState, isVoteDetailsComplete } from '@domains/referenda'
 import VoteOptions from './VoteOptions'
 import VoteStandard from './mode/VoteStandard'
 import { ProposalsDropdown } from './ProposalsDropdown'
@@ -12,8 +12,8 @@ import { Vote } from '@talismn/icons'
 
 type Props = {
   token?: BaseToken
-  voteDetails: VoteDetails
-  onChange: (v: VoteDetails) => void
+  voteDetails: VoteDetailsState
+  onChange: (v: VoteDetailsState) => void
   onNext: () => void
 }
 
@@ -22,8 +22,8 @@ const VotingForm: React.FC<Props> = ({ onChange, onNext, token, voteDetails }) =
 
   const { hasDelayedPermission, hasNonDelayedPermission } = hasPermission(multisig, 'governance')
 
-  const handleDetailsChange = (details: VoteDetails['details']) => {
-    onChange({ referendumId: voteDetails.referendumId, details })
+  const handleDetailsChange = (details: VoteDetailsState['details']) => {
+    onChange({ ...voteDetails, details })
   }
 
   return (

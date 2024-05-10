@@ -22,6 +22,8 @@ export type SplitAbstainVoteParams = {
   abstain: BN
 } & SplitVoteParams
 
+export type ConvictionVote = 'Standard' | 'SplitAbstain'
+
 export type VoteDetails = {
   referendumId?: number
   details: {
@@ -54,6 +56,15 @@ export const defaultVoteDetails: Required<VoteDetails['details']> = {
     nay: new BN(0),
     abstain: new BN(0),
   },
+}
+
+export type VoteDetailsState = {
+  convictionVote: ConvictionVote
+} & VoteDetails
+
+export const defaultVote: VoteDetailsState = {
+  convictionVote: 'Standard',
+  details: defaultVoteDetails,
 }
 
 export const isVoteFeatureSupported = (api: ApiPromise) =>
