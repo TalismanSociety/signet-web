@@ -35,15 +35,14 @@ const VoteAction: React.FC = () => {
       voteDetails.referendumId === undefined ||
       !apiLoadable.contents.tx ||
       !apiLoadable.contents.tx?.convictionVoting ||
-      !nativeToken ||
-      !isVoteDetailsComplete(voteDetails)
+      !nativeToken
+      // TODO: Update validation
+      // ||
+      // !isVoteDetailsComplete(voteDetails)
     )
       return
     try {
-      const selectedConviction = {
-        ...defaultVote.details,
-        [voteDetails.convictionVote]: voteDetails.details[voteDetails.convictionVote],
-      }
+      const selectedConviction = { [voteDetails.convictionVote]: voteDetails.details[voteDetails.convictionVote] }
 
       const voteExtrinsic = apiLoadable.contents.tx?.convictionVoting.vote(
         voteDetails.referendumId,
@@ -60,7 +59,10 @@ const VoteAction: React.FC = () => {
   }, [apiLoadable.contents.tx, apiLoadable.state, isPalletSupported, nativeToken, voteDetails])
 
   const transactionName = useMemo(() => {
-    const vote = voteDetails.details.Standard?.vote.aye ? 'Aye' : 'Nay'
+    let vote = voteDetails.details.Standard?.vote.aye ? 'Aye' : 'Nay'
+    if (voteDetails.convictionVote === 'SplitAbstain') {
+      vote = 'Abstain'
+    }
     return `Vote ${vote} on Proposal #${voteDetails.referendumId}`
   }, [voteDetails])
 
@@ -70,7 +72,7 @@ const VoteAction: React.FC = () => {
         <VotingForm
           voteDetails={voteDetails}
           token={nativeToken}
-          onChange={setVoteDetails}
+          setVoteDetails={setVoteDetails}
           onNext={() => setReviewing(true)}
         />
         {extrinsic && (

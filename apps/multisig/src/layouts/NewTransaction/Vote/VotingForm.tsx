@@ -1,3 +1,4 @@
+import React from 'react'
 import { Button } from '@components/ui/button'
 import { BaseToken } from '@domains/chains'
 import { useSelectedMultisig } from '@domains/multisig'
@@ -13,18 +14,14 @@ import { Vote } from '@talismn/icons'
 type Props = {
   token?: BaseToken
   voteDetails: VoteDetailsState
-  onChange: (v: VoteDetailsState) => void
+  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetailsState>>
   onNext: () => void
 }
 
-const VotingForm: React.FC<Props> = ({ onChange, onNext, token, voteDetails }) => {
+const VotingForm: React.FC<Props> = ({ setVoteDetails, onNext, token, voteDetails }) => {
   const [multisig] = useSelectedMultisig()
 
   const { hasDelayedPermission, hasNonDelayedPermission } = hasPermission(multisig, 'governance')
-
-  const handleDetailsChange = (details: VoteDetailsState['details']) => {
-    onChange({ ...voteDetails, details })
-  }
 
   return (
     <>
@@ -33,13 +30,15 @@ const VotingForm: React.FC<Props> = ({ onChange, onNext, token, voteDetails }) =
         <ProposalsDropdown
           chain={multisig.chain}
           referendumId={voteDetails.referendumId}
-          onChange={referendumId => onChange({ ...voteDetails, referendumId })}
+          onChange={referendumId => setVoteDetails(prev => ({ ...prev, referendumId }))}
         />
-        <VoteOptions onChange={handleDetailsChange} value={voteDetails.details} />
-        {voteDetails.details.Standard ? (
-          <VoteStandard onChange={handleDetailsChange} token={token} params={voteDetails.details.Standard} />
-        ) : // TODO: add UI for Abstain and Split votes
-        null}
+        <VoteOptions setVoteDetails={setVoteDetails} voteDetails={voteDetails} />
+        {voteDetails.convictionVote === 'Standard' ? (
+          <VoteStandard setVoteDetails={setVoteDetails} token={token} params={voteDetails.details.Standard!} />
+        ) : (
+          // TODO: add UI for Split votes
+          <div>Abstain Options</div>
+        )}
 
         {hasNonDelayedPermission === false ? (
           hasDelayedPermission ? (
@@ -52,7 +51,9 @@ const VotingForm: React.FC<Props> = ({ onChange, onNext, token, voteDetails }) =
             </Alert>
           )
         ) : (
-          <Button onClick={onNext} disabled={!isVoteDetailsComplete(voteDetails) || !hasNonDelayedPermission}>
+          // TODO: Update validation for voting
+          <Button onClick={onNext} disabled={!hasNonDelayedPermission}>
+            {/* <Button onClick={onNext} disabled={!isVoteDetailsComplete(voteDetails) || !hasNonDelayedPermission}> */}
             Review
           </Button>
         )}
