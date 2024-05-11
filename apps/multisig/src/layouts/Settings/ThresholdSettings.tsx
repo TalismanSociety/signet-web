@@ -13,6 +13,7 @@ type Props = {
 export const ThresholdSettings: React.FC<Props> = ({ disabled, error, membersCount, onChange, threshold }) => {
   useEffect(() => {
     if (threshold > membersCount) onChange(membersCount)
+    else if (threshold < 2 && membersCount > 1) onChange(2)
   }, [membersCount, onChange, threshold])
   return (
     <div css={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
