@@ -16,10 +16,11 @@ import { Tooltip } from '@components/ui/tooltip'
 import { ChevronsLeftRight, ChevronsRightLeft } from 'lucide-react'
 import { ToastAction } from '@components/ui/toast'
 import { useNavigate } from 'react-router-dom'
-import { SUPPORTED_DAPPS } from './supported-dapps'
+import { SUPPORTED_DAPPS, SupportedDapp } from './supported-dapps'
 import { PageTabs, PageTabsContent, PageTabsList, PageTabsTrigger } from '@components/ui/page-tabs'
 import { CONFIG } from '@lib/config'
 import { Link } from 'react-router-dom'
+import { SupportedChainIds } from '@domains/chains/generated-chains'
 
 const isValidUrl = (url: string) => {
   try {
@@ -138,9 +139,42 @@ export const Dapps: React.FC = () => {
     }
   }, [selectedMultisig.id, shouldLoadUrl])
 
+  const getDappUrl = useCallback(
+    (dapp: SupportedDapp) => {
+      if (typeof dapp.url === 'string') return dapp.url
+      return dapp.url[selectedMultisig.chain.squidIds.chainData as SupportedChainIds]
+    },
+    [selectedMultisig.chain.squidIds.chainData]
+  )
+
+  const supportedDapps = useMemo(() => {
+    return SUPPORTED_DAPPS.map(dapp => ({ ...dapp, url: getDappUrl(dapp) })).filter(dapp => dapp.url) as (Omit<
+      SupportedDapp,
+      'url'
+    > & { url: string })[]
+  }, [getDappUrl])
+
   const selectedDapp = useMemo(() => {
-    return SUPPORTED_DAPPS.find(({ url }) => url === input)
-  }, [input])
+    return supportedDapps.find(({ url }) => url === input)
+  }, [input, supportedDapps])
+
+  useEffect(() => {
+    if (!selectedDapp) {
+      // may have changed network, find the dapp that has the previous selected url
+      const dapp = SUPPORTED_DAPPS.find(dapp => {
+        if (typeof dapp.url === 'string') return dapp.url === input
+        return Object.values(dapp.url).includes(input)
+      })
+
+      // changed network, check if the dapp is supported on the new network
+      if (dapp) {
+        const urlOnCurrentChain = getDappUrl(dapp)
+        if (urlOnCurrentChain) return setInput(urlOnCurrentChain)
+      }
+      closeIframe()
+    }
+  }, [getDappUrl, input, selectedDapp])
+
   return (
     <>
       <div css={{ display: 'flex', flex: 1, padding: 16, flexDirection: 'column', gap: 16, width: '100px' }}>
@@ -226,9 +260,9 @@ export const Dapps: React.FC = () => {
             </PageTabsList>
             <PageTabsContent value="apps">
               <div className="flex flex-wrap gap-[12px]">
-                {SUPPORTED_DAPPS.map(dapp => (
+                {supportedDapps.map(dapp => (
                   <Button
-                    className="aspect-square w-full min-w-[160px] max-w-[200px] !h-auto p-[16px]"
+                    className="aspect-square w-full min-w-[160px] max-w-[200px] !h-auto p-[16px] flex flex-1"
                     variant="secondary"
                     onClick={() => {
                       setIsSdkSupported(undefined)
@@ -236,8 +270,10 @@ export const Dapps: React.FC = () => {
                       setShouldLoadUrl(true)
                     }}
                   >
-                    <div className="flex flex-1 h-full w-auto flex-col gap-[8px]">
-                      <img src={dapp.logo} alt={dapp.name} className="flex flex-1 h-1 object-contain" />
+                    <div className="flex flex-1 flex-col gap-[8px] h-full">
+                      <div className="flex flex-1 h-1 p-[12px] rounded-[8px]" style={{ background: dapp.background }}>
+                        <img src={dapp.logo} alt={dapp.name} className="w-full h-full object-contain" />
+                      </div>
                       <div>
                         <p className="text-offWhite font-bold">{dapp.name}</p>
                         <p className="text-gray-200 text-[12px]">{dapp.url}</p>

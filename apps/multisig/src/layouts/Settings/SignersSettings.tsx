@@ -64,9 +64,10 @@ export const SignersSettings: React.FC<Props> = ({ capHeight, editable, error, m
                 withAddressTooltip
               />
               <Button
+                disabled={!editable}
                 size="icon"
                 variant="ghost"
-                onClick={editable && members.length > 1 ? () => handleRemove(m) : undefined}
+                onClick={members.length > 1 ? () => handleRemove(m) : undefined}
               >
                 <Trash size={16} />
               </Button>

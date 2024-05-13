@@ -121,7 +121,11 @@ export const TransactionsList = ({
                     >
                       <TransactionSummaryRow
                         onClick={() =>
-                          navigate(`/overview/${value}-tx/${t.draft?.id ?? t.hash}?tab=${value}&teamId=${multisig.id}`)
+                          navigate(
+                            `/overview/${value}-tx/${t.draft?.id ?? t.hash}?tab=${value}&teamId=${multisig.id}${
+                              window.location.hash
+                            }`
+                          )
                         }
                         t={t}
                         showDraftBadge
@@ -169,17 +173,17 @@ export const TransactionsList = ({
                         }}
                         onApproveFailed={e => {
                           console.error(e)
-                          navigate(`/overview?tab=${value}&teamId=${multisig.id}`)
+                          navigate(`/overview?tab=${value}&teamId=${multisig.id}${window.location.hash}`)
                           toast({
                             title: 'Failed to approve transaction',
                             description: e.message,
                           })
                         }}
                         onClose={() => {
-                          navigate(`/overview?tab=${value}&teamId=${multisig.id}`)
+                          navigate(`/overview?tab=${value}&teamId=${multisig.id}${window.location.hash}`)
                         }}
                         onRejected={({ error }) => {
-                          navigate(`/overview?tab=${value}&teamId=${multisig.id}`)
+                          navigate(`/overview?tab=${value}&teamId=${multisig.id}${window.location.hash}`)
                           if (error) {
                             console.error(error)
                             toast({

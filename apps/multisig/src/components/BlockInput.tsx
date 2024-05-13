@@ -76,6 +76,7 @@ export const BlockInput: React.FC<Props> = ({ blockTime, currentBlock, minBlock,
           {derivedDate && (
             <Calendar
               selected={derivedDate}
+              defaultMonth={derivedDate}
               initialFocus
               mode="single"
               onSelect={handleDateChange}

@@ -376,6 +376,21 @@ const isSubstrateTokensTokenTransfer = (argHuman: any): argHuman is SubstrateTok
 }
 
 const callToTransactionRecipient = (arg: any, chainTokens: BaseToken[]): TransactionRecipient | null => {
+  if (arg?.section === 'vesting' && arg?.method === 'vestedTransfer') {
+    const { target, dest, schedule } = arg.args
+    const targetAddress = Address.fromSs58(parseCallAddressArg(target ?? dest))
+    const vestingSchedule = callToVestingSchedule(schedule)
+    if (vestingSchedule && targetAddress) {
+      return {
+        address: targetAddress,
+        balance: {
+          token: chainTokens.find(t => t.type === 'substrate-native')!,
+          amount: vestingSchedule.totalAmount,
+        },
+        vestingSchedule,
+      }
+    }
+  }
   if (isSubstrateNativeTokenTransfer(arg)) {
     const nativeToken = chainTokens.find(t => t.type === 'substrate-native')
     if (!nativeToken) throw Error(`Chain does not have a native token!`)
@@ -676,11 +691,11 @@ export const extrinsicToDecoded = (
       }
     }
 
-    // check for vested transfer/ remove proxy
+    // check for vested transfer
     for (const arg of args) {
       const obj: any = arg.toHuman()
       if (obj?.section === 'vesting') {
-        if (obj.method === 'vestedTransfer' || obj.method === 'removeProxy') {
+        if (obj.method === 'vestedTransfer') {
           const { target, dest, schedule } = obj.args
           const targetAddress = Address.fromSs58(parseCallAddressArg(target ?? dest))
           const vestingSchedule = callToVestingSchedule(schedule)

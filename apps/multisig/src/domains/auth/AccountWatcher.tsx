@@ -72,7 +72,7 @@ export const AccountWatcher: React.FC = () => {
     if (extensionInitiated && extensionAccounts.length > 0) {
       Object.entries(authTokenBook).forEach(([address, auth]) => {
         const account = extensionAccounts.find(account => account.address.toSs58() === address)
-        if (!account || (auth && (typeof auth === 'string' || !isJwtValid(auth.accessToken) || !auth.id))) {
+        if ((auth && !account) || (auth && (typeof auth === 'string' || !isJwtValid(auth.accessToken) || !auth.id))) {
           setAuthTokenBook({ ...authTokenBook, [address]: undefined })
           if (selectedAccount === address) setSelectedAccount(null)
         }
