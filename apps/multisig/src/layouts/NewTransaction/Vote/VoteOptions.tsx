@@ -30,7 +30,9 @@ const VoteOptions: React.FC<Props> = ({ voteDetails, setVoteDetails }) => {
             return updatedDetails
           })
         }}
-        variant={voteDetails.details.Standard?.vote.aye ? undefined : 'secondary'}
+        variant={
+          voteDetails.details.Standard?.vote.aye && voteDetails.convictionVote === 'Standard' ? undefined : 'secondary'
+        }
       >
         Aye
       </Button>

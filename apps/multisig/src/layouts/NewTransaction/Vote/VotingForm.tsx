@@ -4,6 +4,7 @@ import { BaseToken } from '@domains/chains'
 import { useSelectedMultisig } from '@domains/multisig'
 import { VoteDetailsState, isVoteDetailsComplete } from '@domains/referenda'
 import VoteOptions from './VoteOptions'
+import VoteSplitAbstain from './mode/VoteSplitAbstain'
 import VoteStandard from './mode/VoteStandard'
 import { ProposalsDropdown } from './ProposalsDropdown'
 import { hasPermission } from '@domains/proxy/util'
@@ -37,7 +38,7 @@ const VotingForm: React.FC<Props> = ({ setVoteDetails, onNext, token, voteDetail
           <VoteStandard setVoteDetails={setVoteDetails} token={token} params={voteDetails.details.Standard!} />
         ) : (
           // TODO: add UI for Split votes
-          <div>Abstain Options</div>
+          <VoteSplitAbstain token={token} setVoteDetails={setVoteDetails} />
         )}
 
         {hasNonDelayedPermission === false ? (
