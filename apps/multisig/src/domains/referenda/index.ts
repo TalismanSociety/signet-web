@@ -112,14 +112,17 @@ export const useReferenda = (chain: Chain) => {
   return { referendums, isPalletSupported }
 }
 
-export const isVoteDetailsComplete = (voteDetails: VoteDetails) => {
+export const isVoteDetailsComplete = (voteDetails: VoteDetailsState) => {
   if (voteDetails.referendumId === undefined) return false
 
-  if (voteDetails.details.Standard) {
-    const { balance } = voteDetails.details.Standard
+  if (voteDetails.convictionVote === 'Standard') {
+    const { balance } = voteDetails.details.Standard!
     return balance.gt(new BN(0))
+  } else if (voteDetails.convictionVote === 'SplitAbstain') {
+    const { aye, nay, abstain } = voteDetails.details.SplitAbstain!
+    return aye.gt(new BN(0)) || nay.gt(new BN(0)) || abstain.gt(new BN(0))
   }
-  return !!voteDetails.details.Split || !!voteDetails.details.SplitAbstain
+  return !!voteDetails.details.Split
 }
 
 /** Expects conviction string (e.g. Locked1x, Locked2x, ..., or None) */

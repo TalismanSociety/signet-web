@@ -52,9 +52,7 @@ const VotingForm: React.FC<Props> = ({ setVoteDetails, onNext, token, voteDetail
             </Alert>
           )
         ) : (
-          // TODO: Update validation for voting
-          <Button onClick={onNext} disabled={!hasNonDelayedPermission}>
-            {/* <Button onClick={onNext} disabled={!isVoteDetailsComplete(voteDetails) || !hasNonDelayedPermission}> */}
+          <Button onClick={onNext} disabled={!isVoteDetailsComplete(voteDetails) || !hasNonDelayedPermission}>
             Review
           </Button>
         )}

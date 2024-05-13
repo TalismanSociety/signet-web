@@ -35,10 +35,8 @@ const VoteAction: React.FC = () => {
       voteDetails.referendumId === undefined ||
       !apiLoadable.contents.tx ||
       !apiLoadable.contents.tx?.convictionVoting ||
-      !nativeToken
-      // TODO: Update validation
-      // ||
-      // !isVoteDetailsComplete(voteDetails)
+      !nativeToken ||
+      !isVoteDetailsComplete(voteDetails)
     )
       return
     try {
