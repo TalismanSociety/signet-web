@@ -69,7 +69,7 @@ export const DescriptionForm: React.FC<Props> = ({ editable, description, teamId
   return (
     <SettingsInfoRow label="Multisig Description" className="max-w-[50%] w-fit text-wrap xl:text-nowrap">
       <div className="flex items-center gap-[8px]">
-        <p className={clsx('text-[16px] font-bold mt-[3px] truncate', { 'text-gray-200': description })}>
+        <p className={clsx('text-[16px] font-bold mt-[3px] truncate', { 'text-offWhite': description })}>
           {description || PLACEHOLDER}
         </p>
         {editable && (
