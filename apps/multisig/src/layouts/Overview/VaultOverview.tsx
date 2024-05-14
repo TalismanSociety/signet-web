@@ -27,13 +27,13 @@ export const VaultOverview: React.FC = () => {
       <div className="w-full flex items-center justify-between flex-1 gap-[8px]">
         <div className="text-[20px] flex-1 w-1 text-offWhite font-bold">
           <h2 className="truncate">{selectedMultisig.name} </h2>
-          <h2
-            className={clsx('text-[14px] truncate text-offWhite', {
+          <p
+            className={clsx('text-[14px] truncate  text-gray-200', {
               hidden: !selectedMultisig.description,
             })}
           >
             {selectedMultisig.description}
-          </h2>
+          </p>
         </div>
         <ChainPill chain={selectedMultisig.chain} identiconSize={24} />
       </div>
