@@ -73,9 +73,12 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
   if (t.decoded?.type !== TransactionType.Vote || !t.decoded.voteDetails) return null
 
   const { details, token, referendumId } = t.decoded.voteDetails
+  const { Standard, SplitAbstain } = details
+
   const convictionsOptions = createConvictionsOpts()
 
-  if (!details.Standard) return null
+  if (!Standard && !SplitAbstain) return null
+  // TODO: Continue from here
 
   const name = `Referendum #${referendumId}`
 
@@ -100,19 +103,37 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
           )}
           <VotePill details={details} />
         </div>
-        <div className="flex items-center justify-between">
-          <p className="text-[16px]">Vote value</p>
-          <AmountRow
-            balance={{
-              amount: details.Standard.balance,
-              token,
-            }}
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <p>Conviction</p>
-          <p>{convictionsOptions[details.Standard.vote.conviction]?.headlineText ?? 'Unknown'}</p>
-        </div>
+        {Standard ? (
+          <>
+            <div className="flex items-center justify-between">
+              <p className="text-[16px]">Vote value</p>
+              <AmountRow
+                balance={{
+                  amount: Standard.balance,
+                  token,
+                }}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <p>Conviction</p>
+              <p>{convictionsOptions[Standard.vote.conviction]?.headlineText ?? 'Unknown'}</p>
+            </div>
+          </>
+        ) : (
+          Object.entries(SplitAbstain!)
+            .map(([key, balance]) => (
+              <div key={key} className="flex items-center justify-between">
+                <p className="capitalize">{key}</p>
+                <AmountRow
+                  balance={{
+                    amount: balance,
+                    token,
+                  }}
+                />
+              </div>
+            ))
+            .reverse()
+        )}
       </div>
     </div>
   )
