@@ -22,7 +22,7 @@ export type SplitAbstainVoteParams = {
   abstain: BN
 } & SplitVoteParams
 
-export type ConvictionVote = 'Standard' | 'SplitAbstain'
+export type ConvictionVote = 'Standard' | 'SplitAbstain' | 'Split'
 
 export type VoteDetails = {
   referendumId?: number

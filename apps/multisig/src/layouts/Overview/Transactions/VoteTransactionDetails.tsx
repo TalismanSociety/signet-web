@@ -3,43 +3,56 @@ import { css } from '@emotion/css'
 import { ExternalLink } from '@talismn/icons'
 import AmountRow from '@components/AmountRow'
 import { createConvictionsOpts } from '../../NewTransaction/Vote/ConvictionsDropdown'
-import { VoteDetails } from '../../../domains/referenda'
+import { VoteDetails, ConvictionVote } from '../../../domains/referenda'
+import clsx from 'clsx'
+import BN from 'bn.js'
 
 type Props = {
   t: Transaction
 }
 
-// TODO: make this component support UI for Abstain and Split vote types
-const VotePill: React.FC<{ details: VoteDetails['details'] }> = ({ details }) => (
-  <div
-    className={css`
-      align-items: center;
-      background-color: var(--color-backgroundLighter);
-      border-radius: 12px;
-      color: var(--color-foreground);
-      display: flex;
-      gap: 8px;
-      padding: 2px 8px;
-    `}
-  >
+// TODO: make this component support UI for Split vote types
+const VotePill: React.FC<{ details: VoteDetails['details'] }> = ({ details }) => {
+  const conviction: ConvictionVote = !!details.Standard ? 'Standard' : 'SplitAbstain'
+  const isStandard = conviction === 'Standard'
+
+  return (
     <div
       className={css`
-        background-color: var(--color-status-${details.Standard?.vote.aye ? 'positive' : 'negative'});
-        border-radius: 50%;
-        height: 14px;
-        width: 14px;
+        align-items: center;
+        background-color: var(--color-backgroundLighter);
+        border-radius: 12px;
+        color: var(--color-foreground);
+        display: flex;
+        gap: 8px;
+        padding: 2px 8px;
       `}
-    />
-    <p css={{ fontSize: '14px', marginTop: '4px' }}>{details.Standard?.vote.aye ? 'Aye' : 'Nay'}</p>
-  </div>
-)
+    >
+      <div
+        className={clsx('rounded-full h-[14px] w-[14px]', {
+          'bg-[#21C91D]': isStandard && details.Standard?.vote.aye,
+          'bg-[#F34A4A]': isStandard && !details.Standard?.vote.aye,
+          'bg-[#B9D9FF]': !isStandard,
+        })}
+      />
+      <p css={{ fontSize: '14px', marginTop: '4px' }}>
+        {isStandard ? (details.Standard?.vote.aye ? 'Aye' : 'Nay') : 'Abstain'}
+      </p>
+    </div>
+  )
+}
 
 export const VoteTransactionHeaderContent: React.FC<Props> = ({ t }) => {
   if (t.decoded?.type !== TransactionType.Vote || !t.decoded.voteDetails) return null
 
   const { details, token } = t.decoded.voteDetails
+  const { Standard, SplitAbstain } = details
 
-  if (!details.Standard) return null
+  if (!Standard && !SplitAbstain) return null
+
+  const amount = !!Standard
+    ? Standard.balance
+    : Object.values(SplitAbstain!).reduce((acc, balance) => acc.add(balance), new BN(0))
 
   return (
     <div className="flex items-center">
@@ -48,7 +61,7 @@ export const VoteTransactionHeaderContent: React.FC<Props> = ({ t }) => {
       </div>
       <AmountRow
         balance={{
-          amount: details.Standard.balance,
+          amount: amount,
           token,
         }}
       />

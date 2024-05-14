@@ -68,7 +68,7 @@ const VoteOptions: React.FC<Props> = ({ voteDetails, setVoteDetails }) => {
           })
         }}
         css={({ color }) => ({
-          backgroundColor: voteDetails.convictionVote === 'SplitAbstain' ? '#FFFF' : undefined,
+          backgroundColor: voteDetails.convictionVote === 'SplitAbstain' ? '#B9D9FF' : undefined,
         })}
         variant={voteDetails.convictionVote === 'SplitAbstain' ? undefined : 'secondary'}
       >
