@@ -586,6 +586,19 @@ export const extrinsicToDecoded = (
           }
         }
 
+        if (vote.SplitAbstain) {
+          voteDetails = {
+            referendumId: poll_index,
+            details: {
+              SplitAbstain: {
+                aye: new BN(vote.SplitAbstain.aye.replaceAll(',', '')),
+                nay: new BN(vote.SplitAbstain.nay.replaceAll(',', '')),
+                abstain: new BN(vote.SplitAbstain.abstain.replaceAll(',', '')),
+              },
+            },
+          }
+        }
+
         if (voteDetails) {
           const token = chainTokens.find(t => t.type === 'substrate-native')
           if (!token) throw Error(`Chain does not have a native token!`)
