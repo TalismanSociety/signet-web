@@ -16,6 +16,7 @@ import { ExternalLink } from 'lucide-react'
 import { Button } from '@components/ui/button'
 import { useUser } from '@domains/auth'
 import { NameForm } from './NameForm'
+import { DescriptionForm } from './DescriptionForm'
 import { RecoverMultisig } from './RecoverMultisig'
 
 const Settings = () => {
@@ -65,7 +66,10 @@ const Settings = () => {
         </div>
         <div className="grid gap-[32px] grid-cols-1 md:grid-cols-2">
           {/** first row: Name */}
-          <NameForm name={multisig.name} editable={isSigner} teamId={multisig.id} />
+          <div className="flex gap-4 justify-between">
+            <NameForm name={multisig.name} editable={isSigner} teamId={multisig.id} />
+            <DescriptionForm description={multisig.description} editable={isSigner} teamId={multisig.id} />
+          </div>
           <div className="hidden md:block" />
 
           {/** second row: Proxied Account | Chain */}

@@ -20,6 +20,7 @@ const GET_ORGANISATIONS = gql`
       teams {
         id
         name
+        description
         chain
         multisig_config
         proxied_address
@@ -54,6 +55,7 @@ type RawOrgUser = {
 export type RawTeam = {
   id: string
   name: string
+  description: string
   multisig_config: any
   proxied_address: string
   chain: string
@@ -68,6 +70,7 @@ type Plan = {
 export type Organisation<TeamType = RawTeam, OrgUserType = RawOrgUser> = {
   id: string
   name: string
+  description: string
   slug: string
   teams: TeamType[]
   users: OrgUserType[]
@@ -229,6 +232,7 @@ export const useCreateOrganisation = () => {
               {
                 id: data.createOrgFree.org.id,
                 name: data.createOrgFree.org.name,
+                description: data.createOrgFree.org.description,
                 plan: {
                   id: data.createOrgFree.org.plan.id,
                   max_vault: data.createOrgFree.org.plan.max_vault,

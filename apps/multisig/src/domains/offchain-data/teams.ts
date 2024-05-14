@@ -26,6 +26,7 @@ export class Team {
   constructor(
     public id: string,
     public name: string,
+    public description: string,
     public multisigConfig: {
       threshold: number
       signers: Address[]
@@ -44,6 +45,7 @@ export class Team {
       id: this.id,
       orgId: this.orgId,
       name: this.name,
+      description: this.description,
       multisigAddress: toMultisigAddress(this.multisigConfig.signers, this.multisigConfig.threshold),
       proxyAddress: this.proxiedAddress,
       signers: this.multisigConfig.signers,
@@ -197,6 +199,7 @@ export const parseTeam = (org: Organisation, rawTeam: RawTeam): { team?: Team; e
       team: new Team(
         rawTeam.id,
         rawTeam.name,
+        rawTeam.description,
         {
           threshold: rawTeam.multisig_config.threshold,
           signers,

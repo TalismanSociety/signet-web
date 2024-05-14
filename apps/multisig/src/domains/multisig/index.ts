@@ -57,6 +57,7 @@ const DUMMY_MULTISIG: Multisig = {
   id: DUMMY_MULTISIG_ID,
   orgId: 'DUMMY_ORG',
   name: 'DUMMY_MULTISIG',
+  description: 'DUMMY_MULTISIG_DESCRIPTION',
   chain: filteredSupportedChains[0] as Chain,
   signers: [],
   threshold: 0,
