@@ -29,7 +29,7 @@ export type SupportedChainIds =
   | 'rococo-neuro-web-testnet'
   | 'polimec'
 
-export const supportedChains: Chain<SupportedChainIds>[] = [
+export const supportedChains: readonly Chain<SupportedChainIds>[] = [
   {
     chainName: 'Polkadot',
     genesisHash: '0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3',
@@ -651,7 +651,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     chainName: 'NeuroWeb Testnet',
     genesisHash: '0xf2b8faefcf9c370872d0b4d2eee31d46b4de4a8688153d23d82a39e2d6bc8bbc',
     isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/unknown.svg',
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/rococo-neuro-web-testnet.svg',
     nativeToken: {
       id: 'rococo-neuro-web-testnet-substrate-native',
     },
@@ -691,4 +691,4 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ss58Prefix: 41,
     subscanUrl: 'https://explorer.polimec.org/polimec/',
   },
-]
+] as const

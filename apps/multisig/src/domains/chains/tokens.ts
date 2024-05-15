@@ -202,7 +202,7 @@ export type Chain<ChainIds = string> = {
   nativeToken: {
     id: string
   }
-  rpcs: Rpc[]
+  rpcs: readonly Rpc[]
   ss58Prefix: number
   subscanUrl: string
   polkaAssemblyUrl?: string
