@@ -10204,18 +10204,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@talismn/balances-react@npm:0.0.0-pr1378-20240327183927":
-  version: 0.0.0-pr1378-20240327183927
-  resolution: "@talismn/balances-react@npm:0.0.0-pr1378-20240327183927"
+"@talismn/balances-react@npm:0.0.0-pr1392-20240408055115":
+  version: 0.0.0-pr1392-20240408055115
+  resolution: "@talismn/balances-react@npm:0.0.0-pr1392-20240408055115"
   dependencies:
-    "@talismn/balances": 0.0.0-pr1378-20240327183927
-    "@talismn/chain-connector": 0.0.0-pr1378-20240327183927
-    "@talismn/chain-connector-evm": 0.0.0-pr1378-20240327183927
-    "@talismn/chaindata-provider": 0.0.0-pr1378-20240327183927
-    "@talismn/connection-meta": 0.0.0-pr1378-20240327183927
-    "@talismn/scale": 0.0.0-pr1378-20240327183927
-    "@talismn/token-rates": 0.0.0-pr1378-20240327183927
-    "@talismn/util": 0.0.0-pr1378-20240327183927
+    "@talismn/balances": 0.0.0-pr1392-20240408055115
+    "@talismn/chain-connector": 0.0.0-pr1392-20240408055115
+    "@talismn/chain-connector-evm": 0.0.0-pr1392-20240408055115
+    "@talismn/chaindata-provider": 0.0.0-pr1392-20240408055115
+    "@talismn/connection-meta": 0.0.0-pr1392-20240408055115
+    "@talismn/scale": 0.0.0-pr1392-20240408055115
+    "@talismn/token-rates": 0.0.0-pr1392-20240408055115
+    "@talismn/util": 0.0.0-pr1392-20240408055115
     anylogger: ^1.0.11
     blueimp-md5: 2.19.0
     dexie: ^3.2.4
@@ -10229,22 +10229,22 @@ __metadata:
     "@polkadot/util-crypto": 12.x
     react: "*"
     react-dom: "*"
-  checksum: e571c9fcafdd5271e151455721e0df545c001bfef1763d75336fafeec1ffc4e25b0b214a497538515d6c6aff5cf853f8a68ae7941eff0390bcf79cb3e18d2f86
+  checksum: a3d48883f7a5697fa70f7b1b05f8b1f77fc3a3e59a432fd428a403847f5d2940e863fbea70c1b8ff17174ea5b0500922bfadcd5764b03fbb0c1a20ebbd548bc6
   languageName: node
   linkType: hard
 
-"@talismn/balances@npm:0.0.0-pr1378-20240327183927":
-  version: 0.0.0-pr1378-20240327183927
-  resolution: "@talismn/balances@npm:0.0.0-pr1378-20240327183927"
+"@talismn/balances@npm:0.0.0-pr1392-20240408055115":
+  version: 0.0.0-pr1392-20240408055115
+  resolution: "@talismn/balances@npm:0.0.0-pr1392-20240408055115"
   dependencies:
     "@supercharge/promise-pool": ^3.1.0
-    "@talismn/chain-connector": 0.0.0-pr1378-20240327183927
-    "@talismn/chain-connector-evm": 0.0.0-pr1378-20240327183927
-    "@talismn/chaindata-provider": 0.0.0-pr1378-20240327183927
-    "@talismn/scale": 0.0.0-pr1378-20240327183927
+    "@talismn/chain-connector": 0.0.0-pr1392-20240408055115
+    "@talismn/chain-connector-evm": 0.0.0-pr1392-20240408055115
+    "@talismn/chaindata-provider": 0.0.0-pr1392-20240408055115
+    "@talismn/scale": 0.0.0-pr1392-20240408055115
     "@talismn/subshape-fork": ^0.0.2
-    "@talismn/token-rates": 0.0.0-pr1378-20240327183927
-    "@talismn/util": 0.0.0-pr1378-20240327183927
+    "@talismn/token-rates": 0.0.0-pr1392-20240408055115
+    "@talismn/util": 0.0.0-pr1392-20240408055115
     anylogger: ^1.0.11
     dexie: ^3.2.4
     lodash: 4.17.21
@@ -10256,30 +10256,30 @@ __metadata:
     "@polkadot/util": 12.x
     "@polkadot/util-crypto": 12.x
     "@substrate/txwrapper-core": 4.x
-  checksum: 8d0a60a1806635364924aed2ea9e2ab1108e9454a5396f4bb5e8795bc2ae78ad4555abb1e41c46e84a2aa102ef8b6b59bbfcf7b5a70671c3c1e1773eee2620f3
+  checksum: fd3f97c6b1af31ba9db4a3fffac61e9231f30ce3dfa7bba5a8c22108c57b1a4b7a88ce742d95149146d4a98661c4de4f5040c83003dc1145829889914a7608e4
   languageName: node
   linkType: hard
 
-"@talismn/chain-connector-evm@npm:0.0.0-pr1378-20240327183927":
-  version: 0.0.0-pr1378-20240327183927
-  resolution: "@talismn/chain-connector-evm@npm:0.0.0-pr1378-20240327183927"
+"@talismn/chain-connector-evm@npm:0.0.0-pr1392-20240408055115":
+  version: 0.0.0-pr1392-20240408055115
+  resolution: "@talismn/chain-connector-evm@npm:0.0.0-pr1392-20240408055115"
   dependencies:
-    "@talismn/chaindata-provider": 0.0.0-pr1378-20240327183927
-    "@talismn/util": 0.0.0-pr1378-20240327183927
+    "@talismn/chaindata-provider": 0.0.0-pr1392-20240408055115
+    "@talismn/util": 0.0.0-pr1392-20240408055115
     anylogger: ^1.0.11
     lodash: 4.17.21
     viem: ^2.8.18
-  checksum: 5c0b4aa26f08dd4a0aebb946c15b4ce09893f6e4235c3c9d29136df555ded846ca0444e41f240d5128586c5cae7b31cc23e889b55408e3c76bbf7c4078280291
+  checksum: c0e9d9477d45762264bb99703dd30c1161cf1ac557e95c34669a01f9199c3de4a1e79bd6526405446d8d9e7a0a9b80eff89b94e50b2789e8dcff2a6fbcfb0e43
   languageName: node
   linkType: hard
 
-"@talismn/chain-connector@npm:0.0.0-pr1378-20240327183927":
-  version: 0.0.0-pr1378-20240327183927
-  resolution: "@talismn/chain-connector@npm:0.0.0-pr1378-20240327183927"
+"@talismn/chain-connector@npm:0.0.0-pr1392-20240408055115":
+  version: 0.0.0-pr1392-20240408055115
+  resolution: "@talismn/chain-connector@npm:0.0.0-pr1392-20240408055115"
   dependencies:
-    "@talismn/chaindata-provider": 0.0.0-pr1378-20240327183927
-    "@talismn/connection-meta": 0.0.0-pr1378-20240327183927
-    "@talismn/util": 0.0.0-pr1378-20240327183927
+    "@talismn/chaindata-provider": 0.0.0-pr1392-20240408055115
+    "@talismn/connection-meta": 0.0.0-pr1392-20240408055115
+    "@talismn/util": 0.0.0-pr1392-20240408055115
     anylogger: ^1.0.11
     eventemitter3: ^5.0.0
   peerDependencies:
@@ -10287,18 +10287,18 @@ __metadata:
     "@polkadot/util": 12.x
     "@polkadot/x-global": 12.x
     "@polkadot/x-ws": 12.x
-  checksum: cdaedab1bbd6c45e7173c38e2b2479a1039a1f3a9e4366e2540ebefc9cb349c5027dc0f0513c6e9adce026846f66dc28a04790d79f9f24969b72acf058e553cc
+  checksum: d7f3b4e73d9412786ad61bef5a78a1a2d300f4f486d23e830546426fd7ee2cb2b7eb35248f78f64b602ef40603e37c4f0842fe0063197d8f70ecb6a9ff6cc27d
   languageName: node
   linkType: hard
 
-"@talismn/chaindata-provider@npm:0.0.0-pr1378-20240327183927":
-  version: 0.0.0-pr1378-20240327183927
-  resolution: "@talismn/chaindata-provider@npm:0.0.0-pr1378-20240327183927"
+"@talismn/chaindata-provider@npm:0.0.0-pr1392-20240408055115":
+  version: 0.0.0-pr1392-20240408055115
+  resolution: "@talismn/chaindata-provider@npm:0.0.0-pr1392-20240408055115"
   dependencies:
     anylogger: ^1.0.11
     dexie: ^3.2.4
     rxjs: ^7.8.1
-  checksum: 7a9b7915cb53c9bc381b010dd06b25e61b9ba8551bb324f463cbfcdc5aeab9e6b5c08d092812f6793150736a3cfa4c4b49072b6646a528916b6363b8df035265
+  checksum: 370a7ab4acad4f9be98ab7c743eb6a58e6d26508e8721c2a4fce0880092bf81b024274bd9a45c6ae7ec2478c69c7c909b5a00ed2ed9fc01c76af44e490244281
   languageName: node
   linkType: hard
 
@@ -10354,13 +10354,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@talismn/connection-meta@npm:0.0.0-pr1378-20240327183927":
-  version: 0.0.0-pr1378-20240327183927
-  resolution: "@talismn/connection-meta@npm:0.0.0-pr1378-20240327183927"
+"@talismn/connection-meta@npm:0.0.0-pr1392-20240408055115":
+  version: 0.0.0-pr1392-20240408055115
+  resolution: "@talismn/connection-meta@npm:0.0.0-pr1392-20240408055115"
   dependencies:
-    "@talismn/chaindata-provider": 0.0.0-pr1378-20240327183927
+    "@talismn/chaindata-provider": 0.0.0-pr1392-20240408055115
     dexie: ^3.2.4
-  checksum: c5244e3d01d632d58aab43afe75b8cddc783c74fdf9b775af8db84abaa3b87dca03a976b961bda4136b803ac8aa93999f25d8cf17ec3159b216b8e424d61889b
+  checksum: 4d41ffba3f4d2557261c4cbb46597d3dfc15c7a595380ccf9e526b85164d261e2316f94cd3130eeef3d192096c3893332519444350d5d1fc33a19b98933693a6
   languageName: node
   linkType: hard
 
@@ -10476,8 +10476,8 @@ __metadata:
     "@storybook/testing-library": ^0.0.13
     "@substrate/txwrapper-core": ^5.0.0
     "@talisman-connect/ui": ^1.1.1
-    "@talismn/balances": 0.0.0-pr1378-20240327183927
-    "@talismn/balances-react": 0.0.0-pr1378-20240327183927
+    "@talismn/balances": 0.0.0-pr1392-20240408055115
+    "@talismn/balances-react": 0.0.0-pr1392-20240408055115
     "@talismn/connect-components": ^1.1.7
     "@talismn/connect-ui": ^1.1.2
     "@talismn/connect-wallets": ^1.1.3
@@ -10617,18 +10617,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@talismn/scale@npm:0.0.0-pr1378-20240327183927":
-  version: 0.0.0-pr1378-20240327183927
-  resolution: "@talismn/scale@npm:0.0.0-pr1378-20240327183927"
+"@talismn/scale@npm:0.0.0-pr1392-20240408055115":
+  version: 0.0.0-pr1392-20240408055115
+  resolution: "@talismn/scale@npm:0.0.0-pr1392-20240408055115"
   dependencies:
     "@talismn/subshape-fork": ^0.0.2
-    "@talismn/util": 0.0.0-pr1378-20240327183927
+    "@talismn/util": 0.0.0-pr1392-20240408055115
     anylogger: ^1.0.11
     wasm-feature-detect: ^1.6.1
     wat-the-crypto: ^0.0.3
   peerDependencies:
     "@polkadot/util-crypto": 12.x
-  checksum: f42ce0ee46dcec26885acda6dc7a5ff713a7f0e46f96bf79e2bf232141817bd0a9bef9c6bdc0d04071d888980f862fefd7047fec937fba1ed87215482ef5ed1c
+  checksum: 7c80c4112abb9ce3968625f86925a006092f5e7a2a88f0a53e60d6058ad801d743ef91a117383e918032c5848fc49d42746ea5b21d1095bfcdabab9c5ea81546
   languageName: node
   linkType: hard
 
@@ -10652,14 +10652,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@talismn/token-rates@npm:0.0.0-pr1378-20240327183927":
-  version: 0.0.0-pr1378-20240327183927
-  resolution: "@talismn/token-rates@npm:0.0.0-pr1378-20240327183927"
+"@talismn/token-rates@npm:0.0.0-pr1392-20240408055115":
+  version: 0.0.0-pr1392-20240408055115
+  resolution: "@talismn/token-rates@npm:0.0.0-pr1392-20240408055115"
   dependencies:
-    "@talismn/chaindata-provider": 0.0.0-pr1378-20240327183927
+    "@talismn/chaindata-provider": 0.0.0-pr1392-20240408055115
     axios: ^0.27.2
     dexie: ^3.2.4
-  checksum: 0116a40dfeca78e8c0773d50c5ea5f8f12130fac5039fdd092ab4f73587cf20c8ab77e53f4f4849a1f61b398767c1377b9c72f05b834dbc721c7929343a24343
+  checksum: 1d8fc45d3c84858e9e2b7dc28d7fd8cb736f5eed425b79348672b9a2fb775af22053392fd1796b360189a62a2d9355f9d33aabf7a3e62c4772f0c35e1a40260c
   languageName: node
   linkType: hard
 
@@ -10719,9 +10719,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@talismn/util@npm:0.0.0-pr1378-20240327183927":
-  version: 0.0.0-pr1378-20240327183927
-  resolution: "@talismn/util@npm:0.0.0-pr1378-20240327183927"
+"@talismn/util@npm:0.0.0-pr1392-20240408055115":
+  version: 0.0.0-pr1392-20240408055115
+  resolution: "@talismn/util@npm:0.0.0-pr1392-20240408055115"
   dependencies:
     bignumber.js: ^9.1.2
     rxjs: ^7.8.1
@@ -10731,7 +10731,7 @@ __metadata:
     "@polkadot/util": 12.x
     "@polkadot/util-crypto": 12.x
     rxjs: ">= 7.8.1"
-  checksum: 1a485fa44117ee04cafae23088816b5245dff6099b1b0540241695033be50d82b45f2ad27fe91cb2763b2803b10656ddf6e6619eeb8e5ba069f647fae40b13d1
+  checksum: 5ad25de44d1820d36e339f85af91f4976d5a668e2f96a9b0427f98f573dee01dcca07acc62343076c2e1c846da4477ca566ac870cdd1795603e029ade2a1155f
   languageName: node
   linkType: hard
 
