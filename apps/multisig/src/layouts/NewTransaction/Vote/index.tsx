@@ -79,7 +79,7 @@ const VoteAction: React.FC = () => {
   }, [removeVoteId, voteDetails.convictionVote, voteDetails.details.Standard?.vote.aye, voteDetails.referendumId])
 
   return (
-    <div css={{ display: 'flex', flex: 1, flexDirection: 'column', padding: '32px 8%' }}>
+    <div className="flex flex-1 flex-col gap-8" css={{ padding: '32px 8%' }}>
       <div css={{ width: '100%', maxWidth: 490 }}>
         <VotingForm
           voteDetails={voteDetails}

@@ -12,7 +12,7 @@ type Props = {
 }
 
 // TODO: make this component support UI for Split vote types
-const VotePill: React.FC<{ voteDetails: VoteDetailsState }> = ({ voteDetails }) => {
+export const VotePill: React.FC<{ voteDetails: VoteDetailsState }> = ({ voteDetails }) => {
   const { method, convictionVote } = voteDetails
 
   const getLabelAndColor = (): Record<string, string> => {

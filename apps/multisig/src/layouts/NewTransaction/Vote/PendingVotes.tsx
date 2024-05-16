@@ -1,12 +1,16 @@
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useReferenda } from '@domains/referenda'
 import { useConfirmedTransactions } from '@domains/tx-history'
-
-import { selectedTeamsState } from '@domains/offchain-data'
 import { useRecoilValue } from 'recoil'
+import { selectedTeamsState } from '@domains/offchain-data'
 import { Button } from '@talismn/ui'
+import PendingVotesTable from './PendingVotesTable'
+import AmountRow from '@components/AmountRow'
+import { VotePill } from '../../../layouts/Overview/Transactions/VoteTransactionDetails'
 import { Multisig } from '@domains/multisig'
 import { Transaction } from '@domains/multisig'
+import { ColumnDef } from '@tanstack/react-table'
+import BN from 'bn.js'
 
 interface PendingVotesProps {
   multisig: Multisig
@@ -52,26 +56,62 @@ const PendingVotes: React.FC<PendingVotesProps> = ({ multisig, handleOnRemoveVot
     }
   }, [filterLatestTransactions, transactions])
 
-  return (
-    <div>
-      <h2>Pending votes</h2>
-      {loading && <div>Loading...</div>}
-      {!loading && !latestTxs?.length && <div>No pending votes</div>}
-      {latestTxs?.map(tx => (
-        <div className="w-full" key={tx.hash}>
-          <div className="w-full h-20 m-4 px-2 bg-red-500 flex">
-            <div>
-              {tx.decoded?.voteDetails?.referendumId} {tx.description}
-            </div>
-            <Button
-              className="ml-auto mr-0"
-              onClick={() => handleOnRemoveVote(String(tx.decoded?.voteDetails?.referendumId))}
-            >
+  const columns: ColumnDef<Transaction>[] = [
+    {
+      header: 'Proposal',
+      accessorKey: 'description',
+    },
+    {
+      id: 'voteFor',
+      cell: ({ row: { original } }) => {
+        return (
+          <div className="flex items-center">
+            <VotePill voteDetails={original.decoded?.voteDetails!} />
+          </div>
+        )
+      },
+    },
+    {
+      id: 'amount',
+      cell: ({ row: { original } }) => {
+        const { convictionVote, details, token, method } = original.decoded?.voteDetails!
+        const { Standard, SplitAbstain } = details
+
+        if (!method) return null
+
+        const amount =
+          convictionVote === 'SplitAbstain'
+            ? Object.values(SplitAbstain!).reduce((acc, balance) => acc.add(balance), new BN(0))
+            : new BN(0)
+
+        return <AmountRow balance={{ amount: Standard?.balance! || amount, token }} />
+      },
+    },
+    {
+      id: 'conviction',
+      cell: ({ row: { original } }) => {
+        if (original.decoded?.voteDetails?.convictionVote !== 'Standard') return null
+        return <div>{original.decoded?.voteDetails?.details.Standard?.vote.conviction}x</div>
+      },
+    },
+    {
+      id: 'actions',
+      cell: ({ row: { original } }) => {
+        return (
+          <div className="flex justify-end">
+            <Button onClick={() => handleOnRemoveVote(String(original.decoded?.voteDetails?.referendumId))}>
               Remove
             </Button>
           </div>
-        </div>
-      ))}
+        )
+      },
+    },
+  ]
+
+  return (
+    <div className="flex flex-col gap-8">
+      <h2>Pending votes</h2>
+      <PendingVotesTable columns={columns} data={latestTxs} />
     </div>
   )
 }
