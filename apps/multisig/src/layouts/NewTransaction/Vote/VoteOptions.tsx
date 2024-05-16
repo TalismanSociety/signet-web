@@ -64,6 +64,7 @@ const VoteOptions: React.FC<Props> = ({ voteDetails, setVoteDetails }) => {
           setVoteDetails(prev => {
             const updatedDetails = { ...prev }
             updatedDetails.convictionVote = 'SplitAbstain'
+            updatedDetails.details.Standard!.vote.aye = true
             return updatedDetails
           })
         }}

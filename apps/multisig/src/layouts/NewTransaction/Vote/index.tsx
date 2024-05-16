@@ -62,7 +62,6 @@ const VoteAction: React.FC = () => {
   }, [apiLoadable.contents.tx?.convictionVoting, isApiReady, removeVoteId, voteDetails])
 
   const handleOnRemoveVote = (referendumId: string) => {
-    console.log({ referendumId })
     setRemoveVoteId(referendumId)
     setReviewing(true)
   }
