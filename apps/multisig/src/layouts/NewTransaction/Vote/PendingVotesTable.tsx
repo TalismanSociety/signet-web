@@ -1,17 +1,51 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { Skeleton } from '@talismn/ui'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  isLoading: boolean
 }
 
-export default function PendingVotesTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export default function PendingVotesTable<TData, TValue>({ columns, data, isLoading }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   })
+
+  const renderTableBodyContent = () => {
+    if (isLoading) {
+      return (
+        <TableRow>
+          <TableCell colSpan={columns.length} className="h-24 text-center">
+            <Skeleton.Surface className="h-12 w-full" />
+          </TableCell>
+        </TableRow>
+      )
+    }
+
+    if (table.getRowModel().rows?.length) {
+      return table.getRowModel().rows.map(row => (
+        <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+          {row.getVisibleCells().map(cell => (
+            <TableCell className="px-6 py-4" key={cell.id}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))}
+        </TableRow>
+      ))
+    }
+
+    return (
+      <TableRow>
+        <TableCell colSpan={columns.length} className="h-24 text-center">
+          No pending votes
+        </TableCell>
+      </TableRow>
+    )
+  }
 
   return (
     <div className="border border-gray-500 rounded-[8px] bg-gray-900">
@@ -29,25 +63,7 @@ export default function PendingVotesTable<TData, TValue>({ columns, data }: Data
             </TableRow>
           ))}
         </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map(row => (
-              <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                {row.getVisibleCells().map(cell => (
-                  <TableCell className="px-6 py-4" key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
+        <TableBody>{renderTableBodyContent()}</TableBody>
       </Table>
     </div>
   )

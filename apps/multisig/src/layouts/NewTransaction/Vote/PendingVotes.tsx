@@ -20,8 +20,8 @@ interface PendingVotesProps {
 const PendingVotes: React.FC<PendingVotesProps> = ({ multisig, handleOnRemoveVote }) => {
   const [latestTxs, setLatestTxs] = useState<Transaction[]>([])
   const selectedTeams = useRecoilValue(selectedTeamsState)
-  const { transactions, loading } = useConfirmedTransactions(selectedTeams ?? [])
-  const { referendums } = useReferenda(multisig.chain)
+  const { transactions, loading: isTransactionsLoading } = useConfirmedTransactions(selectedTeams ?? [])
+  const { referendums, isLoading: isReferendumsLoading } = useReferenda(multisig.chain)
 
   const ongoingReferendumsIds = useMemo(
     () => referendums?.flatMap(referendum => (referendum.isOngoing ? [referendum.index] : [])),
@@ -111,7 +111,11 @@ const PendingVotes: React.FC<PendingVotesProps> = ({ multisig, handleOnRemoveVot
   return (
     <div className="flex flex-col gap-8">
       <h2>Pending votes</h2>
-      <PendingVotesTable columns={columns} data={latestTxs} />
+      <PendingVotesTable
+        columns={columns}
+        data={latestTxs}
+        isLoading={(isTransactionsLoading || isReferendumsLoading) && latestTxs.length === 0}
+      />
     </div>
   )
 }

@@ -76,6 +76,7 @@ export const isVoteFeatureSupported = (api: ApiPromise) =>
 
 export const useReferenda = (chain: Chain) => {
   const [referendums, setReferendums] = useState<ReferendumBasicInfo[] | undefined>()
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
 
   const isPalletSupported = useMemo(() => {
@@ -84,12 +85,14 @@ export const useReferenda = (chain: Chain) => {
   }, [apiLoadable])
 
   const getReferendums = useCallback(async () => {
+    setIsLoading(true)
     if (apiLoadable.state !== 'hasValue' || isPalletSupported === undefined) return
 
     if (!isPalletSupported) {
       console.error(`referenda or conviction_voting pallets not supported on this chain ${chain.chainName}`)
       // treat it as 0 referendum created if required pallets are not supported
       setReferendums([])
+      setIsLoading(false)
     } else {
       const referendumCount = await apiLoadable.contents.query.referenda.referendumCount()
       const ids = Array.from(Array(referendumCount.toNumber()).keys())
@@ -101,6 +104,7 @@ export const useReferenda = (chain: Chain) => {
           isOngoing: raw.value.isOngoing,
         }))
       )
+      setIsLoading(false)
     }
   }, [apiLoadable, chain.chainName, isPalletSupported])
 
@@ -113,7 +117,7 @@ export const useReferenda = (chain: Chain) => {
     getReferendums()
   }, [getReferendums])
 
-  return { referendums, isPalletSupported }
+  return { referendums, isPalletSupported, isLoading }
 }
 
 export const isVoteDetailsComplete = (voteDetails: VoteDetailsState) => {
