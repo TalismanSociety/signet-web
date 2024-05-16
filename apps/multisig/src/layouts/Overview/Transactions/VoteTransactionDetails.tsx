@@ -3,7 +3,7 @@ import { css } from '@emotion/css'
 import { ExternalLink } from '@talismn/icons'
 import AmountRow from '@components/AmountRow'
 import { createConvictionsOpts } from '../../NewTransaction/Vote/ConvictionsDropdown'
-import { VoteDetails, ConvictionVote } from '../../../domains/referenda'
+import { VoteDetailsState } from '../../../domains/referenda'
 import clsx from 'clsx'
 import BN from 'bn.js'
 
@@ -12,9 +12,21 @@ type Props = {
 }
 
 // TODO: make this component support UI for Split vote types
-const VotePill: React.FC<{ details: VoteDetails['details'] }> = ({ details }) => {
-  const conviction: ConvictionVote = !!details.Standard ? 'Standard' : 'SplitAbstain'
-  const isStandard = conviction === 'Standard'
+const VotePill: React.FC<{ voteDetails: VoteDetailsState }> = ({ voteDetails }) => {
+  const { method, convictionVote } = voteDetails
+
+  const getLabelAndColor = (): Record<string, string> => {
+    if (method === 'removeVote') {
+      return { label: 'Remove', color: 'bg-white' }
+    } else if (convictionVote === 'SplitAbstain') {
+      return { label: 'Abstain', color: 'bg-[#B9D9FF]' }
+    } else if (voteDetails.details.Standard?.vote.aye) {
+      return { label: 'Aye', color: 'bg-[#21C91D]' }
+    }
+    return { label: 'Nay', color: 'bg-[#F34A4A]' }
+  }
+
+  const { label, color } = getLabelAndColor()
 
   return (
     <div
@@ -28,16 +40,8 @@ const VotePill: React.FC<{ details: VoteDetails['details'] }> = ({ details }) =>
         padding: 2px 8px;
       `}
     >
-      <div
-        className={clsx('rounded-full h-[14px] w-[14px]', {
-          'bg-[#21C91D]': isStandard && details.Standard?.vote.aye,
-          'bg-[#F34A4A]': isStandard && !details.Standard?.vote.aye,
-          'bg-[#B9D9FF]': !isStandard,
-        })}
-      />
-      <p css={{ fontSize: '14px', marginTop: '4px' }}>
-        {isStandard ? (details.Standard?.vote.aye ? 'Aye' : 'Nay') : 'Abstain'}
-      </p>
+      <div className={clsx('rounded-full h-[14px] w-[14px]', color)} />
+      <p css={{ fontSize: '14px', marginTop: '4px' }}>{label}</p>
     </div>
   )
 }
@@ -45,23 +49,24 @@ const VotePill: React.FC<{ details: VoteDetails['details'] }> = ({ details }) =>
 export const VoteTransactionHeaderContent: React.FC<Props> = ({ t }) => {
   if (t.decoded?.type !== TransactionType.Vote || !t.decoded.voteDetails) return null
 
-  const { details, token } = t.decoded.voteDetails
+  const { method, convictionVote, details, token } = t.decoded.voteDetails
   const { Standard, SplitAbstain } = details
 
-  if (!Standard && !SplitAbstain) return null
+  if (!method) return null
 
-  const amount = !!Standard
-    ? Standard.balance
-    : Object.values(SplitAbstain!).reduce((acc, balance) => acc.add(balance), new BN(0))
+  const amount =
+    convictionVote === 'SplitAbstain'
+      ? Object.values(SplitAbstain!).reduce((acc, balance) => acc.add(balance), new BN(0))
+      : new BN(0)
 
   return (
     <div className="flex items-center">
       <div css={{ marginRight: '8px' }}>
-        <VotePill details={details} />
+        <VotePill voteDetails={t.decoded.voteDetails} />
       </div>
       <AmountRow
         balance={{
-          amount: amount,
+          amount: convictionVote === 'Standard' ? Standard?.balance! : amount,
           token,
         }}
       />
@@ -72,13 +77,53 @@ export const VoteTransactionHeaderContent: React.FC<Props> = ({ t }) => {
 export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
   if (t.decoded?.type !== TransactionType.Vote || !t.decoded.voteDetails) return null
 
-  const { details, token, referendumId } = t.decoded.voteDetails
+  const { referendumId, method, details, token } = t.decoded.voteDetails
   const { Standard, SplitAbstain } = details
 
   const convictionsOptions = createConvictionsOpts()
 
-  if (!Standard && !SplitAbstain) return null
-  // TODO: Continue from here
+  if (!method) return null
+
+  const renderExpandedDetails = () => {
+    if (Standard) {
+      return (
+        <>
+          <div className="flex items-center justify-between">
+            <p className="text-[16px]">Vote value</p>
+            <AmountRow
+              balance={{
+                amount: Standard.balance,
+                token,
+              }}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <p>Conviction</p>
+            <p>{convictionsOptions[Standard.vote.conviction]?.headlineText ?? 'Unknown'}</p>
+          </div>
+        </>
+      )
+    }
+    if (SplitAbstain) {
+      return (
+        <>
+          {Object.entries(SplitAbstain!)
+            .map(([key, balance]) => (
+              <div key={key} className="flex items-center justify-between">
+                <p className="first-letter:uppercase">{key} vote value</p>
+                <AmountRow
+                  balance={{
+                    amount: balance,
+                    token,
+                  }}
+                />
+              </div>
+            ))
+            .reverse()}
+        </>
+      )
+    }
+  }
 
   const name = `Referendum #${referendumId}`
 
@@ -101,39 +146,9 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
           ) : (
             <p css={{ color: 'var(--color-offWhite)' }}>{name}</p>
           )}
-          <VotePill details={details} />
+          <VotePill voteDetails={t.decoded.voteDetails} />
         </div>
-        {Standard ? (
-          <>
-            <div className="flex items-center justify-between">
-              <p className="text-[16px]">Vote value</p>
-              <AmountRow
-                balance={{
-                  amount: Standard.balance,
-                  token,
-                }}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <p>Conviction</p>
-              <p>{convictionsOptions[Standard.vote.conviction]?.headlineText ?? 'Unknown'}</p>
-            </div>
-          </>
-        ) : (
-          Object.entries(SplitAbstain!)
-            .map(([key, balance]) => (
-              <div key={key} className="flex items-center justify-between">
-                <p className="capitalize">{key}</p>
-                <AmountRow
-                  balance={{
-                    amount: balance,
-                    token,
-                  }}
-                />
-              </div>
-            ))
-            .reverse()
-        )}
+        {renderExpandedDetails()}
       </div>
     </div>
   )
