@@ -32,7 +32,7 @@ import {
   useRecoilValueLoadable,
 } from 'recoil'
 import persistAtom from '../persist'
-import { VoteDetailsState, mapConvictionToIndex } from '../referenda'
+import { VoteDetails, mapConvictionToIndex } from '../referenda'
 import { selectedAccountState } from '../auth'
 import { TxMetadata, txMetadataByTeamIdState } from '../offchain-data/metadata'
 import { Multisig } from './types'
@@ -206,7 +206,7 @@ export interface TransactionDecoded {
     salt: `0x${string}`
     value: BN
   }
-  voteDetails?: VoteDetailsState & { token: BaseToken }
+  voteDetails?: VoteDetails & { token: BaseToken }
 }
 
 export interface Transaction {
@@ -569,7 +569,7 @@ export const extrinsicToDecoded = (
       const obj: any = arg.toHuman()
       if (obj?.section === 'convictionVoting') {
         const { poll_index, vote, index } = obj.args
-        let voteDetails: VoteDetailsState | undefined
+        let voteDetails: VoteDetails | undefined
 
         if (obj?.method === 'removeVote') {
           voteDetails = {

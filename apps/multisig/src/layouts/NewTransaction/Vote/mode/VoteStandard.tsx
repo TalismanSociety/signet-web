@@ -1,14 +1,14 @@
 import React from 'react'
 import { AmountFlexibleInput } from '@components/AmountFlexibleInput'
 import { BaseToken } from '@domains/chains'
-import { StandardVoteParams, VoteDetailsState } from '@domains/referenda'
+import { StandardVoteParams, VoteDetails } from '@domains/referenda'
 import ConvictionsDropdown from '../ConvictionsDropdown'
 import { parseUnits } from '@util/numbers'
 import BN from 'bn.js'
 
 type Props = {
   token?: BaseToken
-  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetailsState>>
+  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetails>>
   params: StandardVoteParams
 }
 

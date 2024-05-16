@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import {
   SplitAbstainVoteParams,
   StandardVoteParams,
-  VoteDetailsState,
+  VoteDetails,
   defaultVote,
   isVoteDetailsComplete,
   isVoteFeatureSupported,
@@ -22,7 +22,7 @@ const VoteAction: React.FC = () => {
   const tokens = useRecoilValueLoadable(selectedMultisigChainTokensState)
   const [reviewing, setReviewing] = useState(false)
   const [removeVoteId, setRemoveVoteId] = useState<string | null>(null)
-  const [voteDetails, setVoteDetails] = useState<VoteDetailsState>(defaultVote)
+  const [voteDetails, setVoteDetails] = useState<VoteDetails>(defaultVote)
   const { toast } = useToast()
 
   // instead of allowing the user to select any token later on, we just use the first native token of the chain

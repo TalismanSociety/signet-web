@@ -1,12 +1,12 @@
 import { BaseToken } from '@domains/chains'
-import { VoteDetailsState } from '@domains/referenda'
+import { VoteDetails } from '@domains/referenda'
 import { AmountFlexibleInput } from '@components/AmountFlexibleInput'
 import { parseUnits } from '@util/numbers'
 import BN from 'bn.js'
 
 interface VoteSplitAbstainProps {
   token?: BaseToken
-  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetailsState>>
+  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetails>>
 }
 
 enum VoteDirection {

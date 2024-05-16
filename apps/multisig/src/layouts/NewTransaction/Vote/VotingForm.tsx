@@ -2,7 +2,7 @@ import React from 'react'
 import { Button } from '@components/ui/button'
 import { BaseToken } from '@domains/chains'
 import { useSelectedMultisig } from '@domains/multisig'
-import { VoteDetailsState, isVoteDetailsComplete } from '@domains/referenda'
+import { VoteDetails, isVoteDetailsComplete } from '@domains/referenda'
 import VoteOptions from './VoteOptions'
 import VoteSplitAbstain from './mode/VoteSplitAbstain'
 import VoteStandard from './mode/VoteStandard'
@@ -14,8 +14,8 @@ import { Vote } from '@talismn/icons'
 
 type Props = {
   token?: BaseToken
-  voteDetails: VoteDetailsState
-  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetailsState>>
+  voteDetails: VoteDetails
+  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetails>>
   onNext: () => void
 }
 

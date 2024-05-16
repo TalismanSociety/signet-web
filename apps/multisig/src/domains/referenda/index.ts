@@ -27,6 +27,8 @@ export type VoteMethod = 'vote' | 'removeVote'
 
 export type VoteDetails = {
   referendumId?: number
+  convictionVote?: ConvictionVote
+  method: VoteMethod
   details: {
     Standard?: StandardVoteParams
     Split?: SplitVoteParams
@@ -59,13 +61,7 @@ export const defaultVoteDetails: Required<VoteDetails['details']> = {
   },
 }
 
-// TODO: Incorporate this into the VoteDetails type
-export type VoteDetailsState = {
-  convictionVote?: ConvictionVote
-  method: VoteMethod
-} & VoteDetails
-
-export const defaultVote: VoteDetailsState = {
+export const defaultVote: VoteDetails = {
   convictionVote: 'Standard',
   method: 'vote',
   details: defaultVoteDetails,
@@ -120,7 +116,7 @@ export const useReferenda = (chain: Chain) => {
   return { referendums, isPalletSupported, isLoading }
 }
 
-export const isVoteDetailsComplete = (voteDetails: VoteDetailsState) => {
+export const isVoteDetailsComplete = (voteDetails: VoteDetails) => {
   if (voteDetails.referendumId === undefined) return false
 
   if (voteDetails.convictionVote === 'Standard') {

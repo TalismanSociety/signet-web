@@ -3,7 +3,7 @@ import { css } from '@emotion/css'
 import { ExternalLink } from '@talismn/icons'
 import AmountRow from '@components/AmountRow'
 import { createConvictionsOpts } from '../../NewTransaction/Vote/ConvictionsDropdown'
-import { VoteDetailsState } from '../../../domains/referenda'
+import { VoteDetails } from '../../../domains/referenda'
 import clsx from 'clsx'
 import BN from 'bn.js'
 
@@ -12,7 +12,7 @@ type Props = {
 }
 
 // TODO: make this component support UI for Split vote types
-export const VotePill: React.FC<{ voteDetails: VoteDetailsState }> = ({ voteDetails }) => {
+export const VotePill: React.FC<{ voteDetails: VoteDetails }> = ({ voteDetails }) => {
   const { method, convictionVote } = voteDetails
 
   const getLabelAndColor = (): Record<string, string> => {
