@@ -44,7 +44,7 @@ const VoteAction: React.FC = () => {
       if (removeVoteId) {
         extrinsicAction = apiLoadable.contents.tx?.convictionVoting.removeVote(null, removeVoteId)
       } else if (isVoteDetailsComplete(voteDetails)) {
-        const selectedConviction = { [voteDetails.convictionVote]: voteDetails.details[voteDetails.convictionVote] }
+        const selectedConviction = { [voteDetails.convictionVote!]: voteDetails.details[voteDetails.convictionVote!] }
 
         extrinsicAction = apiLoadable.contents.tx?.convictionVoting.vote(
           voteDetails.referendumId!,

@@ -32,7 +32,7 @@ import {
   useRecoilValueLoadable,
 } from 'recoil'
 import persistAtom from '../persist'
-import { VoteDetails, mapConvictionToIndex } from '../referenda'
+import { VoteDetailsState, mapConvictionToIndex } from '../referenda'
 import { selectedAccountState } from '../auth'
 import { TxMetadata, txMetadataByTeamIdState } from '../offchain-data/metadata'
 import { Multisig } from './types'
@@ -206,7 +206,7 @@ export interface TransactionDecoded {
     salt: `0x${string}`
     value: BN
   }
-  voteDetails?: VoteDetails & { token: BaseToken }
+  voteDetails?: VoteDetailsState & { token: BaseToken }
 }
 
 export interface Transaction {
@@ -567,13 +567,23 @@ export const extrinsicToDecoded = (
     // Check if it's a Vote type
     for (const arg of args) {
       const obj: any = arg.toHuman()
-      if (obj?.section === 'convictionVoting' && obj?.method === 'vote') {
-        const { poll_index, vote } = obj.args
-        let voteDetails: VoteDetails | undefined
+      if (obj?.section === 'convictionVoting') {
+        const { poll_index, vote, index } = obj.args
+        let voteDetails: VoteDetailsState | undefined
 
-        if (vote.Standard) {
+        if (obj?.method === 'removeVote') {
+          voteDetails = {
+            referendumId: index,
+            method: obj.method,
+            details: {},
+          }
+        }
+
+        if (vote?.Standard) {
           voteDetails = {
             referendumId: poll_index,
+            method: obj.method,
+            convictionVote: 'Standard',
             details: {
               Standard: {
                 balance: new BN(vote.Standard.balance.replaceAll(',', '')),
@@ -586,9 +596,11 @@ export const extrinsicToDecoded = (
           }
         }
 
-        if (vote.SplitAbstain) {
+        if (vote?.SplitAbstain) {
           voteDetails = {
             referendumId: poll_index,
+            method: obj.method,
+            convictionVote: 'SplitAbstain',
             details: {
               SplitAbstain: {
                 aye: new BN(vote.SplitAbstain.aye.replaceAll(',', '')),

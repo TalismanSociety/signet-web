@@ -23,6 +23,7 @@ export type SplitAbstainVoteParams = {
 } & SplitVoteParams
 
 export type ConvictionVote = 'Standard' | 'SplitAbstain' | 'Split'
+export type VoteMethod = 'vote' | 'removeVote'
 
 export type VoteDetails = {
   referendumId?: number
@@ -58,12 +59,15 @@ export const defaultVoteDetails: Required<VoteDetails['details']> = {
   },
 }
 
+// TODO: Incorporate this into the VoteDetails type
 export type VoteDetailsState = {
-  convictionVote: ConvictionVote
+  convictionVote?: ConvictionVote
+  method: VoteMethod
 } & VoteDetails
 
 export const defaultVote: VoteDetailsState = {
   convictionVote: 'Standard',
+  method: 'vote',
   details: defaultVoteDetails,
 }
 
