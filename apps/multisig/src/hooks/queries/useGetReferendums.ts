@@ -37,7 +37,7 @@ export default function useGetReferendums({ ids, chainId }: UseGetReferendums) {
 
   return useQueries({
     queries: ids.map(id => ({
-      queryKey: [chain, id],
+      queryKey: [chainId, { isChainSupported: !!chain }, id],
       queryFn: () => fetchReferendums({ chain, id }),
       enabled: !!id && !!chain,
     })),
