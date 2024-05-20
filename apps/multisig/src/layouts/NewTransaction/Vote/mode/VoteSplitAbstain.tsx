@@ -45,6 +45,7 @@ export default function VoteSplitAbstain({ token, setVoteDetails }: VoteSplitAbs
           tokens={token ? [token] : []}
           selectedToken={token}
           leadingLabel={`Amount to ${direction} vote`}
+          placeholder={`0 ${token?.symbol} (optional)`}
           setAmount={amount => handleAmountChange(amount, direction)}
         />
       ))}

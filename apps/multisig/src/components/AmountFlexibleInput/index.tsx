@@ -15,6 +15,7 @@ type Props = {
   setAmount: (a: string) => void
   setSelectedToken?: (t: BaseToken) => void
   amountPerBlockBn?: BN
+  placeholder?: string
 }
 
 export const AmountFlexibleInput: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const AmountFlexibleInput: React.FC<Props> = ({
   tokens,
   selectedToken,
   leadingLabel,
+  placeholder,
   setAmount,
   setSelectedToken,
 }) => {
@@ -79,7 +81,7 @@ export const AmountFlexibleInput: React.FC<Props> = ({
     <div className="flex w-full gap-[12px]">
       <div className="flex flex-1 items-center">
         <Input
-          placeholder={`0 ${unit}`}
+          placeholder={placeholder || `0 ${unit}`}
           label={leadingLabel ?? `Amount`}
           labelTrailing={
             amountPerBlockBn ? (
