@@ -32,43 +32,52 @@ import { SkeletonLayout } from './layouts/SkeletonLayout'
 import { Helmet } from 'react-helmet'
 import { CONFIG } from '@lib/config'
 
-const App: React.FC = () => (
-  <ThemeProvider>
-    <RecoilRoot>
-      <BalancesProvider
-        withTestnets
-        enabledChains={supportedChains.map(chain => chain.genesisHash)}
-        coingeckoApiUrl="https://coingecko.talismn.workers.dev"
-      >
-        <HasuraProvider>
-          <AzeroIDResolverProvider>
-            <Suspense fallback={<SkeletonLayout />}>
-              <WalletConnectProvider>
-                <Helmet>
-                  <title>{CONFIG.IS_POLKADOT_MULTISIG ? 'Polkadot Multisig by Signet' : 'Signet'}</title>
-                </Helmet>
-                <Analytics />
-                {/* <PendingTransactionsWatcher /> */}
-                <BalancesWatcher />
-                <ExtensionWatcher />
-                <AccountWatcher />
-                <OffchainDataWatcher />
-                <NomPoolsWatcher />
-                <ValidatorsWatcher />
-                <ActiveMultisigWatcher />
-                <ConstsWatcher />
-                <RouterProvider router={router} />
-                <Toaster position="top-right" containerStyle={{ top: '6.4rem' }}>
-                  {t => <ToastBar toast={t} />}
-                </Toaster>
-                <NewToaster />
-              </WalletConnectProvider>
-            </Suspense>
-          </AzeroIDResolverProvider>
-        </HasuraProvider>
-      </BalancesProvider>
-    </RecoilRoot>
-  </ThemeProvider>
-)
+import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+const App: React.FC = () => {
+  const queryClient = new QueryClient()
+  return (
+    <ThemeProvider>
+      <RecoilRoot>
+        <BalancesProvider
+          withTestnets
+          enabledChains={supportedChains.map(chain => chain.genesisHash)}
+          coingeckoApiUrl="https://coingecko.talismn.workers.dev"
+        >
+          <HasuraProvider>
+            <AzeroIDResolverProvider>
+              <Suspense fallback={<SkeletonLayout />}>
+                <WalletConnectProvider>
+                  <Helmet>
+                    <title>{CONFIG.IS_POLKADOT_MULTISIG ? 'Polkadot Multisig by Signet' : 'Signet'}</title>
+                  </Helmet>
+                  <Analytics />
+                  {/* <PendingTransactionsWatcher /> */}
+                  <BalancesWatcher />
+                  <ExtensionWatcher />
+                  <AccountWatcher />
+                  <OffchainDataWatcher />
+                  <NomPoolsWatcher />
+                  <ValidatorsWatcher />
+                  <ActiveMultisigWatcher />
+                  <ConstsWatcher />
+                  <QueryClientProvider client={queryClient}>
+                    <RouterProvider router={router} />
+                    <ReactQueryDevtools initialIsOpen={false} />
+                  </QueryClientProvider>
+                  <Toaster position="top-right" containerStyle={{ top: '6.4rem' }}>
+                    {t => <ToastBar toast={t} />}
+                  </Toaster>
+                  <NewToaster />
+                </WalletConnectProvider>
+              </Suspense>
+            </AzeroIDResolverProvider>
+          </HasuraProvider>
+        </BalancesProvider>
+      </RecoilRoot>
+    </ThemeProvider>
+  )
+}
 
 export default App
