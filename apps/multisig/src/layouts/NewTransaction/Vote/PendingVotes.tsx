@@ -31,8 +31,6 @@ const PendingVotes: React.FC<PendingVotesProps> = ({ multisig, handleOnRemoveVot
 
   const { data: referendumsData, isLoading: isReferendumsDataLoading } = useGetReferendums({ ids: txReferendumIds })
 
-  console.log({ referendumsData })
-
   const ongoingReferendumsIds = useMemo(
     () => referendums?.flatMap(referendum => (referendum.isOngoing ? [referendum.index] : [])),
     [referendums]
@@ -66,66 +64,66 @@ const PendingVotes: React.FC<PendingVotesProps> = ({ multisig, handleOnRemoveVot
     }
   }, [filterLatestTransactions, transactions])
 
-  console.log({ referendumTxs })
+  const columns: ColumnDef<Transaction>[] = useMemo(
+    () => [
+      {
+        header: 'Proposal',
+        accessorKey: 'description',
+        cell: ({ row: { original } }) => {
+          const referendum = referendumsData?.find(
+            referendum => referendum?.referendumIndex === Number(original.decoded?.voteDetails?.referendumId)
+          )
+          return <div>{referendum?.title || original.description}</div>
+        },
+      },
+      {
+        id: 'voteFor',
+        cell: ({ row: { original } }) => {
+          return (
+            <div className="flex items-center">
+              <VotePill voteDetails={original.decoded?.voteDetails!} />
+            </div>
+          )
+        },
+      },
+      {
+        id: 'amount',
+        cell: ({ row: { original } }) => {
+          const { convictionVote, details, token, method } = original.decoded?.voteDetails!
+          const { Standard, SplitAbstain } = details
 
-  const columns: ColumnDef<Transaction>[] = [
-    {
-      header: 'Proposal',
-      accessorKey: 'description',
-      cell: ({ row: { original } }) => {
-        const referendum = referendumsData?.find(
-          referendum => referendum.referendumIndex === Number(original.decoded?.voteDetails?.referendumId)
-        )
-        console.log({ referendum })
-        return <div>{referendum.title || original.description}</div>
-      },
-    },
-    {
-      id: 'voteFor',
-      cell: ({ row: { original } }) => {
-        return (
-          <div className="flex items-center">
-            <VotePill voteDetails={original.decoded?.voteDetails!} />
-          </div>
-        )
-      },
-    },
-    {
-      id: 'amount',
-      cell: ({ row: { original } }) => {
-        const { convictionVote, details, token, method } = original.decoded?.voteDetails!
-        const { Standard, SplitAbstain } = details
+          if (!method) return null
 
-        if (!method) return null
+          const amount =
+            convictionVote === 'SplitAbstain'
+              ? Object.values(SplitAbstain!).reduce((acc, balance) => acc.add(balance), new BN(0))
+              : new BN(0)
 
-        const amount =
-          convictionVote === 'SplitAbstain'
-            ? Object.values(SplitAbstain!).reduce((acc, balance) => acc.add(balance), new BN(0))
-            : new BN(0)
-
-        return <AmountRow balance={{ amount: Standard?.balance! || amount, token }} />
+          return <AmountRow balance={{ amount: Standard?.balance! || amount, token }} />
+        },
       },
-    },
-    {
-      id: 'conviction',
-      cell: ({ row: { original } }) => {
-        if (original.decoded?.voteDetails?.convictionVote !== 'Standard') return null
-        return <div>{original.decoded?.voteDetails?.details.Standard?.vote.conviction}x</div>
+      {
+        id: 'conviction',
+        cell: ({ row: { original } }) => {
+          if (original.decoded?.voteDetails?.convictionVote !== 'Standard') return null
+          return <div>{original.decoded?.voteDetails?.details.Standard?.vote.conviction}x</div>
+        },
       },
-    },
-    {
-      id: 'actions',
-      cell: ({ row: { original } }) => {
-        return (
-          <div className="flex justify-end">
-            <Button onClick={() => handleOnRemoveVote(String(original.decoded?.voteDetails?.referendumId))}>
-              Remove
-            </Button>
-          </div>
-        )
+      {
+        id: 'actions',
+        cell: ({ row: { original } }) => {
+          return (
+            <div className="flex justify-end">
+              <Button onClick={() => handleOnRemoveVote(String(original.decoded?.voteDetails?.referendumId))}>
+                Remove
+              </Button>
+            </div>
+          )
+        },
       },
-    },
-  ]
+    ],
+    [handleOnRemoveVote, referendumsData]
+  )
 
   return (
     <div className="flex flex-col gap-8">
@@ -134,7 +132,8 @@ const PendingVotes: React.FC<PendingVotesProps> = ({ multisig, handleOnRemoveVot
         columns={columns}
         data={referendumTxs}
         isLoading={
-          (isTransactionsLoading || isReferendumsLoading || isReferendumsDataLoading) && referendumTxs.length === 0
+          (isTransactionsLoading || isReferendumsLoading || (isReferendumsDataLoading && !referendumsData.length)) &&
+          referendumTxs.length === 0
         }
       />
     </div>
