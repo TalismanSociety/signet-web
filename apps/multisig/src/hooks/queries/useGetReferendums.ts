@@ -16,8 +16,13 @@ const supportedChains: Partial<Record<SupportedChainIds, string>> = {
   // testnets
   'rococo-testnet': 'rococo',
 }
+// This only a partial Referendum interface
+interface Referendum {
+  title: string
+  referendumIndex: number
+}
 
-const fetchReferendums = async ({ chain, id }: { chain: string | undefined; id: string }) => {
+const fetchReferendums = async ({ chain, id }: { chain: string | undefined; id: string }): Promise<Referendum> => {
   const data = await fetch(`https://${chain}.subsquare.io/api/gov2/referendums/${id}`).then(res => res.json())
   return data
 }
