@@ -1,20 +1,40 @@
 import { useQueries } from '@tanstack/react-query'
+import { SupportedChainIds } from '@domains/chains/generated-chains'
 
-const fetchReferendums = async ({ id }: { id: string }) => {
-  const data = await fetch(`https://rococo.subsquare.io/api/gov2/referendums/${id}`).then(res => res.json())
+// Use PartialRecord to create the supportedChains object
+const supportedChains: Partial<Record<SupportedChainIds, string>> = {
+  'polkadot': 'polkadot',
+  'kusama': 'kusama',
+  'acala': 'acala',
+  'bifrost-polkadot': 'bifrost',
+  'bifrost-kusama': 'bifrost-kusama',
+  'hydradx': 'hydradx',
+  'phala': 'phala',
+  'khala': 'khala',
+  'karura': 'karura',
+  'kintsugi': 'kintsugi',
+  // testnets
+  'rococo-testnet': 'rococo',
+}
+
+const fetchReferendums = async ({ chain, id }: { chain: string | undefined; id: string }) => {
+  const data = await fetch(`https://${chain}.subsquare.io/api/gov2/referendums/${id}`).then(res => res.json())
   return data
 }
 
 interface UseGetReferendums {
   ids: string[]
+  chainId: SupportedChainIds
 }
 
-export default function useGetReferendums({ ids }: UseGetReferendums) {
+export default function useGetReferendums({ ids, chainId }: UseGetReferendums) {
+  const chain = supportedChains[chainId]
+
   return useQueries({
     queries: ids.map(id => ({
-      queryKey: ['post', id],
-      queryFn: () => fetchReferendums({ id }),
-      enabled: !!id,
+      queryKey: [chain, id],
+      queryFn: () => fetchReferendums({ chain, id }),
+      enabled: !!id && !!chain,
     })),
     combine: results => {
       return {

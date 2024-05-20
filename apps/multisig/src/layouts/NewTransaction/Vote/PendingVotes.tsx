@@ -12,6 +12,7 @@ import { Multisig } from '@domains/multisig'
 import { Transaction } from '@domains/multisig'
 import { ColumnDef } from '@tanstack/react-table'
 import BN from 'bn.js'
+import { SupportedChainIds } from '@domains/chains/generated-chains'
 
 interface PendingVotesProps {
   multisig: Multisig
@@ -28,8 +29,10 @@ const PendingVotes: React.FC<PendingVotesProps> = ({ multisig, handleOnRemoveVot
     () => referendumTxs.map(tx => String(tx.decoded!.voteDetails!.referendumId)),
     [referendumTxs]
   )
-
-  const { data: referendumsData, isLoading: isReferendumsDataLoading } = useGetReferendums({ ids: txReferendumIds })
+  const { data: referendumsData, isLoading: isReferendumsDataLoading } = useGetReferendums({
+    chainId: multisig.chain.squidIds.chainData as SupportedChainIds,
+    ids: txReferendumIds,
+  })
 
   const ongoingReferendumsIds = useMemo(
     () => referendums?.flatMap(referendum => (referendum.isOngoing ? [referendum.index] : [])),
