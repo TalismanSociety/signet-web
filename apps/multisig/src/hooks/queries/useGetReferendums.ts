@@ -1,7 +1,6 @@
 import { useQueries } from '@tanstack/react-query'
 import { SupportedChainIds } from '@domains/chains/generated-chains'
 
-// Use PartialRecord to create the supportedChains object
 const supportedChains: Partial<Record<SupportedChainIds, string>> = {
   'polkadot': 'polkadot',
   'kusama': 'kusama',
