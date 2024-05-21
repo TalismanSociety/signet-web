@@ -18,6 +18,7 @@ import { useUser } from '@domains/auth'
 import { NameForm } from './NameForm'
 import { DescriptionForm } from './DescriptionForm'
 import { RecoverMultisig } from './RecoverMultisig'
+import { AlertTriangle } from '@talismn/icons'
 
 const Settings = () => {
   const [multisig] = useSelectedMultisig()
@@ -95,6 +96,10 @@ const Settings = () => {
             tooltip="This multisig address is the address that controls the proxied account. It is derived from your multisig's members and threshold."
             labelClassName={multisig.proxies?.length === 0 ? 'text-red-500' : ''}
           >
+            <div className="text-xl text-red-500 flex items-center gap-2">
+              <AlertTriangle size={16} />
+              <div className="mt-2">Do not transfer funds here</div>
+            </div>
             <AccountDetails address={newMultisigAddress} chain={multisig.chain} withAddressTooltip />
           </SettingsInfoRow>
           <div className="hidden md:block" />
