@@ -50,7 +50,7 @@ export const VaultOverview: React.FC = () => {
           onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             e.stopPropagation()
             e.preventDefault()
-            copy(selectedMultisig.proxyAddress.toSs58(selectedMultisig.chain), 'Address copied!')
+            copy(selectedMultisig.proxyAddress.toSs58(selectedMultisig.chain), 'Proxy address copied!')
           }}
         >
           <div className="flex items-center gap-2">

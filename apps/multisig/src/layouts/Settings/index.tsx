@@ -98,7 +98,7 @@ const Settings = () => {
           >
             <div className="text-xl text-red-500 flex items-center gap-2">
               <AlertTriangle size={16} />
-              <div className="mt-2">Do not transfer funds here</div>
+              <div className="mt-2">Do not transfer funds to this address</div>
             </div>
             <AccountDetails address={newMultisigAddress} chain={multisig.chain} withAddressTooltip />
           </SettingsInfoRow>
