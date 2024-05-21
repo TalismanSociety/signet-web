@@ -10,6 +10,9 @@ import { Fragment } from 'react'
 import { secondsToDuration } from '@util/misc'
 import { cn } from '@util/tailwindcss'
 import { clsx } from 'clsx'
+import { useNavigate } from 'react-router-dom'
+import useCopied from '@hooks/useCopied'
+import { Check, Copy } from '@talismn/icons'
 
 const showMemberState = atom<boolean>({
   key: 'dashboardShowMemberState',
@@ -21,6 +24,8 @@ export const VaultOverview: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const [showMembers, setShowMembers] = useRecoilState(showMemberState)
   const { contactByAddress } = useKnownAddresses(selectedMultisig.orgId)
+  const navigate = useNavigate()
+  const { copy, copied } = useCopied()
 
   return (
     <section className="flex flex-col p-[24px] rounded-2xl bg-gray-800">
@@ -37,15 +42,22 @@ export const VaultOverview: React.FC = () => {
         </div>
         <ChainPill chain={selectedMultisig.chain} identiconSize={24} />
       </div>
-      <div css={{ marginTop: 24 }}>
-        <p css={({ color }) => ({ color: color.offWhite, fontSize: 14, marginTop: 3 })}>Proxied Address</p>
-        <AccountDetails
-          chain={selectedMultisig.chain}
-          address={selectedMultisig.proxyAddress}
-          identiconSize={20}
-          withAddressTooltip
-          nameOrAddressOnly
-        />
+      <div className="mt-6 flex gap-6">
+        <Button variant="outlined" onClick={() => navigate('/send')}>
+          Send
+        </Button>
+        <Button
+          onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+            e.stopPropagation()
+            e.preventDefault()
+            copy(selectedMultisig.proxyAddress.toSs58(selectedMultisig.chain), 'Address copied!')
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <div>Receive</div>
+            <div>{copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}</div>
+          </div>
+        </Button>
       </div>
       <div
         css={{
@@ -92,15 +104,11 @@ export const VaultOverview: React.FC = () => {
             {selectedMultisig.threshold} of {selectedMultisig.signers.length} members
           </p>
         </div>
-        <div
-          css={{
-            button: { backgroundColor: 'var(--color-backgroundLight)', padding: '8px 12px' },
-          }}
-        >
+        <div>
           <Button variant="secondary" onClick={() => setShowMembers(!showMembers)}>
-            <div css={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {showMembers ? <EyeOff size={16} /> : <Eye size={16} />}
-              <p css={{ fontSize: 14, marginTop: 2 }}>{showMembers ? 'Hide' : 'Show'} Members</p>
+            <div className="flex items-center gap-3">
+              {showMembers ? <EyeOff size={18} /> : <Eye size={18} />}
+              <div className="mt-1">{showMembers ? 'Hide' : 'Show'} Members</div>
             </div>
           </Button>
         </div>
