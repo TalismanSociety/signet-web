@@ -16,7 +16,7 @@ export const ProposalsDropdown: React.FC<Props> = ({ chain, referendumId, onChan
   const { referendums } = useReferenda(chain)
   const ongoingReferendums = referendums?.filter(referendum => referendum.isOngoing)
 
-  const { data: referendumsData, isLoading: isReferendumsDataLoading } = useGetReferendums({
+  const { data: referendumsData } = useGetReferendums({
     chainId: chain.squidIds.chainData as SupportedChainIds,
     ids: ongoingReferendums?.map(referendum => String(referendum.index)) ?? [],
   })
@@ -36,14 +36,9 @@ export const ProposalsDropdown: React.FC<Props> = ({ chain, referendumId, onChan
       onChange={onChange}
     >
       {ongoingReferendums?.map(referendum => {
-        const referendumData = referendumsData?.find(ref => ref?.referendumIndex === referendum.index)
-        return (
-          <Select.Option
-            headlineText={referendumData?.title || `Proposal #${referendum.index}`}
-            value={referendum.index}
-            key={referendum.index}
-          />
-        )
+        const { title } = referendumsData?.find(ref => ref?.referendumIndex === referendum.index) || {}
+        const headlineText = title ? `Proposal #${referendum.index} - ${title}` : `Proposal #${referendum.index}`
+        return <Select.Option headlineText={headlineText} value={referendum.index} key={referendum.index} />
       })}
     </Select>
   )

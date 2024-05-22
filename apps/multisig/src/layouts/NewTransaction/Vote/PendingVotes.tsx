@@ -73,10 +73,10 @@ const PendingVotes: React.FC<PendingVotesProps> = ({ multisig, handleOnRemoveVot
         header: 'Proposal',
         accessorKey: 'description',
         cell: ({ row: { original } }) => {
-          const referendum = referendumsData?.find(
-            referendum => referendum?.referendumIndex === Number(original.decoded?.voteDetails?.referendumId)
-          )
-          return <div>{referendum?.title || original.description}</div>
+          const referendumId = original.decoded?.voteDetails?.referendumId
+          const { title } = referendumsData?.find(ref => ref?.referendumIndex === referendumId) || {}
+          const headlineText = title ? `Proposal #${referendumId} - ${title}` : `Proposal #${referendumId}`
+          return <div>{headlineText}</div>
         },
       },
       {
