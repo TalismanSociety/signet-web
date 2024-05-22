@@ -36,6 +36,14 @@ export type VoteDetails = {
   }
 }
 
+export type VoteDetailsForm = Omit<VoteDetails, 'details'> & {
+  details: {
+    Standard: StandardVoteParams
+    Split: SplitVoteParams
+    SplitAbstain: SplitAbstainVoteParams
+  }
+}
+
 type ReferendumBasicInfo = {
   index: number
   isOngoing: boolean
@@ -61,7 +69,7 @@ export const defaultVoteDetails: Required<VoteDetails['details']> = {
   },
 }
 
-export const defaultVote: VoteDetails = {
+export const defaultVote: VoteDetailsForm = {
   convictionVote: 'Standard',
   method: 'vote',
   details: defaultVoteDetails,
@@ -121,7 +129,7 @@ export const useReferenda = (chain: Chain) => {
   return { referendums, isPalletSupported, isLoading }
 }
 
-export const isVoteDetailsComplete = (voteDetails: VoteDetails) => {
+export const isVoteDetailsComplete = (voteDetails: VoteDetailsForm) => {
   if (voteDetails.referendumId === undefined) return false
 
   if (voteDetails.convictionVote === 'Standard') {

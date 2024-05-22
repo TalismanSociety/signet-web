@@ -1,10 +1,10 @@
 import { css } from '@emotion/css'
 import { Select } from '@talismn/ui'
-import { VoteDetails } from '@domains/referenda'
+import { VoteDetailsForm } from '@domains/referenda'
 
 type Props = {
   conviction: number
-  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetails>>
+  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetailsForm>>
 }
 
 const CONVICTIONS = [1, 2, 4, 8, 16, 32].map((lock, index): [value: number, duration: number] => [index + 1, lock])

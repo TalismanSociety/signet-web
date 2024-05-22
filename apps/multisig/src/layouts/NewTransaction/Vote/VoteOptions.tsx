@@ -1,10 +1,10 @@
 import { css } from '@emotion/css'
 import { Button } from '@talismn/ui'
-import { VoteDetails } from '@domains/referenda'
+import { VoteDetailsForm } from '@domains/referenda'
 
 type Props = {
-  voteDetails: VoteDetails
-  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetails>>
+  voteDetails: VoteDetailsForm
+  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetailsForm>>
 }
 
 const VoteOptions: React.FC<Props> = ({ voteDetails, setVoteDetails }) => {
