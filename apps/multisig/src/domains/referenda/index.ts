@@ -89,7 +89,9 @@ export const useReferenda = (chain: Chain) => {
       // treat it as 0 referendum created if required pallets are not supported
       setReferendums([])
       setIsLoading(false)
-    } else {
+      return
+    }
+    try {
       const referendumCount = await apiLoadable.contents.query.referenda.referendumCount()
       const ids = Array.from(Array(referendumCount.toNumber()).keys())
       const rawReferendums = await apiLoadable.contents.query.referenda.referendumInfoFor.multi(ids)
@@ -100,6 +102,9 @@ export const useReferenda = (chain: Chain) => {
           isOngoing: raw.value.isOngoing,
         }))
       )
+    } catch (error) {
+      console.error(`Error while fetching referenda: ${error}`)
+    } finally {
       setIsLoading(false)
     }
   }, [apiLoadable, chain.chainName, isPalletSupported])
