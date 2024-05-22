@@ -36,6 +36,14 @@ export type VoteDetails = {
   }
 }
 
+export type VoteDetailsForm = Omit<VoteDetails, 'details'> & {
+  details: {
+    Standard: StandardVoteParams
+    Split: SplitVoteParams
+    SplitAbstain: SplitAbstainVoteParams
+  }
+}
+
 type ReferendumBasicInfo = {
   index: number
   isOngoing: boolean
@@ -61,7 +69,7 @@ export const defaultVoteDetails: Required<VoteDetails['details']> = {
   },
 }
 
-export const defaultVote: VoteDetails = {
+export const defaultVote: VoteDetailsForm = {
   convictionVote: 'Standard',
   method: 'vote',
   details: defaultVoteDetails,
@@ -89,7 +97,9 @@ export const useReferenda = (chain: Chain) => {
       // treat it as 0 referendum created if required pallets are not supported
       setReferendums([])
       setIsLoading(false)
-    } else {
+      return
+    }
+    try {
       const referendumCount = await apiLoadable.contents.query.referenda.referendumCount()
       const ids = Array.from(Array(referendumCount.toNumber()).keys())
       const rawReferendums = await apiLoadable.contents.query.referenda.referendumInfoFor.multi(ids)
@@ -100,6 +110,9 @@ export const useReferenda = (chain: Chain) => {
           isOngoing: raw.value.isOngoing,
         }))
       )
+    } catch (error) {
+      console.error(`Error while fetching referenda: ${error}`)
+    } finally {
       setIsLoading(false)
     }
   }, [apiLoadable, chain.chainName, isPalletSupported])
@@ -116,14 +129,14 @@ export const useReferenda = (chain: Chain) => {
   return { referendums, isPalletSupported, isLoading }
 }
 
-export const isVoteDetailsComplete = (voteDetails: VoteDetails) => {
+export const isVoteDetailsComplete = (voteDetails: VoteDetailsForm) => {
   if (voteDetails.referendumId === undefined) return false
 
   if (voteDetails.convictionVote === 'Standard') {
-    const { balance } = voteDetails.details.Standard!
+    const { balance } = voteDetails.details.Standard
     return balance.gt(new BN(0))
   } else if (voteDetails.convictionVote === 'SplitAbstain') {
-    const { aye, nay, abstain } = voteDetails.details.SplitAbstain!
+    const { aye, nay, abstain } = voteDetails.details.SplitAbstain
     return aye.gt(new BN(0)) || nay.gt(new BN(0)) || abstain.gt(new BN(0))
   }
   return !!voteDetails.details.Split

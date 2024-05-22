@@ -1,12 +1,12 @@
 import { BaseToken } from '@domains/chains'
-import { VoteDetails } from '@domains/referenda'
+import { VoteDetailsForm } from '@domains/referenda'
 import { AmountFlexibleInput } from '@components/AmountFlexibleInput'
 import { parseUnits } from '@util/numbers'
 import BN from 'bn.js'
 
 interface VoteSplitAbstainProps {
   token?: BaseToken
-  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetails>>
+  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetailsForm>>
 }
 
 enum VoteDirection {
@@ -28,11 +28,11 @@ export default function VoteSplitAbstain({ token, setVoteDetails }: VoteSplitAbs
     }
 
     setVoteDetails(prev => {
-      const prevBal = prev.details.SplitAbstain![field]
+      const prevBal = prev.details.SplitAbstain[field]
       if (balance.eq(prevBal)) return prev
 
       const updatedVal = { ...prev }
-      updatedVal.details.SplitAbstain![field] = balance
+      updatedVal.details.SplitAbstain[field] = balance
       return updatedVal
     })
   }
