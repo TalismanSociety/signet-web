@@ -2,6 +2,9 @@ import { Chain } from '@domains/chains'
 import { useReferenda } from '@domains/referenda'
 import { Select } from '@talismn/ui'
 import { css } from '@emotion/css'
+import useGetReferendums from '@hooks/queries/useGetReferendums'
+import { SupportedChainIds } from '@domains/chains/generated-chains'
+import clsx from 'clsx'
 
 type Props = {
   chain: Chain
@@ -13,20 +16,30 @@ export const ProposalsDropdown: React.FC<Props> = ({ chain, referendumId, onChan
   const { referendums } = useReferenda(chain)
   const ongoingReferendums = referendums?.filter(referendum => referendum.isOngoing)
 
+  const { data: referendumsData } = useGetReferendums({
+    chainId: chain.squidIds.chainData as SupportedChainIds,
+    ids: ongoingReferendums?.map(referendum => String(referendum.index)) ?? [],
+  })
+
   return (
     <Select
-      className={css`
-        button {
-          height: 56px;
-        }
-      `}
+      className={clsx(
+        'truncate',
+        css`
+          button {
+            height: 56px;
+          }
+        `
+      )}
       placeholder="Select proposal to vote on"
       value={referendumId}
       onChange={onChange}
     >
-      {ongoingReferendums?.map(referendum => (
-        <Select.Option headlineText={`Proposal #${referendum.index}`} value={referendum.index} key={referendum.index} />
-      ))}
+      {ongoingReferendums?.map(referendum => {
+        const { title } = referendumsData?.find(ref => ref?.referendumIndex === referendum.index) || {}
+        const headlineText = title ? `Proposal #${referendum.index} - ${title}` : `Proposal #${referendum.index}`
+        return <Select.Option headlineText={headlineText} value={referendum.index} key={referendum.index} />
+      })}
     </Select>
   )
 }
