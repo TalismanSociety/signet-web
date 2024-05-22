@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Transaction, TransactionType } from '@domains/multisig'
 import { css } from '@emotion/css'
 import { ExternalLink } from '@talismn/icons'
@@ -49,10 +50,8 @@ export const VotePill: React.FC<{ voteDetails: VoteDetails }> = ({ voteDetails }
 export const VoteTransactionHeaderContent: React.FC<Props> = ({ t }) => {
   if (t.decoded?.type !== TransactionType.Vote || !t.decoded.voteDetails) return null
 
-  const { method, convictionVote, details, token } = t.decoded.voteDetails
+  const { convictionVote, details, token } = t.decoded.voteDetails
   const { Standard, SplitAbstain } = details
-
-  if (!method) return null
 
   const amount =
     convictionVote === 'SplitAbstain'
@@ -75,16 +74,15 @@ export const VoteTransactionHeaderContent: React.FC<Props> = ({ t }) => {
 }
 
 export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
-  if (t.decoded?.type !== TransactionType.Vote || !t.decoded.voteDetails) return null
+  const renderExpandedDetails = useMemo(() => {
+    if (t.decoded?.type !== TransactionType.Vote || !t.decoded.voteDetails) return null
 
-  const { referendumId, method, details, token } = t.decoded.voteDetails
-  const { Standard, SplitAbstain } = details
+    const convictionsOptions = createConvictionsOpts()
+    const {
+      details: { Standard, SplitAbstain },
+      token,
+    } = t?.decoded?.voteDetails
 
-  const convictionsOptions = createConvictionsOpts()
-
-  if (!method) return null
-
-  const renderExpandedDetails = () => {
     if (Standard) {
       return (
         <>
@@ -123,8 +121,11 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
         </>
       )
     }
-  }
+  }, [t.decoded?.type, t?.decoded?.voteDetails])
 
+  if (t.decoded?.type !== TransactionType.Vote || !t.decoded.voteDetails) return null
+
+  const { referendumId } = t?.decoded?.voteDetails
   const name = `Referendum #${referendumId}`
 
   return (
@@ -148,7 +149,7 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
           )}
           <VotePill voteDetails={t.decoded.voteDetails} />
         </div>
-        {renderExpandedDetails()}
+        {renderExpandedDetails}
       </div>
     </div>
   )
