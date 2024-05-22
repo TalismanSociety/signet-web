@@ -80,8 +80,8 @@ const PendingVotes: React.FC<PendingVotesProps> = ({ multisig, handleOnRemoveVot
         if (!method) return null
 
         const amount =
-          convictionVote === 'SplitAbstain'
-            ? Object.values(SplitAbstain!).reduce((acc, balance) => acc.add(balance), new BN(0))
+          convictionVote === 'SplitAbstain' && SplitAbstain
+            ? Object.values(SplitAbstain).reduce((acc, balance) => acc.add(balance), new BN(0))
             : new BN(0)
 
         return <AmountRow balance={{ amount: Standard?.balance! || amount, token }} />

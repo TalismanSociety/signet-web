@@ -35,7 +35,7 @@ const VotingForm: React.FC<Props> = ({ setVoteDetails, onNext, token, voteDetail
         />
         <VoteOptions setVoteDetails={setVoteDetails} voteDetails={voteDetails} />
         {voteDetails.convictionVote === 'Standard' ? (
-          <VoteStandard setVoteDetails={setVoteDetails} token={token} params={voteDetails.details.Standard!} />
+          <VoteStandard setVoteDetails={setVoteDetails} token={token} params={voteDetails.details.Standard} />
         ) : (
           // TODO: add UI for Split votes
           <VoteSplitAbstain token={token} setVoteDetails={setVoteDetails} />

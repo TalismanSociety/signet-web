@@ -28,11 +28,11 @@ export default function VoteSplitAbstain({ token, setVoteDetails }: VoteSplitAbs
     }
 
     setVoteDetails(prev => {
-      const prevBal = prev.details.SplitAbstain![field]
+      const prevBal = prev.details.SplitAbstain[field]
       if (balance.eq(prevBal)) return prev
 
       const updatedVal = { ...prev }
-      updatedVal.details.SplitAbstain![field] = balance
+      updatedVal.details.SplitAbstain[field] = balance
       return updatedVal
     })
   }

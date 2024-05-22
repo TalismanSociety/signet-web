@@ -105,7 +105,7 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
     if (SplitAbstain) {
       return (
         <>
-          {Object.entries(SplitAbstain!)
+          {Object.entries(SplitAbstain)
             .map(([key, balance]) => (
               <div key={key} className="flex items-center justify-between">
                 <p className="first-letter:uppercase">{key} vote value</p>

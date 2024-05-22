@@ -26,12 +26,12 @@ const VoteOptions: React.FC<Props> = ({ voteDetails, setVoteDetails }) => {
           setVoteDetails(prev => {
             const updatedDetails = { ...prev }
             updatedDetails.convictionVote = 'Standard'
-            updatedDetails.details.Standard!.vote.aye = true
+            updatedDetails.details.Standard.vote.aye = true
             return updatedDetails
           })
         }}
         variant={
-          voteDetails.details.Standard?.vote.aye && voteDetails.convictionVote === 'Standard' ? undefined : 'secondary'
+          voteDetails.details.Standard.vote.aye && voteDetails.convictionVote === 'Standard' ? undefined : 'secondary'
         }
       >
         Aye
@@ -41,18 +41,18 @@ const VoteOptions: React.FC<Props> = ({ voteDetails, setVoteDetails }) => {
           setVoteDetails(prev => {
             const updatedDetails = { ...prev }
             updatedDetails.convictionVote = 'Standard'
-            updatedDetails.details.Standard!.vote.aye = false
+            updatedDetails.details.Standard.vote.aye = false
             return updatedDetails
           })
         }}
         css={({ color }) => ({
           backgroundColor:
-            voteDetails.details.Standard?.vote.aye === false && voteDetails.convictionVote === 'Standard'
+            voteDetails.details.Standard.vote.aye === false && voteDetails.convictionVote === 'Standard'
               ? '#f46161'
               : undefined,
         })}
         variant={
-          voteDetails.details.Standard?.vote.aye === false && voteDetails.convictionVote === 'Standard'
+          voteDetails.details.Standard.vote.aye === false && voteDetails.convictionVote === 'Standard'
             ? undefined
             : 'secondary'
         }
@@ -64,7 +64,7 @@ const VoteOptions: React.FC<Props> = ({ voteDetails, setVoteDetails }) => {
           setVoteDetails(prev => {
             const updatedDetails = { ...prev }
             updatedDetails.convictionVote = 'SplitAbstain'
-            updatedDetails.details.Standard!.vote.aye = true
+            updatedDetails.details.Standard.vote.aye = true
             return updatedDetails
           })
         }}

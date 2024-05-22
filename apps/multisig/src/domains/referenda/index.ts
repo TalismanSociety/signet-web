@@ -133,10 +133,10 @@ export const isVoteDetailsComplete = (voteDetails: VoteDetailsForm) => {
   if (voteDetails.referendumId === undefined) return false
 
   if (voteDetails.convictionVote === 'Standard') {
-    const { balance } = voteDetails.details.Standard!
+    const { balance } = voteDetails.details.Standard
     return balance.gt(new BN(0))
   } else if (voteDetails.convictionVote === 'SplitAbstain') {
-    const { aye, nay, abstain } = voteDetails.details.SplitAbstain!
+    const { aye, nay, abstain } = voteDetails.details.SplitAbstain
     return aye.gt(new BN(0)) || nay.gt(new BN(0)) || abstain.gt(new BN(0))
   }
   return !!voteDetails.details.Split

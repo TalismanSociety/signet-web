@@ -27,7 +27,7 @@ const VoteStandard = ({ params, setVoteDetails, token }: Props) => {
 
     setVoteDetails(prev => {
       const updatedVal = { ...prev }
-      updatedVal.details.Standard!.balance = balance
+      updatedVal.details.Standard.balance = balance
       return updatedVal
     })
   }

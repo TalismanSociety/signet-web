@@ -27,7 +27,7 @@ const ConvictionsDropdown: React.FC<Props> = ({ conviction, setVoteDetails }) =>
   const handleChange = (value: number) => {
     setVoteDetails(prev => {
       const updatedVal = { ...prev }
-      updatedVal.details.Standard!.vote.conviction = value
+      updatedVal.details.Standard.vote.conviction = value
       return updatedVal
     })
   }

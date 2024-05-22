@@ -70,12 +70,12 @@ const VoteAction: React.FC = () => {
     if (removeVoteId) {
       return `Remove vote on Proposal #${removeVoteId}`
     }
-    let vote = voteDetails.details.Standard?.vote.aye ? 'Aye' : 'Nay'
+    let vote = voteDetails.details.Standard.vote.aye ? 'Aye' : 'Nay'
     if (voteDetails.convictionVote === 'SplitAbstain') {
       vote = 'Abstain'
     }
     return `Vote ${vote} on Proposal #${voteDetails.referendumId}`
-  }, [removeVoteId, voteDetails.convictionVote, voteDetails.details.Standard?.vote.aye, voteDetails.referendumId])
+  }, [removeVoteId, voteDetails.convictionVote, voteDetails.details.Standard.vote.aye, voteDetails.referendumId])
 
   return (
     <div className="flex flex-1 flex-col gap-8" css={{ padding: '32px 8%' }}>
