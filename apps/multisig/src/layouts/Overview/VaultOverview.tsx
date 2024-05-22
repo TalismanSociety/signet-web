@@ -10,9 +10,10 @@ import { Fragment } from 'react'
 import { secondsToDuration } from '@util/misc'
 import { cn } from '@util/tailwindcss'
 import { clsx } from 'clsx'
-import { useNavigate } from 'react-router-dom'
 import useCopied from '@hooks/useCopied'
 import { Check, Copy } from '@talismn/icons'
+import { Tooltip } from '@talismn/ui'
+import { Info } from '@talismn/icons'
 
 const showMemberState = atom<boolean>({
   key: 'dashboardShowMemberState',
@@ -24,7 +25,6 @@ export const VaultOverview: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const [showMembers, setShowMembers] = useRecoilState(showMemberState)
   const { contactByAddress } = useKnownAddresses(selectedMultisig.orgId)
-  const navigate = useNavigate()
   const { copy, copied } = useCopied()
 
   return (
@@ -42,22 +42,38 @@ export const VaultOverview: React.FC = () => {
         </div>
         <ChainPill chain={selectedMultisig.chain} identiconSize={24} />
       </div>
-      <div className="mt-6 flex gap-6">
-        <Button variant="outlined" onClick={() => navigate('/send')}>
-          Send
-        </Button>
-        <Button
-          onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-            e.stopPropagation()
-            e.preventDefault()
-            copy(selectedMultisig.proxyAddress.toSs58(selectedMultisig.chain), 'Proxy address copied!')
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <div>Receive</div>
-            <div>{copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}</div>
-          </div>
-        </Button>
+      <div className="flex justify-between gap-6 mt-6">
+        <div>
+          <p className="text-offWhite text-[14px]">Proxied Address</p>
+          <AccountDetails
+            chain={selectedMultisig.chain}
+            address={selectedMultisig.proxyAddress}
+            identiconSize={20}
+            withAddressTooltip
+            nameOrAddressOnly
+          />
+        </div>
+        <div className="flex items-center gap-4">
+          <Tooltip
+            content={
+              <p className="text-[12px]">{`This is the funding account address for ${selectedMultisig.chain.chainName} network only.`}</p>
+            }
+          >
+            <Info size={16} />
+          </Tooltip>
+          <Button
+            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+              e.stopPropagation()
+              e.preventDefault()
+              copy(selectedMultisig.proxyAddress.toSs58(selectedMultisig.chain), 'Proxy address copied!')
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div>Receive</div>
+              <div>{copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}</div>
+            </div>
+          </Button>
+        </div>
       </div>
       <div
         css={{
@@ -137,9 +153,19 @@ export const VaultOverview: React.FC = () => {
             </div>
           </div>
           <div className="flex flex-col flex-1">
-            <p css={({ color }) => ({ color: color.lightGrey, marginBottom: 8, fontSize: 14 })}>
-              Current Multisig Address
-            </p>
+            <div className="flex gap-4">
+              <p className="text-[14px] text-lightGrey">Current Multisig Address</p>
+              <Tooltip
+                content={
+                  <p className="text-[12px]">
+                    This multisig address is the address that controls the proxied account. Do not transfer funds to
+                    this address.
+                  </p>
+                }
+              >
+                <Info size={16} />
+              </Tooltip>
+            </div>
             <AccountDetails
               chain={selectedMultisig.chain}
               address={selectedMultisig.multisigAddress}
