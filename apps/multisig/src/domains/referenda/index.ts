@@ -22,12 +22,25 @@ export type SplitAbstainVoteParams = {
   abstain: BN
 } & SplitVoteParams
 
+export type ConvictionVote = 'Standard' | 'SplitAbstain' | 'Split'
+export type VoteMethod = 'vote' | 'removeVote'
+
 export type VoteDetails = {
   referendumId?: number
+  convictionVote?: ConvictionVote
+  method: VoteMethod
   details: {
     Standard?: StandardVoteParams
     Split?: SplitVoteParams
     SplitAbstain?: SplitAbstainVoteParams
+  }
+}
+
+export type VoteDetailsForm = Omit<VoteDetails, 'details'> & {
+  details: {
+    Standard: StandardVoteParams
+    Split: SplitVoteParams
+    SplitAbstain: SplitAbstainVoteParams
   }
 }
 
@@ -56,11 +69,18 @@ export const defaultVoteDetails: Required<VoteDetails['details']> = {
   },
 }
 
+export const defaultVote: VoteDetailsForm = {
+  convictionVote: 'Standard',
+  method: 'vote',
+  details: defaultVoteDetails,
+}
+
 export const isVoteFeatureSupported = (api: ApiPromise) =>
   !!api.query.referenda?.referendumInfoFor && !!api.tx.convictionVoting?.vote
 
 export const useReferenda = (chain: Chain) => {
   const [referendums, setReferendums] = useState<ReferendumBasicInfo[] | undefined>()
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
 
   const isPalletSupported = useMemo(() => {
@@ -69,13 +89,17 @@ export const useReferenda = (chain: Chain) => {
   }, [apiLoadable])
 
   const getReferendums = useCallback(async () => {
+    setIsLoading(true)
     if (apiLoadable.state !== 'hasValue' || isPalletSupported === undefined) return
 
     if (!isPalletSupported) {
       console.error(`referenda or conviction_voting pallets not supported on this chain ${chain.chainName}`)
       // treat it as 0 referendum created if required pallets are not supported
       setReferendums([])
-    } else {
+      setIsLoading(false)
+      return
+    }
+    try {
       const referendumCount = await apiLoadable.contents.query.referenda.referendumCount()
       const ids = Array.from(Array(referendumCount.toNumber()).keys())
       const rawReferendums = await apiLoadable.contents.query.referenda.referendumInfoFor.multi(ids)
@@ -86,6 +110,10 @@ export const useReferenda = (chain: Chain) => {
           isOngoing: raw.value.isOngoing,
         }))
       )
+    } catch (error) {
+      console.error(`Error while fetching referenda: ${error}`)
+    } finally {
+      setIsLoading(false)
     }
   }, [apiLoadable, chain.chainName, isPalletSupported])
 
@@ -98,17 +126,20 @@ export const useReferenda = (chain: Chain) => {
     getReferendums()
   }, [getReferendums])
 
-  return { referendums, isPalletSupported }
+  return { referendums, isPalletSupported, isLoading }
 }
 
-export const isVoteDetailsComplete = (voteDetails: VoteDetails) => {
+export const isVoteDetailsComplete = (voteDetails: VoteDetailsForm) => {
   if (voteDetails.referendumId === undefined) return false
 
-  if (voteDetails.details.Standard) {
+  if (voteDetails.convictionVote === 'Standard') {
     const { balance } = voteDetails.details.Standard
     return balance.gt(new BN(0))
+  } else if (voteDetails.convictionVote === 'SplitAbstain') {
+    const { aye, nay, abstain } = voteDetails.details.SplitAbstain
+    return aye.gt(new BN(0)) || nay.gt(new BN(0)) || abstain.gt(new BN(0))
   }
-  return !!voteDetails.details.Split || !!voteDetails.details.SplitAbstain
+  return !!voteDetails.details.Split
 }
 
 /** Expects conviction string (e.g. Locked1x, Locked2x, ..., or None) */

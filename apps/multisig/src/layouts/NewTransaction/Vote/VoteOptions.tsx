@@ -1,13 +1,13 @@
 import { css } from '@emotion/css'
 import { Button } from '@talismn/ui'
-import { VoteDetails, defaultVoteDetails } from '@domains/referenda'
+import { VoteDetailsForm } from '@domains/referenda'
 
 type Props = {
-  value: VoteDetails['details']
-  onChange: (v: VoteDetails['details']) => void
+  voteDetails: VoteDetailsForm
+  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetailsForm>>
 }
 
-const VoteOptions: React.FC<Props> = ({ value, onChange }) => {
+const VoteOptions: React.FC<Props> = ({ voteDetails, setVoteDetails }) => {
   return (
     <div
       className={css`
@@ -23,28 +23,57 @@ const VoteOptions: React.FC<Props> = ({ value, onChange }) => {
     >
       <Button
         onClick={() => {
-          const standardVoteDetails = value.Standard ?? defaultVoteDetails.Standard
-          standardVoteDetails.vote.aye = true
-          onChange({
-            Standard: standardVoteDetails,
+          setVoteDetails(prev => {
+            const updatedDetails = { ...prev }
+            updatedDetails.convictionVote = 'Standard'
+            updatedDetails.details.Standard.vote.aye = true
+            return updatedDetails
           })
         }}
-        variant={value.Standard?.vote.aye ? undefined : 'secondary'}
+        variant={
+          voteDetails.details.Standard.vote.aye && voteDetails.convictionVote === 'Standard' ? undefined : 'secondary'
+        }
       >
         Aye
       </Button>
       <Button
         onClick={() => {
-          const standardVoteDetails = value.Standard ?? defaultVoteDetails.Standard
-          standardVoteDetails.vote.aye = false
-          onChange({
-            Standard: standardVoteDetails,
+          setVoteDetails(prev => {
+            const updatedDetails = { ...prev }
+            updatedDetails.convictionVote = 'Standard'
+            updatedDetails.details.Standard.vote.aye = false
+            return updatedDetails
           })
         }}
-        css={({ color }) => ({ backgroundColor: value.Standard?.vote.aye === false ? '#f46161' : undefined })}
-        variant={value.Standard?.vote.aye === false ? undefined : 'secondary'}
+        css={({ color }) => ({
+          backgroundColor:
+            voteDetails.details.Standard.vote.aye === false && voteDetails.convictionVote === 'Standard'
+              ? '#f46161'
+              : undefined,
+        })}
+        variant={
+          voteDetails.details.Standard.vote.aye === false && voteDetails.convictionVote === 'Standard'
+            ? undefined
+            : 'secondary'
+        }
       >
         Nay
+      </Button>
+      <Button
+        onClick={() => {
+          setVoteDetails(prev => {
+            const updatedDetails = { ...prev }
+            updatedDetails.convictionVote = 'SplitAbstain'
+            updatedDetails.details.Standard.vote.aye = true
+            return updatedDetails
+          })
+        }}
+        css={({ color }) => ({
+          backgroundColor: voteDetails.convictionVote === 'SplitAbstain' ? '#B9D9FF' : undefined,
+        })}
+        variant={voteDetails.convictionVote === 'SplitAbstain' ? undefined : 'secondary'}
+      >
+        Abstain
       </Button>
     </div>
   )

@@ -1,8 +1,10 @@
+import React from 'react'
 import { Button } from '@components/ui/button'
 import { BaseToken } from '@domains/chains'
 import { useSelectedMultisig } from '@domains/multisig'
-import { VoteDetails, isVoteDetailsComplete } from '@domains/referenda'
+import { VoteDetailsForm, isVoteDetailsComplete } from '@domains/referenda'
 import VoteOptions from './VoteOptions'
+import VoteSplitAbstain from './mode/VoteSplitAbstain'
 import VoteStandard from './mode/VoteStandard'
 import { ProposalsDropdown } from './ProposalsDropdown'
 import { hasPermission } from '@domains/proxy/util'
@@ -12,19 +14,15 @@ import { Vote } from '@talismn/icons'
 
 type Props = {
   token?: BaseToken
-  voteDetails: VoteDetails
-  onChange: (v: VoteDetails) => void
+  voteDetails: VoteDetailsForm
+  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetailsForm>>
   onNext: () => void
 }
 
-const VotingForm: React.FC<Props> = ({ onChange, onNext, token, voteDetails }) => {
+const VotingForm: React.FC<Props> = ({ setVoteDetails, onNext, token, voteDetails }) => {
   const [multisig] = useSelectedMultisig()
 
   const { hasDelayedPermission, hasNonDelayedPermission } = hasPermission(multisig, 'governance')
-
-  const handleDetailsChange = (details: VoteDetails['details']) => {
-    onChange({ referendumId: voteDetails.referendumId, details })
-  }
 
   return (
     <>
@@ -33,13 +31,15 @@ const VotingForm: React.FC<Props> = ({ onChange, onNext, token, voteDetails }) =
         <ProposalsDropdown
           chain={multisig.chain}
           referendumId={voteDetails.referendumId}
-          onChange={referendumId => onChange({ ...voteDetails, referendumId })}
+          onChange={referendumId => setVoteDetails(prev => ({ ...prev, referendumId }))}
         />
-        <VoteOptions onChange={handleDetailsChange} value={voteDetails.details} />
-        {voteDetails.details.Standard ? (
-          <VoteStandard onChange={handleDetailsChange} token={token} params={voteDetails.details.Standard} />
-        ) : // TODO: add UI for Abstain and Split votes
-        null}
+        <VoteOptions setVoteDetails={setVoteDetails} voteDetails={voteDetails} />
+        {voteDetails.convictionVote === 'Standard' ? (
+          <VoteStandard setVoteDetails={setVoteDetails} token={token} params={voteDetails.details.Standard} />
+        ) : (
+          // TODO: add UI for Split votes
+          <VoteSplitAbstain token={token} setVoteDetails={setVoteDetails} />
+        )}
 
         {hasNonDelayedPermission === false ? (
           hasDelayedPermission ? (

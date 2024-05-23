@@ -568,13 +568,23 @@ export const extrinsicToDecoded = (
     // Check if it's a Vote type
     for (const arg of args) {
       const obj: any = arg.toHuman()
-      if (obj?.section === 'convictionVoting' && obj?.method === 'vote') {
-        const { poll_index, vote } = obj.args
+      if (obj?.section === 'convictionVoting') {
+        const { poll_index, vote, index } = obj.args
         let voteDetails: VoteDetails | undefined
 
-        if (vote.Standard) {
+        if (obj?.method === 'removeVote') {
+          voteDetails = {
+            referendumId: index,
+            method: obj.method,
+            details: {},
+          }
+        }
+
+        if (vote?.Standard) {
           voteDetails = {
             referendumId: poll_index,
+            method: obj.method,
+            convictionVote: 'Standard',
             details: {
               Standard: {
                 balance: new BN(vote.Standard.balance.replaceAll(',', '')),
@@ -582,6 +592,21 @@ export const extrinsicToDecoded = (
                   aye: vote.Standard.vote.vote === 'Aye',
                   conviction: mapConvictionToIndex(vote.Standard.vote.conviction),
                 },
+              },
+            },
+          }
+        }
+
+        if (vote?.SplitAbstain) {
+          voteDetails = {
+            referendumId: poll_index,
+            method: obj.method,
+            convictionVote: 'SplitAbstain',
+            details: {
+              SplitAbstain: {
+                aye: new BN(vote.SplitAbstain.aye.replaceAll(',', '')),
+                nay: new BN(vote.SplitAbstain.nay.replaceAll(',', '')),
+                abstain: new BN(vote.SplitAbstain.abstain.replaceAll(',', '')),
               },
             },
           }

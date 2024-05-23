@@ -1,17 +1,18 @@
+import React from 'react'
 import { AmountFlexibleInput } from '@components/AmountFlexibleInput'
 import { BaseToken } from '@domains/chains'
-import { StandardVoteParams, VoteDetails } from '@domains/referenda'
+import { StandardVoteParams, VoteDetailsForm } from '@domains/referenda'
 import ConvictionsDropdown from '../ConvictionsDropdown'
 import { parseUnits } from '@util/numbers'
 import BN from 'bn.js'
 
 type Props = {
   token?: BaseToken
-  onChange: (v: VoteDetails['details']) => void
+  setVoteDetails: React.Dispatch<React.SetStateAction<VoteDetailsForm>>
   params: StandardVoteParams
 }
 
-const VoteStandard = ({ params, onChange, token }: Props) => {
+const VoteStandard = ({ params, setVoteDetails, token }: Props) => {
   const handleAmountChange = (amount: string) => {
     if (!token) return
 
@@ -23,23 +24,11 @@ const VoteStandard = ({ params, onChange, token }: Props) => {
       balance = new BN(0)
     }
     if (balance.eq(params.balance)) return
-    onChange({
-      Standard: {
-        balance,
-        vote: params.vote,
-      },
-    })
-  }
 
-  const handleConvictionChange = (conviction: number) => {
-    onChange({
-      Standard: {
-        balance: params.balance,
-        vote: {
-          conviction,
-          aye: params.vote.aye,
-        },
-      },
+    setVoteDetails(prev => {
+      const updatedVal = { ...prev }
+      updatedVal.details.Standard.balance = balance
+      return updatedVal
     })
   }
 
@@ -52,7 +41,7 @@ const VoteStandard = ({ params, onChange, token }: Props) => {
         leadingLabel="Amount to vote"
         setAmount={handleAmountChange}
       />
-      <ConvictionsDropdown conviction={params.vote.conviction} onChange={handleConvictionChange} />
+      <ConvictionsDropdown setVoteDetails={setVoteDetails} conviction={params.vote.conviction} />
     </>
   )
 }
