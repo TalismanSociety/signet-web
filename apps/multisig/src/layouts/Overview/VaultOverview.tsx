@@ -13,7 +13,7 @@ import { clsx } from 'clsx'
 import useCopied from '@hooks/useCopied'
 import { Check, Copy } from '@talismn/icons'
 import { Tooltip } from '@talismn/ui'
-import { Info } from '@talismn/icons'
+import { Info, AlertCircle } from '@talismn/icons'
 
 const showMemberState = atom<boolean>({
   key: 'dashboardShowMemberState',
@@ -42,38 +42,35 @@ export const VaultOverview: React.FC = () => {
         </div>
         <ChainPill chain={selectedMultisig.chain} identiconSize={24} />
       </div>
-      <div className="flex justify-between gap-6 mt-6">
+      <div className="flex gap-6 mt-6">
         <div>
-          <p className="text-offWhite text-[14px]">Proxied Address</p>
+          <div className="flex gap-[8px]">
+            <p className="text-offWhite text-[14px]">Proxied Address</p>
+            <Tooltip
+              content={
+                <p className="text-[12px]">{`This is the funding account address for ${selectedMultisig.chain.chainName} network only.`}</p>
+              }
+            >
+              <Info size={16} />
+            </Tooltip>
+          </div>
           <AccountDetails
             chain={selectedMultisig.chain}
             address={selectedMultisig.proxyAddress}
             identiconSize={20}
             withAddressTooltip
             nameOrAddressOnly
+            disableCopy
           />
         </div>
-        <div className="flex items-center gap-4">
-          <Tooltip
-            content={
-              <p className="text-[12px]">{`This is the funding account address for ${selectedMultisig.chain.chainName} network only.`}</p>
-            }
-          >
-            <Info size={16} />
-          </Tooltip>
-          <Button
-            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-              e.stopPropagation()
-              e.preventDefault()
-              copy(selectedMultisig.proxyAddress.toSs58(selectedMultisig.chain), 'Proxy address copied!')
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <div>Receive</div>
-              <div>{copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}</div>
-            </div>
-          </Button>
-        </div>
+        <Button
+          onClick={() => copy(selectedMultisig.proxyAddress.toSs58(selectedMultisig.chain), 'Proxy address copied!')}
+        >
+          <div className="flex items-center gap-2">
+            <div>Receive</div>
+            <div>{copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}</div>
+          </div>
+        </Button>
       </div>
       <div
         css={{
@@ -163,7 +160,7 @@ export const VaultOverview: React.FC = () => {
                   </p>
                 }
               >
-                <Info size={16} />
+                <AlertCircle size={16} className="text-orange-400" />
               </Tooltip>
             </div>
             <AccountDetails
