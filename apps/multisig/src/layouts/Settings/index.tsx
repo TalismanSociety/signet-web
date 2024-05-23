@@ -94,6 +94,7 @@ const Settings = () => {
             label="Multisig Address"
             tooltip="This multisig address is the address that controls the proxied account. It is derived from your multisig's members and threshold. Do not transfer funds to
             this address."
+            tooltipType="warning"
             labelClassName={multisig.proxies?.length === 0 ? 'text-red-500' : ''}
           >
             <AccountDetails address={newMultisigAddress} chain={multisig.chain} withAddressTooltip />
