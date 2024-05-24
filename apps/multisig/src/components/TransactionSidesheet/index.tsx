@@ -223,6 +223,9 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
               <div className="flex justify-between items-end pb-[16px]">
                 <h4 className="mb-[8px] text-[16px]">Details</h4>
                 <Button
+                  css={{
+                    padding: '4px 12px',
+                  }}
                   variant="outlined"
                   className="flex gap-[8px]"
                   onClick={() => copy(window.location.href, 'Copied transaction URL')}
