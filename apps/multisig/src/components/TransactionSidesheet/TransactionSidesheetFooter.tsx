@@ -11,6 +11,7 @@ import {
   usePendingTransactions,
   useSelectedMultisig,
   calcSumOutgoing,
+  calcVoteSum,
 } from '@domains/multisig'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
@@ -46,6 +47,7 @@ export const SignerCta: React.FC<{
   const balances = useRecoilValue(balancesState)
   const [asDraft, setAsDraft] = useState(false)
   const [sumOutgoing] = useMemo(() => calcSumOutgoing(t), [t])
+  const voteSum = useMemo(() => calcVoteSum(t), [t])
   const [multisig] = useSelectedMultisig()
   const { transactions: pendingTransactions, loading: pendingLoading } = usePendingTransactions()
   const feeTokenPrice = useRecoilValueLoadable(tokenPriceState(fee?.token))
@@ -93,7 +95,11 @@ export const SignerCta: React.FC<{
 
     const availableBalance = multiSigTokenBalance?.transferable.planck ?? 0n
 
-    return availableBalance >= BigInt(sumOutgoing?.amount.toString() ?? 0)
+    const txTokensAmount = BigInt(
+      t.decoded?.type === TransactionType.Vote ? voteSum?.amount.toString() ?? 0 : sumOutgoing?.amount.toString() ?? 0
+    )
+
+    return availableBalance >= txTokensAmount
   }, [
     asDraft,
     balances,
@@ -101,7 +107,9 @@ export const SignerCta: React.FC<{
     multisig.proxyAddress,
     readyToExecute,
     sumOutgoing?.amount,
+    t.decoded?.type,
     t.multisig.chain.squidIds.chainData,
+    voteSum?.amount,
   ])
 
   const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
