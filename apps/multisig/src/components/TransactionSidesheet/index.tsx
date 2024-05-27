@@ -17,7 +17,7 @@ import { useToast } from '@components/ui/use-toast'
 import { useRecoilState } from 'recoil'
 import { TxMetadata } from '@domains/offchain-data'
 import useCopied from '@hooks/useCopied'
-import { Share2, Check } from '@talismn/icons'
+import { Check, Link } from '@talismn/icons'
 
 type TransactionSidesheetProps = {
   onApproved?: (res: { result: SubmittableResult; executed: boolean }) => void
@@ -232,7 +232,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
                 >
                   <div className="flex items-center gap-[8px]">
                     <div className="mt-[4px]">Share</div>
-                    {copied ? <Check size={16} /> : <Share2 size={16} />}
+                    {copied ? <Check size={16} /> : <Link size={16} />}
                   </div>
                 </Button>
               </div>

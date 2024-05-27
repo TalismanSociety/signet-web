@@ -8,7 +8,7 @@ import {
   combinedViewState,
   toConfirmedTxUrl,
 } from '@domains/multisig'
-import { Contract, List, Send, Settings, Share2, Unknown, Vote, Zap, Check } from '@talismn/icons'
+import { Contract, List, Send, Settings, Share2, Unknown, Vote, Zap, Check, Link } from '@talismn/icons'
 import { Skeleton, Button } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { useMemo } from 'react'
@@ -191,7 +191,7 @@ const TransactionSummaryRow = ({
             >
               <div className="flex items-center gap-[8px]">
                 <div className="mt-[4px]">Share</div>
-                {copied ? <Check size={16} /> : <Share2 size={16} />}
+                {copied ? <Check size={16} /> : <Link size={16} />}
               </div>
             </Button>
           </div>
