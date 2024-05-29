@@ -455,8 +455,6 @@ export const useAsMultiThreshold1 = (extensionAddress: Address | undefined, t?: 
       .filter(s => s && s.isEqual(extensionAddress))
       .map(s => s.toSs58(multisig.chain))
 
-    console.log({ selectedAddress, extensionAddress: extensionAddress.toSs58(multisig.chain) })
-
     return api?.tx.multisig.asMultiThreshold1(
       Address.sortAddresses(multisig.signers)
         .filter(s => s && !s.isEqual(extensionAddress))
