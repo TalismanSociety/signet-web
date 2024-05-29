@@ -134,7 +134,8 @@ const Settings = () => {
               Reset
             </Button>
             <Button
-              disabled={!changed || apiLoadable.state !== 'hasValue' || newMembers.length < 2 || newThreshold < 2}
+              // disabled={!changed || apiLoadable.state !== 'hasValue' || newMembers.length < 2 || newThreshold < 2}
+              disabled={!changed || apiLoadable.state !== 'hasValue'}
               loading={changed && apiLoadable.state === 'loading'}
               onClick={handleApplyChanges}
             >
