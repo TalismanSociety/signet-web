@@ -56,7 +56,7 @@ const Settings = () => {
   useEffect(() => {
     setNewMembers(multisig.signers)
     setNewThreshold(multisig.threshold)
-  }, [multisig])
+  }, [multisig.signers, multisig.threshold])
 
   return (
     <>
