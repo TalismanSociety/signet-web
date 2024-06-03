@@ -106,7 +106,7 @@ const Overview = () => {
   return (
     <div className="flex flex-col lg:flex-row gap-[16px] flex-1 w-[100px]">
       <div
-        className="flex flex-col gap-[16px] h-full w-full flex-1 lg:w-[100px] lg:flex-[5]"
+        className="flex flex-col gap-[16px] h-full w-full flex-1 lg:w-[100px] lg:flex-[7]"
         css={{ gridArea: 'overview-assets' }}
       >
         <VaultOverview />
