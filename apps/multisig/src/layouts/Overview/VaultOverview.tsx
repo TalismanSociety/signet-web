@@ -121,7 +121,7 @@ export const VaultOverview: React.FC = () => {
           <Button variant="secondary" onClick={() => setShowMembers(!showMembers)}>
             <div className="flex items-center gap-3">
               {showMembers ? <EyeOff size={18} /> : <Eye size={18} />}
-              <div className="mt-1">{showMembers ? 'Hide' : 'Show'} Members</div>
+              <div className="mt-1 text-nowrap">{showMembers ? 'Hide' : 'Show'} Members</div>
             </div>
           </Button>
         </div>
