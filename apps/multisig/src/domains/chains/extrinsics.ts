@@ -416,11 +416,16 @@ export const useAsMulti = (extensionAddress: Address | undefined, t?: Transactio
   return { asMulti, ready: ready && !!estimatedFee, estimatedFee }
 }
 
-export const useAsMultiThreshold1 = (extensionAddress: Address | undefined, t?: Transaction) => {
+export const useAsMultiThreshold1 = (
+  extensionAddress: Address | undefined,
+  hash: `0x${string}` | undefined,
+  t?: Transaction
+) => {
   const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
   const [selectedMultisig] = useSelectedMultisig()
   const multisig = useMemo(() => t?.multisig ?? selectedMultisig, [selectedMultisig, t?.multisig])
   const { api } = useApi(multisig.chain.genesisHash)
+  const insertTxMetadata = useInsertTxMetadata()
   const { addContract } = useAddSmartContract()
   const injectMetadata = useInjectMetadata(multisig?.chain.genesisHash ?? supportedChains[0]!.genesisHash)
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(multisig.chain.nativeToken.id))
@@ -432,8 +437,9 @@ export const useAsMultiThreshold1 = (extensionAddress: Address | undefined, t?: 
   }, [api, t?.callData])
 
   const ready = useMemo(
-    () => !!api && extensionAddress && !!extrinsic && nativeToken.state === 'hasValue',
-    [api, extensionAddress, extrinsic, nativeToken.state]
+    () =>
+      !!api && extensionAddress && !!extrinsic && nativeToken.state === 'hasValue' && !!hash && multisig !== undefined,
+    [api, extensionAddress, extrinsic, hash, multisig, nativeToken.state]
   )
 
   // Creates some tx from calldata
@@ -442,26 +448,13 @@ export const useAsMultiThreshold1 = (extensionAddress: Address | undefined, t?: 
 
     if (!api.tx.multisig?.asMultiThreshold1) throw new Error('chain missing multisig pallet')
 
-    // TODO: Double check this logic
-    // if (multisig.signers.length !== 1 || multisig.signers[0] === undefined) {
-    //   throw Error('asMultiThreshold1 requires exactly one signer')
-    // }
-
-    if (multisig.signers[0] === undefined) {
-      throw Error('asMultiThreshold1 requires exactly one signer')
-    }
-
-    const selectedAddress = Address.sortAddresses(multisig.signers)
-      .filter(s => s && s.isEqual(extensionAddress))
-      .map(s => s.toSs58(multisig.chain))
-
     return api?.tx.multisig.asMultiThreshold1(
       Address.sortAddresses(multisig.signers)
         .filter(s => s && !s.isEqual(extensionAddress))
         .map(s => s.bytes),
       extrinsic.method.toHex()
     )
-  }, [api, extensionAddress, extrinsic, multisig.chain, multisig.signers, ready])
+  }, [api, extensionAddress, extrinsic, multisig.signers, ready])
 
   const estimateFee = useCallback(async () => {
     const extrinsic = await createExtrinsic()
@@ -478,53 +471,89 @@ export const useAsMultiThreshold1 = (extensionAddress: Address | undefined, t?: 
   }, [estimateFee])
 
   const asMultiThreshold1 = useCallback(
-    async ({ onSuccess, onFailure }: ExecuteCallbacks) => {
+    async ({
+      onSuccess,
+      onFailure,
+      metadata,
+      saveMetadata = true,
+    }: ExecuteCallbacks & {
+      metadata?: Pick<TxMetadata, 'changeConfigDetails' | 'contractDeployed' | 'callData' | 'description'>
+      saveMetadata?: boolean
+    }) => {
       const extrinsic = await createExtrinsic()
-      if (!extrinsic || !extensionAddress) {
+      if (!extrinsic || !extensionAddress || !hash || !multisig) {
         console.error('tried to call asMultiThreshold1 before it was ready')
         return onFailure('Please try again.')
       }
 
-      let completed = false
-      const { signer, metadata } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
-      if (metadata) await injectMetadata(metadata)
+      let savedContract = false
+      let savedMetadata = false
+      const { signer, metadata: extensionMetadata } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
+      if (extensionMetadata) await injectMetadata(extensionMetadata)
 
       const unsubscribe = await extrinsic
         .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
           try {
             handleSubmittableResultError(result)
+
+            // make a reusable fn that will save metadata
+            // 1. try to save as soon as tx is included in block
+            // 2. when tx is finalized, if tx isn't saved, we try to save again
+            const saveMetadataFn = () => {
+              if (metadata && saveMetadata) {
+                const timepointHeight = (result as any).blockNumber.toNumber() as number
+                const timepointIndex = result.txIndex as number
+                const extrinsicId = makeTransactionID(multisig.chain, timepointHeight, timepointIndex)
+
+                savedMetadata = true
+                insertTxMetadata(multisig, {
+                  ...metadata,
+                  hash,
+                  timepointHeight,
+                  timepointIndex,
+                  extrinsicId,
+                })
+              }
+            }
+
             const hasSuccessEvent = result.events.some(
               ({ event: { section, method } }) => section === 'system' && method === 'ExtrinsicSuccess'
             )
 
-            if ((result.status.isInBlock || result.status.isFinalized) && hasSuccessEvent && !completed) {
-              completed = true
-              if (t?.decoded?.contractDeployment) {
-                // find the event that tells us that the contract has been initiated
-                const instantiatedEvent = result.events.find(
-                  ({ event: { method, section, data } }) =>
-                    method === 'Instantiated' && section === 'contracts' && !!(data as any).contract
-                )
-                if (!instantiatedEvent)
-                  throw new Error('Could not save contract, failed to retrieve contract instantiated event')
-
-                // save contract to backend
-                const contractAddressString = (instantiatedEvent.event.data as any).contract.toString() as string
-                const address = Address.fromSs58(contractAddressString)
-                if (!address) {
-                  console.error(result.toHuman())
-                  throw new Error(
-                    'Invalid contract address returned! Please check console for more details or submit a bug report.'
+            if ((result.status.isInBlock || result.status.isFinalized) && hasSuccessEvent) {
+              if (!savedContract) {
+                savedContract = true
+                if (t?.decoded?.contractDeployment) {
+                  // find the event that tells us that the contract has been initiated
+                  const instantiatedEvent = result.events.find(
+                    ({ event: { method, section, data } }) =>
+                      method === 'Instantiated' && section === 'contracts' && !!(data as any).contract
                   )
-                }
+                  if (!instantiatedEvent)
+                    throw new Error('Could not save contract, failed to retrieve contract instantiated event')
 
-                addContract(
-                  address,
-                  t.decoded.contractDeployment.name,
-                  t.multisig.id,
-                  t.decoded.contractDeployment.abi,
-                  JSON.stringify(t.decoded.contractDeployment.abi.json)
-                ).then(() => console.log(`Contract ${t.decoded?.contractDeployment?.name} saved!`))
+                  // save contract to backend
+                  const contractAddressString = (instantiatedEvent.event.data as any).contract.toString() as string
+                  const address = Address.fromSs58(contractAddressString)
+                  if (!address) {
+                    console.error(result.toHuman())
+                    throw new Error(
+                      'Invalid contract address returned! Please check console for more details or submit a bug report.'
+                    )
+                  }
+
+                  addContract(
+                    address,
+                    t.decoded.contractDeployment.name,
+                    t.multisig.id,
+                    t.decoded.contractDeployment.abi,
+                    JSON.stringify(t.decoded.contractDeployment.abi.json)
+                  ).then(() => console.log(`Contract ${t.decoded?.contractDeployment?.name} saved!`))
+                }
+              }
+
+              if (!savedMetadata) {
+                saveMetadataFn()
               }
 
               // inform UI that contract has been created
@@ -547,11 +576,13 @@ export const useAsMultiThreshold1 = (extensionAddress: Address | undefined, t?: 
     [
       createExtrinsic,
       extensionAddress,
-      multisig.chain,
+      hash,
+      multisig,
       injectMetadata,
+      insertTxMetadata,
+      setRawPendingTransactionDependency,
       t?.decoded?.contractDeployment,
       t?.multisig.id,
-      setRawPendingTransactionDependency,
       addContract,
     ]
   )

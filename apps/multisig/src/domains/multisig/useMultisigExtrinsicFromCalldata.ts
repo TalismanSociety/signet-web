@@ -107,7 +107,7 @@ export const useMultisigExtrinsicFromCalldata = (
     asMultiThreshold1,
     estimatedFee: asMultiThreshold1Fee,
     ready: asMultiThreshold1Ready,
-  } = useAsMultiThreshold1(signer?.address, t)
+  } = useAsMultiThreshold1(signer?.address, hash, t)
 
   type Approve = 'approveAsMulti' | 'asMulti' | 'asMultiThreshold1'
 
@@ -178,6 +178,12 @@ export const useMultisigExtrinsicFromCalldata = (
         // Approve & execute tx as multisig of One if ready to execute and threshold is 1
         case 'asMultiThreshold1':
           asMultiThreshold1({
+            saveMetadata: !t.metadataSaved,
+            metadata: {
+              description: t?.description,
+              callData: t.callData,
+              ...otherTxMetadata,
+            },
             onSuccess: r => handleSuccess(r),
             onFailure: e => handleFailure(e),
           })
