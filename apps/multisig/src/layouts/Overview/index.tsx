@@ -2,7 +2,8 @@ import { DUMMY_MULTISIG_ID, useSelectedMultisig } from '@domains/multisig'
 import { getAllChangeAttempts } from '@domains/offchain-data/metadata'
 import { toMultisigAddress } from '@util/addresses'
 import { useCallback, useEffect, useState } from 'react'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useRecoilRefresher_UNSTABLE } from 'recoil'
+import { acknowledgedVaultsState } from '@domains/multisig/vaults-scanner'
 
 import Assets from './Assets'
 import Transactions from './Transactions'
@@ -16,6 +17,7 @@ import { useNavigate } from 'react-router-dom'
 const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const signedInAccount = useRecoilValue(selectedAccountState)
+  const refreshAcknowledgedVaultsState = useRecoilRefresher_UNSTABLE(acknowledgedVaultsState)
   const { updateMultisigConfig } = useUpdateMultisigConfig()
   const { toast, dismiss } = useToast()
   const [toastedForVault, setToastedForVault] = useState<string>()
@@ -60,7 +62,9 @@ const Overview = () => {
             signers: changeAttempt.newMembers,
           }
 
-          await updateMultisigConfig(newMultisig)
+          await updateMultisigConfig(newMultisig).then(async () => {
+            refreshAcknowledgedVaultsState()
+          })
           toast({
             title: 'Vault Config Updated',
             description: 'An update in multisig configuration was detected and automatically applied.',
@@ -94,7 +98,15 @@ const Overview = () => {
         </ToastAction>
       ),
     })
-  }, [dismiss, navigate, selectedMultisig, signedInAccount, toast, updateMultisigConfig])
+  }, [
+    dismiss,
+    navigate,
+    refreshAcknowledgedVaultsState,
+    selectedMultisig,
+    signedInAccount,
+    toast,
+    updateMultisigConfig,
+  ])
 
   useEffect(() => {
     // DUMMY MULTISIG, dont need to detect or check for changes
