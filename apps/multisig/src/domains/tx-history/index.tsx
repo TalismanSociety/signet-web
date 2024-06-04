@@ -377,10 +377,7 @@ export const useConfirmedTransactions = (teams: Team[]) => {
         const decodedExt = decodeCallData(api, callData as string)
         const defaultName = `${multisigCall.proxy?.proxyCallPallet}.${multisigCall.proxy.proxyCallMethod}`
         const decoded = extrinsicToDecoded(team.asMultisig, decodedExt, chainTokens, txMetadata, defaultName)
-        if (decoded === 'not_ours') {
-          console.log('not ours')
-          return
-        }
+        if (decoded === 'not_ours') return
 
         // insert tx to top of list
         decodedTransactions.push({
