@@ -18,6 +18,7 @@ import { useUser } from '@domains/auth'
 import { NameForm } from './NameForm'
 import { DescriptionForm } from './DescriptionForm'
 import { RecoverMultisig } from './RecoverMultisig'
+import { MIN_MULTISIG_MEMBERS, MIN_MULTISIG_THRESHOLD } from '@util/constants'
 
 const Settings = () => {
   const [multisig] = useSelectedMultisig()
@@ -134,8 +135,12 @@ const Settings = () => {
               Reset
             </Button>
             <Button
-              // disabled={!changed || apiLoadable.state !== 'hasValue' || newMembers.length < 2 || newThreshold < 2}
-              disabled={!changed || apiLoadable.state !== 'hasValue'}
+              disabled={
+                !changed ||
+                apiLoadable.state !== 'hasValue' ||
+                newMembers.length < MIN_MULTISIG_MEMBERS ||
+                newThreshold < MIN_MULTISIG_THRESHOLD
+              }
               loading={changed && apiLoadable.state === 'loading'}
               onClick={handleApplyChanges}
             >
