@@ -1,0 +1,2 @@
+export const MIN_MULTISIG_MEMBERS = 2
+export const MIN_MULTISIG_THRESHOLD = 1

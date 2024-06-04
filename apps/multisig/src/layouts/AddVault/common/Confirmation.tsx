@@ -26,6 +26,7 @@ import { CancleOrNext } from './CancelOrNext'
 import { device } from '@util/breakpoints'
 import { Tooltip } from '@components/ui/tooltip'
 import { InfoIcon } from 'lucide-react'
+import { MIN_MULTISIG_MEMBERS } from '@util/constants'
 
 const NameAndSummary: React.FC<{ name: string; chain: Chain; proxiedAccount?: Address }> = ({
   name,
@@ -386,7 +387,7 @@ const Confirmation = (props: {
             onClick: vaultExists ? goToExistingVault : props.onCreateVault,
             disabled:
               (tokenWithPrice && tokenWithPrice.state !== 'hasValue') ||
-              props.selectedAccounts.length < 2 ||
+              props.selectedAccounts.length < MIN_MULTISIG_MEMBERS ||
               props.extrinsicsReady === false ||
               !proxies ||
               proxies?.length === 0,

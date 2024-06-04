@@ -4,6 +4,7 @@ import { CancleOrNext } from '../common/CancelOrNext'
 import AddMembers from './AddMembers'
 import { Chain } from '@domains/chains'
 import { ThresholdSettings } from './ThresholdSettings'
+import { MIN_MULTISIG_MEMBERS, MIN_MULTISIG_THRESHOLD } from '@util/constants'
 
 type Props = {
   chain: Chain
@@ -38,7 +39,8 @@ export const MultisigConfig: React.FC<Props> = ({
         block
         cancel={{ onClick: onBack, children: 'Back' }}
         next={{
-          disabled: members.length <= 1 || threshold <= 1 || threshold > members.length,
+          disabled:
+            members.length < MIN_MULTISIG_MEMBERS || threshold < MIN_MULTISIG_THRESHOLD || threshold > members.length,
           onClick: onNext,
         }}
       />
