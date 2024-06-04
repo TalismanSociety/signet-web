@@ -10,6 +10,7 @@ import { useSelectedMultisig } from '@domains/multisig'
 import { Address } from '@util/addresses'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@components/ui/accordion'
 import { cn } from '@util/tailwindcss'
+import { supportedChains } from '@domains/chains/generated-chains'
 
 const Amount: React.FC<{ balanceFormatter: BalanceFormatter; symbol: string; loading?: boolean }> = ({
   balanceFormatter,
@@ -50,6 +51,8 @@ const BalanceDetails: React.FC<{
 
 const TokenRow: React.FC<{ balance: Balance }> = ({ balance }) => {
   const loading = balance.status !== 'live'
+  const balanceToken = supportedChains.find(chain => chain.nativeToken?.id === balance.token.id)
+
   return (
     <AccordionItem
       value={balance.id}
@@ -61,7 +64,7 @@ const TokenRow: React.FC<{ balance: Balance }> = ({ balance }) => {
             className="h-[36px] w-[36px] mr-[8px]"
             width={36}
             height={36}
-            src={balance.token.logo}
+            src={balanceToken?.logo || balance.token.logo}
             alt="Token logo"
           />
           <div className="flex items-center justify-between w-full">
