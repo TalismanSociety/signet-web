@@ -1,9 +1,8 @@
 import { Transaction, selectedMultisigState } from '@domains/multisig'
 import { useMemo } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilValue } from 'recoil'
 import { useToast } from '@components/ui/use-toast'
-import { unknownConfirmedTransactionsState } from '@domains/tx-history'
 import { PageTabsContent } from '@components/ui/page-tabs'
 import { AnimatePresence, motion } from 'framer-motion'
 import TransactionSummaryRow from './TransactionSummaryRow'
@@ -75,7 +74,6 @@ export const TransactionsList = ({
   const multisig = openTransaction?.multisig || _selectedMultisig
 
   const { toast } = useToast()
-  const setUnknownTransactions = useSetRecoilState(unknownConfirmedTransactionsState)
 
   return (
     <PageTabsContent
@@ -159,18 +157,7 @@ export const TransactionsList = ({
                               }
                             : undefined,
                         }}
-                        onApproved={({ result, executed }) => {
-                          if (executed) {
-                            setUnknownTransactions(prev => [
-                              ...prev,
-                              `${multisig.id}-${makeTransactionID(
-                                multisig.chain,
-                                result.blockNumber?.toNumber() ?? 0,
-                                result.txIndex ?? 0
-                              )}`,
-                            ])
-                          }
-                        }}
+                        shouldSetUnknownTransaction
                         onApproveFailed={e => {
                           console.error(e)
                           navigate(`/overview?tab=${value}&teamId=${multisig.id}${window.location.hash}`)
