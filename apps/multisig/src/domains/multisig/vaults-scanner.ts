@@ -47,7 +47,7 @@ const getTransactionsOfAccount = selectorFamily({
           }
         }
       `,
-      { address, callNameIn: ['Multisig.approve_as_multi', 'Multisig.as_multi'] },
+      { address, callNameIn: ['Multisig.approve_as_multi', 'Multisig.as_multi', 'Multisig.as_multi_threshold_1'] },
       'tx-history'
     )) as {
       data: RawData

@@ -19,6 +19,7 @@ import {
 import { Button } from '@components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { usePage } from '@hooks/usePage'
+import { useUpdateMultisigConfig } from '@domains/offchain-data'
 
 function extractHash(url: string, value: string) {
   const parts = url.split('/')
@@ -63,6 +64,7 @@ export const TransactionsList = ({
   const location = useLocation()
   const navigate = useNavigate()
   const _selectedMultisig = useRecoilValue(selectedMultisigState)
+  const { updateMultisigConfig } = useUpdateMultisigConfig()
   const page = usePage()
   const totalPage = useMemo(() => (totalTransactions ? Math.ceil(totalTransactions / 10) : 1), [totalTransactions])
 
@@ -156,6 +158,15 @@ export const TransactionsList = ({
                                 newThreshold: openTransaction.decoded.changeConfigDetails.threshold,
                               }
                             : undefined,
+                        }}
+                        onApproved={() => {
+                          if (openTransaction?.decoded?.changeConfigDetails) {
+                            updateMultisigConfig({
+                              ...multisig,
+                              threshold: openTransaction.decoded.changeConfigDetails.threshold,
+                              signers: openTransaction.decoded.changeConfigDetails.signers,
+                            })
+                          }
                         }}
                         shouldSetUnknownTransaction
                         onApproveFailed={e => {
