@@ -145,9 +145,9 @@ export const useMultisigExtrinsicFromCalldata = (
       }
       setApproving(true)
 
-      const handleSuccess = (r: SubmittableResult) => {
+      const handleSuccess = (r: SubmittableResult, executed: boolean) => {
         setApproving(false)
-        resolve({ result: r, executed: false })
+        resolve({ result: r, executed })
       }
       const handleFailure = (e: string) => {
         setApproving(false)
@@ -164,14 +164,14 @@ export const useMultisigExtrinsicFromCalldata = (
               callData: t.callData,
               ...otherTxMetadata,
             },
-            onSuccess: r => handleSuccess(r),
+            onSuccess: r => handleSuccess(r, false),
             onFailure: e => handleFailure(e),
           })
           break
         // Execute tx as multisig if ready to execute
         case 'asMulti':
           asMulti({
-            onSuccess: r => handleSuccess(r),
+            onSuccess: r => handleSuccess(r, true),
             onFailure: e => handleFailure(e),
           })
           break
@@ -184,7 +184,7 @@ export const useMultisigExtrinsicFromCalldata = (
               callData: t.callData,
               ...otherTxMetadata,
             },
-            onSuccess: r => handleSuccess(r),
+            onSuccess: r => handleSuccess(r, true),
             onFailure: e => handleFailure(e),
           })
           break
