@@ -61,7 +61,7 @@ const Overview = () => {
             signers: changeAttempt.newMembers,
           }
 
-          await updateMultisigConfig(newMultisig).then(async () => {})
+          await updateMultisigConfig(newMultisig)
           toast({
             title: 'Vault Config Updated',
             description: 'An update in multisig configuration was detected and automatically applied.',
