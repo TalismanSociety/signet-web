@@ -8,8 +8,8 @@ import {
   combinedViewState,
   toConfirmedTxUrl,
 } from '@domains/multisig'
-import { Contract, List, Send, Settings, Share2, Unknown, Vote, Zap } from '@talismn/icons'
-import { Skeleton } from '@talismn/ui'
+import { Contract, List, Send, Settings, Share2, Unknown, Vote, Zap, Check, Link } from '@talismn/icons'
+import { Skeleton, Button } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { useMemo } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
@@ -22,21 +22,28 @@ import { Tooltip } from '@components/ui/tooltip'
 import { getExtrinsicErrorsFromEvents } from '@util/errors'
 import { blockEventsSelector } from '@domains/chains/storage-getters'
 import { cn } from '@util/tailwindcss'
+import { clsx } from 'clsx'
+import useCopied from '@hooks/useCopied'
 
 const TransactionSummaryRow = ({
   t,
-  onClick,
+  txURL = '',
   showDraftBadge,
+  showShareButton,
+  onClick,
 }: {
   t: Transaction
-  onClick?: () => void
+  txURL?: string
   showDraftBadge?: boolean
+  showShareButton?: boolean
+  onClick?: () => void
 }) => {
   const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
   const combinedView = useRecoilValue(combinedViewState)
   const tokenPrices = useRecoilValueLoadable(tokenPricesState(sumOutgoing.map(b => b.token)))
   const { threshold } = t.multisig
+  const { copy, copied } = useCopied()
   const sumPriceUsd: number | undefined = useMemo(() => {
     if (tokenPrices.state === 'hasValue') {
       return sumOutgoing.reduce((acc, b) => {
@@ -91,7 +98,7 @@ const TransactionSummaryRow = ({
 
   const tokenBreakdown = sumOutgoing.map(b => `${balanceToFloat(b)} ${b.token.symbol}`).join(' + ')
   return (
-    <div onClick={onClick} className="flex items-center justify-between w-full gap-[16px]">
+    <div onClick={onClick} className="group flex items-center justify-between w-full gap-[16px]">
       <div className="flex items-center justify-start gap-[8px] w-full overflow-x-hidden">
         <div className="flex items-center justify-center min-w-[36px] w-[36px] h-[36px] bg-gray-500 [&>svg]:h-[15px] [&>svg]:w-[15px] rounded-full text-signet-primary">
           {txIcon}
@@ -160,7 +167,33 @@ const TransactionSummaryRow = ({
 
       <div className="flex items-center justify-end">
         <div className="flex flex-col items-end">
-          <p className="text-right text-offWhite leading-[16px] whitespace-nowrap">{tokenBreakdown}</p>
+          <div className="flex items-center">
+            <p
+              className={clsx('text-right text-offWhite leading-[16px] whitespace-nowrap', {
+                'group-hover:hidden': showShareButton,
+              })}
+            >
+              {tokenBreakdown}
+            </p>
+            <Button
+              css={{
+                padding: '4px 12px',
+                display: 'none',
+              }}
+              variant="outlined"
+              className={clsx('gap-8px', { 'group-hover:flex': showShareButton })}
+              onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                e.preventDefault()
+                e.stopPropagation()
+                copy(txURL, 'Copied transaction URL')
+              }}
+            >
+              <div className="flex items-center gap-[8px]">
+                <div className="mt-[4px]">Share</div>
+                {copied ? <Check size={16} /> : <Link size={16} />}
+              </div>
+            </Button>
+          </div>
           <div className="text-right text-[14px]">
             {tokenBreakdown.length === 0 ? null : sumPriceUsd !== undefined ? (
               priceUnavailable ? null : (

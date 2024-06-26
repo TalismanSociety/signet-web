@@ -1,5 +1,5 @@
 import { Transaction, executingTransactionsState, useSelectedMultisig } from '@domains/multisig'
-import { SideSheet } from '@talismn/ui'
+import { Button, SideSheet } from '@talismn/ui'
 import { TransactionSidesheetHeader } from './TransactionSidesheetHeader'
 import { useCallback, useMemo, useState } from 'react'
 import TransactionDetailsExpandable from '../../layouts/Overview/Transactions/TransactionDetailsExpandable'
@@ -16,6 +16,8 @@ import { useNavigate } from 'react-router-dom'
 import { useToast } from '@components/ui/use-toast'
 import { useRecoilState } from 'recoil'
 import { TxMetadata } from '@domains/offchain-data'
+import useCopied from '@hooks/useCopied'
+import { Check, Link } from '@talismn/icons'
 
 type TransactionSidesheetProps = {
   onApproved?: (res: { result: SubmittableResult; executed: boolean }) => void
@@ -58,6 +60,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   )
 
   const navigate = useNavigate()
+  const { copy, copied } = useCopied()
   const { saveDraft, loading: savingDraft } = useSaveDraftMetadata()
   const { deleteDraft, loading: deletingDraft } = useDeleteDraftMetadata()
   const { cancelAsMulti, canCancel: canReject } = useCancelAsMulti(t)
@@ -217,7 +220,22 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
           <div className="px-[32px] w-full flex flex-col flex-1 gap-[32px] overflow-auto pb-[24px]">
             <TransactionSummaryRow t={t} />
             <div className="w-full">
-              <h4 className="mb-[8px] text-[16px]">Details</h4>
+              <div className="flex justify-between items-end pb-[16px]">
+                <h4 className="mb-[8px] text-[16px]">Details</h4>
+                <Button
+                  css={{
+                    padding: '4px 12px',
+                  }}
+                  variant="outlined"
+                  className="flex gap-[8px]"
+                  onClick={() => copy(window.location.href, 'Copied transaction URL')}
+                >
+                  <div className="flex items-center gap-[8px]">
+                    <div className="mt-[4px]">Share</div>
+                    {copied ? <Check size={16} /> : <Link size={16} />}
+                  </div>
+                </Button>
+              </div>
               <TransactionDetailsExpandable t={t} />
             </div>
             {!t.executedAt && (
