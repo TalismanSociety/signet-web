@@ -185,7 +185,6 @@ const TransactionSummaryRow = ({
               onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                 e.preventDefault()
                 e.stopPropagation()
-                console.log({ location: window.location })
                 copy(txURL, 'Copied transaction URL')
               }}
             >
