@@ -83,17 +83,16 @@ export const SignerCta: React.FC<{
     // No need to check for multisig balance if not going to execute the transaction
     if (asDraft || !readyToExecute || existentialDepositLoadable.state === 'loading') return true
 
-    const [multiSigTokenBalance] =
-      balances?.find(({ address, chainId }) => {
+    const availableBalance =
+      balances?.find(({ address, chainId, source }) => {
         const parsedAddress = Address.fromSs58(address)
         return (
           parsedAddress &&
           parsedAddress.isEqual(multisig.proxyAddress) &&
+          source === 'substrate-native' &&
           chainId === t.multisig.chain.squidIds.chainData
         )
-      }) || []
-
-    const availableBalance = multiSigTokenBalance?.transferable.planck ?? 0n
+      }).sum.planck.transferable ?? 0n
 
     const txTokensAmount = BigInt(
       t.decoded?.type === TransactionType.Vote ? voteSum?.amount.toString() ?? 0 : sumOutgoing?.amount.toString() ?? 0
