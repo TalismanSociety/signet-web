@@ -255,6 +255,31 @@ export const calcSumOutgoing = (t: Transaction): Balance[] => {
   }, [])
 }
 
+export const calcVoteSum = (t: Transaction): Balance | null => {
+  if (t.decoded?.type !== TransactionType.Vote || !t.decoded.voteDetails) return null
+
+  const { convictionVote, details, token } = t.decoded.voteDetails
+  const { Standard, SplitAbstain } = details
+
+  let amount: BN
+
+  // TODO: Add support to Split votes
+  switch (convictionVote) {
+    case 'SplitAbstain':
+      amount = Object.values(SplitAbstain!).reduce((acc, balance) => acc.add(balance), new BN(0))
+      break
+    case 'Standard':
+      amount = Standard?.balance!
+      break
+    default:
+      // Handle removeVote
+      amount = new BN(0)
+      break
+  }
+
+  return { amount, token }
+}
+
 interface ChangeConfigCall {
   section: 'utility'
   method: 'batchAll'

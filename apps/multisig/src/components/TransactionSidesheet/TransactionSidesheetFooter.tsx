@@ -4,7 +4,15 @@ import { selectedAccountState } from '@domains/auth'
 import { multisigDepositTotalSelector, tokenPriceState } from '@domains/chains'
 import { accountsState } from '@domains/extension'
 import { balancesState } from '@domains/balances'
-import { Balance, Transaction, TransactionType, usePendingTransactions, useSelectedMultisig } from '@domains/multisig'
+import {
+  Balance,
+  Transaction,
+  TransactionType,
+  usePendingTransactions,
+  useSelectedMultisig,
+  calcSumOutgoing,
+  calcVoteSum,
+} from '@domains/multisig'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { cn } from '@util/tailwindcss'
@@ -38,6 +46,9 @@ export const SignerCta: React.FC<{
   const extensionAccounts = useRecoilValue(accountsState)
   const balances = useRecoilValue(balancesState)
   const [asDraft, setAsDraft] = useState(false)
+  const [sumOutgoing] = useMemo(() => calcSumOutgoing(t), [t])
+  const voteSum = useMemo(() => calcVoteSum(t), [t])
+  const [multisig] = useSelectedMultisig()
   const { transactions: pendingTransactions, loading: pendingLoading } = usePendingTransactions()
   const feeTokenPrice = useRecoilValueLoadable(tokenPriceState(fee?.token))
   const existentialDepositLoadable = useRecoilValueLoadable(
@@ -67,6 +78,38 @@ export const SignerCta: React.FC<{
     if (!t) return null
     return !Object.values(t.approvals).find(v => v === true)
   }, [t])
+
+  const multisigHasEnoughBalance = useMemo(() => {
+    // No need to check for multisig balance if not going to execute the transaction
+    if (asDraft || !readyToExecute || existentialDepositLoadable.state === 'loading') return true
+
+    const availableBalance =
+      balances?.find(({ address, chainId, source }) => {
+        const parsedAddress = Address.fromSs58(address)
+        return (
+          parsedAddress &&
+          parsedAddress.isEqual(multisig.proxyAddress) &&
+          source === 'substrate-native' &&
+          chainId === t.multisig.chain.squidIds.chainData
+        )
+      }).sum.planck.transferable ?? 0n
+
+    const txTokensAmount = BigInt(
+      t.decoded?.type === TransactionType.Vote ? voteSum?.amount.toString() ?? 0 : sumOutgoing?.amount.toString() ?? 0
+    )
+
+    return availableBalance >= txTokensAmount
+  }, [
+    asDraft,
+    balances,
+    existentialDepositLoadable.state,
+    multisig.proxyAddress,
+    readyToExecute,
+    sumOutgoing?.amount,
+    t.decoded?.type,
+    t.multisig.chain.squidIds.chainData,
+    voteSum?.amount,
+  ])
 
   const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
     if (asDraft || existentialDepositLoadable.state === 'loading') return true
@@ -186,13 +229,21 @@ export const SignerCta: React.FC<{
     if (!connectedAccountHasEnoughBalance) return 'Insufficient Balance'
     // Return 'Execute' or 'Approve & Execute' based on approvals count and multisig threshold
     if (readyToExecute) {
+      if (!multisigHasEnoughBalance) return 'Insufficient Multisig Balance'
       if (approvalsCount >= t.multisig.threshold) return 'Execute'
       return 'Approve & Execute'
     }
 
     // Default to 'Approve' if no other conditions are met
     return 'Approve'
-  }, [approvalsCount, asDraft, connectedAccountHasEnoughBalance, readyToExecute, t.multisig.threshold])
+  }, [
+    approvalsCount,
+    asDraft,
+    connectedAccountHasEnoughBalance,
+    multisigHasEnoughBalance,
+    readyToExecute,
+    t.multisig.threshold,
+  ])
 
   // get fee and signable extrinsic
   return (
@@ -253,6 +304,7 @@ export const SignerCta: React.FC<{
             disabled={
               missingExecutionCallData ||
               !connectedAccountHasEnoughBalance ||
+              !multisigHasEnoughBalance ||
               loading.any ||
               (!asDraft && (!connectedAccountCanApprove || !canApproveAsChangeConfig || !fee))
             }

@@ -108,30 +108,31 @@ export const TransactionsList = ({
             <div className="gap-[20px] w-full flex flex-col flex-1">
               {transactions.length > 0 && (
                 <div className="flex flex-col gap-[12px] mt-[4px] w-full">
-                  {transactions.map(t => (
-                    <motion.div
-                      key={
-                        t.draft?.id ??
-                        (t.executedAt
-                          ? makeTransactionID(t.multisig.chain, t.executedAt.block, t.executedAt.index)
-                          : t.id)
-                      }
-                      whileHover={{ scale: 1.015 }}
-                      className="cursor-pointer"
-                    >
-                      <TransactionSummaryRow
-                        onClick={() =>
-                          navigate(
-                            `/overview/${value}-tx/${t.draft?.id ?? t.hash}?tab=${value}&teamId=${multisig.id}${
-                              window.location.hash
-                            }`
-                          )
+                  {transactions.map(t => {
+                    const txPath = `/overview/${value}-tx/${t.draft?.id ?? t.hash}?tab=${value}&teamId=${multisig.id}${
+                      window.location.hash
+                    }`
+                    return (
+                      <motion.div
+                        key={
+                          t.draft?.id ??
+                          (t.executedAt
+                            ? makeTransactionID(t.multisig.chain, t.executedAt.block, t.executedAt.index)
+                            : t.id)
                         }
-                        t={t}
-                        showDraftBadge
-                      />
-                    </motion.div>
-                  ))}
+                        whileHover={{ scale: 1.015 }}
+                        className="cursor-pointer"
+                      >
+                        <TransactionSummaryRow
+                          t={t}
+                          txURL={`${window.origin}${txPath}`}
+                          showDraftBadge
+                          showShareButton
+                          onClick={() => navigate(txPath)}
+                        />
+                      </motion.div>
+                    )
+                  })}
                 </div>
               )}
               {transactions.length === 0 && <div>All caught up 🏖️</div>}
