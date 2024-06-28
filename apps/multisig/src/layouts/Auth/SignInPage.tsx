@@ -66,13 +66,6 @@ const SignInPage: React.FC<Props> = ({ accounts }) => {
           >
             Sign In
           </Button>
-          <div className="text-center mt-[24px] bg-orange-400/10 p-[16px] rounded-[12px] flex items-center">
-            <p className="text-[14px]">
-              Our team is aware of an outage and is working on a fix.
-              <br />
-              Please try again later if you can't sign in.
-            </p>
-          </div>
         </form>
       </section>
     </div>
