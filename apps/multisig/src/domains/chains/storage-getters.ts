@@ -20,7 +20,7 @@ import { atom, selector, selectorFamily, useRecoilValueLoadable } from 'recoil'
 
 import { BaseToken, Chain, tokenByIdQuery } from './tokens'
 import { u8aToString, u8aUnwrapBytes } from '@polkadot/util'
-import { PalletIdentityRegistration, FrameSystemEventRecord } from '@polkadot/types/lookup'
+import { FrameSystemEventRecord } from '@polkadot/types/lookup'
 
 export const useAddressIsProxyDelegatee = (chain: Chain) => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
@@ -246,10 +246,7 @@ export const blockEventsSelector = selectorFamily<FrameSystemEventRecord[], [str
   dangerouslyAllowMutability: true,
 })
 
-export const identitySelector = selectorFamily<
-  { identity: Option<PalletIdentityRegistration>; subIdentity?: string } | null | undefined,
-  string
->({
+export const identitySelector = selectorFamily({
   key: 'identitySelector',
   get:
     (identifier: string) =>
