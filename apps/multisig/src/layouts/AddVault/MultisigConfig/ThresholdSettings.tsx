@@ -11,8 +11,6 @@ export const ThresholdSettings: React.FC<Props> = ({ membersCount, onChange, thr
   useEffect(() => {
     if (threshold > membersCount) {
       onChange(membersCount)
-    } else if (threshold === 1 && membersCount > 1) {
-      onChange(2)
     }
   }, [membersCount, onChange, threshold])
 
@@ -39,7 +37,7 @@ export const ThresholdSettings: React.FC<Props> = ({ membersCount, onChange, thr
             placeholder={<p css={({ color }) => ({ color: color.offWhite })}>{membersCount <= 1 ? '-' : threshold}</p>}
             onChange={onChange}
           >
-            {Array.from({ length: membersCount - 1 }, (_, i) => i + 2).map(i => (
+            {Array.from({ length: membersCount }, (_, i) => i + 1).map(i => (
               <Select.Option key={i} leadingIcon={<p>{i}</p>} headlineText={null} value={i} />
             ))}
           </Select>

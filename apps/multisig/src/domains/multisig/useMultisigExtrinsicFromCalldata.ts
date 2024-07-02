@@ -1,10 +1,11 @@
 import { ApiPromise, SubmittableResult } from '@polkadot/api'
 import { useCallback, useMemo, useState } from 'react'
-import { allChainTokensSelector, decodeCallData, useApproveAsMulti, useAsMulti } from '../chains'
+import { allChainTokensSelector, decodeCallData, useApproveAsMulti, useAsMulti, useAsMultiThreshold1 } from '../chains'
 import { Multisig } from './types'
 import { Transaction, TransactionApprovals, extrinsicToDecoded, useNextTransactionSigner } from './index'
 import { useRecoilValueLoadable } from 'recoil'
 import { TxMetadata } from '@domains/offchain-data'
+import { Balance as MultisigBalance } from '@domains/multisig'
 
 /**
  * @param submittedTx calldata, description and otherTxMetadata are ignored if this is provided
@@ -102,50 +103,104 @@ export const useMultisigExtrinsicFromCalldata = (
   } = useApproveAsMulti(signer?.address, hash, t?.rawPending?.onChainMultisig.when ?? null, t?.multisig)
 
   const { asMulti, estimatedFee: asMultiFee, ready: asMultiReady } = useAsMulti(signer?.address, t)
+  const {
+    asMultiThreshold1,
+    estimatedFee: asMultiThreshold1Fee,
+    ready: asMultiThreshold1Ready,
+  } = useAsMultiThreshold1(signer?.address, hash, t)
+
+  type Approve = 'approveAsMulti' | 'asMulti' | 'asMultiThreshold1'
+
+  const transactionType: Approve = useMemo(() => {
+    if (!readyToExecute) return 'approveAsMulti'
+    return team.threshold === 1 ? 'asMultiThreshold1' : 'asMulti'
+  }, [readyToExecute, team.threshold])
+
+  const approveData: Record<Approve, { isReady: boolean; estimatedFee: MultisigBalance | undefined }> = useMemo(
+    () => ({
+      approveAsMulti: {
+        isReady: !!approveReady,
+        estimatedFee: approveFee,
+      },
+      asMulti: {
+        isReady: !!asMultiReady,
+        estimatedFee: asMultiFee,
+      },
+      asMultiThreshold1: {
+        isReady: !!asMultiThreshold1Ready,
+        estimatedFee: asMultiThreshold1Fee,
+      },
+    }),
+    [approveFee, approveReady, asMultiFee, asMultiReady, asMultiThreshold1Fee, asMultiThreshold1Ready]
+  )
+
+  const { isReady, estimatedFee } = approveData[transactionType]
 
   const approve = useCallback(async () => {
     return await new Promise<{ result: SubmittableResult; executed: boolean }>((resolve, reject) => {
       if (!t?.callData) return reject(new Error('No call data'))
+      if (!isReady) {
+        console.error(`attempt to call ${transactionType} before it's ready`)
+        return reject(new Error('Please try again later.'))
+      }
       setApproving(true)
 
-      // approve tx if not ready to execute
-      if (!readyToExecute) {
-        approveAsMulti({
-          saveMetadata: !t.metadataSaved,
-          metadata: {
-            description: t?.description,
-            callData: t.callData,
-            ...otherTxMetadata,
-          },
-          onSuccess: r => {
-            setApproving(false)
-            resolve({ result: r, executed: false })
-          },
-          onFailure: e => {
-            setApproving(false)
-            reject(e)
-          },
-        })
-      } else {
-        // execute tx since it already has enough approvals
-        if (!asMultiReady) {
-          setApproving(false)
-          console.error("attempt to call asMulti before it's ready")
-          return reject(new Error('Please try again later.'))
-        }
-        asMulti({
-          onSuccess(r) {
-            setApproving(false)
-            resolve({ result: r, executed: true })
-          },
-          onFailure(e) {
-            setApproving(false)
-            reject(e)
-          },
-        })
+      const handleSuccess = (r: SubmittableResult, executed: boolean) => {
+        setApproving(false)
+        resolve({ result: r, executed })
+      }
+      const handleFailure = (e: string) => {
+        setApproving(false)
+        reject(e)
+      }
+
+      switch (transactionType) {
+        // Approve tx if not ready to execute
+        case 'approveAsMulti':
+          approveAsMulti({
+            saveMetadata: !t.metadataSaved,
+            metadata: {
+              description: t?.description,
+              callData: t.callData,
+              ...otherTxMetadata,
+            },
+            onSuccess: r => handleSuccess(r, false),
+            onFailure: e => handleFailure(e),
+          })
+          break
+        // Execute tx as multisig if ready to execute
+        case 'asMulti':
+          asMulti({
+            onSuccess: r => handleSuccess(r, true),
+            onFailure: e => handleFailure(e),
+          })
+          break
+        // Approve & execute tx as multisig of One if ready to execute and threshold is 1
+        case 'asMultiThreshold1':
+          asMultiThreshold1({
+            saveMetadata: !t.metadataSaved,
+            metadata: {
+              description: t?.description,
+              callData: t.callData,
+              ...otherTxMetadata,
+            },
+            onSuccess: r => handleSuccess(r, true),
+            onFailure: e => handleFailure(e),
+          })
+          break
       }
     })
-  }, [approveAsMulti, asMulti, asMultiReady, otherTxMetadata, readyToExecute, t])
+  }, [
+    approveAsMulti,
+    asMulti,
+    asMultiThreshold1,
+    isReady,
+    otherTxMetadata,
+    t?.callData,
+    t?.description,
+    t?.metadataSaved,
+    transactionType,
+  ])
 
   return {
     innerExtrinsic,
@@ -154,8 +209,8 @@ export const useMultisigExtrinsicFromCalldata = (
     approving,
     approve,
     t,
-    estimatedFee: readyToExecute ? asMultiFee : approveFee,
-    ready: readyToExecute ? asMultiReady : approveReady,
+    estimatedFee,
+    ready: isReady,
     readyToExecute,
   }
 }

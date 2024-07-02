@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom'
 const Overview = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const signedInAccount = useRecoilValue(selectedAccountState)
+
   const { updateMultisigConfig } = useUpdateMultisigConfig()
   const { toast, dismiss } = useToast()
   const [toastedForVault, setToastedForVault] = useState<string>()

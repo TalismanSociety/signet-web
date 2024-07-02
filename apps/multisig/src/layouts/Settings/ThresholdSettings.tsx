@@ -13,7 +13,6 @@ type Props = {
 export const ThresholdSettings: React.FC<Props> = ({ disabled, error, membersCount, onChange, threshold }) => {
   useEffect(() => {
     if (threshold > membersCount) onChange(membersCount)
-    else if (threshold < 2 && membersCount > 1) onChange(2)
   }, [membersCount, onChange, threshold])
   return (
     <div css={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -45,7 +44,7 @@ export const ThresholdSettings: React.FC<Props> = ({ disabled, error, membersCou
             placeholder={<p css={({ color }) => ({ color: color.offWhite })}>{threshold}</p>}
             onChange={onChange}
           >
-            {Array.from({ length: membersCount - 1 }, (_, i) => i + 2).map(i => (
+            {Array.from({ length: membersCount }, (_, i) => i + 1).map(i => (
               <Select.Option key={i} leadingIcon={<p>{i}</p>} headlineText={null} value={i} />
             ))}
           </Select>
