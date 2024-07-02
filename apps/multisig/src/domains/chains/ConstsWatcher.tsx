@@ -32,7 +32,7 @@ export const ConstsWatcher: React.FC = () => {
         api.consts.balances.existentialDeposit,
       ])
 
-      const maxNominations = maxNominationsRes ? +maxNominationsRes.toBigInt().toString() : 16
+      const maxNominations = maxNominationsRes ? +maxNominationsRes.toString() : 16
       const palletId = palletIdRes ? +palletIdRes.toU8a() : new Uint8Array(0)
       setConsts({
         ...consts,

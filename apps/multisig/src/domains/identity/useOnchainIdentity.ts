@@ -25,11 +25,10 @@ export const useOnchainIdentity = (address: Address, chain?: Chain) => {
   useEffect(() => {
     if (onchainIdentity) return
     if (identity.state === 'hasValue' && identity.contents && identity.contents.identity.isSome) {
-      const verified = identity.contents.identity.value.judgements?.some(
-        judgement => judgement[1].isReasonable || judgement[1].isKnownGood
-      )
+      const [registration] = identity.contents.identity.value
+      const verified = registration.judgements?.some(judgement => judgement[1].isReasonable || judgement[1].isKnownGood)
       console.log(identity.contents, verified)
-      const superIdentity = identity.contents.identity?.value?.info?.display
+      const superIdentity = registration.info?.display
       const subIdentity = identity.contents.subIdentity
       if (superIdentity?.isRaw) {
         const superIdentityString = u8aToString(u8aUnwrapBytes(superIdentity.asRaw.toString()))
