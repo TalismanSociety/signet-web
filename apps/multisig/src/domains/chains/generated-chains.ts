@@ -28,6 +28,7 @@ export type SupportedChainIds =
   | 'paseo-testnet'
   | 'rococo-neuro-web-testnet'
   | 'polimec'
+  | 'mythos'
 
 export const supportedChains: Chain<SupportedChainIds>[] = [
   {
@@ -690,5 +691,24 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 41,
     subscanUrl: 'https://explorer.polimec.org/polimec/',
+  },
+  {
+    chainName: 'Mythos',
+    genesisHash: '0xf6ee56e9c5277df5b4ce6ae9983ee88f3cbed27d31beeb98f9f84f997a1ab0b9',
+    isTestnet: false,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/unknown.svg',
+    nativeToken: {
+      id: 'mythos-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://polkadot-mythos-rpc.polkadot.io',
+      },
+    ],
+    squidIds: {
+      chainData: 'mythos',
+    },
+    ss58Prefix: 42,
+    subscanUrl: 'https://mythos.subscan.io/',
   },
 ]
