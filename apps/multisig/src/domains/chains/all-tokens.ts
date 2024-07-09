@@ -6757,6 +6757,19 @@ export const ALL_TOKENS = [
       id: 'rococo-neuro-web-testnet',
     },
   },
+  {
+    id: 'mythos-substrate-native',
+    type: 'substrate-native',
+    isTestnet: false,
+    isDefault: true,
+    symbol: 'MYTH',
+    decimals: 18,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/unknown.svg',
+    existentialDeposit: '10000000000000000',
+    chain: {
+      id: 'mythos',
+    },
+  },
 ]
 
 export const ALL_TOKENS_BY_ID = ALL_TOKENS.reduce((a, b) => {
