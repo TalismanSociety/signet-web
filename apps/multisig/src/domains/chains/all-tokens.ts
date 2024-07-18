@@ -6751,7 +6751,7 @@ export const ALL_TOKENS = [
     isDefault: true,
     symbol: 'NEURO',
     decimals: 12,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/neuro.svg',
     existentialDeposit: '1000000000000', // 10**12 Planck
     chain: {
       id: 'rococo-neuro-web-testnet',
