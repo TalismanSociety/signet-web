@@ -3,14 +3,32 @@ import { createKeyMulti, decodeAddress, encodeAddress, sortAddresses } from '@po
 import truncateMiddle from 'truncate-middle'
 const { hexToU8a, isHex, u8aToHex } = require('@polkadot/util')
 
+const sortEthereumAddresses = (addresses: Address[]): Address[] =>
+  addresses.sort((a, b) => {
+    const aStr = a.toSs58().toLowerCase()
+    const bStr = b.toSs58().toLowerCase()
+    return aStr.localeCompare(bStr)
+  })
+
 // Represent addresses as bytes except for when we need to display them to the user.
 // Allows us to confidently do stuff like equality checks, don't need to worry about SS52 encoding.
 export class Address {
   readonly bytes: Uint8Array
 
   constructor(bytes: Uint8Array) {
-    if (bytes.length !== 32) throw new Error('Address must be 32 bytes!')
-    this.bytes = bytes
+    if (bytes.length === 32 || bytes.length === 20) {
+      this.bytes = bytes
+
+      if (bytes.length === 20) {
+        // TODO: check if this is valid ethereum address
+      }
+      return
+    }
+    throw new Error('Address must be 32/20 bytes!')
+  }
+
+  get isEthereum(): boolean {
+    return this.bytes.length === 20
   }
 
   static fromSs58(addressCandidate: string): Address | false {
@@ -31,6 +49,7 @@ export class Address {
   }
 
   static sortAddresses(addresses: Address[]): Address[] {
+    if (addresses[0]?.isEthereum) return sortEthereumAddresses(addresses)
     return sortAddresses(addresses.map(a => a.bytes)).map(a => Address.fromSs58(a) as Address)
   }
 
@@ -40,6 +59,7 @@ export class Address {
 
   /* to generic address if chain is not provided */
   toSs58(chain?: Chain): string {
+    if (this.bytes.length === 20) return u8aToHex(this.bytes)
     return encodeAddress(this.bytes, chain?.ss58Prefix)
   }
 
@@ -57,8 +77,13 @@ export class Address {
 }
 
 export const toMultisigAddress = (signers: Address[], threshold: number): Address => {
+  // TODO: may need a different derivation for ethereum?
+
   // Derive the multisig address
-  const multiAddressBytes = createKeyMulti(sortAddresses(signers.map(s => s.bytes)), threshold)
+  const multiAddressBytes = createKeyMulti(
+    Address.sortAddresses(signers).map(a => a.bytes),
+    threshold
+  )
   return new Address(multiAddressBytes)
 }
 
