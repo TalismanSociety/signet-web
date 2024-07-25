@@ -330,7 +330,7 @@ export const useConfirmedTransactions = (teams: Team[]) => {
 
     paginatedTransactions.forEach(tx => {
       try {
-        const block = blocks.find(b => b.block.header.hash.toString() === tx.block.hash)
+        const block = blocks.find(b => b?.block.header.hash.toString() === tx.block.hash)
         const chain = teams.find(t => t.chain.genesisHash === tx.block.chainGenesisHash)?.chain
         const chainTokens = chain ? allActiveChainTokens.contents.get(chain.squidIds.chainData) : undefined
         const api = apis.contents[tx.block.chainGenesisHash]
