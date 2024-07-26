@@ -204,20 +204,26 @@ export const blockHashSelector = selectorFamily({
 })
 
 /** Give a {blockHash}-{chainGenesisHash}, get the block on chain */
-export const blockSelector = selectorFamily<SignedBlock, string>({
+export const blockSelector = selectorFamily<SignedBlock | null, string>({
   key: 'blockSelector',
   get:
     blockAndChainHash =>
     async ({ get }) => {
       const [blockHash, chainHash] = blockAndChainHash.split('-') as [string, string]
+
       const api = get(pjsApiSelector(chainHash))
-      const block = await api.rpc.chain.getBlock(blockHash)
-      return block
+      try {
+        const block = await api.rpc.chain.getBlock(blockHash)
+        return block
+      } catch (error) {
+        console.error({ error })
+        return null
+      }
     },
   dangerouslyAllowMutability: true,
 })
 
-export const blocksSelector = selectorFamily<SignedBlock[], string>({
+export const blocksSelector = selectorFamily<(SignedBlock | null)[], string>({
   key: 'blocksSelector',
   get:
     blockAndChainHashes =>

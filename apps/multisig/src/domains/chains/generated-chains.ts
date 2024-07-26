@@ -29,7 +29,6 @@ export type SupportedChainIds =
   | 'rococo-neuro-web-testnet'
   | 'polimec'
   | 'bittensor'
-
 export const supportedChains: Chain<SupportedChainIds>[] = [
   {
     chainName: 'Polkadot',
@@ -702,7 +701,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
-        url: 'wss://entrypoint-finney.opentensor.ai:443',
+        url: 'wss://bittensor-finney.api.onfinality.io/ws?apikey=',
       },
     ],
     squidIds: {
