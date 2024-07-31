@@ -76,15 +76,47 @@ export class Address {
   }
 }
 
-export const toMultisigAddress = (signers: Address[], threshold: number): Address => {
-  // TODO: may need a different derivation for ethereum?
+const evmToSubstrateAddress = (evmAddress: string) => {
+  // Remove the '0x' prefix
+  const evmAddressBytes = hexToU8a(evmAddress)
 
-  // Derive the multisig address
-  const multiAddressBytes = createKeyMulti(
-    Address.sortAddresses(signers).map(a => a.bytes),
-    threshold
-  )
-  return new Address(multiAddressBytes)
+  // Create a 32-byte public key by padding the 20-byte EVM address with zeros
+  const substratePublicKey = new Uint8Array(32)
+  substratePublicKey.set(evmAddressBytes, 0)
+
+  // Encode the 32-byte key in SS58 format
+  const substrateAddress = encodeAddress(substratePublicKey)
+
+  return substrateAddress
+}
+
+const substrateToEvmAddress = (substrateAddress: string) => {
+  // Decode the SS58 Substrate address to get the 32-byte public key
+  const substratePublicKey = decodeAddress(substrateAddress)
+
+  // Extract the first 20 bytes of the public key to get the EVM address
+  const evmAddress = u8aToHex(substratePublicKey.slice(0, 20))
+
+  return evmAddress
+}
+
+export const toMultisigAddress = (signers: Address[], threshold: number): Address => {
+  const isEthAddress = signers[0]?.isEthereum
+
+  if (isEthAddress) {
+    const evmSigners = signers.map(s => evmToSubstrateAddress(s.toSs58()))
+    const multiAddressBytes = createKeyMulti(evmSigners, threshold)
+    const multiAddress = new Address(multiAddressBytes)
+    const multiToEvmAddress = substrateToEvmAddress(multiAddress.toSs58())
+
+    return new Address(hexToU8a(multiToEvmAddress))
+  } else {
+    const multiAddressBytes = createKeyMulti(
+      Address.sortAddresses(signers).map(a => a.bytes),
+      threshold
+    )
+    return new Address(multiAddressBytes)
+  }
 }
 
 export const shortenAddress = (address: string, size: 'long' | 'short' = 'short'): string => {
