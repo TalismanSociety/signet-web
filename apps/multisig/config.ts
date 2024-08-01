@@ -66,7 +66,7 @@ export type Chain = {
   polkaAssemblyUrl?: string
 }
 
-export const CUSTOM_CHAINS: Chain[] = [
+export const CUSTOM_CHAINS: Omit<Chain, 'id'>[] = [
   // example of custom chain
   // {
   //   chainName: 'Avail Turing Network',
@@ -77,7 +77,6 @@ export const CUSTOM_CHAINS: Chain[] = [
   //     id: 'avail-turing-testnet-substrate-native',
   //   },
   //   rpcs: [{ url: 'wss://turing-rpc.avail.so' }],
-  //   squidIds: { chainData: 'avail-turing-testnet' },
   //   ss58Prefix: 42,
   //   subscanUrl: 'https://temp-explorer.avail.so/#/explorer',
   // },
