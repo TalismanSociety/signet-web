@@ -1,5 +1,5 @@
 import { SUPPORTED_CHAINS, CUSTOM_CHAINS, CHAINDATA_URL, Chain } from '../config'
-const fs = require('fs')
+import fs from 'fs'
 
 const generateSupportedChains = async () => {
   const chaindata = (await fetch(CHAINDATA_URL).then(response => response.json())) as any
@@ -11,6 +11,7 @@ const generateSupportedChains = async () => {
     const chain = chaindata.find(chain => chain.id === chainId)
     if (chain) {
       supportedChains.push({
+        id: chain.id,
         chainName: chain.name,
         genesisHash: chain.genesisHash,
         isTestnet: chain.isTestnet,
@@ -19,7 +20,6 @@ const generateSupportedChains = async () => {
           id: chain.nativeToken?.id,
         },
         rpcs: chainDetails.rpcs ?? chain.rpcs,
-        squidIds: { chainData: chain.id },
         ss58Prefix: chain.prefix,
         subscanUrl: chainDetails.subscanUrl ?? chain.subscanUrl,
         polkaAssemblyUrl: chainDetails.polkaAssemblyUrl ?? chain.polkaAssemblyUrl,
@@ -28,7 +28,7 @@ const generateSupportedChains = async () => {
   }
   CUSTOM_CHAINS.forEach(chain => {
     supportedChains.push(chain)
-    supportedChainIds.push(`custom-${chain.chainName.replace(' ', '-').toLowerCase()}`)
+    supportedChainIds.push(`custom-${chain.genesisHash}`)
   })
 
   fs.writeFileSync(
@@ -42,6 +42,7 @@ const generateSupportedChains = async () => {
   export const supportedChains: Chain<SupportedChainIds>[] =  ${JSON.stringify(supportedChains, null, 2)}
   `
   )
+  console.log(`Generated ${supportedChainIds.length} supported chains successfully`)
 }
 
 generateSupportedChains()

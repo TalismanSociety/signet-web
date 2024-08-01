@@ -127,7 +127,7 @@ export const CustomRPC: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
       <div className="max-h-[160px] overflow-y-auto flex flex-col overflow-x-hidden">
         {supportedChains.map(network => (
           <Button
-            key={network.squidIds.chainData}
+            key={network.id}
             size="lg"
             variant="ghost"
             className="justify-start !px-[12px] py-[8px] h-max min-h-max rounded-[8px]"

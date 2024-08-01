@@ -52,9 +52,7 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
 }
 
 export type Chain = {
-  squidIds: {
-    chainData: string
-  }
+  id: string
   genesisHash: string
   chainName: string
   logo: string

@@ -74,7 +74,7 @@ export const txMetadataLoadingState = atom({
 })
 
 const parseTxMetadata = (rawTxMetadata: RawTxMetadata): TxMetadata => {
-  const chain = supportedChains.find(c => c.squidIds.chainData === rawTxMetadata.chain)
+  const chain = supportedChains.find(c => c.id === rawTxMetadata.chain)
   if (!chain) throw Error(`Chain ${rawTxMetadata.chain} not found`)
 
   let changeConfigDetails: ChangeConfigDetails | undefined = undefined
@@ -247,7 +247,7 @@ export const useInsertTxMetadata = () => {
 
       const rawTxMetadata: Omit<RawTxMetadata, 'created'> = {
         team_id: multisig.id,
-        chain: multisig.chain.squidIds.chainData,
+        chain: multisig.chain.id,
         proxy_address: multisig.proxyAddress.toSs58(),
         multisig_address: multisig.multisigAddress.toSs58(),
         call_data: other.callData,
@@ -310,7 +310,7 @@ export async function getAllChangeAttempts(
   const variables = {
     teamId: multisig.id,
     multisigAddress: multisig.multisigAddress.toSs58(),
-    chain: multisig.chain.squidIds.chainData,
+    chain: multisig.chain.id,
   }
 
   const query = gql`

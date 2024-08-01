@@ -39,7 +39,7 @@ const defaultPjsApiSelector = selectorFamily({
       ),
     }
 
-    const customExtension = squidIds ? customExtensions[squidIds.chainData] : undefined
+    const customExtension = squidIds ? customExtensions[id] : undefined
     if (customExtension) {
       opt = {
         ...opt,
