@@ -4,12 +4,9 @@ import truncateMiddle from 'truncate-middle'
 const { hexToU8a, isHex, u8aToHex } = require('@polkadot/util')
 
 const sortEthereumAddresses = (addresses: Address[]): Address[] => {
-  const addressStr = addresses.map(a => a.toSs58().toLowerCase())
-  const sortedAddress = addressStr
-    ?.sort((a, b) => {
-      return a.localeCompare(b)
-    })
-    .map(a => Address.fromSs58(a) as Address)
+  const sortedAddress = [...addresses].sort((a, b) => {
+    return a.toSs58().localeCompare(b.toSs58())
+  })
 
   return sortedAddress
 }
