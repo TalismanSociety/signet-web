@@ -16,7 +16,7 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
     polkaAssemblyUrl: 'https://polkadot.polkassembly.io',
   },
   'astar': { id: 'astar', polkaAssemblyUrl: 'https://astar.polkassembly.io' },
-  'centrifuge': { id: 'centrifuge', polkaAssemblyUrl: 'https://centrifuge.polkassembly.io' },
+  'centrifuge-polkadot': { id: 'centrifuge', polkaAssemblyUrl: 'https://centrifuge.polkassembly.io' },
   'hydradx': { id: 'hydradx', polkaAssemblyUrl: 'https://centrifuge.polkassembly.io' },
   'kusama': { id: 'kusama', polkaAssemblyUrl: 'https://kusama.polkassembly.io' },
   'rococo': { id: 'rococo', polkaAssemblyUrl: 'https://rococo.polkassembly.io' },

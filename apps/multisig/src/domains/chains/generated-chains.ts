@@ -5,10 +5,9 @@ import { Chain } from './tokens'
 export type SupportedChainIds =
   | 'polkadot'
   | 'astar'
-  | 'centrifuge'
+  | 'centrifuge-polkadot'
   | 'hydradx'
   | 'kusama'
-  | 'rococo'
   | 'aleph-zero-testnet'
   | 'dancebox'
   | 'paseo-testnet'
@@ -105,6 +104,30 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ss58Prefix: 5,
     subscanUrl: 'https://astar.subscan.io/',
     polkaAssemblyUrl: 'https://astar.polkassembly.io',
+  },
+  {
+    id: 'centrifuge-polkadot',
+    chainName: 'Centrifuge',
+    genesisHash: '0xb3db41421702df9a7fcac62b53ffeac85f7853cc4e689e0b93aeb3db18c09d82',
+    isTestnet: false,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/centrifuge-polkadot.svg',
+    nativeToken: {
+      id: 'centrifuge-polkadot-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://centrifuge-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://fullnode.centrifuge.io',
+      },
+      {
+        url: 'wss://rpc-centrifuge.luckyfriday.io',
+      },
+    ],
+    ss58Prefix: 36,
+    subscanUrl: 'https://centrifuge.subscan.io/',
+    polkaAssemblyUrl: 'https://centrifuge.polkassembly.io',
   },
   {
     id: 'hydradx',
