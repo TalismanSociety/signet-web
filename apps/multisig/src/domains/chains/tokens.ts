@@ -1,4 +1,4 @@
-import { activeMultisigsState } from '@domains/multisig'
+import { activeMultisigsState, DUMMY_MULTISIG_ID, useSelectedMultisig } from '@domains/multisig'
 import { selector, selectorFamily } from 'recoil'
 import { ApiPromise } from '@polkadot/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -241,12 +241,15 @@ export const useSystemToken = (api: ApiPromise | undefined) => {
 
 export const useNativeTokenBalance = (api: ApiPromise | undefined, address: string | Address) => {
   const [balanceBN, setBalanceBN] = useState<bigint>()
+  const [selectedMultisig] = useSelectedMultisig()
+  const isLoggedIn = selectedMultisig.id !== DUMMY_MULTISIG_ID
+
   const getBalance = useCallback(() => {
-    if (!api) return undefined
+    if (!api || !isLoggedIn) return undefined
     api.query.system.account(typeof address === 'string' ? address : address.toSs58(), (acc): void => {
       setBalanceBN(acc.data.free.toBigInt())
     })
-  }, [address, api])
+  }, [address, api, isLoggedIn])
 
   useEffect(() => {
     getBalance()

@@ -3,13 +3,10 @@ import { createKeyMulti, decodeAddress, encodeAddress, sortAddresses } from '@po
 import truncateMiddle from 'truncate-middle'
 const { hexToU8a, isHex, u8aToHex } = require('@polkadot/util')
 
-const sortEthereumAddresses = (addresses: Address[]): Address[] => {
-  const sortedAddress = [...addresses].sort((a, b) => {
+const sortEthereumAddresses = (addresses: Address[]): Address[] =>
+  [...addresses].sort((a, b) => {
     return a.toSs58().localeCompare(b.toSs58())
   })
-
-  return sortedAddress
-}
 
 // Represent addresses as bytes except for when we need to display them to the user.
 // Allows us to confidently do stuff like equality checks, don't need to worry about SS52 encoding.
