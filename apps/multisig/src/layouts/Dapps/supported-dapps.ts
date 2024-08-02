@@ -22,7 +22,7 @@ export const SUPPORTED_DAPPS: SupportedDapp[] = [
       'bifrost-polkadot': 'https://bifrost.subsquare.io',
       'rococo-testnet': 'https://rococo.subsquare.io',
       'acala': 'https://acala.subsquare.io',
-      'centrifuge': 'https://centrifuge.subsquare.io',
+      'centrifuge-polkadot': 'https://centrifuge.subsquare.io',
       'hydradx': 'https://hydradx.subsquare.io',
       'interlay': 'https://interlay.subsquare.io',
       'karura': 'https://karura.subsquare.io',

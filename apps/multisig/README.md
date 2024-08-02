@@ -13,3 +13,7 @@
    `REACT_APP_SIWS_ENDPOINT`: http://localhost:3031
 
 5. Run `yarn dev` and acess the app at `http://localhost:3000`
+
+## Adding support for a new chain
+
+If your chain is already listed in Talisman's [chaindata repo](https://github.com/TalismanSociety/chaindata), add it to the `SUPPORTED_CHAINS` object in `config.ts` via its chain id. If it's not listed in `chaindata`, add it to the `CUSTOM_CHAINS` array in `config.ts`.

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "rootDir": "../",
+    "resolveJsonModule": true,
+    "sourceMap": true
+  },
+  "include": [
+    "./**.ts",
+    "../config.ts"
+  ]
+}

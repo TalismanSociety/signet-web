@@ -140,7 +140,7 @@ export const activeTeamsState = selector({
 export const parseTeam = (org: Organisation, rawTeam: RawTeam): { team?: Team; error?: string } => {
   try {
     // make sure chain is supported chain
-    const chain = supportedChains.find(chain => chain.squidIds.chainData === rawTeam.chain)
+    const chain = supportedChains.find(chain => chain.id === rawTeam.chain)
     if (!chain) {
       return { error: `Invalid chain: ${rawTeam.chain} not supported in ${rawTeam.id}` }
     }

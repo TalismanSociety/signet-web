@@ -51,12 +51,10 @@ export const SignerCta: React.FC<{
   const [multisig] = useSelectedMultisig()
   const { transactions: pendingTransactions, loading: pendingLoading } = usePendingTransactions()
   const feeTokenPrice = useRecoilValueLoadable(tokenPriceState(fee?.token))
-  const existentialDepositLoadable = useRecoilValueLoadable(
-    existentialDepositSelector(t.multisig.chain.squidIds.chainData)
-  )
+  const existentialDepositLoadable = useRecoilValueLoadable(existentialDepositSelector(t.multisig.chain.id))
   const multisigDepositTotal = useRecoilValueLoadable(
     multisigDepositTotalSelector({
-      chain_id: t.multisig.chain.squidIds.chainData,
+      chain_id: t.multisig.chain.id,
       signatories: t?.approvals ? Object.keys(t.approvals).length : 0,
     })
   )
@@ -90,7 +88,7 @@ export const SignerCta: React.FC<{
           parsedAddress &&
           parsedAddress.isEqual(multisig.proxyAddress) &&
           source === 'substrate-native' &&
-          chainId === t.multisig.chain.squidIds.chainData
+          chainId === t.multisig.chain.id
         )
       }).sum.planck.transferable ?? 0n
 
@@ -107,7 +105,7 @@ export const SignerCta: React.FC<{
     readyToExecute,
     sumOutgoing?.amount,
     t.decoded?.type,
-    t.multisig.chain.squidIds.chainData,
+    t.multisig.chain.id,
     voteSum?.amount,
   ])
 
@@ -127,7 +125,7 @@ export const SignerCta: React.FC<{
           !!user &&
           parsedAddress.isEqual(user.injected.address) &&
           source === 'substrate-native' &&
-          chainId === t.multisig.chain.squidIds.chainData
+          chainId === t.multisig.chain.id
         )
       }).sum.planck.transferable ?? 0n
 
@@ -141,7 +139,7 @@ export const SignerCta: React.FC<{
     balances,
     multisigDepositTotal.contents.amount,
     user,
-    t.multisig.chain.squidIds.chainData,
+    t.multisig.chain.id,
   ])
 
   // Check if the user has an account connected which can approve the transaction

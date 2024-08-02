@@ -26,7 +26,7 @@ export const customExtensions: Record<
 const defaultPjsApiSelector = selectorFamily({
   key: 'defaultPjsApis',
   get: (_genesisHash: string) => async (): Promise<ApiPromise> => {
-    const { rpcs, chainName, squidIds } = supportedChains.find(({ genesisHash }) => genesisHash === _genesisHash) || {
+    const { rpcs, chainName, id } = supportedChains.find(({ genesisHash }) => genesisHash === _genesisHash) || {
       rpcs: [],
     }
 
@@ -39,7 +39,7 @@ const defaultPjsApiSelector = selectorFamily({
       ),
     }
 
-    const customExtension = squidIds ? customExtensions[squidIds.chainData] : undefined
+    const customExtension = id ? customExtensions[id] : undefined
     if (customExtension) {
       opt = {
         ...opt,

@@ -16,7 +16,7 @@ export const filteredSupportedChains = supportedChains.filter(chain => {
     }
 
     const networkLowerCase = network.toLowerCase()
-    const match = chain.squidIds.chainData.toLowerCase() === networkLowerCase || chain.chainName === networkLowerCase
+    const match = chain.id.toLowerCase() === networkLowerCase || chain.chainName === networkLowerCase
     if (match) return true
   }
 

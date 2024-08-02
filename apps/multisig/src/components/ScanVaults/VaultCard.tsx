@@ -31,7 +31,7 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
       e.preventDefault()
       const { parsedTeam, error } = await createOrganisation({
         name,
-        chain: vault.chain.squidIds.chainData,
+        chain: vault.chain.id,
         multisig_config: {
           signers: vault.multisig.signers.map(s => s.toSs58()),
           threshold: vault.multisig.threshold,
@@ -52,7 +52,7 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
       onAdded,
       setImportedTeams,
       toast,
-      vault.chain.squidIds.chainData,
+      vault.chain.id,
       vault.multisig.signers,
       vault.multisig.threshold,
       vault.proxiedAddress,

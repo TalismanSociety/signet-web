@@ -48,9 +48,9 @@ const CreateMultisig = () => {
   const setBlockAccountSwitcher = useSetRecoilState(blockAccountSwitcher)
   const selectedSigner = useRecoilValue(selectedAccountState)
   const tokenWithPrice = useRecoilValueLoadable(tokenByIdWithPrice(chain.nativeToken.id))
-  const initialVaultFundsLoadable = useRecoilValueLoadable(initialVaultFundSelector(chain.squidIds.chainData))
+  const initialVaultFundsLoadable = useRecoilValueLoadable(initialVaultFundSelector(chain.id))
 
-  const proxyDepositTotalLoadable = useRecoilValueLoadable(proxyDepositTotalSelector(chain.squidIds.chainData))
+  const proxyDepositTotalLoadable = useRecoilValueLoadable(proxyDepositTotalSelector(chain.id))
 
   const { augmentedAccounts, setAddedAccounts } = useAugmentedAccounts()
 
@@ -93,7 +93,7 @@ const CreateMultisig = () => {
   const vaultDetailsString = useMemo(() => {
     let text = ''
     if (name) text += `Name: ${name}\n`
-    if (chain) text += `Chain: ${chain.squidIds.chainData}\n`
+    if (chain) text += `Chain: ${chain.id}\n`
     if (multisigAddress) text += `Multisig Address: ${multisigAddress.toSs58()}\n`
     if (createdProxy) text += `Proxy Address: ${createdProxy.toSs58()}\n`
     if (augmentedAccounts.length) text += `Members: ${augmentedAccounts.map(acc => acc.address.toSs58()).join(', ')}\n`
@@ -134,7 +134,7 @@ const CreateMultisig = () => {
     try {
       const { ok, error } = await createOrganisation({
         name,
-        chain: chain.squidIds.chainData,
+        chain: chain.id,
         multisig_config: { signers: augmentedAccounts.map(a => a.address.toSs58()), threshold },
         proxied_address: createdProxy.toSs58(),
       })
@@ -154,7 +154,7 @@ const CreateMultisig = () => {
       setTransferred(true)
       setTransferring(false)
     }
-  }, [augmentedAccounts, chain.squidIds.chainData, createOrganisation, createdProxy, name, threshold, toast])
+  }, [augmentedAccounts, chain.id, createOrganisation, createdProxy, name, threshold, toast])
 
   const handleTransferProxy = useCallback(() => {
     setTransferring(true)
