@@ -29,7 +29,7 @@ export type SupportedChainIds =
   | 'rococo-neuro-web-testnet'
   | 'polimec'
   | 'mythos'
-
+  | 'bittensor'
 export const supportedChains: Chain<SupportedChainIds>[] = [
   {
     chainName: 'Polkadot',
@@ -710,5 +710,24 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://mythos.subscan.io/',
+  },
+  {
+    chainName: 'Bittensor',
+    genesisHash: '0x2f0555cc76fc2840a25a6ea3b9637146806f1f44b090c175ffde2a7e5ab36c03',
+    isTestnet: false,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/bittensor.svg',
+    nativeToken: {
+      id: 'bittensor-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://bittensor-finney.api.onfinality.io/ws?apikey=',
+      },
+    ],
+    squidIds: {
+      chainData: 'bittensor',
+    },
+    ss58Prefix: 42,
+    subscanUrl: 'https://bittensor.com/scan',
   },
 ]

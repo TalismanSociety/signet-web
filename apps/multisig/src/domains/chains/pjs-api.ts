@@ -8,6 +8,8 @@ import persistAtom from '@domains/persist'
 import { types, rpc, signedExtensions } from 'avail-js-sdk'
 import { ApiOptions } from '@polkadot/api/types'
 
+const RPC_PROVIDER = 'onfinality'
+
 export const customRpcsAtom = atom<Record<string, string | undefined>>({
   key: 'customRpcs',
   default: {},
@@ -32,7 +34,9 @@ const defaultPjsApiSelector = selectorFamily({
     if (rpcs.length === 0) return ApiPromise.create({ provider: new WsProvider([]) })
 
     let opt: ApiOptions = {
-      provider: new WsProvider(rpcs.map(({ url }) => url)),
+      provider: new WsProvider(
+        rpcs.map(({ url }) => (url.includes(RPC_PROVIDER) ? `${url}${process.env.REACT_APP_ON_FINALITY_API_KEY}` : url))
+      ),
     }
 
     const customExtension = squidIds ? customExtensions[squidIds.chainData] : undefined

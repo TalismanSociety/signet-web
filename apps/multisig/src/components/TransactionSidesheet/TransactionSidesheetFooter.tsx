@@ -119,18 +119,17 @@ export const SignerCta: React.FC<{
       txCost += BigInt(multisigDepositTotal.contents.amount?.toString() ?? 0)
     }
 
-    const [connectedWalletBal] =
-      balances?.find(({ address, chainId }) => {
+    const availableBalance =
+      balances?.find(({ address, chainId, source }) => {
         const parsedAddress = Address.fromSs58(address)
         return (
           parsedAddress &&
           !!user &&
           parsedAddress.isEqual(user.injected.address) &&
+          source === 'substrate-native' &&
           chainId === t.multisig.chain.squidIds.chainData
         )
-      }) || []
-
-    const availableBalance = connectedWalletBal?.transferable.planck ?? 0n
+      }).sum.planck.transferable ?? 0n
 
     return availableBalance >= txCost
   }, [
