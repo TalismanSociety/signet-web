@@ -80,6 +80,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ss58Prefix: 0,
     subscanUrl: 'https://polkadot.subscan.io/',
     polkaAssemblyUrl: 'https://polkadot.polkassembly.io',
+    account: '*25519',
   },
   {
     chainName: 'Polkadot Asset Hub',
@@ -120,6 +121,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 0,
     subscanUrl: 'https://assethub-polkadot.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Kusama',
@@ -170,6 +172,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ss58Prefix: 2,
     subscanUrl: 'https://kusama.subscan.io/',
     polkaAssemblyUrl: 'https://kusama.polkassembly.io',
+    account: '*25519',
   },
   {
     chainName: 'Kusama Asset Hub',
@@ -210,6 +213,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 2,
     subscanUrl: 'https://assethub-kusama.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Acala',
@@ -241,6 +245,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 10,
     subscanUrl: 'https://acala.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Aleph Zero',
@@ -263,6 +268,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://alephzero.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Astar',
@@ -292,6 +298,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ss58Prefix: 5,
     subscanUrl: 'https://astar.subscan.io/',
     polkaAssemblyUrl: 'https://astar.polkassembly.io',
+    account: '*25519',
   },
   {
     chainName: 'Bifrost Polkadot',
@@ -317,6 +324,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 6,
     subscanUrl: 'https://bifrost.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Bifrost Kusama',
@@ -342,6 +350,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 6,
     subscanUrl: 'https://bifrost-kusama.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'HydraDX',
@@ -368,6 +377,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ss58Prefix: 63,
     subscanUrl: 'https://hydradx.subscan.io/',
     polkaAssemblyUrl: 'https://centrifuge.polkassembly.io',
+    account: '*25519',
   },
   {
     chainName: 'Interlay',
@@ -393,6 +403,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 2032,
     subscanUrl: 'https://interlay.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Karura',
@@ -424,6 +435,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 8,
     subscanUrl: 'https://karura.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Khala',
@@ -449,6 +461,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 30,
     subscanUrl: 'https://khala.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Kintsugi',
@@ -471,6 +484,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 2092,
     subscanUrl: 'https://kintsugi.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Moonbeam',
@@ -502,6 +516,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 1284,
     subscanUrl: 'https://moonbeam.subscan.io/',
+    account: 'secp256k1',
   },
   {
     chainName: 'Phala',
@@ -527,6 +542,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 30,
     subscanUrl: 'https://phala.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Rococo',
@@ -546,6 +562,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://rococo.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Shibuya',
@@ -568,6 +585,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 5,
     subscanUrl: 'https://shibuya.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Aleph Zero Testnet',
@@ -590,6 +608,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://test.azero.dev/#/explorer/',
+    account: '*25519',
   },
   {
     chainName: 'Avail Turing Testnet',
@@ -609,6 +628,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://temp-explorer.avail.so/#/explorer',
+    account: '*25519',
   },
   {
     chainName: 'Dancebox',
@@ -628,6 +648,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://dancebox.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Paseo',
@@ -647,6 +668,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://paseo.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'NeuroWeb Testnet',
@@ -666,6 +688,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 101,
     subscanUrl: 'https://neuroweb-testnet.subscan.io/',
+    account: '*25519',
   },
   {
     chainName: 'Polimec',
@@ -691,6 +714,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 41,
     subscanUrl: 'https://explorer.polimec.org/polimec/',
+    account: '*25519',
   },
   {
     chainName: 'Mythos',
@@ -710,6 +734,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://mythos.subscan.io/',
+    account: 'secp256k1',
   },
   {
     chainName: 'Bittensor',
@@ -729,5 +754,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     ss58Prefix: 42,
     subscanUrl: 'https://bittensor.com/scan',
+    account: '*25519',
   },
 ]

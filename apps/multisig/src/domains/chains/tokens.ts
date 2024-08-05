@@ -191,6 +191,8 @@ export type Rpc = {
   url: string
 }
 
+type Account = '*25519' | 'secp256k1'
+
 export type Chain<ChainIds = string> = {
   squidIds: {
     chainData: ChainIds
@@ -206,6 +208,7 @@ export type Chain<ChainIds = string> = {
   ss58Prefix: number
   subscanUrl: string
   polkaAssemblyUrl?: string
+  account: Account
 }
 
 export const chainTokensByIdQuery = selectorFamily({

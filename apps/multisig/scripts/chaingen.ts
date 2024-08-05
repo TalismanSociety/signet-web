@@ -4,6 +4,8 @@ type Rpc = {
   url: string
 }
 
+type Account = '*25519' | 'secp256k1'
+
 type Chain = {
   squidIds: {
     chainData: string
@@ -19,6 +21,7 @@ type Chain = {
   ss58Prefix: number
   subscanUrl: string
   polkaAssemblyUrl?: string
+  account: Account
 }
 
 const supportedChainIds = [
@@ -119,6 +122,7 @@ const generateSupportedChains = async () => {
         ss58Prefix: chain.prefix,
         subscanUrl: subscanUrlsOverride[chain.id] ?? chain.subscanUrl,
         polkaAssemblyUrl: polkaAssemblyUrl[chain.id],
+        account: chain.account,
       })
     }
   }
