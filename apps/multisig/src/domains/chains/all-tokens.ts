@@ -6764,7 +6764,7 @@ export const ALL_TOKENS = [
     isDefault: true,
     symbol: 'MYTH',
     decimals: 18,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/unknown.svg',
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/mythos.svg',
     existentialDeposit: '10000000000000000',
     chain: {
       id: 'mythos',

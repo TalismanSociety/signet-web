@@ -99,7 +99,7 @@ const customChains: Chain[] = [
   // },
 ]
 
-const CHAINDATA_URL = 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/dist/chains/all.json'
+const CHAINDATA_URL = 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/pub/v1/chains/all.json'
 
 const generateSupportedChains = async () => {
   const chaindata = (await fetch(CHAINDATA_URL).then(response => response.json())) as any
