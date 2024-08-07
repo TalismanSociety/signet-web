@@ -257,16 +257,20 @@ export const identitySelector = selectorFamily({
   get:
     (identifier: string) =>
     async ({ get }) => {
-      const [genesisHash, address] = identifier.split(':') as [string, string]
+      const [genesisHash, identifierAddress] = identifier.split(':') as [string, string]
       if (genesisHash === 'undefined') return undefined
       const api = get(pjsApiSelector(genesisHash))
       await api.isReady
       if (!api.query.identity || !api.query.identity.identityOf) return null
 
+      const address = Address.fromSs58(identifierAddress)
+      // identity pallet is only available for Substrate addresses
+      if (!address || address.isEthereum) return null
+
       // get identity + superOf to check if user has set its own identity or has a super identity
       const [identity, superOf] = await Promise.all([
-        api.query.identity.identityOf(address),
-        api.query.identity.superOf(address),
+        api.query.identity.identityOf(address.bytes),
+        api.query.identity.superOf(address.bytes),
       ])
 
       // anyone can be set as a sub identity without permission, we should make sure that sub identity

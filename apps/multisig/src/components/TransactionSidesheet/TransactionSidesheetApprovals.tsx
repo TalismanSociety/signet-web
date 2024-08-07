@@ -4,20 +4,22 @@ import { Tooltip } from '@components/ui/tooltip'
 import { Transaction } from '@domains/multisig'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Address } from '@util/addresses'
+import { useSelectedMultisig } from '@domains/multisig'
 
 export const TransactionSidesheetApprovals: React.FC<{ t: Transaction }> = ({ t }) => {
   const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
+  const [{ isEthereumAccount }] = useSelectedMultisig()
   return (
     <div css={{ display: 'grid', gap: '14px' }}>
-      {Object.entries(t.approvals).map(([encodedAddress, approval]) => {
-        const decodedAddress = Address.fromPubKey(encodedAddress)
+      {Object.entries(t.approvals).map(([address, approval]) => {
+        const decodedAddress = isEthereumAccount ? Address.fromSs58(address) : Address.fromPubKey(address)
         if (!decodedAddress) {
           console.error(`Could not decode address in t.approvals!`)
           return null
         }
         const contact = contactByAddress[decodedAddress.toSs58()]
         return (
-          <div key={encodedAddress} css={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
+          <div key={address} css={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
             <div css={{ width: '100%' }}>
               <MemberRow
                 member={{ address: decodedAddress, nickname: contact?.name, you: contact?.extensionName !== undefined }}

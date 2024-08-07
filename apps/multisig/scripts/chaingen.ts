@@ -4,6 +4,8 @@ type Rpc = {
   url: string
 }
 
+type Account = '*25519' | 'secp256k1'
+
 type Chain = {
   squidIds: {
     chainData: string
@@ -19,6 +21,7 @@ type Chain = {
   ss58Prefix: number
   subscanUrl: string
   polkaAssemblyUrl?: string
+  account: Account
 }
 
 const supportedChainIds = [
@@ -47,6 +50,7 @@ const supportedChainIds = [
   'paseo-testnet',
   'rococo-neuro-web-testnet',
   'polimec',
+  'mythos',
   'bittensor',
 ]
 
@@ -66,6 +70,7 @@ const subscanUrlsOverride: Record<string, string> = {
   'rococo-neuro-web-testnet': 'https://neuroweb-testnet.subscan.io/',
   'avail-turing-testnet': 'https://temp-explorer.avail.so/#/explorer',
   'polimec': 'https://explorer.polimec.org/polimec/',
+  'mythos': 'https://mythos.subscan.io/',
   'bittensor': 'https://bittensor.com/scan',
 }
 
@@ -94,7 +99,7 @@ const customChains: Chain[] = [
   // },
 ]
 
-const CHAINDATA_URL = 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/dist/chains/all.json'
+const CHAINDATA_URL = 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/pub/v1/chains/all.json'
 
 const generateSupportedChains = async () => {
   const chaindata = (await fetch(CHAINDATA_URL).then(response => response.json())) as any
@@ -117,6 +122,7 @@ const generateSupportedChains = async () => {
         ss58Prefix: chain.prefix,
         subscanUrl: subscanUrlsOverride[chain.id] ?? chain.subscanUrl,
         polkaAssemblyUrl: polkaAssemblyUrl[chain.id],
+        account: chain.account,
       })
     }
   }

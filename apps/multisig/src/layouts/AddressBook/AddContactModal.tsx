@@ -22,6 +22,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const { contactsByAddress } = useAddressBook()
   const { toast } = useToast()
+  const addressFormatMatchesChain = selectedMultisig.isEthereumAccount === address?.isEthereum
 
   const handleClose = () => {
     if (creating) return
@@ -45,7 +46,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   }
 
-  const disabled = !address || !nameInput.value
+  const disabled = !address || !nameInput.value || !addressFormatMatchesChain
   const conflict = address ? !!contactsByAddress[address.toSs58()] : false
 
   return (

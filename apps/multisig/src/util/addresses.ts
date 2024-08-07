@@ -1,7 +1,13 @@
 import { Chain } from '@domains/chains'
 import { createKeyMulti, decodeAddress, encodeAddress, sortAddresses } from '@polkadot/util-crypto'
 import truncateMiddle from 'truncate-middle'
+import { utils } from 'ethers'
 const { hexToU8a, isHex, u8aToHex } = require('@polkadot/util')
+
+const sortEthereumAddresses = (addresses: Address[]): Address[] =>
+  [...addresses].sort((a, b) => {
+    return a.toSs58().localeCompare(b.toSs58())
+  })
 
 // Represent addresses as bytes except for when we need to display them to the user.
 // Allows us to confidently do stuff like equality checks, don't need to worry about SS52 encoding.
@@ -9,8 +15,18 @@ export class Address {
   readonly bytes: Uint8Array
 
   constructor(bytes: Uint8Array) {
-    if (bytes.length !== 32) throw new Error('Address must be 32 bytes!')
-    this.bytes = bytes
+    if (bytes.length === 32 || bytes.length === 20) {
+      this.bytes = bytes
+      if (bytes.length === 20 && !utils.isAddress(u8aToHex(bytes))) {
+        throw new Error('Invalid Ethereum address!')
+      }
+      return
+    }
+    throw new Error('Address must be 32/20 bytes!')
+  }
+
+  get isEthereum(): boolean {
+    return this.bytes.length === 20
   }
 
   static fromSs58(addressCandidate: string): Address | false {
@@ -31,6 +47,7 @@ export class Address {
   }
 
   static sortAddresses(addresses: Address[]): Address[] {
+    if (addresses[0]?.isEthereum) return sortEthereumAddresses(addresses)
     return sortAddresses(addresses.map(a => a.bytes)).map(a => Address.fromSs58(a) as Address)
   }
 
@@ -40,6 +57,7 @@ export class Address {
 
   /* to generic address if chain is not provided */
   toSs58(chain?: Chain): string {
+    if (this.bytes.length === 20) return u8aToHex(this.bytes)
     return encodeAddress(this.bytes, chain?.ss58Prefix)
   }
 
@@ -48,6 +66,7 @@ export class Address {
   }
 
   toPubKey(): string {
+    // For EVM addresses it returns the address string
     return u8aToHex(this.bytes)
   }
 
@@ -57,9 +76,15 @@ export class Address {
 }
 
 export const toMultisigAddress = (signers: Address[], threshold: number): Address => {
-  // Derive the multisig address
-  const multiAddressBytes = createKeyMulti(sortAddresses(signers.map(s => s.bytes)), threshold)
-  return new Address(multiAddressBytes)
+  const addresses = signers.map(s => s.toSs58())
+  let multisigAddress = createKeyMulti(addresses, threshold)
+
+  if (signers[0]?.isEthereum) {
+    // For Ethereum chains, the first 20 bytes of the hash indicates the actual address
+    multisigAddress = multisigAddress.slice(0, 20)
+  }
+
+  return new Address(multisigAddress)
 }
 
 export const shortenAddress = (address: string, size: 'long' | 'short' = 'short'): string => {

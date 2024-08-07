@@ -21,6 +21,10 @@ export const useSelectedMultisig = (): [MultisigWithExtraData, (multisig: Multis
     [selectedMultisig]
   )
 
+  const {
+    chain: { account },
+  } = selectedMultisig
+
   const setSelectedMultisig = useCallback(
     (multisig: Multisig) => {
       setSelectedMultisigId(multisig.id)
@@ -30,7 +34,14 @@ export const useSelectedMultisig = (): [MultisigWithExtraData, (multisig: Multis
 
   const multisigWithExtraData = useMemo((): MultisigWithExtraData => {
     if (selectedMultisig.id === DUMMY_MULTISIG_ID)
-      return { ...selectedMultisig, proxies: [], allProxies: [], isCollaborator: () => false, isSigner: () => false }
+      return {
+        ...selectedMultisig,
+        proxies: [],
+        allProxies: [],
+        isCollaborator: () => false,
+        isSigner: () => false,
+        isEthereumAccount: account === 'secp256k1',
+      }
     const proxiesOfProxiedAccount = cachedProxies[proxyId]
     const filteredProxies = proxiesOfProxiedAccount?.filter(({ delegate }) =>
       delegate.isEqual(selectedMultisig.multisigAddress)
@@ -42,8 +53,9 @@ export const useSelectedMultisig = (): [MultisigWithExtraData, (multisig: Multis
       allProxies: proxiesOfProxiedAccount,
       isCollaborator: (address: Address) => selectedMultisig.collaborators.some(user => user.address.isEqual(address)),
       isSigner: (address: Address) => selectedMultisig.signers.some(signer => signer.isEqual(address)),
+      isEthereumAccount: account === 'secp256k1',
     }
-  }, [cachedProxies, proxyId, selectedMultisig])
+  }, [account, cachedProxies, proxyId, selectedMultisig])
 
   return [multisigWithExtraData, setSelectedMultisig]
 }
