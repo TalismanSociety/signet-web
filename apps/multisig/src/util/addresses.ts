@@ -1,6 +1,7 @@
 import { Chain } from '@domains/chains'
 import { createKeyMulti, decodeAddress, encodeAddress, sortAddresses } from '@polkadot/util-crypto'
 import truncateMiddle from 'truncate-middle'
+import { utils } from 'ethers'
 const { hexToU8a, isHex, u8aToHex } = require('@polkadot/util')
 
 const sortEthereumAddresses = (addresses: Address[]): Address[] =>
@@ -16,9 +17,8 @@ export class Address {
   constructor(bytes: Uint8Array) {
     if (bytes.length === 32 || bytes.length === 20) {
       this.bytes = bytes
-
-      if (bytes.length === 20) {
-        // TODO: check if this is valid ethereum address
+      if (bytes.length === 20 && !utils.isAddress(u8aToHex(bytes))) {
+        throw new Error('Invalid Ethereum address!')
       }
       return
     }
@@ -66,6 +66,7 @@ export class Address {
   }
 
   toPubKey(): string {
+    // For EVM addresses it returns the address string
     return u8aToHex(this.bytes)
   }
 
