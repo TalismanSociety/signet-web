@@ -6760,7 +6760,7 @@ export const ALL_TOKENS = [
 ]
 
 export const ALL_TOKENS_BY_ID = ALL_TOKENS.reduce((a, b) => {
-  const chain = supportedChains.find(c => c.squidIds.chainData === b.chain.id)
+  const chain = supportedChains.find(c => c.id === b.chain.id)
   if (!chain) return a
   a[b.id] = {
     ...b,

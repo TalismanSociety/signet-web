@@ -17,7 +17,7 @@ export const ProposalsDropdown: React.FC<Props> = ({ chain, referendumId, onChan
   const ongoingReferendums = referendums?.filter(referendum => referendum.isOngoing)
 
   const { data: referendumsData } = useGetReferendums({
-    chainId: chain.squidIds.chainData as SupportedChainIds,
+    chainId: chain.id as SupportedChainIds,
     ids: ongoingReferendums?.map(referendum => String(referendum.index)) ?? [],
   })
 
