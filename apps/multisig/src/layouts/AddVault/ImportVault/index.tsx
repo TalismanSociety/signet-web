@@ -43,7 +43,7 @@ export const ImportVault: React.FC = () => {
     try {
       const { ok, error } = await createOrganisation({
         name,
-        chain: chain.squidIds.chainData,
+        chain: chain.id,
         multisig_config: { signers: augmentedAccounts.map(a => a.address.toSs58()), threshold },
         proxied_address: proxiedAddress.toSs58(),
       })
@@ -61,7 +61,7 @@ export const ImportVault: React.FC = () => {
     } finally {
       setImporting(false)
     }
-  }, [augmentedAccounts, chain.squidIds.chainData, createOrganisation, name, navigate, proxiedAddress, threshold])
+  }, [augmentedAccounts, chain.id, createOrganisation, name, navigate, proxiedAddress, threshold])
 
   return (
     <>

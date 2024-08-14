@@ -194,9 +194,7 @@ export type Rpc = {
 type Account = '*25519' | 'secp256k1'
 
 export type Chain<ChainIds = string> = {
-  squidIds: {
-    chainData: ChainIds
-  }
+  id: ChainIds
   genesisHash: string
   chainName: string
   logo: string
@@ -213,7 +211,7 @@ export type Chain<ChainIds = string> = {
 
 export const chainTokensByIdQuery = selectorFamily({
   key: 'ChainTokensById',
-  get: (id: string) => () => Object.values(ALL_TOKENS_BY_ID).filter(token => token.chain.squidIds.chainData === id),
+  get: (id: string) => () => Object.values(ALL_TOKENS_BY_ID).filter(token => token.chain.id === id),
 })
 
 // Get tokens for all active chains
@@ -224,7 +222,7 @@ export const allChainTokensSelector = selector({
 
     const entries: [string, BaseToken[]][] = multisigs
       .filter(({ chain }) => chain !== undefined)
-      .map(({ chain }) => [chain.squidIds.chainData, get(chainTokensByIdQuery(chain.squidIds.chainData))])
+      .map(({ chain }) => [chain.id, get(chainTokensByIdQuery(chain.id))])
 
     return new Map(entries.filter(([tokens]) => !!tokens[0]))
   },

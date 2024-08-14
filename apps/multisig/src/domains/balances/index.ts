@@ -51,7 +51,7 @@ export const useAugmentedBalances = () => {
         return acc
       }
 
-      const chain = supportedChains.find(c => c.squidIds.chainData === balanceChain.id)
+      const chain = supportedChains.find(c => c.id === balanceChain.id)
       if (!chain) return acc
 
       const avaliable = parseFloat(b.transferable.tokens)
