@@ -10,13 +10,21 @@ import { captureException } from '@sentry/react'
 import { useToast } from '@components/ui/use-toast'
 
 const ADDRESSES_BY_ORG_ID = gql`
-  query Addresses($orgId: uuid!) {
+  query AddressesByOrgId($orgId: uuid!) {
     address(where: { org_id: { _eq: $orgId } }, order_by: { name: asc }, limit: 1000) {
       id
       name
       address
       team_id
       org_id
+      category {
+        id
+        name
+      }
+      sub_category {
+        id
+        name
+      }
     }
   }
 `
@@ -26,6 +34,8 @@ export type Contact = {
   name: string
   address: Address
   orgId: string
+  category?: { id: string; name: string }
+  subCategory?: { id: string; name: string }
 }
 
 export const addressBookLoadingState = atom<boolean>({
@@ -183,14 +193,14 @@ export const AddressBookWatcher = () => {
         const newAddressBookByOrgId = { ...prev }
         if (!newAddressBookByOrgId[selectedMultisig.orgId]) newAddressBookByOrgId[selectedMultisig.orgId] = []
 
-        addresses.forEach(({ id, name, address, org_id }) => {
+        addresses.forEach(({ address, org_id, ...rest }) => {
           try {
             const parsedAddress = Address.fromSs58(address)
             if (parsedAddress) {
               let addressesOfOrg = newAddressBookByOrgId[org_id] ?? []
               const conflict = addressesOfOrg.find(contact => contact.address.isEqual(parsedAddress))
               if (conflict) return
-              addressesOfOrg = [...addressesOfOrg, { id, name, orgId: org_id, address: parsedAddress }]
+              addressesOfOrg = [...addressesOfOrg, { orgId: org_id, address: parsedAddress, ...rest }]
               newAddressBookByOrgId[org_id] = addressesOfOrg
             }
           } catch (e) {
