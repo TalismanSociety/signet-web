@@ -1,7 +1,7 @@
 import { useRecoilValue } from 'recoil'
 import { AddressWithName } from '../components/AddressInput'
 import { accountsState } from '../domains/extension'
-import { addressBookByTeamIdState } from '../domains/offchain-data'
+import { addressBookByOrgIdState } from '../domains/offchain-data'
 import { useMemo } from 'react'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useSmartContracts } from '../domains/offchain-data/smart-contract'
@@ -14,7 +14,7 @@ export const useKnownAddresses = (
   }: { includeSelectedMultisig?: boolean; includeContracts?: boolean } = {}
 ): { addresses: AddressWithName[]; contactByAddress: Record<string, AddressWithName> } => {
   const extensionAccounts = useRecoilValue(accountsState)
-  const addressBookByTeamId = useRecoilValue(addressBookByTeamIdState)
+  const addressBookByOrgId = useRecoilValue(addressBookByOrgIdState)
   const [multisig] = useSelectedMultisig()
   const { contracts } = useSmartContracts()
 
@@ -28,14 +28,14 @@ export const useKnownAddresses = (
   const addressBookContacts = useMemo(() => {
     if (!teamId) return []
 
-    const addresses = addressBookByTeamId[teamId ?? ''] ?? []
+    const addresses = addressBookByOrgId[teamId ?? ''] ?? []
 
     return addresses.map(({ address, name }) => ({
       address,
       name,
       type: 'Contacts',
     }))
-  }, [addressBookByTeamId, teamId])
+  }, [addressBookByOrgId, teamId])
 
   const combinedList = useMemo(() => {
     let list = extensionContacts

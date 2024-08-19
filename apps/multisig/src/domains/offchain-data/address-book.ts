@@ -9,7 +9,7 @@ import { useMutation, useQuery } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { useToast } from '@components/ui/use-toast'
 
-const ADDRESSES_QUERY = gql`
+const ADDRESSES_BY_ORG_ID = gql`
   query Addresses($orgId: uuid!) {
     address(where: { org_id: { _eq: $orgId } }, order_by: { name: asc }, limit: 1000) {
       id
@@ -33,20 +33,20 @@ export const addressBookLoadingState = atom<boolean>({
   default: false,
 })
 
-export const addressBookByTeamIdState = atom<Record<string, Contact[]>>({
-  key: 'addressBookByTeamIdState',
+export const addressBookByOrgIdState = atom<Record<string, Contact[]>>({
+  key: 'addressBookByOrgIdState',
   default: {},
 })
 
 // allow efficient lookup of contacts by address
-export const addressBookByTeamIdMapState = selector({
-  key: 'addressBookByTeamIdMap',
+export const addressBookByOrgIdMapState = selector({
+  key: 'addressBookByOrgIdMap',
   get: ({ get }) => {
-    const addressBookByTeamId = get(addressBookByTeamIdState)
+    const addressBookByOrgId = get(addressBookByOrgIdState)
 
     const map = {} as Record<string, Record<string, Contact>>
 
-    Object.entries(addressBookByTeamId).forEach(([orgId, contacts]) => {
+    Object.entries(addressBookByOrgId).forEach(([orgId, contacts]) => {
       map[orgId] = {}
       contacts.forEach(contact => {
         map[orgId]![contact.address.toSs58()] = contact
@@ -58,15 +58,15 @@ export const addressBookByTeamIdMapState = selector({
 
 export const useAddressBook = () => {
   const loading = useRecoilValue(addressBookLoadingState)
-  const addressBookByTeamId = useRecoilValue(addressBookByTeamIdState)
-  const addressBookByTeamIdMap = useRecoilValue(addressBookByTeamIdMapState)
+  const addressBookByOrgId = useRecoilValue(addressBookByOrgIdState)
+  const addressBookByOrgIdMap = useRecoilValue(addressBookByOrgIdMapState)
   const [selectedMultisig] = useSelectedMultisig()
 
   if (selectedMultisig.id === DUMMY_MULTISIG_ID) return { contacts: [], contactsByAddress: {}, loading: false }
 
   return {
-    contacts: addressBookByTeamId[selectedMultisig.orgId],
-    contactsByAddress: addressBookByTeamIdMap[selectedMultisig.orgId] ?? {},
+    contacts: addressBookByOrgId[selectedMultisig.orgId],
+    contactsByAddress: addressBookByOrgIdMap[selectedMultisig.orgId] ?? {},
     loading,
   }
 }
@@ -86,11 +86,11 @@ const CREATE_ADDRESS_MUTATION = gql`
   }
 `
 export const useCreateContact = () => {
-  const setAddressBookByTeamId = useSetRecoilState(addressBookByTeamIdState)
+  const setAddressBookByOrgId = useSetRecoilState(addressBookByOrgIdState)
   const [mutate, { loading, error }] = useMutation(CREATE_ADDRESS_MUTATION, {
     onCompleted: data => {
       const { id, name, address, org_id } = data.insert_address_one
-      setAddressBookByTeamId(prev => {
+      setAddressBookByOrgId(prev => {
         const addresses = [...(prev[org_id] ?? [])]
         const parsedAddress = Address.fromSs58(address)
         if (!parsedAddress) {
@@ -123,7 +123,7 @@ export const useCreateContact = () => {
 
 export const useDeleteContact = () => {
   const { toast } = useToast()
-  const [addressBookByTeamId, setAddressBookByTeamId] = useRecoilState(addressBookByTeamIdState)
+  const [addressBookByOrgId, setAddressBookByOrgId] = useRecoilState(addressBookByOrgIdState)
   const [mutate, { loading: deleting }] = useMutation(gql`
     mutation DeleteAddress($id: uuid!) {
       delete_address_by_pk(id: $id) {
@@ -150,12 +150,12 @@ export const useDeleteContact = () => {
         }
         toast({ title: `Contact deleted!` })
 
-        let addresses = addressBookByTeamId[orgId] ?? []
+        let addresses = addressBookByOrgId[orgId] ?? []
         const stillInList = addresses.find(contact => contact.id === id)
 
         if (stillInList) {
           addresses = addresses.filter(contact => contact.id !== id)
-          setAddressBookByTeamId({ ...addressBookByTeamId, [orgId]: addresses })
+          setAddressBookByOrgId({ ...addressBookByOrgId, [orgId]: addresses })
         }
 
         // inform caller that contact was deleted
@@ -165,7 +165,7 @@ export const useDeleteContact = () => {
         return false
       }
     },
-    [addressBookByTeamId, mutate, setAddressBookByTeamId, toast]
+    [addressBookByOrgId, mutate, setAddressBookByOrgId, toast]
   )
 
   return { deleteContact, deleting }
@@ -175,23 +175,23 @@ export const AddressBookWatcher = () => {
   const selectedAccount = useRecoilValue(selectedAccountState)
   const setLoading = useSetRecoilState(addressBookLoadingState)
   const [selectedMultisig] = useSelectedMultisig()
-  const setAddressBookByTeamId = useSetRecoilState(addressBookByTeamIdState)
+  const setAddressBookByOrgId = useSetRecoilState(addressBookByOrgIdState)
 
   const updateAddressBook = useCallback(
     (addresses: { address: string; id: string; org_id: string; name: string }[]) => {
-      setAddressBookByTeamId(prev => {
-        const newAddressBookByTeamId = { ...prev }
-        if (!newAddressBookByTeamId[selectedMultisig.orgId]) newAddressBookByTeamId[selectedMultisig.orgId] = []
+      setAddressBookByOrgId(prev => {
+        const newAddressBookByOrgId = { ...prev }
+        if (!newAddressBookByOrgId[selectedMultisig.orgId]) newAddressBookByOrgId[selectedMultisig.orgId] = []
 
         addresses.forEach(({ id, name, address, org_id }) => {
           try {
             const parsedAddress = Address.fromSs58(address)
             if (parsedAddress) {
-              let addressesOfTeam = newAddressBookByTeamId[org_id] ?? []
-              const conflict = addressesOfTeam.find(contact => contact.address.isEqual(parsedAddress))
+              let addressesOfOrg = newAddressBookByOrgId[org_id] ?? []
+              const conflict = addressesOfOrg.find(contact => contact.address.isEqual(parsedAddress))
               if (conflict) return
-              addressesOfTeam = [...addressesOfTeam, { id, name, orgId: org_id, address: parsedAddress }]
-              newAddressBookByTeamId[org_id] = addressesOfTeam
+              addressesOfOrg = [...addressesOfOrg, { id, name, orgId: org_id, address: parsedAddress }]
+              newAddressBookByOrgId[org_id] = addressesOfOrg
             }
           } catch (e) {
             console.error('Failed to parse contact:')
@@ -199,16 +199,16 @@ export const AddressBookWatcher = () => {
           }
         })
 
-        if (isEqual(prev, newAddressBookByTeamId)) return prev
-        return newAddressBookByTeamId
+        if (isEqual(prev, newAddressBookByOrgId)) return prev
+        return newAddressBookByOrgId
       })
     },
-    [selectedMultisig.orgId, setAddressBookByTeamId]
+    [selectedMultisig.orgId, setAddressBookByOrgId]
   )
 
   const { data, loading } = useQuery<{
     address: { address: string; id: string; org_id: string; name: string }[]
-  }>(ADDRESSES_QUERY, {
+  }>(ADDRESSES_BY_ORG_ID, {
     variables: {
       orgId: selectedMultisig.orgId,
     },
