@@ -9,6 +9,7 @@ import { selectedAccountState } from '@domains/auth'
 
 import AddressBookList from './components/AddressBookList'
 import AddressBookHeader from './components/AddressBookHeader'
+import AddressBookTable from './components/AddressBookTable'
 
 export const AddressBook: React.FC = () => {
   const { contacts, loading: isContactsLoading } = useAddressBook()
@@ -44,7 +45,7 @@ export const AddressBook: React.FC = () => {
             vaultName={selectedMultisig.name}
             hideAddButton={isCollaborator}
           />
-          {isContactsLoading ? (
+          {isContactsLoading && !contacts ? (
             <EyeOfSauronProgressIndicator />
           ) : !contacts?.length ? (
             <div css={({ color }) => ({ backgroundColor: color.surface, borderRadius: 12, padding: '32px 16px' })}>
@@ -61,11 +62,12 @@ export const AddressBook: React.FC = () => {
                   flexDirection: 'column',
                 }}
               >
-                <AddressBookList
+                <AddressBookTable />
+                {/* <AddressBookList
                   filteredContacts={filteredContacts}
                   multisig={selectedMultisig}
                   isCollaborator={isCollaborator}
-                />
+                /> */}
               </div>
             </div>
           )}

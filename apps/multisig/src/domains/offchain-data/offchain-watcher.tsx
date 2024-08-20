@@ -1,4 +1,4 @@
-import { AddressBookWatcher } from './address-book'
+import { AddressBookWatcher } from './address-book/address-book'
 import { TxMetadataWatcher } from './metadata'
 import { OrganisationsWatcher } from './organisation'
 import { SmartContractsWatcher } from './smart-contract'
