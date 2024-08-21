@@ -9,10 +9,14 @@ import { CircularProgressIndicator, IconButton } from '@talismn/ui'
 import { Copy, Trash } from '@talismn/icons'
 import { useDeleteContact } from '@domains/offchain-data/address-book/address-book'
 import { clsx } from 'clsx'
+import { usePage } from '@hooks/usePage'
+import AddressBookPagination from './AddressBookPagination'
 
 const AddressBookTable = ({ hideCollaboratorActions }: { hideCollaboratorActions: boolean }) => {
+  const page = usePage()
+
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
+    pageIndex: page - 1,
     pageSize: 10, // Showing more rows
   })
   const [selectedMultisig] = useSelectedMultisig()
@@ -113,7 +117,7 @@ const AddressBookTable = ({ hideCollaboratorActions }: { hideCollaboratorActions
   })
 
   return (
-    <div className="p-4 w-full">
+    <div className="pt-4 w-full">
       <div className="grid gap-4">
         {/* Column Headers */}
         <div className="grid grid-cols-[1fr_2fr_1fr_1fr] gap-4 font-semibold px-4">
@@ -142,27 +146,14 @@ const AddressBookTable = ({ hideCollaboratorActions }: { hideCollaboratorActions
           </div>
         ))}
       </div>
-
-      {/* Pagination Controls */}
-      <div className="flex justify-end mt-4">
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          {'<'}
-        </button>
-        <span className="px-4 py-2">
-          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-        </span>
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          {'>'}
-        </button>
-      </div>
+      <AddressBookPagination
+        currentPage={table.getState().pagination.pageIndex + 1}
+        totalPages={table.getPageCount()}
+        onNextPage={() => table.nextPage()}
+        isNextPageDisabled={!table.getCanNextPage()}
+        onPreviousPage={() => table.previousPage()}
+        isPreviousPageDisabled={!table.getCanPreviousPage()}
+      />
     </div>
   )
 }

@@ -38,7 +38,7 @@ export const AddressBook: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-1 md:px-[8%] md:py-[32px] p-[12px] px-0">
+      <div className="flex flex-1 md:px-[8%] md:pt-[32px] p-[12px] px-0">
         <div css={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
           <AddressBookHeader
             onAddContact={() => setIsModalOpen(true)}
