@@ -1,27 +1,49 @@
+import { useState, useMemo } from 'react'
 import { EyeOfSauronProgressIndicator, TextInput } from '@talismn/ui'
 import { useAddressBook } from '@domains/offchain-data'
 import { AddContactModal } from './AddContactModal'
-import { useState, useMemo } from 'react'
 import { useInput } from '@hooks/useInput'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useRecoilValue } from 'recoil'
 import { selectedAccountState } from '@domains/auth'
 import { CONFIG } from '@lib/config'
+import { PaginationState } from '@tanstack/react-table'
+import { usePage } from '@hooks/usePage'
+import useGetPaginatedAddressesByOrgId from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
+import { useSearchParams } from 'react-router-dom'
+import { useDebounce } from '@hooks/useDebounce'
 
 import AddressBookList from './components/AddressBookList'
 import AddressBookHeader from './components/AddressBookHeader'
 import AddressBookTable from './components/AddressBookTable'
 import { userOrganisationsState } from '@domains/offchain-data'
-import { config } from 'process'
 
 export const AddressBook: React.FC = () => {
+  const page = usePage()
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: page - 1,
+    pageSize: 10, // Showing more rows
+  })
+
   const { contacts, loading: isContactsLoading } = useAddressBook()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const user = useRecoilValue(selectedAccountState)
   const orgs = useRecoilValue(userOrganisationsState)
   const [selectedMultisig] = useSelectedMultisig()
   const queryInput = useInput('')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const query = searchParams.get('search') || ''
+  const search = useInput(query)
 
+  const handleUrlUpdate = () => {
+    if (search.value !== query) {
+      setSearchParams({ search: search.value })
+    }
+  }
+
+  const debouncedSearch = useDebounce(search.value, 500, handleUrlUpdate)
+
+  const dataQuery = useGetPaginatedAddressesByOrgId(pagination, debouncedSearch)
   const selectedOrganisation = orgs?.find(o => o.id === selectedMultisig.orgId)
 
   const isPaidPlan = CONFIG.USE_PAYWALL ? selectedOrganisation?.plan.id !== 0 : true
@@ -54,7 +76,15 @@ export const AddressBook: React.FC = () => {
             hideAddButton={isCollaborator}
           />
           {isPaidPlan ? (
-            <AddressBookTable hideCollaboratorActions={isCollaborator} />
+            <>
+              <TextInput placeholder="Search by name or address..." {...search} />
+              <AddressBookTable
+                hideCollaboratorActions={isCollaborator}
+                dataQuery={dataQuery.data}
+                pagination={pagination}
+                setPagination={setPagination}
+              />
+            </>
           ) : // Keeping this for now, but we should remove it once we have the new table and full backwards compatibility with free plans
           isContactsLoading && !contacts ? (
             <EyeOfSauronProgressIndicator />

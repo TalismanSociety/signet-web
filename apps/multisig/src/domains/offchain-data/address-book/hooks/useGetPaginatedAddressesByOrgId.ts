@@ -10,21 +10,30 @@ import { Contact } from '../address-book'
 
 export type ContactAddress = Contact & { address: string }
 
+export type PaginatedAddresses = {
+  rows: Contact[]
+  pageCount: number
+  rowCount: number
+}
+
 const fetchGraphQLData = async ({
   pagination,
   orgId,
   selectedAccount,
+  search,
 }: {
   pagination: { pageIndex: number; pageSize: number }
   orgId: string
   selectedAccount: SignedInAccount
-}) => {
+  search: string
+}): Promise<PaginatedAddresses> => {
   const { data } = await requestSignetBackend(
     PAGINATED_ADDRESSES_BY_ORG_ID,
     {
       orgId,
       limit: pagination.pageSize,
       offset: pagination.pageIndex * pagination.pageSize,
+      search: `%${search}%`,
     },
     selectedAccount
   )
@@ -36,13 +45,13 @@ const fetchGraphQLData = async ({
   }
 }
 
-const useGetPaginatedAddressesByOrgId = (pagination: { pageIndex: number; pageSize: number }) => {
+const useGetPaginatedAddressesByOrgId = (pagination: { pageIndex: number; pageSize: number }, search: string) => {
   const selectedAccount = useRecoilValue(selectedAccountState)
   const [selectedMultisig] = useSelectedMultisig()
   return useQuery({
-    queryKey: [selectedMultisig.id, pagination],
+    queryKey: [selectedMultisig.id, pagination, search],
     queryFn: async () =>
-      fetchGraphQLData({ pagination, orgId: selectedMultisig.orgId, selectedAccount: selectedAccount! }),
+      fetchGraphQLData({ pagination, orgId: selectedMultisig.orgId, selectedAccount: selectedAccount!, search }),
     placeholderData: keepPreviousData, // don't have 0 rows flash while changing pages/loading next page
     enabled: !!selectedAccount,
   })
