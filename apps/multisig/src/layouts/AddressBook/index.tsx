@@ -6,17 +6,25 @@ import { useInput } from '@hooks/useInput'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useRecoilValue } from 'recoil'
 import { selectedAccountState } from '@domains/auth'
+import { CONFIG } from '@lib/config'
 
 import AddressBookList from './components/AddressBookList'
 import AddressBookHeader from './components/AddressBookHeader'
 import AddressBookTable from './components/AddressBookTable'
+import { userOrganisationsState } from '@domains/offchain-data'
+import { config } from 'process'
 
 export const AddressBook: React.FC = () => {
   const { contacts, loading: isContactsLoading } = useAddressBook()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const user = useRecoilValue(selectedAccountState)
+  const orgs = useRecoilValue(userOrganisationsState)
   const [selectedMultisig] = useSelectedMultisig()
   const queryInput = useInput('')
+
+  const selectedOrganisation = orgs?.find(o => o.id === selectedMultisig.orgId)
+
+  const isPaidPlan = CONFIG.USE_PAYWALL ? selectedOrganisation?.plan.id !== 0 : true
 
   const isCollaborator = useMemo(
     () => (user ? selectedMultisig.isCollaborator(user.injected.address) : false),
@@ -45,7 +53,10 @@ export const AddressBook: React.FC = () => {
             vaultName={selectedMultisig.name}
             hideAddButton={isCollaborator}
           />
-          {isContactsLoading && !contacts ? (
+          {isPaidPlan ? (
+            <AddressBookTable hideCollaboratorActions={isCollaborator} />
+          ) : // Keeping this for now, but we should remove it once we have the new table and full backwards compatibility with free plans
+          isContactsLoading && !contacts ? (
             <EyeOfSauronProgressIndicator />
           ) : !contacts?.length ? (
             <div css={({ color }) => ({ backgroundColor: color.surface, borderRadius: 12, padding: '32px 16px' })}>
@@ -62,12 +73,11 @@ export const AddressBook: React.FC = () => {
                   flexDirection: 'column',
                 }}
               >
-                <AddressBookTable hideCollaboratorActions={isCollaborator} />
-                {/* <AddressBookList
+                <AddressBookList
                   filteredContacts={filteredContacts}
                   multisig={selectedMultisig}
                   isCollaborator={isCollaborator}
-                /> */}
+                />
               </div>
             </div>
           )}
