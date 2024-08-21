@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useCallback, useState } from 'react'
 import { Contact } from '@domains/offchain-data/address-book/address-book'
 import useGetPaginatedAddressesByOrgId from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
 import { PaginationState, useReactTable, getCoreRowModel, ColumnDef, flexRender } from '@tanstack/react-table'
@@ -11,10 +11,10 @@ import { useDeleteContact } from '@domains/offchain-data/address-book/address-bo
 import { clsx } from 'clsx'
 import { usePage } from '@hooks/usePage'
 import AddressBookPagination from './AddressBookPagination'
+import { useNavigate } from 'react-router-dom'
 
 const AddressBookTable = ({ hideCollaboratorActions }: { hideCollaboratorActions: boolean }) => {
   const page = usePage()
-
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: page - 1,
     pageSize: 10, // Showing more rows
@@ -22,8 +22,20 @@ const AddressBookTable = ({ hideCollaboratorActions }: { hideCollaboratorActions
   const [selectedMultisig] = useSelectedMultisig()
   const { copy } = useCopied()
   const { deleteContact, deleting } = useDeleteContact()
-
   const dataQuery = useGetPaginatedAddressesByOrgId(pagination)
+  const navigate = useNavigate()
+
+  const isLastItemInPage =
+    (dataQuery.data?.pageCount ?? -1) > 1 &&
+    pagination.pageIndex + 1 === (dataQuery.data?.pageCount ?? -1) &&
+    dataQuery.data?.rowCount === 1
+
+  const handleAddressDeleteSuccess = useCallback(() => {
+    if (isLastItemInPage) {
+      navigate('#1', { replace: true })
+      setPagination(prev => ({ ...prev, pageIndex: prev.pageIndex - 1 }))
+    }
+  }, [isLastItemInPage, navigate])
 
   const columns = useMemo<ColumnDef<Contact>[]>(
     () => [
@@ -86,7 +98,10 @@ const AddressBookTable = ({ hideCollaboratorActions }: { hideCollaboratorActions
                     <Copy size={16} />
                   </IconButton>
                   {!hideCollaboratorActions && (
-                    <IconButton onClick={() => deleteContact(row.original.id, pagination)} disabled={deleting}>
+                    <IconButton
+                      onClick={() => deleteContact(row.original.id, pagination, handleAddressDeleteSuccess)}
+                      disabled={deleting}
+                    >
                       {deleting ? <CircularProgressIndicator size={16} /> : <Trash size={16} />}
                     </IconButton>
                   )}
@@ -97,7 +112,15 @@ const AddressBookTable = ({ hideCollaboratorActions }: { hideCollaboratorActions
         },
       },
     ],
-    [copy, deleteContact, deleting, hideCollaboratorActions, pagination, selectedMultisig.chain]
+    [
+      copy,
+      deleteContact,
+      deleting,
+      handleAddressDeleteSuccess,
+      hideCollaboratorActions,
+      pagination,
+      selectedMultisig.chain,
+    ]
   )
 
   const defaultData = useMemo(() => [], [])

@@ -137,6 +137,7 @@ export const useDeleteContact = () => {
   const [addressBookByOrgId, setAddressBookByOrgId] = useRecoilState(addressBookByOrgIdState)
   const queryClient = useQueryClient()
   const [selectedMultisig] = useSelectedMultisig()
+
   const [mutate, { loading: deleting }] = useMutation(gql`
     mutation DeleteAddress($id: uuid!) {
       delete_address_by_pk(id: $id) {
@@ -147,7 +148,7 @@ export const useDeleteContact = () => {
   `)
 
   const deleteContact = useCallback(
-    async (id: string, pagination?: { pageIndex: number; pageSize: number }) => {
+    async (id: string, pagination?: { pageIndex: number; pageSize: number }, onSuccess?: () => void) => {
       try {
         const { data, errors } = await mutate({ variables: { id } })
 
@@ -169,6 +170,10 @@ export const useDeleteContact = () => {
         if (stillInList) {
           addresses = addresses.filter(contact => contact.id !== id)
           setAddressBookByOrgId({ ...addressBookByOrgId, [orgId]: addresses })
+        }
+
+        if (onSuccess) {
+          onSuccess()
         }
 
         queryClient.invalidateQueries({ queryKey: [selectedMultisig.id, pagination] })
