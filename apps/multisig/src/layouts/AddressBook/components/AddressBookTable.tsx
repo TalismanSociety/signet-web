@@ -7,20 +7,19 @@ import { useSelectedMultisig } from '@domains/multisig'
 import useCopied from '@hooks/useCopied'
 import { CircularProgressIndicator, IconButton } from '@talismn/ui'
 import { Copy, Trash } from '@talismn/icons'
+import { useDeleteContact } from '@domains/offchain-data/address-book/address-book'
+import { clsx } from 'clsx'
 
-const AddressBookTable = () => {
+const AddressBookTable = ({ hideCollaboratorActions }: { hideCollaboratorActions: boolean }) => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10, // Showing more rows
   })
   const [selectedMultisig] = useSelectedMultisig()
   const { copy } = useCopied()
+  const { deleteContact, deleting } = useDeleteContact()
 
   const dataQuery = useGetPaginatedAddressesByOrgId(pagination)
-
-  console.log({ dataQuery })
-
-  const hideCollaboratorActions = false
 
   const columns = useMemo<ColumnDef<Contact>[]>(
     () => [
@@ -66,27 +65,35 @@ const AddressBookTable = () => {
         header: 'Subcategory',
         accessorKey: 'sub_category.name',
         cell: ({ row }) => {
-          console.log({ original: row.original })
           const addressTosS58 = row.original.address.toSs58(selectedMultisig.chain)
           return (
-            <div className="flex justify-end">
-              <div className="flex items-center truncate">
+            <div className="flex items-center justify-end">
+              <div className="flex items-center truncate gap-3">
                 <div className="truncate">{row.original.sub_category?.name}</div>
-                <IconButton onClick={() => copy(addressTosS58, 'Address copied!', addressTosS58)}>
-                  <Copy size={16} />
-                </IconButton>
-                {/* {!hideCollaboratorActions && (
-                <IconButton onClick={() => deleteContact(contact.id)} disabled={deleting}>
-                  {deleting ? <CircularProgressIndicator size={16} /> : <Trash size={16} />}
-                </IconButton>
-              )} */}
+                <div
+                  className={clsx('flex items-center flex-row w-[2rem] text-[#a5a5a5]', {
+                    'w-[5rem]': !hideCollaboratorActions,
+                  })}
+                  css={({ color }) => ({
+                    button: { color: color.lightGrey },
+                  })}
+                >
+                  <IconButton onClick={() => copy(addressTosS58, 'Address copied!', addressTosS58)}>
+                    <Copy size={16} />
+                  </IconButton>
+                  {!hideCollaboratorActions && (
+                    <IconButton onClick={() => deleteContact(row.original.id, pagination)} disabled={deleting}>
+                      {deleting ? <CircularProgressIndicator size={16} /> : <Trash size={16} />}
+                    </IconButton>
+                  )}
+                </div>
               </div>
             </div>
           )
         },
       },
     ],
-    [selectedMultisig.chain]
+    [copy, deleteContact, deleting, hideCollaboratorActions, pagination, selectedMultisig.chain]
   )
 
   const defaultData = useMemo(() => [], [])
@@ -125,10 +132,10 @@ const AddressBookTable = () => {
         {table.getRowModel().rows.map(row => (
           <div
             key={row.id}
-            className="grid grid-cols-[1fr_2fr_1fr_1fr] gap-4 bg-[#1B1B1B] hover:bg-red-600 rounded-2xl py-4 px-4 items-center"
+            className="grid grid-cols-[1fr_2fr_1fr_1fr] gap-4 bg-[#1B1B1B] rounded-2xl py-4 px-4 items-center"
           >
             {row.getVisibleCells().map(cell => (
-              <div key={cell.id} className={'p-2 flex-grow truncate last:text-right'}>
+              <div key={cell.id} className={'p-2 flex-grow truncate'}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </div>
             ))}

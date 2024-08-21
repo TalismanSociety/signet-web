@@ -8,6 +8,7 @@ import { isEqual } from 'lodash'
 import { useMutation, useQuery } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { useToast } from '@components/ui/use-toast'
+import { useQueryClient } from '@tanstack/react-query'
 
 const ADDRESSES_BY_ORG_ID = gql`
   query AddressesByOrgId($orgId: uuid!) {
@@ -134,6 +135,8 @@ export const useCreateContact = () => {
 export const useDeleteContact = () => {
   const { toast } = useToast()
   const [addressBookByOrgId, setAddressBookByOrgId] = useRecoilState(addressBookByOrgIdState)
+  const queryClient = useQueryClient()
+  const [selectedMultisig] = useSelectedMultisig()
   const [mutate, { loading: deleting }] = useMutation(gql`
     mutation DeleteAddress($id: uuid!) {
       delete_address_by_pk(id: $id) {
@@ -144,7 +147,7 @@ export const useDeleteContact = () => {
   `)
 
   const deleteContact = useCallback(
-    async (id: string) => {
+    async (id: string, pagination?: { pageIndex: number; pageSize: number }) => {
       try {
         const { data, errors } = await mutate({ variables: { id } })
 
@@ -168,6 +171,8 @@ export const useDeleteContact = () => {
           setAddressBookByOrgId({ ...addressBookByOrgId, [orgId]: addresses })
         }
 
+        queryClient.invalidateQueries({ queryKey: [selectedMultisig.id, pagination] })
+
         // inform caller that contact was deleted
         return true
       } catch (e) {
@@ -175,7 +180,7 @@ export const useDeleteContact = () => {
         return false
       }
     },
-    [addressBookByOrgId, mutate, setAddressBookByOrgId, toast]
+    [addressBookByOrgId, mutate, queryClient, selectedMultisig.id, setAddressBookByOrgId, toast]
   )
 
   return { deleteContact, deleting }

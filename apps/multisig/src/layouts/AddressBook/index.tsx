@@ -62,7 +62,7 @@ export const AddressBook: React.FC = () => {
                   flexDirection: 'column',
                 }}
               >
-                <AddressBookTable />
+                <AddressBookTable hideCollaboratorActions={isCollaborator} />
                 {/* <AddressBookList
                   filteredContacts={filteredContacts}
                   multisig={selectedMultisig}
