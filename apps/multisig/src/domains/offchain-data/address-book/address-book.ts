@@ -35,7 +35,7 @@ export type Contact = {
   address: Address
   orgId: string
   category?: { id: string; name: string }
-  subCategory?: { id: string; name: string }
+  sub_category?: { id: string; name: string }
 }
 
 export const addressBookLoadingState = atom<boolean>({
