@@ -10587,7 +10587,7 @@ __metadata:
     "@talismn/development": "workspace:^"
     "@talismn/dot-pool-selector": snapshot
     "@talismn/icons": "workspace:^"
-    "@talismn/siws": 0.0.8
+    "@talismn/siws": 0.0.18
     "@talismn/ui": "workspace:^"
     "@talismn/util": ^0.2.0
     "@tanstack/eslint-plugin-query": ^5.35.6
@@ -10738,16 +10738,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@talismn/siws@npm:0.0.8":
-  version: 0.0.8
-  resolution: "@talismn/siws@npm:0.0.8"
+"@talismn/siws@npm:0.0.18":
+  version: 0.0.18
+  resolution: "@talismn/siws@npm:0.0.18"
   dependencies:
     "@azns/resolver-core": ^1.6.0
     "@types/jest": ^29.5.8
   peerDependencies:
     "@polkadot/api": ^10.10.1
     "@polkadot/extension-dapp": ^0.46.5
-  checksum: 5338e6350b4eb5da178d4b09264c6460f986d907b3bda2878c92b04a3b21dfcc7204162e72de27cbe2b77e093d7589dc103344de15c457407e920ba43db7ad27
+  checksum: 75b972bc5e715d1409aed213de3662464ce1d077605ddfa862c75c49d6d2b7323f85e6221b85858d432cb16865fc73c7de97413ed9730b16cfe25866e8519857
   languageName: node
   linkType: hard
 

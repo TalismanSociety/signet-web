@@ -811,6 +811,7 @@ const pendingTransactionsSelector = selector<Transaction[]>({
     const allRawPendingTransactions = get(allRawPendingTransactionsSelector)
     const txMetadataByTeamId = get(txMetadataByTeamIdState)
     const tempCalldata = get(tempCalldataState)
+    const isTxMetadataByTeamIdInitialized = Object.keys(txMetadataByTeamId).length !== 0
 
     const transactions: Transaction[] = []
     for (const rawPending of allRawPendingTransactions) {
@@ -819,9 +820,10 @@ const pendingTransactionsSelector = selector<Transaction[]>({
       const transactionID = makeTransactionID(rawPending.multisig.chain, timepoint_height, timepoint_index)
 
       const metadata = txMetadataByTeamId[rawPending.multisig.id]?.data[transactionID]
+
       let calldata = metadata?.callData ?? tempCalldata[transactionID]
 
-      if (!calldata) {
+      if (!calldata && isTxMetadataByTeamIdInitialized) {
         const block = get(blockSelector(`${rawPending.blockHash.toHex()}-${rawPending.multisig.chain.genesisHash}`))
         if (block) {
           const ext = block.block.extrinsics[timepoint_index]

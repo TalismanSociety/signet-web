@@ -2,6 +2,8 @@ export type Rpc = {
   url: string
 }
 
+type Account = '*25519' | 'secp256k1'
+
 export type SupportedChain = {
   id: string
   polkaAssemblyUrl?: string
@@ -49,6 +51,7 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   'phala': { id: 'phala' },
   'rococo-testnet': { id: 'rococo-testnet' },
   'shibuya-testnet': { id: 'shibuya-testnet' },
+  'mythos': { id: 'mythos', subscanUrl: 'https://mythos.subscan.io/' },
 }
 
 export type Chain = {
@@ -64,6 +67,7 @@ export type Chain = {
   ss58Prefix: number
   subscanUrl: string
   polkaAssemblyUrl?: string
+  account: Account
 }
 
 export const CUSTOM_CHAINS: Omit<Chain, 'id'>[] = [
@@ -82,4 +86,4 @@ export const CUSTOM_CHAINS: Omit<Chain, 'id'>[] = [
   // },
 ]
 
-export const CHAINDATA_URL = 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/dist/chains/all.json'
+export const CHAINDATA_URL = 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/pub/v1/chains/all.json'

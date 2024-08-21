@@ -79,7 +79,9 @@ export const vaultsOfAccount = selector({
     data.accountExtrinsics.forEach(tx => {
       try {
         // get the signer that signed the transaction
-        const signer = Address.fromPubKey(parseCallAddressArg(tx.extrinsic.signer))
+        const signer =
+          Address.fromPubKey(parseCallAddressArg(tx.extrinsic.signer)) ||
+          Address.fromSs58(parseCallAddressArg(tx.extrinsic.signer))
         if (!signer) throw new Error('Invalid signer')
 
         // check if the multisig is on a supported chain
@@ -93,7 +95,7 @@ export const vaultsOfAccount = selector({
         const otherSignersPubkey = tx.extrinsic.callArgs.otherSignatories ?? []
         const signers = [signer]
         for (const otherSigner of otherSignersPubkey) {
-          const nextSigner = Address.fromPubKey(otherSigner)
+          const nextSigner = Address.fromPubKey(otherSigner) || Address.fromSs58(otherSigner)
           if (!nextSigner) throw new Error('Invalid signer from otherSignatories')
           signers.push(nextSigner)
         }
@@ -116,11 +118,14 @@ export const vaultsOfAccount = selector({
         const innerCall = tx.extrinsic.callArgs.call
         if (!innerCall) throw new Error('No inner call, not a multisig to proxy call')
 
-        if (innerCall.__kind !== 'Proxy' || innerCall.value.__kind !== 'proxy')
-          throw new Error('No inner call is not a proxy call')
+        if (innerCall.__kind !== 'Proxy' || innerCall.value.__kind !== 'proxy') {
+          // some weird extrinsic, ignore
+          return null
+        }
 
         // find the real account of the proxy call
-        const proxiedAccount = Address.fromPubKey(parseCallAddressArg(innerCall.value.real))
+        const proxiedAccount =
+          Address.fromPubKey(parseCallAddressArg(innerCall.value.real)) || Address.fromSs58(innerCall.value.real)
         if (!proxiedAccount) throw new Error('Invalid proxied account')
 
         proxiedAccounts[`${proxiedAccount.toSs58()}-${chain.genesisHash}`] = {
@@ -128,7 +133,7 @@ export const vaultsOfAccount = selector({
           chain,
         }
       } catch (e) {
-        // some weird extrinsic, ignore
+        console.error({ e })
         return null
       }
     })

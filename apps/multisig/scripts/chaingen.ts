@@ -22,11 +22,12 @@ const generateSupportedChains = async () => {
         ss58Prefix: chain.prefix,
         subscanUrl: chainDetails.subscanUrl ?? chain.subscanUrl,
         polkaAssemblyUrl: chainDetails.polkaAssemblyUrl ?? chain.polkaAssemblyUrl,
+        account: chain.account,
       })
     }
   }
   CUSTOM_CHAINS.forEach(chain => {
-    supportedChains.push({ ...chain, id: `custom-${chain.genesisHash}` })
+    supportedChains.push({ ...chain, id: `custom-${chain.genesisHash}`, account: chain.account })
   })
 
   fs.writeFileSync(

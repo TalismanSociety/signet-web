@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { cn } from '../util/tailwindcss'
 import { useAzeroID } from '@domains/azeroid/AzeroIDResolver'
 import { AzeroIDLogo } from './OtherLogos/AzeroID'
-import { useSelectedMultisig } from '@domains/multisig'
+import { useSelectedMultisig, DUMMY_MULTISIG_ID } from '@domains/multisig'
 import { useApi } from '@domains/chains/pjs-api'
 import { formatUnits } from '@util/numbers'
 import { Skeleton } from '@talismn/ui'
@@ -26,6 +26,8 @@ export const AddressTooltip: React.FC<
   const { resolve } = useAzeroID()
   const [a0Id, setA0Id] = useState<string>()
   const onchainIdentity = useOnchainIdentity(address, chain)
+
+  const isLoggedIn = selectedMultisig.id !== DUMMY_MULTISIG_ID
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -107,7 +109,7 @@ export const AddressTooltip: React.FC<
               {copied ? <Check size={16} /> : <Copy size={16} />}
             </div>
           </div>
-          {!!token && !!token.tokenSymbol && !!token.tokenDecimals && (
+          {isLoggedIn && !!token && !!token.tokenSymbol && !!token.tokenDecimals && (
             <p className="mt-[8px] text-[12px] text-left">
               Available Balance:{' '}
               {balanceBN !== undefined ? (

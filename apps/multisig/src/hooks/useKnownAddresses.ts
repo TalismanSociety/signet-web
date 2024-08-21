@@ -18,12 +18,20 @@ export const useKnownAddresses = (
   const [multisig] = useSelectedMultisig()
   const { contracts } = useSmartContracts()
 
-  const extensionContacts: AddressWithName[] = extensionAccounts.map(({ address, meta }) => ({
-    address,
-    name: meta.name ?? '',
-    type: 'Extension',
-    extensionName: meta.name,
-  }))
+  const extensionContacts = extensionAccounts.reduce<AddressWithName[]>(
+    (acc, { address, meta: { name = '' } = {} }) => {
+      if (multisig.isEthereumAccount === address.isEthereum) {
+        acc.push({
+          address,
+          name,
+          type: 'Extension',
+          extensionName: name,
+        })
+      }
+      return acc
+    },
+    []
+  )
 
   const addressBookContacts = useMemo(() => {
     if (!teamId) return []
