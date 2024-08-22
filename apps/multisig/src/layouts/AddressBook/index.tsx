@@ -17,14 +17,20 @@ import AddressBookList from './components/AddressBookList'
 import AddressBookHeader from './components/AddressBookHeader'
 import AddressBookTable from './components/AddressBookTable'
 import { userOrganisationsState } from '@domains/offchain-data'
+import { PaginatedAddresses } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
+import { useNavigate } from 'react-router-dom'
+
+export const DEFAULT_PAGE_SIZE = 10
 
 export const AddressBook: React.FC = () => {
   const page = usePage()
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: page - 1,
-    pageSize: 10, // Showing more rows
+    pageSize: DEFAULT_PAGE_SIZE,
   })
+  const [parsedCsv, setParsedCsv] = useState<PaginatedAddresses>({ rows: [], pageCount: 0, rowCount: 0 })
 
+  const navigate = useNavigate()
   const { contacts, loading: isContactsLoading } = useAddressBook()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const user = useRecoilValue(selectedAccountState)
@@ -66,11 +72,24 @@ export const AddressBook: React.FC = () => {
     [contacts, queryInput.value, selectedMultisig.chain]
   )
 
+  const handleCsvImportCancel = () => {
+    setParsedCsv({ rows: [], pageCount: 0, rowCount: 0 })
+    navigate('#1', { replace: true })
+    setPagination({ pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE })
+  }
+
+  const handleCsvImportSuccess = (paginatedCsv: PaginatedAddresses) => {
+    navigate('#1', { replace: true })
+    setPagination({ pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE })
+    setParsedCsv(paginatedCsv)
+  }
+
   return (
     <>
       <div className="flex flex-1 md:px-[8%] md:pt-[32px] p-[12px] px-0">
         <div css={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
           <AddressBookHeader
+            handleCsvImportSuccess={handleCsvImportSuccess}
             onAddContact={() => setIsModalOpen(true)}
             vaultName={selectedMultisig.name}
             hideAddButton={isCollaborator}
@@ -80,9 +99,22 @@ export const AddressBook: React.FC = () => {
               <TextInput placeholder="Search by name or address..." {...search} />
               <AddressBookTable
                 hideCollaboratorActions={isCollaborator}
-                dataQuery={dataQuery.data}
+                dataQuery={
+                  parsedCsv.rowCount
+                    ? {
+                        ...parsedCsv,
+                        // Client side pagination for CSV import
+                        rows: parsedCsv.rows.slice(
+                          pagination.pageIndex * pagination.pageSize,
+                          (pagination.pageIndex + 1) * pagination.pageSize
+                        ),
+                      }
+                    : dataQuery.data
+                }
                 pagination={pagination}
                 setPagination={setPagination}
+                isCsvImport={!!parsedCsv.rowCount}
+                handleCsvImportCancel={handleCsvImportCancel}
               />
             </>
           ) : // Keeping this for now, but we should remove it once we have the new table and full backwards compatibility with free plans
@@ -113,6 +145,7 @@ export const AddressBook: React.FC = () => {
           )}
         </div>
       </div>
+
       <AddContactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   )

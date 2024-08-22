@@ -11,17 +11,22 @@ import { useDeleteContact } from '@domains/offchain-data/address-book/address-bo
 import { clsx } from 'clsx'
 import AddressBookPagination from './AddressBookPagination'
 import { useNavigate } from 'react-router-dom'
+import { Button } from '@components/ui/button'
 
 const AddressBookTable = ({
   hideCollaboratorActions,
   dataQuery,
   pagination,
   setPagination,
+  isCsvImport,
+  handleCsvImportCancel,
 }: {
   hideCollaboratorActions: boolean
   dataQuery: PaginatedAddresses | undefined
   pagination: PaginationState
   setPagination: React.Dispatch<React.SetStateAction<PaginationState>>
+  isCsvImport: boolean
+  handleCsvImportCancel: () => void
 }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const { copy } = useCopied()
@@ -139,7 +144,6 @@ const AddressBookTable = ({
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
-    getRowId: row => row.id, // Unique key for rows
   })
 
   return (
@@ -172,14 +176,26 @@ const AddressBookTable = ({
           </div>
         ))}
       </div>
-      <AddressBookPagination
-        currentPage={table.getState().pagination.pageIndex + 1}
-        totalPages={table.getPageCount()}
-        onNextPage={() => table.nextPage()}
-        isNextPageDisabled={!table.getCanNextPage()}
-        onPreviousPage={() => table.previousPage()}
-        isPreviousPageDisabled={!table.getCanPreviousPage()}
-      />
+      <div className="flex pt-5">
+        {isCsvImport && (
+          <div className="flex flex-row gap-[8px]">
+            <Button variant="secondary" className="h-max py-[8px]" size="lg" onClick={handleCsvImportCancel}>
+              Cancel
+            </Button>
+            <Button className="h-max py-[8px]" size="lg">
+              Save
+            </Button>
+          </div>
+        )}
+        <AddressBookPagination
+          currentPage={table.getState().pagination.pageIndex + 1}
+          totalPages={table.getPageCount()}
+          onNextPage={() => table.nextPage()}
+          isNextPageDisabled={!table.getCanNextPage()}
+          onPreviousPage={() => table.previousPage()}
+          isPreviousPageDisabled={!table.getCanPreviousPage()}
+        />
+      </div>
     </div>
   )
 }

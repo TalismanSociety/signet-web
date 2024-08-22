@@ -24,7 +24,7 @@ const AddressBookPagination = ({
   isPreviousPageDisabled: boolean
 }) => {
   return (
-    <Pagination className="items-center justify-end pt-5">
+    <Pagination className="items-center justify-end">
       <p className="text-right text-offWhite text-[14px] mt-[3px] mr-[8px]">
         Page {currentPage} of {totalPages}
       </p>
