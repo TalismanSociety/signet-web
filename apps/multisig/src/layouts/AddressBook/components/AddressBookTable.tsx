@@ -147,7 +147,7 @@ const AddressBookTable = ({
   })
 
   return (
-    <div className="pt-4 w-full">
+    <div className="pt-4 w-full flex flex-col flex-1">
       <div className="grid gap-[8px]">
         {/* Column Headers */}
         <div className="grid grid-cols-[1fr_2fr_1fr_1fr] gap-4 font-semibold px-4">
@@ -176,7 +176,7 @@ const AddressBookTable = ({
           </div>
         ))}
       </div>
-      <div className="flex pt-5">
+      <div className="flex pt-5 items-end justify-end mt-auto">
         {isCsvImport && (
           <div className="flex flex-row gap-[8px]">
             <Button variant="secondary" className="h-max py-[8px]" size="lg" onClick={handleCsvImportCancel}>
