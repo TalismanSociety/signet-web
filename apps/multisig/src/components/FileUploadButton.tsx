@@ -1,14 +1,14 @@
 import { Plus } from '@talismn/icons'
 import { useRef } from 'react'
-import { Button } from './ui/button'
+import { Button, ButtonProps } from './ui/button'
 
-type Props = {
+type Props = ButtonProps & {
   label?: string
   accept?: string
   onFiles?: (files: File[]) => void
   multiple?: boolean
 }
-const FileUploadButton: React.FC<Props> = ({ accept, label, multiple, onFiles }) => {
+const FileUploadButton: React.FC<Props> = ({ accept, label, multiple, onFiles, variant = 'secondary' }) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleClick = () => {
@@ -22,7 +22,10 @@ const FileUploadButton: React.FC<Props> = ({ accept, label, multiple, onFiles })
   }
 
   return (
-    <>
+    <Button className="h-max py-[8px] gap-[8px]" variant={variant} onClick={handleClick} size="lg">
+      <div css={{ color: 'var(--color-primary)' }}>
+        <Plus size={16} />
+      </div>
       <input
         type="file"
         ref={inputRef}
@@ -33,31 +36,8 @@ const FileUploadButton: React.FC<Props> = ({ accept, label, multiple, onFiles })
         // @ts-ignore clear the input value so that the same file can be uploaded again
         onClick={e => (e.target.value = null)}
       />
-      <Button variant="secondary" onClick={handleClick} size="lg">
-        <div
-          css={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            svg: {
-              color: 'var(--color-primary)',
-            },
-          }}
-        >
-          <Plus size={16} />
-          <p
-            css={{
-              fontSize: 14,
-              lineHeight: '14px',
-              marginTop: 2,
-              color: 'var(--color-offWhite)',
-            }}
-          >
-            {label}
-          </p>
-        </div>
-      </Button>
-    </>
+      <p className="mt-[4px]">{label}</p>
+    </Button>
   )
 }
 
