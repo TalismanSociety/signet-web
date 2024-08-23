@@ -38,7 +38,7 @@ export const useAugmentedBalances = () => {
 
   return useMemo(() => {
     if (!multisigBalances) return undefined
-    return multisigBalances.filterNonZero('total').sorted.reduce((acc: TokenAugmented[], b) => {
+    return multisigBalances.filterNonZeroFiat('total', 'usd').sorted.reduce((acc: TokenAugmented[], b) => {
       if (b.chain === null || !b.token) return acc
       const balanceChain = b.chain
 
@@ -94,7 +94,7 @@ export const BalancesWatcher = () => {
 
   const balances = useBalances()
   useEffect(() => {
-    setBalances(balances.filterNonZero('total'))
+    setBalances(balances.filterNonZeroFiat('total', 'usd'))
   }, [balances, setBalances])
 
   return null

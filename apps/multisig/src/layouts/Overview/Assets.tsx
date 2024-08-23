@@ -51,7 +51,10 @@ const BalanceDetails: React.FC<{
 
 const TokenRow: React.FC<{ balance: Balance }> = ({ balance }) => {
   const loading = balance.status !== 'live'
-  const balanceToken = supportedChains.find(chain => chain.nativeToken?.id === balance.token.id)
+  const balanceToken = supportedChains.find(chain => chain.nativeToken?.id === balance.token?.id)
+
+  if (!balanceToken || !balance.token || !balance.chain) return null
+
   return (
     <AccordionItem
       value={balance.id}
@@ -69,7 +72,9 @@ const TokenRow: React.FC<{ balance: Balance }> = ({ balance }) => {
           <div className="flex items-center justify-between w-full">
             <div className="flex flex-col gap-[4px]">
               <p className="text-[16px] leading-none font-bold text-offWhite text-left">{balance.token.symbol}</p>
-              <p className="text-[12px] leading-none text-left">{capitalizeFirstLetter(balance.chain.chainName)}</p>
+              <p className="text-[12px] leading-none text-left">
+                {capitalizeFirstLetter(balance.chain.chainName ?? '')}
+              </p>
             </div>
             <Amount balanceFormatter={balance.transferable} symbol={balance.token.symbol} loading={loading} />
           </div>
@@ -109,12 +114,12 @@ const Assets: React.FC = () => {
       const balanceOwnerAddress = Address.fromSs58(b.address)
       if (!balanceOwnerAddress || !balanceOwnerAddress.isEqual(multisig.proxyAddress)) return false
       return (
-        b.token.type === 'substrate-native' ||
-        b.token.type === 'substrate-assets' ||
-        b.token.type === 'substrate-tokens'
+        b.token?.type === 'substrate-native' ||
+        b.token?.type === 'substrate-assets' ||
+        b.token?.type === 'substrate-tokens'
       )
     }
-    return balances.filterNonZero('total').find(substrateTokensFilter)
+    return balances.filterNonZeroFiat('total', 'usd').find(substrateTokensFilter)
   }, [balances, multisig.proxyAddress])
 
   return (
