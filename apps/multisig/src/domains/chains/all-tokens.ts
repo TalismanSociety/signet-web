@@ -6769,6 +6769,7 @@ export const ALL_TOKENS = [
     chain: {
       id: 'mythos',
     },
+    coingeckoId: 'mythos',
   },
 ]
 
