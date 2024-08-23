@@ -171,7 +171,9 @@ export const Dapps: React.FC = () => {
         const urlOnCurrentChain = getDappUrl(dapp)
         if (urlOnCurrentChain) return setInput(urlOnCurrentChain)
       }
-      closeIframe()
+      if (iframeRef.current) {
+        closeIframe()
+      }
     }
   }, [getDappUrl, input, selectedDapp])
 
