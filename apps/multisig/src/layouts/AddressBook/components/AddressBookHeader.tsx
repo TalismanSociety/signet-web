@@ -16,6 +16,7 @@ type ParsedPaginatedAddresses = PaginatedAddresses & {
 
 const parseCSV = async (file: File): Promise<ParsedPaginatedAddresses> => {
   let invalidRows: number[] = []
+  const seenAddresses = new Set<string>()
   const text = await file.text()
 
   const lines = text.split('\r\n')
@@ -27,12 +28,22 @@ const parseCSV = async (file: File): Promise<ParsedPaginatedAddresses> => {
   const rows: Contact[] = lines.slice(1).map((line, index) => {
     const data = line.split(',')
     const name = data[headers.indexOf('Name')]
-    const address = Address.fromSs58(data[headers.indexOf('Address')] ?? '')
+    const csvAddress = data[headers.indexOf('Address')] ?? ''
+    const address = Address.fromSs58(csvAddress)
 
     if (!name || !address) {
       invalidRows.push(index + 1) // +1 to account for the header row
+      console.log(`Invalid row: ${index + 1}, name: ${name}, address: ${address}`)
       return null as any
     }
+
+    if (seenAddresses.has(csvAddress)) {
+      invalidRows.push(index + 1) // Add the row index to invalidRows
+      console.log(`Duplicate address found: ${address} at row ${index + 1}`)
+      return null as any
+    }
+
+    seenAddresses.add(csvAddress)
 
     return {
       id: '',

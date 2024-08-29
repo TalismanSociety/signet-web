@@ -19,8 +19,10 @@ import AddressBookTable from './components/AddressBookTable'
 import { userOrganisationsState } from '@domains/offchain-data'
 import { PaginatedAddresses } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
 import { useNavigate } from 'react-router-dom'
+import { parse } from 'path'
 
 export const DEFAULT_PAGE_SIZE = 10
+export const DEFAULT_CSV_STATE: PaginatedAddresses = { rows: [], pageCount: 0, rowCount: 0 }
 
 export const AddressBook: React.FC = () => {
   const page = usePage()
@@ -28,7 +30,7 @@ export const AddressBook: React.FC = () => {
     pageIndex: page - 1,
     pageSize: DEFAULT_PAGE_SIZE,
   })
-  const [parsedCsv, setParsedCsv] = useState<PaginatedAddresses>({ rows: [], pageCount: 0, rowCount: 0 })
+  const [parsedCsv, setParsedCsv] = useState<PaginatedAddresses>(DEFAULT_CSV_STATE)
 
   const navigate = useNavigate()
   const { contacts, loading: isContactsLoading } = useAddressBook()
@@ -99,6 +101,8 @@ export const AddressBook: React.FC = () => {
               <TextInput placeholder="Search by name or address..." {...search} />
               <AddressBookTable
                 hideCollaboratorActions={isCollaborator}
+                parsedCsvRows={parsedCsv.rows}
+                setParsedCsv={setParsedCsv}
                 dataQuery={
                   parsedCsv.rowCount
                     ? {

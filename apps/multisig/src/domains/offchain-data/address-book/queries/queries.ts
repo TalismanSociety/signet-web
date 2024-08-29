@@ -31,3 +31,12 @@ export const PAGINATED_ADDRESSES_BY_ORG_ID = gql`
     }
   }
 `
+
+export const UPSERT_ADDRESSES = gql`
+  mutation UpsertAddressesMutation($orgId: String!, $teamId: String!, $addressesInput: [AddressInput!]!) {
+    UpsertAddresses(addressesInput: { addresses: $addressesInput, org_id: $orgId, team_id: $teamId }) {
+      success
+      totalUpsertedAddresses
+    }
+  }
+`

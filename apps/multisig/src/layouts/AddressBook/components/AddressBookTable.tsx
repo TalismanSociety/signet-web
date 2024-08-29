@@ -1,6 +1,7 @@
 import { useMemo, useCallback } from 'react'
 import { Contact } from '@domains/offchain-data/address-book/address-book'
 import { PaginatedAddresses } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
+import useUpsertAddresses from '@domains/offchain-data/address-book/hooks/useUpsertAddresses'
 import { PaginationState, useReactTable, getCoreRowModel, ColumnDef, flexRender } from '@tanstack/react-table'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { useSelectedMultisig } from '@domains/multisig'
@@ -12,6 +13,7 @@ import { clsx } from 'clsx'
 import AddressBookPagination from './AddressBookPagination'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@components/ui/button'
+import { DEFAULT_CSV_STATE } from '..'
 
 const AddressBookTable = ({
   hideCollaboratorActions,
@@ -20,17 +22,27 @@ const AddressBookTable = ({
   setPagination,
   isCsvImport,
   handleCsvImportCancel,
+  parsedCsvRows,
+  setParsedCsv,
 }: {
   hideCollaboratorActions: boolean
   dataQuery: PaginatedAddresses | undefined
   pagination: PaginationState
   setPagination: React.Dispatch<React.SetStateAction<PaginationState>>
   isCsvImport: boolean
+  parsedCsvRows: Contact[]
   handleCsvImportCancel: () => void
+  setParsedCsv: React.Dispatch<React.SetStateAction<PaginatedAddresses>>
 }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const { copy } = useCopied()
   const { deleteContact, deleting } = useDeleteContact()
+  const handleUpsertAddressesSuccess = () => {
+    setParsedCsv(DEFAULT_CSV_STATE)
+    navigate('#1', { replace: true })
+    setPagination(prev => ({ ...prev, pageIndex: 0 }))
+  }
+  const { mutate } = useUpsertAddresses(handleUpsertAddressesSuccess)
   const navigate = useNavigate()
 
   const isLastItemInPage =
@@ -182,7 +194,16 @@ const AddressBookTable = ({
             <Button variant="secondary" className="h-max py-[8px]" size="lg" onClick={handleCsvImportCancel}>
               Cancel
             </Button>
-            <Button className="h-max py-[8px]" size="lg">
+            <Button
+              className="h-max py-[8px]"
+              size="lg"
+              onClick={() => {
+                const addressesInput = parsedCsvRows.map(row => {
+                  return { ...row, address: row.address.toSs58(selectedMultisig.chain) }
+                })
+                mutate(addressesInput)
+              }}
+            >
               Save
             </Button>
           </div>
