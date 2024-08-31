@@ -23,15 +23,17 @@ const AddressBookTable = ({
   isCsvImport,
   handleCsvImportCancel,
   parsedCsvRows,
+  search,
   setParsedCsv,
 }: {
-  hideCollaboratorActions: boolean
   dataQuery: PaginatedAddresses | undefined
-  pagination: PaginationState
-  setPagination: React.Dispatch<React.SetStateAction<PaginationState>>
+  hideCollaboratorActions: boolean
   isCsvImport: boolean
+  pagination: PaginationState
   parsedCsvRows: Contact[]
+  search: string
   handleCsvImportCancel: () => void
+  setPagination: React.Dispatch<React.SetStateAction<PaginationState>>
   setParsedCsv: React.Dispatch<React.SetStateAction<PaginatedAddresses>>
 }) => {
   const [selectedMultisig] = useSelectedMultisig()
@@ -157,6 +159,16 @@ const AddressBookTable = ({
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
   })
+
+  if (!dataQuery?.rowCount) {
+    return (
+      <div className="flex flex-col items-center justify-center flex-1 bg-[#1B1B1B] rounded-[16px] ">
+        <h2 className="text-offWhite text-[20px] font-bold">
+          {search ? 'No contacts found' : 'You have no saved contacts yet'}
+        </h2>
+      </div>
+    )
+  }
 
   return (
     <div className="pt-4 w-full flex flex-col flex-1">

@@ -99,27 +99,34 @@ export const AddressBook: React.FC = () => {
           {isPaidPlan ? (
             <>
               <TextInput placeholder="Search by name or address..." {...search} />
-              <AddressBookTable
-                hideCollaboratorActions={isCollaborator}
-                parsedCsvRows={parsedCsv.rows}
-                setParsedCsv={setParsedCsv}
-                dataQuery={
-                  parsedCsv.rowCount
-                    ? {
-                        ...parsedCsv,
-                        // Client side pagination for CSV import
-                        rows: parsedCsv.rows.slice(
-                          pagination.pageIndex * pagination.pageSize,
-                          (pagination.pageIndex + 1) * pagination.pageSize
-                        ),
-                      }
-                    : dataQuery.data
-                }
-                pagination={pagination}
-                setPagination={setPagination}
-                isCsvImport={!!parsedCsv.rowCount}
-                handleCsvImportCancel={handleCsvImportCancel}
-              />
+              {dataQuery.isLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <EyeOfSauronProgressIndicator />
+                </div>
+              ) : (
+                <AddressBookTable
+                  hideCollaboratorActions={isCollaborator}
+                  parsedCsvRows={parsedCsv.rows}
+                  setParsedCsv={setParsedCsv}
+                  search={search.value}
+                  dataQuery={
+                    parsedCsv.rowCount
+                      ? {
+                          ...parsedCsv,
+                          // Client side pagination for CSV import
+                          rows: parsedCsv.rows.slice(
+                            pagination.pageIndex * pagination.pageSize,
+                            (pagination.pageIndex + 1) * pagination.pageSize
+                          ),
+                        }
+                      : dataQuery.data
+                  }
+                  pagination={pagination}
+                  setPagination={setPagination}
+                  isCsvImport={!!parsedCsv.rowCount}
+                  handleCsvImportCancel={handleCsvImportCancel}
+                />
+              )}
             </>
           ) : // Keeping this for now, but we should remove it once we have the new table and full backwards compatibility with free plans
           isContactsLoading && !contacts ? (
