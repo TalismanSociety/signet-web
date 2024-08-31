@@ -1,4 +1,4 @@
-import { Tooltip } from '@talismn/ui'
+import { Tooltip } from '@components/ui/tooltip'
 import { Database, Plus } from '@talismn/icons'
 import { CONFIG } from '@lib/config'
 import { Button } from '@components/ui/button'
@@ -9,6 +9,7 @@ import { Address } from '@util/addresses'
 import { DEFAULT_PAGE_SIZE } from '..'
 import { Contact } from '@domains/offchain-data'
 import { useToast } from '@components/ui/use-toast'
+import { Info } from 'lucide-react'
 
 type ParsedPaginatedAddresses = PaginatedAddresses & {
   invalidRows: number[]
@@ -76,6 +77,7 @@ const AddressBookHeader: React.FC<{
         <div className="flex items-center gap-[12px]">
           <h2 className="text-offWhite text-[24px] mt-[4px] font-bold">Address Book</h2>
           <Tooltip
+            delayDuration={0}
             content={
               <p css={{ maxWidth: 350 }}>
                 Your Address Book is currently hosted securely with Signet's Database. To find out more about Self
@@ -95,6 +97,39 @@ const AddressBookHeader: React.FC<{
       </div>
       {!hideAddButton && (
         <div className="flex flex-row items-center gap-5">
+          <Tooltip
+            delayDuration={0}
+            content={
+              <div className="p-[4px] max-w-[440px]">
+                <p className="text-[14px]">The CSV should have the following columns:</p>
+                <ul className="[&>li>span]:text-offWhite mt-[4px] mb-[8px]">
+                  <li>
+                    <span>Name</span>: The name of the contact
+                  </li>
+                  <li>
+                    <span>Address</span>: The wallet address of the contact
+                  </li>
+                  <li>
+                    <span>Category</span> (Optional): The category of the contact
+                  </li>
+                  <li>
+                    <span>Subcategory</span> (Optional): The subcategory of the contact
+                  </li>
+                </ul>
+                <a
+                  download="address-book-template.csv"
+                  href={encodeURI(
+                    `data:text/csv;filename=multisend.csvcharset=utf-8,Name,Address,Category,Subcategory\n`
+                  )}
+                  className="text-primary text-[14px] hover:opacity-80"
+                >
+                  Download CSV Template
+                </a>
+              </div>
+            }
+          >
+            <Info size={16} />
+          </Tooltip>
           <FileUploadButton
             accept=".csv"
             label="Import CSV"
