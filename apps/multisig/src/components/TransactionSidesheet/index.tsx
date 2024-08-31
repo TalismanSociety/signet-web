@@ -210,14 +210,14 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
 
   return (
     <SideSheet
-      className="!max-w-[700px] !w-full !p-0 [&>header]:!px-[32px] [&>header]:!py-[16px] [&>header]:!mb-0 !bg-gray-800 flex flex-1 flex-col !overflow-hidden"
+      className="!max-w-[700px] !w-full !p-0 [&>header]:!px-[12px] [&>header]:!py-[12px] [&>header]:!mb-0 !bg-gray-800 flex flex-1 flex-col !overflow-hidden"
       open={open}
       title={<TransactionSidesheetHeader t={t} />}
       onRequestDismiss={handleClose}
     >
       <div className="flex-1 flex flex-col items-start justify-start overflow-hidden">
         {t && (
-          <div className="px-[32px] w-full flex flex-col flex-1 gap-[32px] overflow-auto pb-[24px]">
+          <div className="px-[12px] w-full flex flex-col flex-1 gap-[32px] overflow-auto pb-[24px]">
             <TransactionSummaryRow t={t} />
             <div className="w-full">
               <div className="flex justify-between items-end pb-[16px]">
@@ -247,7 +247,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
           </div>
         )}
         {!t?.executedAt && (
-          <div className="mt-auto gap-[16px] grid pt-[24px] p-[32px] border-t border-t-gray-500 w-full">
+          <div className="mt-auto gap-[16px] grid pt-[24px] py-[32px] px-[16px] border-t border-t-gray-500 w-full">
             {t && (
               <TransactionSidesheetFooter
                 onApprove={handleApprove}

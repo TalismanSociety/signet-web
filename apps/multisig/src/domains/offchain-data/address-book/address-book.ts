@@ -30,13 +30,23 @@ const ADDRESSES_BY_ORG_ID = gql`
   }
 `
 
+export type Category = {
+  id: string
+  name: string
+}
+
+export type Subcategory = {
+  id: string
+  name: string
+}
+
 export type Contact = {
   id: string
   name: string
   address: Address
   orgId: string
-  category?: { id: string; name: string }
-  sub_category?: { id: string; name: string }
+  category?: Category
+  sub_category?: Subcategory
 }
 
 export const addressBookLoadingState = atom<boolean>({

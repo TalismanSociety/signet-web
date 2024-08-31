@@ -154,6 +154,9 @@ const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
 
 const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
   const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
+  const shouldDisplayCategory = t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.category)
+  const shouldDisplaySubcategory = t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.sub_category)
+  const shouldDisplayVesting = t.decoded?.recipients.some(r => r.vestingSchedule)
 
   return (
     <div className="border border-gray-500 rounded-[8px] overflow-hidden">
@@ -161,7 +164,9 @@ const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
         <TableHeader>
           <TableRow>
             <TableHead>Recipient</TableHead>
-            <TableHead className="text-right">Vested</TableHead>
+            {shouldDisplayCategory && <TableHead className="text-right">Category</TableHead>}
+            {shouldDisplaySubcategory && <TableHead className="text-right">Subategory</TableHead>}
+            {shouldDisplayVesting && <TableHead className="text-right">Vested</TableHead>}
             <TableHead className="text-right">Amount</TableHead>
           </TableRow>
         </TableHeader>
@@ -177,18 +182,25 @@ const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
                 withAddressTooltip
                 identiconSize={28}
                 disableCopy
+                hideIdenticon
               />
             </TableCell>
-            <TableCell>
-              {vestingSchedule ? (
+            {shouldDisplayCategory && (
+              <TableCell className="text-right">{contactByAddress[address.toSs58()]?.category?.name}</TableCell>
+            )}
+            {shouldDisplaySubcategory && (
+              <TableCell className="text-right">{contactByAddress[address.toSs58()]?.sub_category?.name}</TableCell>
+            )}
+            {vestingSchedule && (
+              <TableCell>
                 <div className="[&>p>span]:block [&>p]:whitespace-nowrap">
                   <VestingDateRange chainGenesisHash={t.multisig.chain.genesisHash} vestingSchedule={vestingSchedule} />
                 </div>
-              ) : null}
-            </TableCell>
+              </TableCell>
+            )}
             <TableCell>
               <div className="flex flex-col items-end">
-                <AmountRow balance={balance} />
+                <AmountRow balance={balance} hideIcon hideSymbol fontSize={14} />
               </div>
             </TableCell>
           </TableRow>
@@ -446,7 +458,7 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
   }, [api, decodeError, setTempCalldata, t])
 
   return (
-    <div className="px-[16px] bg-gray-600 rounded-[16px] max-w-[100%]">
+    <div className="px-[12px] bg-gray-600 rounded-[16px] max-w-[100%]">
       <Accordion
         type="single"
         collapsible
