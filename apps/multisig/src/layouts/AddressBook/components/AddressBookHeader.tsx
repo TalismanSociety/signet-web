@@ -7,7 +7,7 @@ import FileUploadButton from '@components/FileUploadButton'
 import { PaginatedAddresses } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
 import { Address } from '@util/addresses'
 import { DEFAULT_PAGE_SIZE } from '..'
-import { Contact } from '@domains/offchain-data'
+import { ContactAddress } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
 import { useToast } from '@components/ui/use-toast'
 import { Info } from 'lucide-react'
 
@@ -26,7 +26,7 @@ const parseCSV = async (file: File): Promise<ParsedPaginatedAddresses> => {
     return { rows: [], pageCount: 0, rowCount: 0, invalidRows }
   }
 
-  const rows: Contact[] = lines.slice(1).map((line, index) => {
+  const rows: ContactAddress[] = lines.slice(1).map((line, index) => {
     const data = line.split(',')
     const name = data[headers.indexOf('Name')]
     const csvAddress = data[headers.indexOf('Address')] ?? ''

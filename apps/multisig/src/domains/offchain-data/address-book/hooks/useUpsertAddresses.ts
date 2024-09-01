@@ -5,7 +5,7 @@ import { useRecoilValue } from 'recoil'
 import { useMutation } from '@tanstack/react-query'
 import { UPSERT_ADDRESSES } from '@domains/offchain-data/address-book/queries/queries'
 import { useSelectedMultisig } from '@domains/multisig'
-import { ContactAddress } from './useGetPaginatedAddressesByOrgId'
+import { ContactAddressIO } from './useGetPaginatedAddressesByOrgId'
 import { useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@components/ui/use-toast'
 
@@ -18,7 +18,7 @@ const fetchGraphQLData = async ({
   orgId: string
   teamId: string
   selectedAccount: SignedInAccount
-  addressesInput: ContactAddress[] | undefined
+  addressesInput: ContactAddressIO[] | undefined
 }) => {
   const { data, error } = await requestSignetBackend(
     UPSERT_ADDRESSES,
@@ -42,7 +42,7 @@ const useUpsertAddresses = (onSuccess?: () => void) => {
   const queryClient = useQueryClient()
   const { toast } = useToast()
   return useMutation({
-    mutationFn: async (addressesInput: ContactAddress[] | undefined) =>
+    mutationFn: async (addressesInput: ContactAddressIO[] | undefined) =>
       fetchGraphQLData({
         orgId: selectedMultisig.orgId,
         teamId: selectedMultisig.id,

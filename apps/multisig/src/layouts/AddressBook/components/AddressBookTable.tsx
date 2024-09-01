@@ -1,5 +1,5 @@
 import { useMemo, useCallback } from 'react'
-import { Contact } from '@domains/offchain-data/address-book/address-book'
+import { ContactAddress } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
 import { PaginatedAddresses } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
 import useUpsertAddresses from '@domains/offchain-data/address-book/hooks/useUpsertAddresses'
 import { PaginationState, useReactTable, getCoreRowModel, ColumnDef, flexRender } from '@tanstack/react-table'
@@ -30,7 +30,7 @@ const AddressBookTable = ({
   hideCollaboratorActions: boolean
   isCsvImport: boolean
   pagination: PaginationState
-  parsedCsvRows: Contact[]
+  parsedCsvRows: ContactAddress[]
   search: string
   handleCsvImportCancel: () => void
   setPagination: React.Dispatch<React.SetStateAction<PaginationState>>
@@ -59,7 +59,7 @@ const AddressBookTable = ({
     }
   }, [isLastItemInPage, navigate, setPagination])
 
-  const columns = useMemo<ColumnDef<Contact>[]>(
+  const columns = useMemo<ColumnDef<ContactAddress>[]>(
     () => [
       {
         header: 'Name',

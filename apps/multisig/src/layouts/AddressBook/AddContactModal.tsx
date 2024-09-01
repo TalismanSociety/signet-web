@@ -24,7 +24,6 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
   const [selectedMultisig] = useSelectedMultisig()
   const { contactsByAddress } = useAddressBook()
   const { toast } = useToast()
-  const { mutate } = useUpsertAddresses()
 
   const handleClose = () => {
     if (creating) return
@@ -33,11 +32,23 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
     onClose?.()
   }
 
+  const { mutate } = useUpsertAddresses(handleClose)
+
   const handleCreateContact = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!address) return
-    if (!isPaidPlan) {
+    if (isPaidPlan) {
       console.log('Handle create contact paid plan')
+      const contact = {
+        id: '',
+        name: nameInput.value,
+        address: address.toSs58(),
+        org_id: selectedMultisig.orgId,
+        team_id: selectedMultisig.id,
+        category: { id: '', name: '' },
+        sub_category: { id: '', name: '' },
+      }
+      mutate([contact])
       return
     }
     try {
@@ -54,7 +65,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
   }
 
   const disabled = !address || !nameInput.value
-  const conflict = address ? !!contactsByAddress[address.toSs58()] : false
+  const conflict = isPaidPlan ? false : address ? !!contactsByAddress[address.toSs58()] : false
 
   return (
     <Modal isOpen={isOpen ?? false} width="100%" maxWidth={420} contentLabel="Add new contact">

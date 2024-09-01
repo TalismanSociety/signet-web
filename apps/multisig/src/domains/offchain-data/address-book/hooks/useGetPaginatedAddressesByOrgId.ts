@@ -8,10 +8,11 @@ import { useSelectedMultisig } from '@domains/multisig'
 import { Address } from '@util/addresses'
 import { Contact } from '../address-book'
 
-export type ContactAddress = Omit<Contact, 'address'> & { address: string; teamId?: string }
+export type ContactAddress = Omit<Contact, 'orgId'> & { team_id?: string; org_id: string }
+export type ContactAddressIO = Omit<ContactAddress, 'address'> & { address: string }
 
 export type PaginatedAddresses = {
-  rows: Contact[]
+  rows: ContactAddress[]
   pageCount: number
   rowCount: number
 }
@@ -39,7 +40,7 @@ const fetchGraphQLData = async ({
   )
 
   return {
-    rows: data.address.map((row: ContactAddress) => ({ ...row, address: Address.fromSs58(row.address) })),
+    rows: data.address.map((row: ContactAddressIO) => ({ ...row, address: Address.fromSs58(row.address) })),
     pageCount: Math.ceil(data.address_aggregate.aggregate.count / pagination.pageSize),
     rowCount: data.address.length,
   }

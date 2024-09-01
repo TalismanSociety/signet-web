@@ -19,7 +19,6 @@ import AddressBookTable from './components/AddressBookTable'
 import { userOrganisationsState } from '@domains/offchain-data'
 import { PaginatedAddresses } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
 import { useNavigate } from 'react-router-dom'
-import { parse } from 'path'
 
 export const DEFAULT_PAGE_SIZE = 10
 export const DEFAULT_CSV_STATE: PaginatedAddresses = { rows: [], pageCount: 0, rowCount: 0 }
@@ -31,6 +30,7 @@ export const AddressBook: React.FC = () => {
     pageSize: DEFAULT_PAGE_SIZE,
   })
   const [parsedCsv, setParsedCsv] = useState<PaginatedAddresses>(DEFAULT_CSV_STATE)
+  console.log({ parsedCsv })
 
   const navigate = useNavigate()
   const { contacts, loading: isContactsLoading } = useAddressBook()
