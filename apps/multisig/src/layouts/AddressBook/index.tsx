@@ -95,6 +95,7 @@ export const AddressBook: React.FC = () => {
             onAddContact={() => setIsModalOpen(true)}
             vaultName={selectedMultisig.name}
             hideAddButton={isCollaborator}
+            isPaidPlan={isPaidPlan}
           />
           {isPaidPlan ? (
             <>

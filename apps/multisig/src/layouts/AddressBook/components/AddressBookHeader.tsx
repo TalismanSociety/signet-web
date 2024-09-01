@@ -68,8 +68,9 @@ const AddressBookHeader: React.FC<{
   onAddContact: () => void
   vaultName: string
   hideAddButton: boolean
+  isPaidPlan: boolean
   handleCsvImportSuccess: (data: PaginatedAddresses) => void
-}> = ({ onAddContact, vaultName, hideAddButton, handleCsvImportSuccess }) => {
+}> = ({ onAddContact, vaultName, hideAddButton, isPaidPlan, handleCsvImportSuccess }) => {
   const { toast } = useToast()
   return (
     <div className="flex flex-row items-start justify-between w-full">
@@ -97,60 +98,64 @@ const AddressBookHeader: React.FC<{
       </div>
       {!hideAddButton && (
         <div className="flex flex-row items-center gap-5">
-          <Tooltip
-            delayDuration={0}
-            content={
-              <div className="p-[4px] max-w-[440px]">
-                <p className="text-[14px]">The CSV should have the following columns:</p>
-                <ul className="[&>li>span]:text-offWhite mt-[4px] mb-[8px]">
-                  <li>
-                    <span>Name</span>: The name of the contact
-                  </li>
-                  <li>
-                    <span>Address</span>: The wallet address of the contact
-                  </li>
-                  <li>
-                    <span>Category</span> (Optional): The category of the contact
-                  </li>
-                  <li>
-                    <span>Subcategory</span> (Optional): The subcategory of the contact
-                  </li>
-                </ul>
-                <a
-                  download="address-book-template.csv"
-                  href={encodeURI(
-                    `data:text/csv;filename=multisend.csvcharset=utf-8,Name,Address,Category,Subcategory\n`
-                  )}
-                  className="text-primary text-[14px] hover:opacity-80"
-                >
-                  Download CSV Template
-                </a>
-              </div>
-            }
-          >
-            <Info size={16} />
-          </Tooltip>
-          <FileUploadButton
-            accept=".csv"
-            label="Import CSV"
-            multiple={false}
-            onFiles={async files => {
-              const [file] = files
-              if (!file) return
+          {isPaidPlan && (
+            <>
+              <Tooltip
+                delayDuration={0}
+                content={
+                  <div className="p-[4px] max-w-[440px]">
+                    <p className="text-[14px]">The CSV should have the following columns:</p>
+                    <ul className="[&>li>span]:text-offWhite mt-[4px] mb-[8px]">
+                      <li>
+                        <span>Name</span>: The name of the contact
+                      </li>
+                      <li>
+                        <span>Address</span>: The wallet address of the contact
+                      </li>
+                      <li>
+                        <span>Category</span> (Optional): The category of the contact
+                      </li>
+                      <li>
+                        <span>Subcategory</span> (Optional): The subcategory of the contact
+                      </li>
+                    </ul>
+                    <a
+                      download="address-book-template.csv"
+                      href={encodeURI(
+                        `data:text/csv;filename=multisend.csvcharset=utf-8,Name,Address,Category,Subcategory\n`
+                      )}
+                      className="text-primary text-[14px] hover:opacity-80"
+                    >
+                      Download CSV Template
+                    </a>
+                  </div>
+                }
+              >
+                <Info size={16} />
+              </Tooltip>
+              <FileUploadButton
+                accept=".csv"
+                label="Import CSV"
+                multiple={false}
+                onFiles={async files => {
+                  const [file] = files
+                  if (!file) return
 
-              const { invalidRows, ...parsedCsv } = await parseCSV(file)
-              if (parsedCsv.rowCount > 0 && invalidRows.length === 0) {
-                handleCsvImportSuccess(parsedCsv)
-              } else {
-                toast({
-                  title: 'Invalid CSV',
-                  description: `Invalid rows: ${
-                    invalidRows.length > 0 ? invalidRows.map(index => index + 1).join(', ') : 'Blank rows'
-                  }`, // +1 to account for the header row
-                })
-              }
-            }}
-          />
+                  const { invalidRows, ...parsedCsv } = await parseCSV(file)
+                  if (parsedCsv.rowCount > 0 && invalidRows.length === 0) {
+                    handleCsvImportSuccess(parsedCsv)
+                  } else {
+                    toast({
+                      title: 'Invalid CSV',
+                      description: `Invalid rows: ${
+                        invalidRows.length > 0 ? invalidRows.map(index => index + 1).join(', ') : 'Blank rows'
+                      }`, // +1 to account for the header row
+                    })
+                  }
+                }}
+              />
+            </>
+          )}
           <Button variant="outline" className="h-max py-[8px]" size="lg" onClick={onAddContact}>
             <div className="flex items-center gap-[8px]">
               <Plus size={16} />
