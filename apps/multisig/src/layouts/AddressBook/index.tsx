@@ -158,7 +158,7 @@ export const AddressBook: React.FC = () => {
         </div>
       </div>
 
-      <AddContactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <AddContactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} isPaidPlan={isPaidPlan} />
     </>
   )
 }

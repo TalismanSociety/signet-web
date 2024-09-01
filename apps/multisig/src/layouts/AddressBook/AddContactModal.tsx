@@ -9,19 +9,22 @@ import { Input } from '@components/ui/input'
 import AddressInput from '@components/AddressInput'
 import { useToast } from '@components/ui/use-toast'
 import { getErrorString } from '@util/misc'
+import useUpsertAddresses from '@domains/offchain-data/address-book/hooks/useUpsertAddresses'
 
 type Props = {
   onClose?: () => void
   isOpen?: boolean
+  isPaidPlan: boolean
 }
 
-export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
+export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }) => {
   const nameInput = useInput('')
   const [address, setAddress] = useState<Address | undefined>(undefined)
   const { createContact, creating } = useCreateContact()
   const [selectedMultisig] = useSelectedMultisig()
   const { contactsByAddress } = useAddressBook()
   const { toast } = useToast()
+  const { mutate } = useUpsertAddresses()
 
   const handleClose = () => {
     if (creating) return
@@ -30,8 +33,13 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
     onClose?.()
   }
 
-  const handleCreateContact = async () => {
+  const handleCreateContact = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     if (!address) return
+    if (!isPaidPlan) {
+      console.log('Handle create contact paid plan')
+      return
+    }
     try {
       const created = await createContact(address, nameInput.value, selectedMultisig.orgId)
       if (created) {
@@ -52,7 +60,10 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
     <Modal isOpen={isOpen ?? false} width="100%" maxWidth={420} contentLabel="Add new contact">
       <h1 css={{ fontSize: 20, fontWeight: 700 }}>Add new contact</h1>
       <p css={{ marginTop: 8 }}>Saved contacts will be shared by all members of your multisig.</p>
-      <form css={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <form
+        css={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 24 }}
+        onSubmit={e => handleCreateContact(e)}
+      >
         <Input placeholder="Contact Name" label="Name" {...nameInput} />
         <div className="w-full">
           <AddressInput
@@ -78,12 +89,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <Button type="button" variant="outline" css={{ width: '100%' }} onClick={handleClose}>
             <p>Cancel</p>
           </Button>
-          <Button
-            css={{ width: '100%' }}
-            disabled={disabled || creating || conflict}
-            loading={creating}
-            onClick={handleCreateContact}
-          >
+          <Button css={{ width: '100%' }} disabled={disabled || creating || conflict} loading={creating}>
             <p>Save</p>
           </Button>
         </div>

@@ -8,7 +8,7 @@ import { useSelectedMultisig } from '@domains/multisig'
 import { Address } from '@util/addresses'
 import { Contact } from '../address-book'
 
-export type ContactAddress = Omit<Contact, 'address'> & { address: string }
+export type ContactAddress = Omit<Contact, 'address'> & { address: string; teamId?: string }
 
 export type PaginatedAddresses = {
   rows: Contact[]
