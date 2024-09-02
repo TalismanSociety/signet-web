@@ -6,7 +6,7 @@ const NameVault = (props: {
   header?: string
   onBack?: () => void
   onNext: () => void
-  setName: React.Dispatch<React.SetStateAction<string>>
+  setName: (name: string) => void
   name: string
 }) => {
   const handleNext = (e: React.FormEvent) => {

@@ -44,7 +44,7 @@ const SelectChain = ({
   isChainAccountEth?: boolean
   onNext: () => void
   onBack: () => void
-  setChain: React.Dispatch<React.SetStateAction<Chain>>
+  setChain: (chain: Chain) => void
   chain: Chain
   chains: Chain[]
   augmentedAccountsLength?: number
