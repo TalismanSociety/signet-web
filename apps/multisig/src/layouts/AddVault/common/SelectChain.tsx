@@ -37,7 +37,7 @@ const SelectChain = ({
   setChain,
   chain,
   chains,
-  isChainAccountEth,
+  isChainAccountEth = false,
   augmentedAccountsLength,
 }: {
   header?: string
@@ -79,7 +79,7 @@ const SelectChain = ({
       {augmentedAccountsLength === 0 && (
         <div>
           <div className="text-center">{`Switch to a ${chain.chainName} compatible account to create a vault on this chain`}</div>
-          <AccountsList hideHeader={true} />
+          <AccountsList hideHeader={true} onlyEthAccounts={isChainAccountEth} />
         </div>
       )}
       <div className="pt-[36px]">
