@@ -73,7 +73,7 @@ const AddressBookHeader: React.FC<{
 }> = ({ onAddContact, vaultName, hideAddButton, isPaidPlan, handleCsvImportSuccess }) => {
   const { toast } = useToast()
   return (
-    <div className="flex flex-row items-start justify-between w-full">
+    <div className="flex flex-col lg:flex-row items-start gap-[8px] lg:justify-between w-full">
       <div>
         <div className="flex items-center gap-[12px]">
           <h2 className="text-offWhite text-[24px] mt-[4px] font-bold">Address Book</h2>
@@ -97,7 +97,7 @@ const AddressBookHeader: React.FC<{
         </p>
       </div>
       {!hideAddButton && (
-        <div className="flex flex-row items-center gap-5">
+        <div className="flex flex-row items-center gap-[8px] ml-auto">
           {isPaidPlan && (
             <>
               <Tooltip
@@ -136,6 +136,7 @@ const AddressBookHeader: React.FC<{
               <FileUploadButton
                 accept=".csv"
                 label="Import CSV"
+                className="px-[8px] [&_p]:!leading-none [&_p]:text-[14px]"
                 multiple={false}
                 onFiles={async files => {
                   const [file] = files
@@ -156,10 +157,10 @@ const AddressBookHeader: React.FC<{
               />
             </>
           )}
-          <Button variant="outline" className="h-max py-[8px]" size="lg" onClick={onAddContact}>
+          <Button variant="outline" className="h-max px-[8px] py-[8px]" size="lg" onClick={onAddContact}>
             <div className="flex items-center gap-[8px]">
               <Plus size={16} />
-              <p className="mt-[4px]">Add Contact</p>
+              <p className="leading-none mt-[4px] text-[14px]">Add Contact</p>
             </div>
           </Button>
         </div>

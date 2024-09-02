@@ -1,14 +1,16 @@
 import { Plus } from '@talismn/icons'
 import { useRef } from 'react'
 import { Button, ButtonProps } from './ui/button'
+import { cn } from '@util/tailwindcss'
 
 type Props = ButtonProps & {
   label?: string
   accept?: string
   onFiles?: (files: File[]) => void
   multiple?: boolean
+  className?: string
 }
-const FileUploadButton: React.FC<Props> = ({ accept, label, multiple, onFiles, variant = 'secondary' }) => {
+const FileUploadButton: React.FC<Props> = ({ accept, className, label, multiple, onFiles, variant = 'secondary' }) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleClick = () => {
@@ -22,7 +24,7 @@ const FileUploadButton: React.FC<Props> = ({ accept, label, multiple, onFiles, v
   }
 
   return (
-    <Button className="h-max py-[8px] gap-[8px]" variant={variant} onClick={handleClick} size="lg">
+    <Button className={cn('h-max py-[8px] gap-[8px]', className)} variant={variant} onClick={handleClick} size="lg">
       <div css={{ color: 'var(--color-primary)' }}>
         <Plus size={16} />
       </div>
