@@ -110,7 +110,7 @@ const AddressBookTable = ({
                 <div className="truncate">{row.original.sub_category?.name}</div>
                 <div
                   className={clsx('flex items-center flex-row w-[2rem] text-[#a5a5a5]', {
-                    'w-[5rem]': !hideCollaboratorActions,
+                    'w-[5rem]': !hideCollaboratorActions && !isCsvImport,
                   })}
                   css={({ color }) => ({
                     button: { color: color.lightGrey },
@@ -119,7 +119,7 @@ const AddressBookTable = ({
                   <IconButton onClick={() => copy(addressTosS58, 'Address copied!', addressTosS58)}>
                     <Copy size={16} />
                   </IconButton>
-                  {!hideCollaboratorActions && (
+                  {!hideCollaboratorActions && !isCsvImport && (
                     <IconButton
                       onClick={() => deleteContact(row.original.id, pagination, handleAddressDeleteSuccess)}
                       disabled={deleting}
@@ -140,6 +140,7 @@ const AddressBookTable = ({
       deleting,
       handleAddressDeleteSuccess,
       hideCollaboratorActions,
+      isCsvImport,
       pagination,
       selectedMultisig.chain,
     ]
