@@ -253,9 +253,9 @@ const CreateMultisig = () => {
     updateSearchParm({ param: 'step', value: (step - 1).toString() })
   }, [step, updateSearchParm])
 
-  return (
-    <>
-      {step === Step.NameVault ? (
+  const renderStep = () => {
+    const stepMap: Record<Step, React.ReactElement> = {
+      [Step.NameVault]: (
         <NameVault
           header="Create Multisig"
           onBack={() => {
@@ -269,7 +269,8 @@ const CreateMultisig = () => {
           }}
           name={name}
         />
-      ) : step === Step.SelectFirstChain ? (
+      ),
+      [Step.SelectFirstChain]: (
         <SelectChain
           header="Create Multisig"
           isChainAccountEth={isChainAccountEth}
@@ -283,7 +284,8 @@ const CreateMultisig = () => {
           chain={chain}
           chains={filteredSupportedChains}
         />
-      ) : step === Step.MultisigConfig ? (
+      ),
+      [Step.MultisigConfig]: (
         <MultisigConfig
           header="Create Multisig"
           chain={chain}
@@ -297,7 +299,8 @@ const CreateMultisig = () => {
           members={augmentedAccounts}
           onMembersChange={setAddedAccounts}
         />
-      ) : step === Step.Confirmation ? (
+      ),
+      [Step.Confirmation]: (
         <Confirmation
           header="Create Multisig"
           onBack={onBackChain}
@@ -312,7 +315,8 @@ const CreateMultisig = () => {
           extrinsicsReady={transferProxyToMultisigIsReady && createProxyIsReady}
           existentialDeposit={initialVaultFundsLoadable}
         />
-      ) : step === Step.Transactions ? (
+      ),
+      [Step.Transactions]: (
         <SignTransactions
           chain={chain}
           created={created}
@@ -327,9 +331,12 @@ const CreateMultisig = () => {
           transferring={transferring}
           vaultDetailsString={vaultDetailsString}
         />
-      ) : null}
-    </>
-  )
+      ),
+    }
+    return stepMap[step] ?? null
+  }
+
+  return renderStep()
 }
 
 export default CreateMultisig
