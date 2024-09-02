@@ -52,7 +52,9 @@ const CreateMultisig = () => {
 
   const proxyDepositTotalLoadable = useRecoilValueLoadable(proxyDepositTotalSelector(chain.id))
 
-  const { augmentedAccounts, setAddedAccounts } = useAugmentedAccounts()
+  const isChainAccountEth = chain?.account === 'secp256k1'
+
+  const { augmentedAccounts, setAddedAccounts } = useAugmentedAccounts({ chain, isChainAccountEth })
 
   const [createdProxy, setCreatedProxy] = useState<Address | undefined>()
   const {
@@ -231,6 +233,8 @@ const CreateMultisig = () => {
       ) : step === Step.SelectFirstChain ? (
         <SelectChain
           header="Create Multisig"
+          isChainAccountEth={isChainAccountEth}
+          augmentedAccountsLength={augmentedAccounts.length}
           onBack={onBackChain}
           onNext={onNextChain}
           setChain={setChain}

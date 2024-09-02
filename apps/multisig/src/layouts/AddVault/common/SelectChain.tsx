@@ -10,6 +10,7 @@ import {
 } from '@components/ui/select'
 import { CancleOrNext } from './CancelOrNext'
 import { useCallback, useMemo } from 'react'
+import { AccountsList } from '@components/AccountMenu/AccountsList'
 
 const Group = (props: { chains: Chain[]; label: string }) => (
   <SelectGroup>
@@ -36,13 +37,17 @@ const SelectChain = ({
   setChain,
   chain,
   chains,
+  isChainAccountEth,
+  augmentedAccountsLength,
 }: {
   header?: string
+  isChainAccountEth?: boolean
   onNext: () => void
   onBack: () => void
   setChain: React.Dispatch<React.SetStateAction<Chain>>
   chain: Chain
   chains: Chain[]
+  augmentedAccountsLength?: number
 }) => {
   const mainnets = useMemo(() => chains.filter(chain => !chain.isTestnet), [chains])
   const testnets = useMemo(() => chains.filter(chain => chain.isTestnet), [chains])
@@ -55,32 +60,41 @@ const SelectChain = ({
   )
 
   return (
-    <div className="grid items-center justify-center gap-[48px] w-full max-w-[540px]">
+    <div className="grid items-center justify-center gap-[12px] w-full max-w-[540px]">
       <div>
         <h4 className="text-[14px] text-center font-bold mb-[4px]">{header}</h4>
         <h1>Select a chain</h1>
         <p css={{ marginTop: 16, textAlign: 'center' }}>Select the chain for your Multisig</p>
       </div>
       <Select value={chain.genesisHash} onValueChange={onValueChange}>
-        <SelectTrigger className="max-w-[280px]">
+        <SelectTrigger className="w-[540px]">
           <SelectValue placeholder="Select Network" />
         </SelectTrigger>
-        <SelectContent className="grid gap-[0px] py-[4px]" position="item-aligned">
+        <SelectContent className="grid gap-[0px] py-[4px] w-[540px]" position="item-aligned">
           {mainnets.length > 0 && <Group chains={mainnets} label="Mainnets" />}
           {mainnets.length > 0 && testnets.length > 0 && <hr className="my-[12px]" />}
           {testnets.length > 0 && <Group chains={testnets} label="Testnets" />}
         </SelectContent>
       </Select>
-      <CancleOrNext
-        block
-        cancel={{
-          onClick: onBack,
-          children: 'Back',
-        }}
-        next={{
-          onClick: onNext,
-        }}
-      />
+      {augmentedAccountsLength === 0 && (
+        <div>
+          <div className="text-center">{`Switch to a ${chain.chainName} compatible account to create a vault on this chain`}</div>
+          <AccountsList hideHeader={true} />
+        </div>
+      )}
+      <div className="pt-[36px]">
+        <CancleOrNext
+          block
+          cancel={{
+            onClick: onBack,
+            children: 'Back',
+          }}
+          next={{
+            disabled: augmentedAccountsLength === 0,
+            onClick: onNext,
+          }}
+        />
+      </div>
     </div>
   )
 }
