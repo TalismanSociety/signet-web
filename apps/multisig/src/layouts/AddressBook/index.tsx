@@ -30,7 +30,6 @@ export const AddressBook: React.FC = () => {
     pageSize: DEFAULT_PAGE_SIZE,
   })
   const [parsedCsv, setParsedCsv] = useState<PaginatedAddresses>(DEFAULT_CSV_STATE)
-  console.log({ parsedCsv })
 
   const navigate = useNavigate()
   const { contacts, loading: isContactsLoading } = useAddressBook()
