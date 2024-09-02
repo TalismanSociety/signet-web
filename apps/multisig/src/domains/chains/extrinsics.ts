@@ -170,7 +170,7 @@ const useInjectMetadata = (chainGenesisHash: string) => {
   const inject = useCallback(
     async (metadata: InjectedMetadata) => {
       if (!chain || !api) return
-      const customExtension = customExtensions[chain.squidIds.chainData]
+      const customExtension = customExtensions[chain.id]
       const curMetadata = await metadata.get()
       const specVersion = api.runtimeVersion.specVersion.toNumber()
       const genesisHash = api.genesisHash.toHex()

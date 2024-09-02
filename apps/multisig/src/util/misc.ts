@@ -6,7 +6,7 @@ export function arrayIntersection<T>(arr1: T[], arr2: T[]): T[] {
 }
 
 export function makeTransactionID(chain: Chain, timepointHeight: number, timepointIndex: number): string {
-  return `${chain.squidIds.chainData}-${timepointHeight}-${timepointIndex}`
+  return `${chain.id}-${timepointHeight}-${timepointIndex}`
 }
 
 export const secondsToDuration = (ms: number) => {

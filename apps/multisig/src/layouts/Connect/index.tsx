@@ -53,7 +53,7 @@ export const SignetConnect: React.FC = () => {
             address: vault.proxyAddress.toSs58(vault.chain),
             name: vault.name,
             chain: {
-              squidIds: vault.chain.squidIds,
+              id: vault.chain.id,
               chainName: vault.chain.chainName,
               logo: vault.chain.logo,
               genesisHash: vault.chain.genesisHash,

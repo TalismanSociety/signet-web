@@ -30,7 +30,7 @@ const PendingVotes: React.FC<PendingVotesProps> = ({ multisig, handleOnRemoveVot
     [referendumTxs]
   )
   const { data: referendumsData, isLoading: isReferendumsDataLoading } = useGetReferendums({
-    chainId: multisig.chain.squidIds.chainData as SupportedChainIds,
+    chainId: multisig.chain.id as SupportedChainIds,
     ids: txReferendumIds,
   })
 

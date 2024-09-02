@@ -105,7 +105,7 @@ export const Dapps: React.FC = () => {
         res({
           chain: {
             genesisHash: selectedMultisig.chain.genesisHash,
-            id: selectedMultisig.chain.squidIds.chainData,
+            id: selectedMultisig.chain.id,
             name: selectedMultisig.chain.chainName,
           },
           name: selectedMultisig.name,
@@ -142,9 +142,9 @@ export const Dapps: React.FC = () => {
   const getDappUrl = useCallback(
     (dapp: SupportedDapp) => {
       if (typeof dapp.url === 'string') return dapp.url
-      return dapp.url[selectedMultisig.chain.squidIds.chainData as SupportedChainIds]
+      return dapp.url[selectedMultisig.chain.id as SupportedChainIds]
     },
-    [selectedMultisig.chain.squidIds.chainData]
+    [selectedMultisig.chain.id]
   )
 
   const supportedDapps = useMemo(() => {
@@ -171,7 +171,9 @@ export const Dapps: React.FC = () => {
         const urlOnCurrentChain = getDappUrl(dapp)
         if (urlOnCurrentChain) return setInput(urlOnCurrentChain)
       }
-      closeIframe()
+      if (iframeRef.current) {
+        closeIframe()
+      }
     }
   }, [getDappUrl, input, selectedDapp])
 

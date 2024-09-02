@@ -30,4 +30,5 @@ export type MultisigWithExtraData = {
   allProxies?: ProxyDefinition[]
   isCollaborator: (address: Address) => boolean
   isSigner: (address: Address) => boolean
+  isEthereumAccount: boolean
 } & Multisig
