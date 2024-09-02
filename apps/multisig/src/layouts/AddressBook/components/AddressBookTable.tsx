@@ -100,7 +100,7 @@ const AddressBookTable = ({
         accessorKey: 'category.name',
       },
       {
-        header: 'Subcategory',
+        header: () => <p className="pr-[50px] text-[14px]">Subcategory</p>,
         accessorKey: 'sub_category.name',
         cell: ({ row }) => {
           const addressTosS58 = row.original.address.toSs58(selectedMultisig.chain)
@@ -180,7 +180,7 @@ const AddressBookTable = ({
             .getHeaderGroups()
             .map(headerGroup =>
               headerGroup.headers.map(header => (
-                <div className="p-2 text-left last:text-right">
+                <div className="p-2 text-left last:text-right text-[14px]">
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </div>
               ))
