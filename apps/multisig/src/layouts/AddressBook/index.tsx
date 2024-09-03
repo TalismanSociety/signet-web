@@ -45,6 +45,7 @@ export const AddressBook: React.FC = () => {
   const handleUrlUpdate = () => {
     if (search.value !== query) {
       setSearchParams({ search: search.value })
+      setPagination(prev => ({ ...prev, pageIndex: 0 }))
     }
   }
 
