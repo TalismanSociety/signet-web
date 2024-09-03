@@ -13,6 +13,8 @@ import { useCallback, useMemo } from 'react'
 import { AccountsList } from '@components/AccountMenu/AccountsList'
 import { Address } from '@util/addresses'
 import { Param } from '../CreateVault'
+import { selectedAccountState } from '@domains/auth'
+import { useRecoilValue } from 'recoil'
 
 const Group = (props: { chains: Chain[]; label: string }) => (
   <SelectGroup>
@@ -40,23 +42,23 @@ const SelectChain = ({
   chain,
   chains,
   isChainAccountEth = false,
-  augmentedAccountsLength,
   setAddedAccounts,
   updateSearchParm,
 }: {
   header?: string
-  isChainAccountEth?: boolean
+  isChainAccountEth: boolean
   onNext: () => void
   onBack: () => void
   setChain: (chain: Chain) => void
   chain: Chain
   chains: Chain[]
-  augmentedAccountsLength?: number
   setAddedAccounts?: React.Dispatch<React.SetStateAction<Address[]>>
   updateSearchParm?: ({ param, value }: { param: Param; value: string }) => void
 }) => {
   const mainnets = useMemo(() => chains.filter(chain => !chain.isTestnet), [chains])
   const testnets = useMemo(() => chains.filter(chain => chain.isTestnet), [chains])
+  const selectedSigner = useRecoilValue(selectedAccountState)
+  const selectedSignerMatchesChainAccount = selectedSigner?.injected.address.isEthereum === isChainAccountEth
 
   const onValueChange = useCallback(
     (value: string) => {
@@ -87,7 +89,7 @@ const SelectChain = ({
           {testnets.length > 0 && <Group chains={testnets} label="Testnets" />}
         </SelectContent>
       </Select>
-      {augmentedAccountsLength === 0 && (
+      {!selectedSignerMatchesChainAccount && (
         <div>
           <div className="text-center">{`Switch to a ${chain.chainName} compatible account to create a vault on this chain`}</div>
           <AccountsList hideHeader={true} onlyEthAccounts={isChainAccountEth} />
@@ -101,7 +103,7 @@ const SelectChain = ({
             children: 'Back',
           }}
           next={{
-            disabled: augmentedAccountsLength === 0,
+            disabled: !selectedSignerMatchesChainAccount,
             onClick: onNext,
           }}
         />

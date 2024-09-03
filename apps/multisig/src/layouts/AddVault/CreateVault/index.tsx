@@ -274,7 +274,6 @@ const CreateMultisig = () => {
         <SelectChain
           header="Create Multisig"
           isChainAccountEth={isChainAccountEth}
-          augmentedAccountsLength={augmentedAccounts.length}
           onBack={onBackChain}
           onNext={onNextChain}
           setAddedAccounts={setAddedAccounts}
