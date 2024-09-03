@@ -38,7 +38,6 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
     e.preventDefault()
     if (!address) return
     if (isPaidPlan) {
-      console.log('Handle create contact paid plan')
       const contact = {
         id: '',
         name: nameInput.value,
