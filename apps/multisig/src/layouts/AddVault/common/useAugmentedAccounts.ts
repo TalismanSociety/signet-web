@@ -8,8 +8,9 @@ import { Chain } from '@domains/chains'
 export const useAugmentedAccounts = ({
   chain,
   isChainAccountEth,
-}: { chain?: Chain; isChainAccountEth?: boolean } = {}) => {
-  const [addedAccounts, setAddedAccounts] = useState<Address[]>([])
+  initialAddedAccounts,
+}: { chain?: Chain; isChainAccountEth?: boolean; initialAddedAccounts?: Address[] } = {}) => {
+  const [addedAccounts, setAddedAccounts] = useState<Address[]>(initialAddedAccounts || [])
   const [extensionAccounts] = useRecoilState(accountsState)
   const selectedSigner = useRecoilValue(selectedAccountState)
 

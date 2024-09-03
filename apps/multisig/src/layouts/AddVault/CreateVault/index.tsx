@@ -47,7 +47,7 @@ const CreateMultisig = () => {
     .get('members')
     ?.split(',')
     .map(Address.fromSs58)
-    .filter(addr => !!addr)
+    .filter(addr => !!addr) as Address[]
 
   const navigate = useNavigate()
   const { toast, dismiss } = useToast()
@@ -65,7 +65,11 @@ const CreateMultisig = () => {
 
   const isChainAccountEth = chain?.account === 'secp256k1'
 
-  const { augmentedAccounts, setAddedAccounts, addedAccounts } = useAugmentedAccounts({ chain, isChainAccountEth })
+  const { augmentedAccounts, setAddedAccounts } = useAugmentedAccounts({
+    chain,
+    isChainAccountEth,
+    initialAddedAccounts: membersParam,
+  })
 
   const [createdProxy, setCreatedProxy] = useState<Address | undefined>()
   const {
@@ -101,17 +105,6 @@ const CreateMultisig = () => {
     },
     [searchParams, setSearchParams]
   )
-
-  useEffect(() => {
-    if (!!membersParam) {
-      setAddedAccounts(membersParam as Address[])
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setAddedAccounts])
-
-  useEffect(() => {
-    updateSearchParm({ param: 'members', value: addedAccounts.map(a => a.toSs58()).join(',') })
-  }, [addedAccounts, updateSearchParm])
 
   // Address as a byte array.
   const multisigAddress = useMemo(
@@ -298,7 +291,13 @@ const CreateMultisig = () => {
           onBack={onBackChain}
           onNext={onNextChain}
           members={augmentedAccounts}
-          onMembersChange={setAddedAccounts}
+          setAddedAccounts={updater => {
+            setAddedAccounts(prev => {
+              const updated = typeof updater === 'function' ? updater(prev) : updater
+              updateSearchParm({ param: 'members', value: updated.map(a => a.toSs58()).join(',') })
+              return updated
+            })
+          }}
         />
       ),
       [Step.Confirmation]: (
