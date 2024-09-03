@@ -28,6 +28,7 @@ export const AddressTooltip: React.FC<
   const onchainIdentity = useOnchainIdentity(address, chain)
 
   const isLoggedIn = selectedMultisig.id !== DUMMY_MULTISIG_ID
+  const canDisplayBalance = address.isEthereum === selectedMultisig.isEthereumAccount
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -109,7 +110,7 @@ export const AddressTooltip: React.FC<
               {copied ? <Check size={16} /> : <Copy size={16} />}
             </div>
           </div>
-          {isLoggedIn && !!token && !!token.tokenSymbol && !!token.tokenDecimals && (
+          {isLoggedIn && !!token && !!token.tokenSymbol && !!token.tokenDecimals && canDisplayBalance && (
             <p className="mt-[8px] text-[12px] text-left">
               Available Balance:{' '}
               {balanceBN !== undefined ? (
