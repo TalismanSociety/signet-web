@@ -53,7 +53,9 @@ export const AddressBook: React.FC = () => {
   const dataQuery = useGetPaginatedAddressesByOrgId(pagination, debouncedSearch)
   const selectedOrganisation = orgs?.find(o => o.id === selectedMultisig.orgId)
 
-  const isPaidPlan = CONFIG.USE_PAYWALL ? selectedOrganisation?.plan.id !== 0 : true
+  // TODO: REVERT THIS BEFORE SHIPPING TO PROD <---------------------
+  const isPaidPlan = true
+  // const isPaidPlan = CONFIG.USE_PAYWALL ? selectedOrganisation?.plan.id !== 0 : true
 
   const isCollaborator = useMemo(
     () => (user ? selectedMultisig.isCollaborator(user.injected.address) : false),
