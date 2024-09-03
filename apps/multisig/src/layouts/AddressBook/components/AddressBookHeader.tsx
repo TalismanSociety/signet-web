@@ -136,7 +136,6 @@ const AddressBookHeader: React.FC<{
               <FileUploadButton
                 accept=".csv"
                 label="Import CSV"
-                className="px-[8px] [&_p]:!leading-none [&_p]:text-[14px]"
                 multiple={false}
                 onFiles={async files => {
                   const [file] = files
@@ -157,10 +156,10 @@ const AddressBookHeader: React.FC<{
               />
             </>
           )}
-          <Button variant="outline" className="h-max px-[8px] py-[8px]" size="lg" onClick={onAddContact}>
+          <Button variant="outline" className="h-max px-[12px] py-[10px]" size="lg" onClick={onAddContact}>
             <div className="flex items-center gap-[8px]">
               <Plus size={16} />
-              <p className="leading-none mt-[4px] text-[14px]">Add Contact</p>
+              <p className="leading-none mt-[4px] text-[16px]">Add Contact</p>
             </div>
           </Button>
         </div>

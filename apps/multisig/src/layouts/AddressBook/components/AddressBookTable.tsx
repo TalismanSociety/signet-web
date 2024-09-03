@@ -44,7 +44,7 @@ const AddressBookTable = ({
     navigate('#1', { replace: true })
     setPagination(prev => ({ ...prev, pageIndex: 0 }))
   }
-  const { mutate } = useUpsertAddresses(handleUpsertAddressesSuccess)
+  const { mutate, isPending } = useUpsertAddresses(handleUpsertAddressesSuccess)
   const navigate = useNavigate()
 
   const isLastItemInPage =
@@ -210,6 +210,7 @@ const AddressBookTable = ({
             <Button
               className="h-max py-[8px]"
               size="lg"
+              disabled={isPending}
               onClick={() => {
                 const addressesInput = parsedCsvRows.map(row => {
                   return { ...row, address: row.address.toSs58(selectedMultisig.chain) }
@@ -217,7 +218,9 @@ const AddressBookTable = ({
                 mutate(addressesInput)
               }}
             >
-              Save
+              <div className="flex gap-4 items-center">
+                <div>Save</div> {isPending && <CircularProgressIndicator size={16} />}
+              </div>
             </Button>
           </div>
         )}
