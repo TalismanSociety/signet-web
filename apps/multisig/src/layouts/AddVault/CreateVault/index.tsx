@@ -35,6 +35,8 @@ export enum Step {
   Transactions,
 }
 
+export type Param = 'name' | 'step' | 'chainId' | 'threshold' | 'members'
+
 const CreateMultisig = () => {
   let firstChain = filteredSupportedChains[0]
   if (!firstChain) throw Error('no supported chains')
@@ -90,8 +92,6 @@ const CreateMultisig = () => {
   useEffect(() => {
     if (created) navigate('/overview')
   }, [created, navigate])
-
-  type Param = 'name' | 'step' | 'chainId' | 'threshold' | 'members'
 
   const updateSearchParm = useCallback(
     ({ param, value }: { param: Param; value: string }) => {
@@ -277,6 +277,8 @@ const CreateMultisig = () => {
           augmentedAccountsLength={augmentedAccounts.length}
           onBack={onBackChain}
           onNext={onNextChain}
+          setAddedAccounts={setAddedAccounts}
+          updateSearchParm={updateSearchParm}
           setChain={chain => {
             setChain(chain)
             updateSearchParm({ param: 'chainId', value: chain.id })
