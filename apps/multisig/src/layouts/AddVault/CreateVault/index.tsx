@@ -25,6 +25,7 @@ import { useToast } from '@components/ui/use-toast'
 import { useBlockUnload } from '@hooks/useBlockUnload'
 import { blockAccountSwitcher } from '@components/AccountMenu/AccountsList'
 import { getErrorString } from '@util/misc'
+import { useSearchParams } from 'react-router-dom'
 
 export enum Step {
   NameVault,
@@ -34,16 +35,26 @@ export enum Step {
   Transactions,
 }
 
+export type Param = 'name' | 'step' | 'chainId' | 'threshold' | 'members'
+
 const CreateMultisig = () => {
   let firstChain = filteredSupportedChains[0]
   if (!firstChain) throw Error('no supported chains')
 
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selectedChainParam = filteredSupportedChains.find(c => c.id === searchParams.get('chainId'))
+  const membersParam = searchParams
+    .get('members')
+    ?.split(',')
+    .map(Address.fromSs58)
+    .filter(addr => !!addr) as Address[]
+
   const navigate = useNavigate()
   const { toast, dismiss } = useToast()
-  const [step, setStep] = useState(Step.NameVault)
-  const [name, setName] = useState<string>('')
-  const [chain, setChain] = useState<Chain>(firstChain)
-  const [threshold, setThreshold] = useState<number>(2)
+  const [step, setStep] = useState<Step>(Number(searchParams.get('step')) || Step.NameVault)
+  const [name, setName] = useState<string>(searchParams.get('name') || '')
+  const [chain, setChain] = useState<Chain>(selectedChainParam || firstChain)
+  const [threshold, setThreshold] = useState<number>(Number(searchParams.get('threshold')) || 2)
 
   const setBlockAccountSwitcher = useSetRecoilState(blockAccountSwitcher)
   const selectedSigner = useRecoilValue(selectedAccountState)
@@ -52,7 +63,13 @@ const CreateMultisig = () => {
 
   const proxyDepositTotalLoadable = useRecoilValueLoadable(proxyDepositTotalSelector(chain.id))
 
-  const { augmentedAccounts, setAddedAccounts } = useAugmentedAccounts()
+  const isChainAccountEth = chain?.account === 'secp256k1'
+
+  const { augmentedAccounts, setAddedAccounts } = useAugmentedAccounts({
+    chain,
+    isChainAccountEth,
+    initialAddedAccounts: membersParam,
+  })
 
   const [createdProxy, setCreatedProxy] = useState<Address | undefined>()
   const {
@@ -79,6 +96,15 @@ const CreateMultisig = () => {
   useEffect(() => {
     if (created) navigate('/overview')
   }, [created, navigate])
+
+  const updateSearchParm = useCallback(
+    ({ param, value }: { param: Param; value: string }) => {
+      const newParams = new URLSearchParams(searchParams)
+      newParams.set(param, value)
+      setSearchParams(newParams)
+    },
+    [searchParams, setSearchParams]
+  )
 
   // Address as a byte array.
   const multisigAddress = useMemo(
@@ -211,48 +237,74 @@ const CreateMultisig = () => {
   useEffect(() => () => setBlockAccountSwitcher(false), [setBlockAccountSwitcher])
 
   const onNextChain = useCallback(() => {
-    setStep(Step.MultisigConfig)
-  }, [])
+    setStep(prev => prev + 1)
+    updateSearchParm({ param: 'step', value: (step + 1).toString() })
+  }, [step, updateSearchParm])
 
   const onBackChain = useCallback(() => {
-    setStep(Step.NameVault)
-  }, [])
+    setStep(prev => prev - 1)
+    updateSearchParm({ param: 'step', value: (step - 1).toString() })
+  }, [step, updateSearchParm])
 
-  return (
-    <>
-      {step === Step.NameVault ? (
+  const renderStep = () => {
+    const stepMap: Record<Step, React.ReactElement> = {
+      [Step.NameVault]: (
         <NameVault
           header="Create Multisig"
-          onBack={() => navigate('/add-multisig')}
-          onNext={() => setStep(Step.SelectFirstChain)}
-          setName={setName}
+          onBack={() => {
+            onBackChain()
+            navigate('/add-multisig')
+          }}
+          onNext={() => onNextChain()}
+          setName={newName => {
+            setName(newName)
+            updateSearchParm({ param: 'name', value: newName })
+          }}
           name={name}
         />
-      ) : step === Step.SelectFirstChain ? (
+      ),
+      [Step.SelectFirstChain]: (
         <SelectChain
           header="Create Multisig"
+          isChainAccountEth={isChainAccountEth}
           onBack={onBackChain}
           onNext={onNextChain}
-          setChain={setChain}
+          setAddedAccounts={setAddedAccounts}
+          updateSearchParm={updateSearchParm}
+          setChain={chain => {
+            setChain(chain)
+            updateSearchParm({ param: 'chainId', value: chain.id })
+          }}
           chain={chain}
           chains={filteredSupportedChains}
         />
-      ) : step === Step.MultisigConfig ? (
+      ),
+      [Step.MultisigConfig]: (
         <MultisigConfig
           header="Create Multisig"
           chain={chain}
           threshold={threshold}
-          onThresholdChange={setThreshold}
-          onBack={() => setStep(Step.SelectFirstChain)}
-          onNext={() => setStep(Step.Confirmation)}
+          onThresholdChange={threshold => {
+            setThreshold(threshold)
+            updateSearchParm({ param: 'threshold', value: threshold.toString() })
+          }}
+          onBack={onBackChain}
+          onNext={onNextChain}
           members={augmentedAccounts}
-          onMembersChange={setAddedAccounts}
+          setAddedAccounts={updater => {
+            setAddedAccounts(prev => {
+              const updated = typeof updater === 'function' ? updater(prev) : updater
+              updateSearchParm({ param: 'members', value: updated.map(a => a.toSs58()).join(',') })
+              return updated
+            })
+          }}
         />
-      ) : step === Step.Confirmation ? (
+      ),
+      [Step.Confirmation]: (
         <Confirmation
           header="Create Multisig"
-          onBack={() => setStep(Step.MultisigConfig)}
-          onCreateVault={() => setStep(Step.Transactions)}
+          onBack={onBackChain}
+          onCreateVault={onNextChain}
           selectedAccounts={augmentedAccounts}
           threshold={threshold}
           name={name}
@@ -263,14 +315,15 @@ const CreateMultisig = () => {
           extrinsicsReady={transferProxyToMultisigIsReady && createProxyIsReady}
           existentialDeposit={initialVaultFundsLoadable}
         />
-      ) : step === Step.Transactions ? (
+      ),
+      [Step.Transactions]: (
         <SignTransactions
           chain={chain}
           created={created}
           creating={creatingProxy}
           creatingTeam={loading}
           createdProxy={createdProxy}
-          onBack={() => setStep(Step.Confirmation)}
+          onBack={onBackChain}
           onCreateProxy={handleCreateProxy}
           onSaveVault={handleCreateTeam}
           onTransferProxy={handleTransferProxy}
@@ -278,9 +331,12 @@ const CreateMultisig = () => {
           transferring={transferring}
           vaultDetailsString={vaultDetailsString}
         />
-      ) : null}
-    </>
-  )
+      ),
+    }
+    return stepMap[step] ?? null
+  }
+
+  return renderStep()
 }
 
 export default CreateMultisig
