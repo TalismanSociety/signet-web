@@ -13,7 +13,6 @@
     "eject": "craco eject",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
-    "relay": "yarn run relay-compiler",
     "docker:build": "cd ../../ && docker build -t signet-fe -f apps/multisig/Dockerfile .",
     "chaingen": "ts-node scripts/chaingen.ts"
   },
