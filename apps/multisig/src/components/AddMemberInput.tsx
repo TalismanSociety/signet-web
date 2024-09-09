@@ -34,7 +34,6 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
   }
   const handleAddressChange = (address: Address | undefined, input: string) => {
     if (isChainAccountEth !== address?.isEthereum) {
-      console.log('Chain mismatch')
       setError(true)
     }
     if (!address) {
