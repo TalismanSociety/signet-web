@@ -7,7 +7,7 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "dev": "yarn run && craco start",
-    "build": "REACT_APP_SENTRY_RELEASE=$(git rev-parse --verify HEAD) yarn run relay && craco build",
+    "build": "REACT_APP_SENTRY_RELEASE=$(git rev-parse --verify HEAD) yarn run craco build",
     "lint": "eslint src",
     "check-types": "tsc --noEmit",
     "eject": "craco eject",
