@@ -52,7 +52,6 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
   } = useGetInfiniteSubcategories({ categoryId: selectedCategory.id, search: debouncedSubcategorySearch })
 
   const handleClose = () => {
-    if (isPending) return
     nameInput.onChange('')
     setSelectedCategory(DEFAULT_SELECTED_OPTION)
     setAddress(undefined)

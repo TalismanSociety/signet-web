@@ -36,7 +36,6 @@ const fetchGraphQLData = async ({
 }
 
 export const useGetInfiniteSubcategories = ({ categoryId, search }: { categoryId: string; search: string }) => {
-  console.log({ categoryId })
   const selectedAccount = useRecoilValue(selectedAccountState)
   const [selectedMultisig] = useSelectedMultisig()
   const { data, ...rest } = useInfiniteQuery({
