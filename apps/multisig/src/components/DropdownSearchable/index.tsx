@@ -7,6 +7,7 @@ interface DropdownProps<T> {
   displayKey: keyof T
   selectedOption: T
   onSelect: (option: T) => void
+  onSearch: (search: string) => void
   onClear: () => void
   fetchMoreOptions: () => void
   hasMore: boolean
@@ -20,6 +21,7 @@ const CreatableDropdown = <T extends {}>({
   displayKey,
   onSelect,
   onClear,
+  onSearch,
   fetchMoreOptions,
   hasMore,
   isLoading,
@@ -36,7 +38,7 @@ const CreatableDropdown = <T extends {}>({
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value
-    onSelect({ [displayKey]: value } as T)
+    onSearch(value)
     setIsOpen(true)
   }
 

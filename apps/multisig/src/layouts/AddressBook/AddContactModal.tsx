@@ -21,11 +21,18 @@ type Props = {
   isPaidPlan: boolean
 }
 
+type SelectedOption = {
+  id: string
+  name: string
+}
+
+const DEFAULT_SELECTED_OPTION: SelectedOption = { id: '', name: '' }
+
 export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }) => {
   const nameInput = useInput('')
   const [address, setAddress] = useState<Address | undefined>(undefined)
-  const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string }>({ id: '', name: '' })
-  const [selectedSubcategory, setSelectedSubcategory] = useState<{ id: string; name: string }>({ id: '', name: '' })
+  const [selectedCategory, setSelectedCategory] = useState<SelectedOption>(DEFAULT_SELECTED_OPTION)
+  const [selectedSubcategory, setSelectedSubcategory] = useState<SelectedOption>(DEFAULT_SELECTED_OPTION)
   const { createContact, creating } = useCreateContact()
   const [selectedMultisig] = useSelectedMultisig()
   const { contactsByAddress } = useAddressBook()
@@ -50,7 +57,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
   const handleClose = () => {
     if (creating) return
     nameInput.onChange('')
-    setSelectedCategory({ id: '', name: '' })
+    setSelectedCategory(DEFAULT_SELECTED_OPTION)
     setAddress(undefined)
     onClose?.()
   }
@@ -113,13 +120,17 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
           <>
             <div>
               <div className="text-[14px]">Category</div>
-              <CreatableDropdown<{ id: string; name: string }>
+              <CreatableDropdown<SelectedOption>
                 options={categoriesData || []}
                 selectedOption={selectedCategory}
                 onSelect={setSelectedCategory}
                 onClear={() => {
-                  setSelectedCategory({ id: '', name: '' })
-                  setSelectedSubcategory({ id: '', name: '' })
+                  setSelectedCategory(DEFAULT_SELECTED_OPTION)
+                  setSelectedSubcategory(DEFAULT_SELECTED_OPTION)
+                }}
+                onSearch={(search: string) => {
+                  setSelectedCategory({ id: '', name: search })
+                  setSelectedSubcategory(DEFAULT_SELECTED_OPTION)
                 }}
                 fetchMoreOptions={categoriesFetchNextPage}
                 hasMore={hasCategoriesNextPage}
@@ -129,11 +140,12 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
             </div>
             <div>
               <div className="text-[14px]">Subcategory</div>
-              <CreatableDropdown<{ id: string; name: string }>
+              <CreatableDropdown<SelectedOption>
                 options={subCategoriesData || []}
                 selectedOption={selectedSubcategory}
                 onSelect={setSelectedSubcategory}
-                onClear={() => setSelectedSubcategory({ id: '', name: '' })}
+                onClear={() => setSelectedSubcategory(DEFAULT_SELECTED_OPTION)}
+                onSearch={(search: string) => setSelectedSubcategory({ id: '', name: search })}
                 fetchMoreOptions={subCategoriesFetchNextPage}
                 hasMore={hasSubcategoriesNextPage}
                 isLoading={isSubcategoriesFetching}
