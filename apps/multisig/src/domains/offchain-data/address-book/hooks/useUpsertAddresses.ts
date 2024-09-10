@@ -50,7 +50,7 @@ const useUpsertAddresses = (onSuccess?: () => void) => {
         addressesInput,
       }),
     onSuccess: res => {
-      queryClient.invalidateQueries({ queryKey: [selectedMultisig.id, { pageIndex: 0, pageSize: 10 }] })
+      queryClient.invalidateQueries({ queryKey: ['addresses', selectedMultisig.id, { pageIndex: 0, pageSize: 10 }] })
       if (onSuccess) {
         onSuccess()
       }

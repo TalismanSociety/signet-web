@@ -10,6 +10,10 @@ import AddressInput from '@components/AddressInput'
 import { useToast } from '@components/ui/use-toast'
 import { getErrorString } from '@util/misc'
 import useUpsertAddresses from '@domains/offchain-data/address-book/hooks/useUpsertAddresses'
+import { useGetInfiniteCategories } from '@domains/offchain-data/address-book/hooks/useGetInfiniteCategories'
+import CreatableDropdown from '@components/DropdownSearchable'
+import { useDebounce } from '@hooks/useDebounce'
+import { useKnownAddresses } from '@hooks/useKnownAddresses'
 
 type Props = {
   onClose?: () => void
@@ -20,14 +24,20 @@ type Props = {
 export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }) => {
   const nameInput = useInput('')
   const [address, setAddress] = useState<Address | undefined>(undefined)
+  const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string }>({ id: '', name: '' })
   const { createContact, creating } = useCreateContact()
   const [selectedMultisig] = useSelectedMultisig()
   const { contactsByAddress } = useAddressBook()
   const { toast } = useToast()
+  const debouncedCategorySearch = useDebounce(selectedCategory.name, 300)
+  const { addresses: knownAddresses } = useKnownAddresses('b97c44ff-0c3b-46e0-a360-55b64ae89efd')
+
+  const { data, hasNextPage, fetchNextPage, isFetching } = useGetInfiniteCategories(debouncedCategorySearch)
 
   const handleClose = () => {
     if (creating) return
     nameInput.onChange('')
+    setSelectedCategory({ id: '', name: '' })
     setAddress(undefined)
     onClose?.()
   }
@@ -44,7 +54,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
         address: address.toSs58(),
         org_id: selectedMultisig.orgId,
         team_id: selectedMultisig.id,
-        category: { id: '', name: '' },
+        category: { id: selectedCategory.id || '', name: selectedCategory.name },
         sub_category: { id: '', name: '' },
       }
       mutate([contact])
@@ -80,11 +90,29 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
             leadingLabel="Address"
             onChange={newAddress => setAddress(newAddress)}
             chain={selectedMultisig.chain}
+            addresses={knownAddresses.slice(0, 10)}
           />
           {conflict ? (
             <p className="text-gray-200 mt-[8px] ml-[12px] text-[14px]">Address already exists in address book.</p>
           ) : null}
         </div>
+        <div>
+          {isPaidPlan && (
+            <>
+              <div className="text-[14px]">Category</div>
+              <CreatableDropdown<{ id: string; name: string }>
+                options={data || []}
+                selectedOption={selectedCategory}
+                onSelect={setSelectedCategory}
+                fetchMoreOptions={fetchNextPage}
+                hasMore={hasNextPage}
+                isLoading={isFetching}
+                displayKey={'name'}
+              />
+            </>
+          )}
+        </div>
+
         <div
           css={{
             display: 'grid',
