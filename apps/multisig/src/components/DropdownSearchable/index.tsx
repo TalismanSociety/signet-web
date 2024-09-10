@@ -7,9 +7,11 @@ interface DropdownProps<T> {
   displayKey: keyof T
   selectedOption: T
   onSelect: (option: T) => void
+  onClear: () => void
   fetchMoreOptions: () => void
   hasMore: boolean
-  isLoading: boolean
+  isLoading?: boolean
+  isDisabled?: boolean
 }
 
 const CreatableDropdown = <T extends {}>({
@@ -17,9 +19,11 @@ const CreatableDropdown = <T extends {}>({
   selectedOption,
   displayKey,
   onSelect,
+  onClear,
   fetchMoreOptions,
   hasMore,
   isLoading,
+  isDisabled,
 }: DropdownProps<T>) => {
   const [isOpen, setIsOpen] = useState(false)
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
@@ -84,9 +88,10 @@ const CreatableDropdown = <T extends {}>({
           value={selectedOptionLabel || ''}
           onChange={handleInputChange}
           className="w-full focus:outline-none"
-          onClear={() => onSelect({ [displayKey]: '' } as T)}
+          onClear={onClear}
           showClearButton={!!selectedOptionLabel}
           loading={isLoading && isOpen}
+          disabled={isDisabled}
         />
       </button>
 

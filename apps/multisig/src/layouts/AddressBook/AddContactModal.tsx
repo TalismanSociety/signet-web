@@ -11,9 +11,9 @@ import { useToast } from '@components/ui/use-toast'
 import { getErrorString } from '@util/misc'
 import useUpsertAddresses from '@domains/offchain-data/address-book/hooks/useUpsertAddresses'
 import { useGetInfiniteCategories } from '@domains/offchain-data/address-book/hooks/useGetInfiniteCategories'
+import { useGetInfiniteSubcategories } from '@domains/offchain-data/address-book/hooks/useGetInfiniteSubcategories'
 import CreatableDropdown from '@components/DropdownSearchable'
 import { useDebounce } from '@hooks/useDebounce'
-import { useKnownAddresses } from '@hooks/useKnownAddresses'
 
 type Props = {
   onClose?: () => void
@@ -25,14 +25,27 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
   const nameInput = useInput('')
   const [address, setAddress] = useState<Address | undefined>(undefined)
   const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string }>({ id: '', name: '' })
+  const [selectedSubcategory, setSelectedSubcategory] = useState<{ id: string; name: string }>({ id: '', name: '' })
   const { createContact, creating } = useCreateContact()
   const [selectedMultisig] = useSelectedMultisig()
   const { contactsByAddress } = useAddressBook()
   const { toast } = useToast()
   const debouncedCategorySearch = useDebounce(selectedCategory.name, 300)
-  const { addresses: knownAddresses } = useKnownAddresses('b97c44ff-0c3b-46e0-a360-55b64ae89efd')
+  const debouncedSubcategorySearch = useDebounce(selectedSubcategory.name, 300)
 
-  const { data, hasNextPage, fetchNextPage, isFetching } = useGetInfiniteCategories(debouncedCategorySearch)
+  const {
+    data: categoriesData,
+    hasNextPage: hasCategoriesNextPage,
+    fetchNextPage: categoriesFetchNextPage,
+    isFetching: isCategoriesFetching,
+  } = useGetInfiniteCategories(debouncedCategorySearch)
+
+  const {
+    data: subCategoriesData,
+    hasNextPage: hasSubcategoriesNextPage,
+    fetchNextPage: subCategoriesFetchNextPage,
+    isFetching: isSubcategoriesFetching,
+  } = useGetInfiniteSubcategories({ categoryId: selectedCategory.id, search: debouncedSubcategorySearch })
 
   const handleClose = () => {
     if (creating) return
@@ -54,8 +67,8 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
         address: address.toSs58(),
         org_id: selectedMultisig.orgId,
         team_id: selectedMultisig.id,
-        category: { id: selectedCategory.id || '', name: selectedCategory.name },
-        sub_category: { id: '', name: '' },
+        category: { id: selectedCategory.id, name: selectedCategory.name },
+        sub_category: { id: selectedSubcategory.id, name: selectedSubcategory.name },
       }
       mutate([contact])
       return
@@ -90,28 +103,46 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
             leadingLabel="Address"
             onChange={newAddress => setAddress(newAddress)}
             chain={selectedMultisig.chain}
-            addresses={knownAddresses.slice(0, 10)}
           />
           {conflict ? (
             <p className="text-gray-200 mt-[8px] ml-[12px] text-[14px]">Address already exists in address book.</p>
           ) : null}
         </div>
-        <div>
-          {isPaidPlan && (
-            <>
+
+        {isPaidPlan && (
+          <>
+            <div>
               <div className="text-[14px]">Category</div>
               <CreatableDropdown<{ id: string; name: string }>
-                options={data || []}
+                options={categoriesData || []}
                 selectedOption={selectedCategory}
                 onSelect={setSelectedCategory}
-                fetchMoreOptions={fetchNextPage}
-                hasMore={hasNextPage}
-                isLoading={isFetching}
+                onClear={() => {
+                  setSelectedCategory({ id: '', name: '' })
+                  setSelectedSubcategory({ id: '', name: '' })
+                }}
+                fetchMoreOptions={categoriesFetchNextPage}
+                hasMore={hasCategoriesNextPage}
+                isLoading={isCategoriesFetching}
                 displayKey={'name'}
               />
-            </>
-          )}
-        </div>
+            </div>
+            <div>
+              <div className="text-[14px]">Subcategory</div>
+              <CreatableDropdown<{ id: string; name: string }>
+                options={subCategoriesData || []}
+                selectedOption={selectedSubcategory}
+                onSelect={setSelectedSubcategory}
+                onClear={() => setSelectedSubcategory({ id: '', name: '' })}
+                fetchMoreOptions={subCategoriesFetchNextPage}
+                hasMore={hasSubcategoriesNextPage}
+                isLoading={isSubcategoriesFetching}
+                displayKey={'name'}
+                isDisabled={!selectedCategory.name}
+              />
+            </div>
+          </>
+        )}
 
         <div
           css={{
