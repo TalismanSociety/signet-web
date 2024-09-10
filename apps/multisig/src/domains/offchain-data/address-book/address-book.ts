@@ -186,7 +186,7 @@ export const useDeleteContact = () => {
           onSuccess()
         }
 
-        queryClient.invalidateQueries({ queryKey: [selectedMultisig.id, pagination] })
+        queryClient.invalidateQueries({ queryKey: ['addresses', selectedMultisig.id, pagination] })
 
         // inform caller that contact was deleted
         return true

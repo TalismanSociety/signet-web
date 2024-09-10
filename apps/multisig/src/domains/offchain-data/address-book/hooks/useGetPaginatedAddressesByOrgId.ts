@@ -50,7 +50,7 @@ const useGetPaginatedAddressesByOrgId = (pagination: { pageIndex: number; pageSi
   const selectedAccount = useRecoilValue(selectedAccountState)
   const [selectedMultisig] = useSelectedMultisig()
   return useQuery({
-    queryKey: [selectedMultisig.id, pagination, search],
+    queryKey: ['addresses', selectedMultisig.id, pagination, search],
     queryFn: async () =>
       fetchGraphQLData({ pagination, orgId: selectedMultisig.orgId, selectedAccount: selectedAccount!, search }),
     placeholderData: keepPreviousData, // don't have 0 rows flash while changing pages/loading next page
