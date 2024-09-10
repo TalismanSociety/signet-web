@@ -49,6 +49,7 @@ export const useGetInfiniteSubcategories = ({ categoryId, search }: { categoryId
         pageParam,
       }),
     initialPageParam: 0,
+    enabled: !!categoryId,
     getNextPageParam: (lastPage, pages) => {
       return lastPage.nextPage
     },

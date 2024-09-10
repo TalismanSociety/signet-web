@@ -106,41 +106,6 @@ const CREATE_ADDRESS_MUTATION = gql`
     }
   }
 `
-export const useCreateContact = () => {
-  const setAddressBookByOrgId = useSetRecoilState(addressBookByOrgIdState)
-  const [mutate, { loading, error }] = useMutation(CREATE_ADDRESS_MUTATION, {
-    onCompleted: data => {
-      const { id, name, address, org_id } = data.insert_address_one
-      setAddressBookByOrgId(prev => {
-        const addresses = [...(prev[org_id] ?? [])]
-        const parsedAddress = Address.fromSs58(address)
-        if (!parsedAddress) {
-          console.error('Failed to parse saved address: ', address)
-          return prev
-        }
-        const conflict = addresses.find(contact => contact.address.isEqual(parsedAddress))
-        if (!conflict) {
-          return { ...prev, [org_id]: [...addresses, { id, name, orgId: org_id, address: Address.fromSs58(address) }] }
-        }
-        return prev
-      })
-    },
-  })
-
-  const createContact = useCallback(
-    async (address: Address, name: string, orgId: string) =>
-      mutate({
-        variables: {
-          address: address.toSs58(),
-          name,
-          orgId,
-        },
-      }),
-    [mutate]
-  )
-
-  return { createContact, creating: loading, error }
-}
 
 export const useDeleteContact = () => {
   const { toast } = useToast()

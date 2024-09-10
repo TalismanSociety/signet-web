@@ -3,12 +3,10 @@ import { Button } from '@components/ui/button'
 import Modal from '@components/Modal'
 import { useInput } from '@hooks/useInput'
 import { Address } from '@util/addresses'
-import { useAddressBook, useCreateContact } from '../../domains/offchain-data'
+import { useAddressBook } from '../../domains/offchain-data'
 import { useSelectedMultisig } from '../../domains/multisig'
 import { Input } from '@components/ui/input'
 import AddressInput from '@components/AddressInput'
-import { useToast } from '@components/ui/use-toast'
-import { getErrorString } from '@util/misc'
 import useUpsertAddresses from '@domains/offchain-data/address-book/hooks/useUpsertAddresses'
 import { useGetInfiniteCategories } from '@domains/offchain-data/address-book/hooks/useGetInfiniteCategories'
 import { useGetInfiniteSubcategories } from '@domains/offchain-data/address-book/hooks/useGetInfiniteSubcategories'
@@ -33,10 +31,9 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
   const [address, setAddress] = useState<Address | undefined>(undefined)
   const [selectedCategory, setSelectedCategory] = useState<SelectedOption>(DEFAULT_SELECTED_OPTION)
   const [selectedSubcategory, setSelectedSubcategory] = useState<SelectedOption>(DEFAULT_SELECTED_OPTION)
-  const { createContact, creating } = useCreateContact()
   const [selectedMultisig] = useSelectedMultisig()
   const { contactsByAddress } = useAddressBook()
-  const { toast } = useToast()
+
   const debouncedCategorySearch = useDebounce(selectedCategory.name, 300)
   const debouncedSubcategorySearch = useDebounce(selectedSubcategory.name, 300)
 
@@ -55,42 +52,28 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
   } = useGetInfiniteSubcategories({ categoryId: selectedCategory.id, search: debouncedSubcategorySearch })
 
   const handleClose = () => {
-    if (creating) return
+    if (isPending) return
     nameInput.onChange('')
     setSelectedCategory(DEFAULT_SELECTED_OPTION)
     setAddress(undefined)
     onClose?.()
   }
 
-  const { mutate } = useUpsertAddresses(handleClose)
+  const { mutate, isPending } = useUpsertAddresses(handleClose)
 
   const handleCreateContact = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!address) return
-    if (isPaidPlan) {
-      const contact = {
-        id: '',
-        name: nameInput.value,
-        address: address.toSs58(),
-        org_id: selectedMultisig.orgId,
-        team_id: selectedMultisig.id,
-        category: { id: selectedCategory.id, name: selectedCategory.name },
-        sub_category: { id: selectedSubcategory.id, name: selectedSubcategory.name },
-      }
-      mutate([contact])
-      return
+    const contact = {
+      id: '',
+      name: nameInput.value,
+      address: address.toSs58(),
+      org_id: selectedMultisig.orgId,
+      team_id: selectedMultisig.id,
+      category: { id: selectedCategory.id, name: selectedCategory.name },
+      sub_category: { id: selectedSubcategory.id, name: selectedSubcategory.name },
     }
-    try {
-      const created = await createContact(address, nameInput.value, selectedMultisig.orgId)
-      if (created) {
-        handleClose()
-      }
-    } catch (e) {
-      toast({
-        title: 'Failed to add contact',
-        description: getErrorString(e),
-      })
-    }
+    mutate([contact])
   }
 
   const disabled = !address || !nameInput.value
@@ -170,7 +153,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
           <Button type="button" variant="outline" css={{ width: '100%' }} onClick={handleClose}>
             <p>Cancel</p>
           </Button>
-          <Button css={{ width: '100%' }} disabled={disabled || creating || conflict} loading={creating}>
+          <Button css={{ width: '100%' }} disabled={disabled || isPending || conflict} loading={isPending}>
             <p>Save</p>
           </Button>
         </div>
