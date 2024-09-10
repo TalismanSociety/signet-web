@@ -114,8 +114,6 @@ export const AddressBook: React.FC = () => {
               ) : (
                 <AddressBookTable
                   hideCollaboratorActions={isCollaborator}
-                  parsedCsvRows={parsedCsv.rows}
-                  setParsedCsv={setParsedCsv}
                   search={search.value}
                   dataQuery={
                     parsedCsv.rowCount
@@ -132,7 +130,6 @@ export const AddressBook: React.FC = () => {
                   pagination={pagination}
                   setPagination={setPagination}
                   isCsvImport={!!parsedCsv.rowCount}
-                  handleCsvImportCancel={handleCsvImportCancel}
                 />
               )}
             </>

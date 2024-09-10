@@ -169,6 +169,7 @@ const AddressBookHeader: React.FC<{
                 accept=".csv"
                 label="Import CSV"
                 multiple={false}
+                className="w-[145px]"
                 onFiles={async files => {
                   const [file] = files
                   if (!file) return
@@ -191,7 +192,7 @@ const AddressBookHeader: React.FC<{
             <div className="flex flex-row gap-[8px]">
               <Button
                 variant="default"
-                className="h-max py-[8px]"
+                className="h-max px-[12px] py-[10px] text-[16px] w-[145px]"
                 size="lg"
                 disabled={isPending}
                 onClick={() => {
@@ -205,14 +206,19 @@ const AddressBookHeader: React.FC<{
                   <div>Save</div> {isPending && <CircularProgressIndicator size={16} />}
                 </div>
               </Button>
-              <Button variant="secondary" className="h-max py-[8px]" size="lg" onClick={handleCsvImportCancel}>
+              <Button
+                variant="secondary"
+                className="h-max px-[12px] py-[10px] text-[16px] w-[145px]"
+                size="lg"
+                onClick={handleCsvImportCancel}
+              >
                 Cancel
               </Button>
             </div>
           )}
 
           {!isCsvImport && (
-            <Button variant="outline" className="h-max px-[12px] py-[10px]" size="lg" onClick={onAddContact}>
+            <Button variant="outline" className="h-max px-[12px] py-[10px] w-[145px]" size="lg" onClick={onAddContact}>
               <div className="flex items-center gap-[8px]">
                 <Plus size={16} />
                 <p className="leading-none mt-[4px] text-[16px]">Add Contact</p>
