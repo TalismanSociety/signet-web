@@ -32,6 +32,25 @@ export const PAGINATED_ADDRESSES_BY_ORG_ID = gql`
   }
 `
 
+export const PAGINATED_CATEGORIES_BY_ORG_ID = gql`
+  query PaginatedCategoriesByOrgId($orgId: uuid!, $limit: Int!, $offset: Int!, $search: String) {
+    category_aggregate(where: { org_id: { _eq: $orgId }, _or: { name: { _ilike: $search } } }) {
+      aggregate {
+        count
+      }
+    }
+    category(limit: $limit, offset: $offset, where: { org_id: { _eq: $orgId }, _or: { name: { _ilike: $search } } }) {
+      id
+      org_id
+      name
+      sub_categories {
+        id
+        name
+      }
+    }
+  }
+`
+
 export const UPSERT_ADDRESSES = gql`
   mutation UpsertAddressesMutation($orgId: String!, $teamId: String!, $addressesInput: [AddressInput!]!) {
     UpsertAddresses(addressesInput: { addresses: $addressesInput, org_id: $orgId, team_id: $teamId }) {
