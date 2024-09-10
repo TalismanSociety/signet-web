@@ -93,11 +93,16 @@ export const AddressBook: React.FC = () => {
       <div className="flex flex-1 md:px-[8%] md:pt-[32px] p-[12px] px-0">
         <div css={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
           <AddressBookHeader
-            handleCsvImportSuccess={handleCsvImportSuccess}
-            onAddContact={() => setIsModalOpen(true)}
             vaultName={selectedMultisig.name}
             hideAddButton={isCollaborator}
+            parsedCsvRows={parsedCsv.rows}
             isPaidPlan={isPaidPlan}
+            isCsvImport={!!parsedCsv.rowCount}
+            handleCsvImportSuccess={handleCsvImportSuccess}
+            onAddContact={() => setIsModalOpen(true)}
+            setParsedCsv={setParsedCsv}
+            setPagination={setPagination}
+            handleCsvImportCancel={handleCsvImportCancel}
           />
           {isPaidPlan ? (
             <>

@@ -10,6 +10,12 @@ import { DEFAULT_PAGE_SIZE } from '..'
 import { ContactAddress } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
 import { useToast } from '@components/ui/use-toast'
 import { Info } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { DEFAULT_CSV_STATE } from '..'
+import { PaginationState } from '@tanstack/react-table'
+import useUpsertAddresses from '@domains/offchain-data/address-book/hooks/useUpsertAddresses'
+import { CircularProgressIndicator } from '@talismn/ui'
+import { useSelectedMultisig } from '@domains/multisig'
 
 type ParsedPaginatedAddresses = PaginatedAddresses & {
   invalidRows: number[]
@@ -65,13 +71,39 @@ const parseCSV = async (file: File): Promise<ParsedPaginatedAddresses> => {
 }
 
 const AddressBookHeader: React.FC<{
-  onAddContact: () => void
   vaultName: string
   hideAddButton: boolean
   isPaidPlan: boolean
+  isCsvImport: boolean
+  parsedCsvRows: ContactAddress[]
+  onAddContact: () => void
+  setParsedCsv: React.Dispatch<React.SetStateAction<PaginatedAddresses>>
   handleCsvImportSuccess: (data: PaginatedAddresses) => void
-}> = ({ onAddContact, vaultName, hideAddButton, isPaidPlan, handleCsvImportSuccess }) => {
+  setPagination: React.Dispatch<React.SetStateAction<PaginationState>>
+  handleCsvImportCancel: () => void
+}> = ({
+  vaultName,
+  hideAddButton,
+  isPaidPlan,
+  isCsvImport,
+  parsedCsvRows,
+  onAddContact,
+  handleCsvImportSuccess,
+  setParsedCsv,
+  setPagination,
+  handleCsvImportCancel,
+}) => {
   const { toast } = useToast()
+  const navigate = useNavigate()
+  const [selectedMultisig] = useSelectedMultisig()
+
+  const handleUpsertAddressesSuccess = () => {
+    setParsedCsv(DEFAULT_CSV_STATE)
+    navigate('#1', { replace: true })
+    setPagination(prev => ({ ...prev, pageIndex: 0 }))
+  }
+  const { mutate, isPending } = useUpsertAddresses(handleUpsertAddressesSuccess)
+
   return (
     <div className="flex flex-col lg:flex-row items-start gap-[8px] lg:justify-between w-full">
       <div>
@@ -98,7 +130,7 @@ const AddressBookHeader: React.FC<{
       </div>
       {!hideAddButton && (
         <div className="flex flex-row items-center gap-[8px] ml-auto">
-          {isPaidPlan && (
+          {isPaidPlan && !isCsvImport ? (
             <>
               <Tooltip
                 delayDuration={0}
@@ -155,13 +187,38 @@ const AddressBookHeader: React.FC<{
                 }}
               />
             </>
-          )}
-          <Button variant="outline" className="h-max px-[12px] py-[10px]" size="lg" onClick={onAddContact}>
-            <div className="flex items-center gap-[8px]">
-              <Plus size={16} />
-              <p className="leading-none mt-[4px] text-[16px]">Add Contact</p>
+          ) : (
+            <div className="flex flex-row gap-[8px]">
+              <Button
+                variant="default"
+                className="h-max py-[8px]"
+                size="lg"
+                disabled={isPending}
+                onClick={() => {
+                  const addressesInput = parsedCsvRows.map(row => {
+                    return { ...row, address: row.address.toSs58(selectedMultisig.chain) }
+                  })
+                  mutate(addressesInput)
+                }}
+              >
+                <div className="flex gap-4 items-center">
+                  <div>Save</div> {isPending && <CircularProgressIndicator size={16} />}
+                </div>
+              </Button>
+              <Button variant="secondary" className="h-max py-[8px]" size="lg" onClick={handleCsvImportCancel}>
+                Cancel
+              </Button>
             </div>
-          </Button>
+          )}
+
+          {!isCsvImport && (
+            <Button variant="outline" className="h-max px-[12px] py-[10px]" size="lg" onClick={onAddContact}>
+              <div className="flex items-center gap-[8px]">
+                <Plus size={16} />
+                <p className="leading-none mt-[4px] text-[16px]">Add Contact</p>
+              </div>
+            </Button>
+          )}
         </div>
       )}
     </div>
