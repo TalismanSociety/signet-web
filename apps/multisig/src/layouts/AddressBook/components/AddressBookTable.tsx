@@ -1,7 +1,6 @@
 import { useMemo, useCallback } from 'react'
 import { ContactAddress } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
 import { PaginatedAddresses } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
-import useUpsertAddresses from '@domains/offchain-data/address-book/hooks/useUpsertAddresses'
 import { PaginationState, useReactTable, getCoreRowModel, ColumnDef, flexRender } from '@tanstack/react-table'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { useSelectedMultisig } from '@domains/multisig'
@@ -12,8 +11,6 @@ import { useDeleteContact } from '@domains/offchain-data/address-book/address-bo
 import { clsx } from 'clsx'
 import AddressBookPagination from './AddressBookPagination'
 import { useNavigate } from 'react-router-dom'
-import { Button } from '@components/ui/button'
-import { DEFAULT_CSV_STATE } from '..'
 
 const AddressBookTable = ({
   hideCollaboratorActions,
@@ -21,30 +18,20 @@ const AddressBookTable = ({
   pagination,
   setPagination,
   isCsvImport,
-  handleCsvImportCancel,
-  parsedCsvRows,
   search,
-  setParsedCsv,
 }: {
   dataQuery: PaginatedAddresses | undefined
   hideCollaboratorActions: boolean
   isCsvImport: boolean
   pagination: PaginationState
-  parsedCsvRows: ContactAddress[]
+
   search: string
-  handleCsvImportCancel: () => void
   setPagination: React.Dispatch<React.SetStateAction<PaginationState>>
-  setParsedCsv: React.Dispatch<React.SetStateAction<PaginatedAddresses>>
 }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const { copy } = useCopied()
   const { deleteContact, deleting } = useDeleteContact()
-  const handleUpsertAddressesSuccess = () => {
-    setParsedCsv(DEFAULT_CSV_STATE)
-    navigate('#1', { replace: true })
-    setPagination(prev => ({ ...prev, pageIndex: 0 }))
-  }
-  const { mutate, isPending } = useUpsertAddresses(handleUpsertAddressesSuccess)
+
   const navigate = useNavigate()
 
   const isLastItemInPage =
@@ -202,28 +189,6 @@ const AddressBookTable = ({
         ))}
       </div>
       <div className="flex pt-5 items-end justify-end mt-auto">
-        {isCsvImport && (
-          <div className="flex flex-row gap-[8px]">
-            <Button variant="secondary" className="h-max py-[8px]" size="lg" onClick={handleCsvImportCancel}>
-              Cancel
-            </Button>
-            <Button
-              className="h-max py-[8px]"
-              size="lg"
-              disabled={isPending}
-              onClick={() => {
-                const addressesInput = parsedCsvRows.map(row => {
-                  return { ...row, address: row.address.toSs58(selectedMultisig.chain) }
-                })
-                mutate(addressesInput)
-              }}
-            >
-              <div className="flex gap-4 items-center">
-                <div>Save</div> {isPending && <CircularProgressIndicator size={16} />}
-              </div>
-            </Button>
-          </div>
-        )}
         <AddressBookPagination
           currentPage={table.getState().pagination.pageIndex + 1}
           totalPages={table.getPageCount()}
