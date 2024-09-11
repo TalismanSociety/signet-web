@@ -37,6 +37,11 @@ export enum Step {
 
 export type Param = 'name' | 'step' | 'chainId' | 'threshold' | 'members'
 
+type UrlParams = {
+  param: Param
+  value: string
+}
+
 const CreateMultisig = () => {
   let firstChain = filteredSupportedChains[0]
   if (!firstChain) throw Error('no supported chains')
@@ -97,10 +102,10 @@ const CreateMultisig = () => {
     if (created) navigate('/overview')
   }, [created, navigate])
 
-  const updateSearchParm = useCallback(
-    ({ param, value }: { param: Param; value: string }) => {
+  const updateSearchParams = useCallback(
+    (params: UrlParams[]) => {
       const newParams = new URLSearchParams(searchParams)
-      newParams.set(param, value)
+      params.map(({ param, value }) => newParams.set(param, value))
       setSearchParams(newParams)
     },
     [searchParams, setSearchParams]
@@ -238,13 +243,24 @@ const CreateMultisig = () => {
 
   const onNextChain = useCallback(() => {
     setStep(prev => prev + 1)
-    updateSearchParm({ param: 'step', value: (step + 1).toString() })
-  }, [step, updateSearchParm])
+    updateSearchParams([{ param: 'step', value: (step + 1).toString() }])
+  }, [step, updateSearchParams])
 
   const onBackChain = useCallback(() => {
     setStep(prev => prev - 1)
-    updateSearchParm({ param: 'step', value: (step - 1).toString() })
-  }, [step, updateSearchParm])
+    updateSearchParams([{ param: 'step', value: (step - 1).toString() }])
+  }, [step, updateSearchParams])
+
+  const handleSelectChain = (selectedChain: Chain) => {
+    const newParams: UrlParams[] = []
+    if (selectedChain.account !== chain.account) {
+      setAddedAccounts?.([])
+      newParams.push({ param: 'members', value: '' })
+    }
+    newParams.push({ param: 'chainId', value: selectedChain.id })
+    setChain(selectedChain)
+    updateSearchParams(newParams)
+  }
 
   const renderStep = () => {
     const stepMap: Record<Step, React.ReactElement> = {
@@ -258,7 +274,7 @@ const CreateMultisig = () => {
           onNext={() => onNextChain()}
           setName={newName => {
             setName(newName)
-            updateSearchParm({ param: 'name', value: newName })
+            updateSearchParams([{ param: 'name', value: newName }])
           }}
           name={name}
         />
@@ -269,12 +285,7 @@ const CreateMultisig = () => {
           isChainAccountEth={isChainAccountEth}
           onBack={onBackChain}
           onNext={onNextChain}
-          setAddedAccounts={setAddedAccounts}
-          updateSearchParm={updateSearchParm}
-          setChain={chain => {
-            setChain(chain)
-            updateSearchParm({ param: 'chainId', value: chain.id })
-          }}
+          setChain={handleSelectChain}
           chain={chain}
           chains={filteredSupportedChains}
         />
@@ -286,7 +297,7 @@ const CreateMultisig = () => {
           threshold={threshold}
           onThresholdChange={threshold => {
             setThreshold(threshold)
-            updateSearchParm({ param: 'threshold', value: threshold.toString() })
+            updateSearchParams([{ param: 'threshold', value: threshold.toString() }])
           }}
           onBack={onBackChain}
           onNext={onNextChain}
@@ -294,7 +305,7 @@ const CreateMultisig = () => {
           setAddedAccounts={updater => {
             setAddedAccounts(prev => {
               const updated = typeof updater === 'function' ? updater(prev) : updater
-              updateSearchParm({ param: 'members', value: updated.map(a => a.toSs58()).join(',') })
+              updateSearchParams([{ param: 'members', value: updated.map(a => a.toSs58()).join(',') }])
               return updated
             })
           }}
