@@ -144,7 +144,9 @@ const fetchRaw = async (accounts: { pubkey: string; chainGenesisHash?: string }[
 // transaction made from multisig + proxy via Multisig.asMulti -> Proxy.proxy call
 const getMultisigCall = (
   signerString: string,
-  call: { name: string; args: any }
+  call: { name: string; args: any },
+  height?: number,
+  index?: number
 ):
   | {
       signer: Address
@@ -158,86 +160,92 @@ const getMultisigCall = (
       }
     }
   | undefined => {
-  if (call.name !== 'Multisig.as_multi') return undefined
-  const multisigArgs = call.args as {
-    call: {
-      /** pallet name */
-      __kind: string
-      value: any
-    }
-    maybeTimepoint?: { height: number; index: number }
-    otherSignatories: string[]
-    threshold: number
-  }
+  const isAsMultiThreshold1 = call.name === 'Multisig.as_multi_threshold_1'
 
-  if (multisigArgs.call.__kind === 'Multisig' && multisigArgs.call.value.__kind === 'as_multi')
-    return getMultisigCall(signerString, { name: 'Multisig.as_multi', args: multisigArgs.call.value })
+  if (call.name === 'Multisig.as_multi' || isAsMultiThreshold1) {
+    const multiThreshold1Timepoint = { height, index }
 
-  // Use Address.fromPubKey for Substrate addresses and Address.fromSs58 for EVM addresses
-  const signer = Address.fromPubKey(signerString) || Address.fromSs58(signerString)
-
-  // impossible unless squid is broken
-  if (!signer) {
-    console.error(`Invalid signer from subsquid: ${signerString}`)
-    return undefined
-  }
-
-  const otherSigners: Address[] = []
-  for (const otherSigner of multisigArgs.otherSignatories) {
-    // Use Address.fromPubKey for Substrate addresses and Address.fromSs58 for EVM addresses
-    const address = Address.fromPubKey(otherSigner) || Address.fromSs58(otherSigner)
-    if (!address) {
-      console.error(`Invalid signer from subsquid: ${otherSigner}`)
-      return undefined
-    }
-    otherSigners.push(address)
-  }
-
-  if (multisigArgs.call.__kind === 'Proxy' && multisigArgs.call.value?.__kind === 'proxy') {
-    const innerProxyCall = multisigArgs.call.value as {
-      /** pub key of proxied address */
-      real: { value: string } | string
+    const multisigArgs = call.args as {
       call: {
         /** pallet name */
         __kind: string
-        value: {
-          /** call method */
+        value: any
+      }
+      maybeTimepoint?: { height: number; index: number }
+      otherSignatories: string[]
+      threshold: number
+    }
+
+    if (multisigArgs.call.__kind === 'Multisig' && multisigArgs.call.value.__kind === 'as_multi')
+      return getMultisigCall(signerString, { name: 'Multisig.as_multi', args: multisigArgs.call.value })
+
+    // Use Address.fromPubKey for Substrate addresses and Address.fromSs58 for EVM addresses
+    const signer = Address.fromPubKey(signerString) || Address.fromSs58(signerString)
+    // impossible unless squid is broken
+    if (!signer) {
+      console.error(`Invalid signer from subsquid: ${signerString}`)
+      return undefined
+    }
+
+    const otherSigners: Address[] = []
+    for (const otherSigner of multisigArgs.otherSignatories) {
+      // Use Address.fromPubKey for Substrate addresses and Address.fromSs58 for EVM addresses
+      const address = Address.fromPubKey(otherSigner) || Address.fromSs58(otherSigner)
+      if (!address) {
+        console.error(`Invalid signer from subsquid: ${otherSigner}`)
+        return undefined
+      }
+      otherSigners.push(address)
+    }
+
+    if (multisigArgs.call.__kind === 'Proxy' && multisigArgs.call.value?.__kind === 'proxy') {
+      const innerProxyCall = multisigArgs.call.value as {
+        /** pub key of proxied address */
+        real: { value: string } | string
+        call: {
+          /** pallet name */
           __kind: string
+          value: {
+            /** call method */
+            __kind: string
+          }
         }
       }
-    }
-    // Use Address.fromPubKey for Substrate addresses and Address.fromSs58 for EVM addresses
-    const realAddress =
-      Address.fromPubKey(parseCallAddressArg(innerProxyCall.real)) ||
-      Address.fromSs58(parseCallAddressArg(innerProxyCall?.real))
-    if (!realAddress) {
-      console.error(`Invalid realAddress from subsquid: ${innerProxyCall.real}`)
-      return undefined
+      // Use Address.fromPubKey for Substrate addresses and Address.fromSs58 for EVM addresses
+      const realAddress =
+        Address.fromPubKey(parseCallAddressArg(innerProxyCall.real)) ||
+        Address.fromSs58(parseCallAddressArg(innerProxyCall?.real))
+      if (!realAddress) {
+        console.error(`Invalid realAddress from subsquid: ${innerProxyCall.real}`)
+        return undefined
+      }
+
+      return {
+        signer,
+        otherSigners,
+        maybeTimepoint: isAsMultiThreshold1 ? multiThreshold1Timepoint : multisigArgs.maybeTimepoint,
+        threshold: isAsMultiThreshold1 ? 1 : multisigArgs.threshold,
+        proxy: {
+          realAddress,
+          proxyCallPallet: innerProxyCall.call.__kind,
+          proxyCallMethod: innerProxyCall.call.value.__kind,
+        },
+      }
     }
 
     return {
       signer,
       otherSigners,
-      maybeTimepoint: multisigArgs.maybeTimepoint,
-      threshold: multisigArgs.threshold,
-      proxy: {
-        realAddress,
-        proxyCallPallet: innerProxyCall.call.__kind,
-        proxyCallMethod: innerProxyCall.call.value.__kind,
-      },
+      maybeTimepoint: isAsMultiThreshold1 ? multiThreshold1Timepoint : multisigArgs.maybeTimepoint,
+      threshold: isAsMultiThreshold1 ? 1 : multisigArgs.threshold,
     }
-  }
-
-  return {
-    signer,
-    otherSigners,
-    maybeTimepoint: multisigArgs.maybeTimepoint,
-    threshold: multisigArgs.threshold,
+  } else {
+    return undefined
   }
 }
 
 const isRelevantTransaction = (tx: ParsedTransaction, teams: Team[]) => {
-  const multisigCall = getMultisigCall(tx.signer, tx.call)
+  const multisigCall = getMultisigCall(tx.signer, tx.call, tx.block.height, tx.indexInBlock)
   if (!multisigCall || !multisigCall.proxy || !multisigCall.maybeTimepoint) return false
 
   // TODO: get team's change log. Then check if there's any point in time where this multisig was the controller of the proxied account
@@ -340,9 +348,12 @@ export const useConfirmedTransactions = (teams: Team[]) => {
         const chain = teams.find(t => t.chain.genesisHash === tx.block.chainGenesisHash)?.chain
         const chainTokens = chain ? allActiveChainTokens.contents.get(chain.id) : undefined
         const api = apis.contents[tx.block.chainGenesisHash]
+        const isMultiThreshold1 = tx.call.name === 'Multisig.as_multi_threshold_1'
+        const AS_MULTI_THRESHOLD_1_INNER_EXT_INDEX = 1
+        const AS_MULTI_THRESHOLD_INNER_EXT_INDEX = 3
         if (!block || !api || !chainTokens || !chain) return
 
-        const multisigCall = getMultisigCall(tx.signer, tx.call)
+        const multisigCall = getMultisigCall(tx.signer, tx.call, tx.block.height, tx.indexInBlock)
         if (!multisigCall?.maybeTimepoint || !multisigCall.proxy) return
 
         // make sure this tx is for us
@@ -360,7 +371,10 @@ export const useConfirmedTransactions = (teams: Team[]) => {
         // get the extrinsic from block to decode
         const ext = block.block.extrinsics[tx.indexInBlock]
         if (!ext) return
-        const innerExt = ext.method.args[3]! // proxy ext is 3rd arg
+
+        const innerExt =
+          ext.method.args[isMultiThreshold1 ? AS_MULTI_THRESHOLD_1_INNER_EXT_INDEX : AS_MULTI_THRESHOLD_INNER_EXT_INDEX]
+        if (!innerExt) return
         const callData = innerExt.toHex()
 
         // decode call data
@@ -385,7 +399,9 @@ export const useConfirmedTransactions = (teams: Team[]) => {
           ...decoded,
         })
         // txs is sorted by timestamp asc, we need to push to top of decodedTransactions to make it desc
-      } catch (e) {}
+      } catch (e) {
+        console.error(e)
+      }
     })
 
     return decodedTransactions

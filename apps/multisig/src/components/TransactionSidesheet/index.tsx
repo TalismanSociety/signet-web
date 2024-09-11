@@ -14,8 +14,11 @@ import { SubmittableResult } from '@polkadot/api'
 import { useDeleteDraftMetadata, useSaveDraftMetadata } from '@domains/offchain-data/tx-metadata-draft'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@components/ui/use-toast'
-import { useRecoilState } from 'recoil'
+import { useRecoilState, useSetRecoilState } from 'recoil'
 import { TxMetadata } from '@domains/offchain-data'
+import { unknownConfirmedTransactionsState } from '@domains/tx-history'
+import { makeTransactionID } from '@util/misc'
+import { MIN_MULTISIG_THRESHOLD } from '@util/constants'
 import useCopied from '@hooks/useCopied'
 import { Check, Link } from '@talismn/icons'
 
@@ -31,6 +34,7 @@ type TransactionSidesheetProps = {
   calldata: `0x${string}`
   otherTxMetadata?: Pick<TxMetadata, 'changeConfigDetails' | 'contractDeployed'>
   t?: Transaction
+  shouldSetUnknownTransaction?: boolean
 }
 
 export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
@@ -45,10 +49,12 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   open,
   t: submittedTx,
   preventRedirect,
+  shouldSetUnknownTransaction,
 }) => {
   const [approving, setApproving] = useState(false)
   const [rejecting, setRejecting] = useState(false)
   const [selectedMultisig] = useSelectedMultisig()
+  const setUnknownTransactions = useSetRecoilState(unknownConfirmedTransactionsState)
   const { api } = useApi(selectedMultisig.chain.genesisHash)
   const { approve, estimatedFee, readyToExecute, t } = useMultisigExtrinsicFromCalldata(
     description,
@@ -105,6 +111,17 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
         description: `The transaction has been ${r?.executed ? 'executed' : 'approved'} at ${extrinsicId}`,
       })
 
+      if (r.executed && (shouldSetUnknownTransaction || selectedMultisig.threshold === MIN_MULTISIG_THRESHOLD)) {
+        setUnknownTransactions(prev => [
+          ...prev,
+          `${selectedMultisig.id}-${makeTransactionID(
+            selectedMultisig.chain,
+            r.result.blockNumber?.toNumber() ?? 0,
+            r.result.txIndex ?? 0
+          )}`,
+        ])
+      }
+
       onApproved?.(r)
       // approving from draft tab, delete the draft
       // redirect if approving from a draft or if redirect isnt disabled
@@ -127,7 +144,12 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     onClose,
     preventRedirect,
     readyToExecute,
+    selectedMultisig.chain,
+    selectedMultisig.id,
+    selectedMultisig.threshold,
     setExecutingTransactions,
+    setUnknownTransactions,
+    shouldSetUnknownTransaction,
     t,
     toast,
   ])

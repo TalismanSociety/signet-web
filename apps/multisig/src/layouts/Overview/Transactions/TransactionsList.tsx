@@ -1,9 +1,8 @@
 import { Transaction, selectedMultisigState } from '@domains/multisig'
 import { useMemo } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilValue } from 'recoil'
 import { useToast } from '@components/ui/use-toast'
-import { unknownConfirmedTransactionsState } from '@domains/tx-history'
 import { PageTabsContent } from '@components/ui/page-tabs'
 import { AnimatePresence, motion } from 'framer-motion'
 import TransactionSummaryRow from './TransactionSummaryRow'
@@ -20,6 +19,7 @@ import {
 import { Button } from '@components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { usePage } from '@hooks/usePage'
+import { useUpdateMultisigConfig } from '@domains/offchain-data'
 
 function extractHash(url: string, value: string) {
   const parts = url.split('/')
@@ -64,6 +64,7 @@ export const TransactionsList = ({
   const location = useLocation()
   const navigate = useNavigate()
   const _selectedMultisig = useRecoilValue(selectedMultisigState)
+  const { updateMultisigConfig } = useUpdateMultisigConfig()
   const page = usePage()
   const totalPage = useMemo(() => (totalTransactions ? Math.ceil(totalTransactions / 10) : 1), [totalTransactions])
 
@@ -75,7 +76,6 @@ export const TransactionsList = ({
   const multisig = openTransaction?.multisig || _selectedMultisig
 
   const { toast } = useToast()
-  const setUnknownTransactions = useSetRecoilState(unknownConfirmedTransactionsState)
 
   return (
     <PageTabsContent
@@ -160,18 +160,16 @@ export const TransactionsList = ({
                               }
                             : undefined,
                         }}
-                        onApproved={({ result, executed }) => {
-                          if (executed) {
-                            setUnknownTransactions(prev => [
-                              ...prev,
-                              `${multisig.id}-${makeTransactionID(
-                                multisig.chain,
-                                result.blockNumber?.toNumber() ?? 0,
-                                result.txIndex ?? 0
-                              )}`,
-                            ])
+                        onApproved={res => {
+                          if (openTransaction?.decoded?.changeConfigDetails && res.executed) {
+                            updateMultisigConfig({
+                              ...multisig,
+                              threshold: openTransaction.decoded.changeConfigDetails.threshold,
+                              signers: openTransaction.decoded.changeConfigDetails.signers,
+                            })
                           }
                         }}
+                        shouldSetUnknownTransaction
                         onApproveFailed={e => {
                           console.error(e)
                           navigate(`/overview?tab=${value}&teamId=${multisig.id}${window.location.hash}`)
