@@ -61,8 +61,8 @@ export class Address {
     return encodeAddress(this.bytes, chain?.ss58Prefix)
   }
 
-  toShortSs58(chain?: Chain): string {
-    return shortenAddress(this.toSs58(chain))
+  toShortSs58(chain?: Chain, size?: Size): string {
+    return shortenAddress(this.toSs58(chain), size)
   }
 
   toPubKey(): string {
@@ -87,8 +87,16 @@ export const toMultisigAddress = (signers: Address[], threshold: number): Addres
   return new Address(multisigAddress)
 }
 
-export const shortenAddress = (address: string, size: 'long' | 'short' = 'short'): string => {
-  const length = size === 'long' ? 7 : 5
+type Size = 'sm' | 'md' | 'lg' | 'xl'
+
+export const shortenAddress = (address: string, size: Size = 'sm'): string => {
+  const sizes = {
+    sm: 5,
+    md: 7,
+    lg: 9,
+    xl: 14,
+  }
+  const length = sizes[size]
   return truncateMiddle(address, length, length, '...')
 }
 

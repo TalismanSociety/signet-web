@@ -246,11 +246,13 @@ export const useNativeTokenBalance = (api: ApiPromise | undefined, address: stri
   const isLoggedIn = selectedMultisig.id !== DUMMY_MULTISIG_ID
 
   const getBalance = useCallback(() => {
-    if (!api || !isLoggedIn) return undefined
+    const addr = typeof address !== 'string' ? address : Address.fromSs58(address)
+    if (!api || !isLoggedIn || !addr || addr.isEthereum !== selectedMultisig.isEthereumAccount) return undefined
+
     api.query.system.account(typeof address === 'string' ? address : address.toSs58(), (acc): void => {
       setBalanceBN(acc.data.free.toBigInt())
     })
-  }, [address, api, isLoggedIn])
+  }, [address, api, isLoggedIn, selectedMultisig.isEthereumAccount])
 
   useEffect(() => {
     getBalance()

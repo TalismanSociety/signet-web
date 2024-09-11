@@ -14,6 +14,7 @@ type Props = {
   nameOrAddressOnly?: boolean
   withAddressTooltip?: boolean
   hideIdenticon?: boolean
+  hideAddress?: boolean
   identiconSize?: number
   breakLine?: boolean
 }
@@ -28,6 +29,7 @@ export const AccountDetails: React.FC<Props> = ({
   withAddressTooltip,
   breakLine,
   hideIdenticon = false,
+  hideAddress = false,
 }) => {
   const { copy, copied } = useCopied()
 
@@ -44,6 +46,7 @@ export const AccountDetails: React.FC<Props> = ({
         name={name}
         nameOrAddressOnly={nameOrAddressOnly}
         breakLine={breakLine}
+        hideAddress={hideAddress}
       />
       {!disableCopy && (
         <div

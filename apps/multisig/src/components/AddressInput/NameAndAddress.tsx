@@ -11,7 +11,8 @@ export const NameAndAddress: React.FC<{
   chain?: Chain
   nameOrAddressOnly?: boolean
   breakLine?: boolean
-}> = ({ address, name, chain, nameOrAddressOnly, breakLine }) => {
+  hideAddress?: boolean
+}> = ({ address, name, chain, nameOrAddressOnly, breakLine, hideAddress }) => {
   const { resolve } = useAzeroID()
   const [azeroId, setAzeroId] = useState<string | undefined>()
   const onchainIdentity = useOnchainIdentity(address, chain)
@@ -74,7 +75,7 @@ export const NameAndAddress: React.FC<{
       <p className="text-offWhite whitespace-nowrap overflow-hidden text-ellipsis max-w-max w-full leading-[1] pt-[3px]">
         {primaryText}
       </p>
-      {!!secondaryText && (
+      {!!secondaryText && !hideAddress && (
         <p className="text-gray-200 text-[12px] leading-[1] whitespace-nowrap overflow-hidden text-ellipsis max-w-max w-full pt-[3px]">
           {secondaryText}
         </p>
