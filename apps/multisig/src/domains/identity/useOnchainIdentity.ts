@@ -27,7 +27,6 @@ export const useOnchainIdentity = (address: Address, chain?: Chain) => {
     if (identity.state === 'hasValue' && identity.contents && identity.contents.identity.isSome) {
       const [registration] = identity.contents.identity.value
       const verified = registration.judgements?.some(judgement => judgement[1].isReasonable || judgement[1].isKnownGood)
-      console.log(identity.contents, verified)
       const superIdentity = registration.info?.display
       const subIdentity = identity.contents.subIdentity
       if (superIdentity?.isRaw) {
