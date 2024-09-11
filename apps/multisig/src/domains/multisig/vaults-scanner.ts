@@ -8,6 +8,7 @@ import { Chain, supportedChains } from '@domains/chains'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
 import persist from '@domains/persist'
 import { Team, activeTeamsState } from '@domains/offchain-data'
+import { MultisigCallNames } from '@util/constants'
 
 type RawData = {
   accountExtrinsics: {
@@ -47,7 +48,10 @@ const getTransactionsOfAccount = selectorFamily({
           }
         }
       `,
-      { address, callNameIn: ['Multisig.approve_as_multi', 'Multisig.as_multi', 'Multisig.as_multi_threshold_1'] },
+      {
+        address,
+        callNameIn: [MultisigCallNames.ApproveAsMulti, MultisigCallNames.AsMulti, MultisigCallNames.AsMultiThreshold1],
+      },
       'tx-history'
     )) as {
       data: RawData
@@ -91,7 +95,7 @@ export const vaultsOfAccount = selector({
         // a multisig transaction should have a threshold, except for as_multi_threshold_1
         if (
           typeof tx.extrinsic.callArgs.threshold !== 'number' &&
-          tx.extrinsic.callName !== 'Multisig.as_multi_threshold_1'
+          tx.extrinsic.callName !== MultisigCallNames.AsMultiThreshold1
         )
           throw new Error('Threshold not a number')
 
@@ -118,7 +122,7 @@ export const vaultsOfAccount = selector({
         if (!isRelevant) return null
 
         // approve_as_multi does not have inner call
-        if (tx.extrinsic.callName === 'Multisig.approve_as_multi') return null
+        if (tx.extrinsic.callName === MultisigCallNames.ApproveAsMulti) return null
         const innerCall = tx.extrinsic.callArgs.call
         if (!innerCall) throw new Error('No inner call, not a multisig to proxy call')
 

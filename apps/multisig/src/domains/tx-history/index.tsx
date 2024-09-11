@@ -11,6 +11,7 @@ import { allChainTokensSelector, decodeCallData } from '../chains'
 import { usePage } from '@hooks/usePage'
 import { Team } from '@domains/offchain-data'
 import { useBlocksByHashes } from '@domains/chains/storage-getters'
+import { MultisigCallNames } from '@util/constants'
 
 interface RawResponse {
   data: {
@@ -160,9 +161,9 @@ const getMultisigCall = (
       }
     }
   | undefined => {
-  const isAsMultiThreshold1 = call.name === 'Multisig.as_multi_threshold_1'
+  const isAsMultiThreshold1 = call.name === MultisigCallNames.AsMultiThreshold1
 
-  if (call.name === 'Multisig.as_multi' || isAsMultiThreshold1) {
+  if (call.name === MultisigCallNames.AsMulti || isAsMultiThreshold1) {
     const multiThreshold1Timepoint = { height, index }
 
     const multisigArgs = call.args as {
@@ -177,7 +178,7 @@ const getMultisigCall = (
     }
 
     if (multisigArgs.call.__kind === 'Multisig' && multisigArgs.call.value.__kind === 'as_multi')
-      return getMultisigCall(signerString, { name: 'Multisig.as_multi', args: multisigArgs.call.value })
+      return getMultisigCall(signerString, { name: MultisigCallNames.AsMulti, args: multisigArgs.call.value })
 
     // Use Address.fromPubKey for Substrate addresses and Address.fromSs58 for EVM addresses
     const signer = Address.fromPubKey(signerString) || Address.fromSs58(signerString)
@@ -348,7 +349,7 @@ export const useConfirmedTransactions = (teams: Team[]) => {
         const chain = teams.find(t => t.chain.genesisHash === tx.block.chainGenesisHash)?.chain
         const chainTokens = chain ? allActiveChainTokens.contents.get(chain.id) : undefined
         const api = apis.contents[tx.block.chainGenesisHash]
-        const isMultiThreshold1 = tx.call.name === 'Multisig.as_multi_threshold_1'
+        const isMultiThreshold1 = tx.call.name === MultisigCallNames.AsMultiThreshold1
         const AS_MULTI_THRESHOLD_1_INNER_EXT_INDEX = 1
         const AS_MULTI_THRESHOLD_INNER_EXT_INDEX = 3
         if (!block || !api || !chainTokens || !chain) return
