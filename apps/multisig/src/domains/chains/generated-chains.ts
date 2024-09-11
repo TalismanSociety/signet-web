@@ -5,14 +5,10 @@ import { Chain } from './tokens'
 export type SupportedChainIds =
   | 'polkadot'
   | 'astar'
-  | 'centrifuge-polkadot'
   | 'hydradx'
   | 'kusama'
   | 'aleph-zero-testnet'
-  | 'dancebox'
   | 'paseo-testnet'
-  | 'rococo-neuro-web-testnet'
-  | 'avail-turing-testnet'
   | 'polimec'
   | 'bittensor'
   | 'polkadot-asset-hub'
@@ -20,11 +16,6 @@ export type SupportedChainIds =
   | 'acala'
   | 'aleph-zero'
   | 'bifrost-polkadot'
-  | 'bifrost-kusama'
-  | 'interlay'
-  | 'karura'
-  | 'khala'
-  | 'kintsugi'
   | 'moonbeam'
   | 'phala'
   | 'rococo-testnet'
@@ -42,12 +33,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
-        url: 'wss://polkadot-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://polkadot-rpc-tn.dwellir.com',
-      },
-      {
         url: 'wss://rpc.ibp.network/polkadot',
       },
       {
@@ -55,6 +40,12 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       },
       {
         url: 'wss://1rpc.io/dot',
+      },
+      {
+        url: 'wss://polkadot-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://polkadot-rpc-tn.dwellir.com',
       },
       {
         url: 'wss://polkadot-rpc.publicnode.com',
@@ -91,10 +82,10 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
-        url: 'wss://astar-rpc.dwellir.com',
+        url: 'wss://1rpc.io/astr',
       },
       {
-        url: 'wss://1rpc.io/astr',
+        url: 'wss://astar-rpc.dwellir.com',
       },
       {
         url: 'wss://rpc.astar.network',
@@ -106,31 +97,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ss58Prefix: 5,
     subscanUrl: 'https://astar.subscan.io/',
     polkaAssemblyUrl: 'https://astar.polkassembly.io',
-    account: '*25519',
-  },
-  {
-    id: 'centrifuge-polkadot',
-    chainName: 'Centrifuge',
-    genesisHash: '0xb3db41421702df9a7fcac62b53ffeac85f7853cc4e689e0b93aeb3db18c09d82',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/centrifuge-polkadot.svg',
-    nativeToken: {
-      id: 'centrifuge-polkadot-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://centrifuge-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://fullnode.centrifuge.io',
-      },
-      {
-        url: 'wss://rpc-centrifuge.luckyfriday.io',
-      },
-    ],
-    ss58Prefix: 36,
-    subscanUrl: 'https://centrifuge.subscan.io/',
-    polkaAssemblyUrl: 'https://centrifuge.polkassembly.io',
     account: '*25519',
   },
   {
@@ -181,12 +147,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
-        url: 'wss://kusama-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://kusama-rpc-tn.dwellir.com',
-      },
-      {
         url: 'wss://rpc.ibp.network/kusama',
       },
       {
@@ -194,6 +154,12 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       },
       {
         url: 'wss://1rpc.io/ksm',
+      },
+      {
+        url: 'wss://kusama-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://kusama-rpc-tn.dwellir.com',
       },
       {
         url: 'wss://kusama-rpc.publicnode.com',
@@ -238,24 +204,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     account: '*25519',
   },
   {
-    id: 'dancebox',
-    chainName: 'Dancebox',
-    genesisHash: '0x27aafd88e5921f5d5c6aebcd728dacbbf5c2a37f63e2eda301f8e0def01c43ea',
-    isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/dancebox.svg',
-    nativeToken: {
-      id: 'dancebox-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://fraa-dancebox-rpc.a.dancebox.tanssi.network',
-      },
-    ],
-    ss58Prefix: 42,
-    subscanUrl: 'https://dancebox.subscan.io/',
-    account: '*25519',
-  },
-  {
     id: 'paseo-testnet',
     chainName: 'Paseo',
     genesisHash: '0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f',
@@ -269,44 +217,8 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
         url: 'wss://paseo.rpc.amforc.com',
       },
     ],
-    ss58Prefix: 42,
+    ss58Prefix: 0,
     subscanUrl: 'https://paseo.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'rococo-neuro-web-testnet',
-    chainName: 'NeuroWeb Testnet',
-    genesisHash: '0xf2b8faefcf9c370872d0b4d2eee31d46b4de4a8688153d23d82a39e2d6bc8bbc',
-    isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/rococo-neuro-web-testnet.svg',
-    nativeToken: {
-      id: 'rococo-neuro-web-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://parachain-testnet-rpc.origin-trail.network/',
-      },
-    ],
-    ss58Prefix: 101,
-    subscanUrl: 'https://neuroweb-testnet.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'avail-turing-testnet',
-    chainName: 'Avail Turing Testnet',
-    genesisHash: '0xd3d2f3a3495dc597434a99d7d449ebad6616db45e4e4f178f31cc6fa14378b70',
-    isTestnet: true,
-    logo: 'https://www.availproject.org/_next/static/media/logo_large.80d5666f.png',
-    nativeToken: {
-      id: 'avail-turing-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://turing-rpc.avail.so/ws',
-      },
-    ],
-    ss58Prefix: 42,
-    subscanUrl: 'https://temp-explorer.avail.so/#/explorer',
     account: '*25519',
   },
   {
@@ -368,16 +280,22 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
-        url: 'wss://asset-hub-polkadot-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://statemint-rpc-tn.dwellir.com',
-      },
-      {
         url: 'wss://sys.ibp.network/statemint',
       },
       {
         url: 'wss://sys.dotters.network/statemint',
+      },
+      {
+        url: 'wss://sys.ibp.network/asset-hub-polkadot',
+      },
+      {
+        url: 'wss://sys.dotters.network/asset-hub-polkadot',
+      },
+      {
+        url: 'wss://asset-hub-polkadot-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://statemint-rpc-tn.dwellir.com',
       },
       {
         url: 'wss://rpc-asset-hub-polkadot.luckyfriday.io',
@@ -407,16 +325,16 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
-        url: 'wss://asset-hub-kusama-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://statemine-rpc-tn.dwellir.com',
-      },
-      {
         url: 'wss://sys.ibp.network/statemine',
       },
       {
         url: 'wss://sys.dotters.network/statemine',
+      },
+      {
+        url: 'wss://asset-hub-kusama-rpc.dwellir.com',
+      },
+      {
+        url: 'wss://statemine-rpc-tn.dwellir.com',
       },
       {
         url: 'wss://rpc-asset-hub-kusama.luckyfriday.io',
@@ -508,132 +426,12 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       {
         url: 'wss://eu.bifrost-polkadot-rpc.liebi.com/ws',
       },
+      {
+        url: 'wss://bifrost.public.curie.radiumblock.co/ws',
+      },
     ],
     ss58Prefix: 6,
     subscanUrl: 'https://bifrost.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'bifrost-kusama',
-    chainName: 'Bifrost Kusama',
-    genesisHash: '0x9f28c6a68e0fc9646eff64935684f6eeeece527e37bbe1f213d22caa1d9d6bed',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/bifrost-kusama.svg',
-    nativeToken: {
-      id: 'bifrost-kusama-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://bifrost-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://bifrost-rpc.liebi.com/ws',
-      },
-      {
-        url: 'wss://us.bifrost-rpc.liebi.com/ws',
-      },
-    ],
-    ss58Prefix: 6,
-    subscanUrl: 'https://bifrost-kusama.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'interlay',
-    chainName: 'Interlay',
-    genesisHash: '0xbf88efe70e9e0e916416e8bed61f2b45717f517d7f3523e33c7b001e5ffcbc72',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/interlay.svg',
-    nativeToken: {
-      id: 'interlay-substrate-tokens-intr',
-    },
-    rpcs: [
-      {
-        url: 'wss://interlay-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://api.interlay.io/parachain',
-      },
-      {
-        url: 'wss://rpc-interlay.luckyfriday.io/',
-      },
-    ],
-    ss58Prefix: 2032,
-    subscanUrl: 'https://interlay.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'karura',
-    chainName: 'Karura',
-    genesisHash: '0xbaf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/karura.svg',
-    nativeToken: {
-      id: 'karura-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://karura-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://karura-rpc-0.aca-api.network',
-      },
-      {
-        url: 'wss://karura-rpc-1.aca-api.network',
-      },
-      {
-        url: 'wss://karura-rpc-2.aca-api.network/ws',
-      },
-      {
-        url: 'wss://karura-rpc-3.aca-api.network/ws',
-      },
-    ],
-    ss58Prefix: 8,
-    subscanUrl: 'https://karura.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'khala',
-    chainName: 'Khala',
-    genesisHash: '0xd43540ba6d3eb4897c28a77d48cb5b729fea37603cbbfc7a86a73b72adb3be8d',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/khala.svg',
-    nativeToken: {
-      id: 'khala-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://khala-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://khala.public.curie.radiumblock.co/ws',
-      },
-      {
-        url: 'wss://khala-api.phala.network/ws',
-      },
-    ],
-    ss58Prefix: 30,
-    subscanUrl: 'https://khala.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'kintsugi',
-    chainName: 'Kintsugi',
-    genesisHash: '0x9af9a64e6e4da8e3073901c3ff0cc4c3aad9563786d89daf6ad820b6e14a0b8b',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/kintsugi.svg',
-    nativeToken: {
-      id: 'kintsugi-substrate-tokens-kint',
-    },
-    rpcs: [
-      {
-        url: 'wss://kintsugi-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://api-kusama.interlay.io/parachain',
-      },
-    ],
-    ss58Prefix: 2092,
-    subscanUrl: 'https://kintsugi.subscan.io/',
     account: '*25519',
   },
   {

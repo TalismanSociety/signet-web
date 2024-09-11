@@ -18,19 +18,12 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
     polkaAssemblyUrl: 'https://polkadot.polkassembly.io',
   },
   'astar': { id: 'astar', polkaAssemblyUrl: 'https://astar.polkassembly.io' },
-  'centrifuge-polkadot': { id: 'centrifuge', polkaAssemblyUrl: 'https://centrifuge.polkassembly.io' },
+
   'hydradx': { id: 'hydradx', polkaAssemblyUrl: 'https://centrifuge.polkassembly.io' },
   'kusama': { id: 'kusama', polkaAssemblyUrl: 'https://kusama.polkassembly.io' },
   'rococo': { id: 'rococo', polkaAssemblyUrl: 'https://rococo.polkassembly.io' },
   'aleph-zero-testnet': { id: 'aleph-zero-testnet', subscanUrl: 'https://test.azero.dev/#/explorer/' },
-  'dancebox': { id: 'dancebox', subscanUrl: 'https://dancebox.subscan.io/' },
   'paseo-testnet': { id: 'paseo-testnet', subscanUrl: 'https://paseo.subscan.io/' },
-  'rococo-neuro-web-testnet': { id: 'rococo-neuro-web-testnet', subscanUrl: 'https://neuroweb-testnet.subscan.io/' },
-  'avail-turing-testnet': {
-    id: 'avail-turing-testnet',
-    subscanUrl: 'https://temp-explorer.avail.so/#/explorer',
-    logo: 'https://www.availproject.org/_next/static/media/logo_large.80d5666f.png',
-  },
   'polimec': { id: 'polimec', subscanUrl: 'https://explorer.polimec.org/polimec/' },
   'bittensor': {
     id: 'bittensor',
@@ -42,16 +35,27 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   'acala': { id: 'acala' },
   'aleph-zero': { id: 'aleph-zero' },
   'bifrost-polkadot': { id: 'bifrost-polkadot' },
-  'bifrost-kusama': { id: 'bifrost-kusama' },
-  'interlay': { id: 'interlay' },
-  'karura': { id: 'karura' },
-  'khala': { id: 'khala' },
-  'kintsugi': { id: 'kintsugi' },
+
   'moonbeam': { id: 'moonbeam' },
   'phala': { id: 'phala' },
   'rococo-testnet': { id: 'rococo-testnet' },
   'shibuya-testnet': { id: 'shibuya-testnet' },
   'mythos': { id: 'mythos', subscanUrl: 'https://mythos.subscan.io/' },
+
+  // turned off due to inactivity
+  // 'dancebox': { id: 'dancebox', subscanUrl: 'https://dancebox.subscan.io/' },
+  // 'bifrost-kusama': { id: 'bifrost-kusama' },
+  // 'centrifuge-polkadot': { id: 'centrifuge', polkaAssemblyUrl: 'https://centrifuge.polkassembly.io' },
+  // 'interlay': { id: 'interlay' },
+  // 'karura': { id: 'karura' },
+  // 'khala': { id: 'khala' },
+  // 'kintsugi': { id: 'kintsugi' },
+  // 'rococo-neuro-web-testnet': { id: 'rococo-neuro-web-testnet', subscanUrl: 'https://neuroweb-testnet.subscan.io/' },
+  // 'avail-turing-testnet': {
+  //   id: 'avail-turing-testnet',
+  //   subscanUrl: 'https://temp-explorer.avail.so/#/explorer',
+  //   logo: 'https://www.availproject.org/_next/static/media/logo_large.80d5666f.png',
+  // },
 }
 
 export type Chain = {
