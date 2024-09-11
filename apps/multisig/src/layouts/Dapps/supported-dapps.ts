@@ -18,19 +18,22 @@ export const SUPPORTED_DAPPS: SupportedDapp[] = [
     name: 'Subsquare',
     url: {
       'polkadot': 'https://polkadot.subsquare.io',
-      'bifrost-kusama': 'https://bifrost-kusama.subsquare.io',
+
       'bifrost-polkadot': 'https://bifrost.subsquare.io',
       'rococo-testnet': 'https://rococo.subsquare.io',
       'acala': 'https://acala.subsquare.io',
-      'centrifuge-polkadot': 'https://centrifuge.subsquare.io',
       'hydradx': 'https://hydradx.subsquare.io',
-      'interlay': 'https://interlay.subsquare.io',
-      'karura': 'https://karura.subsquare.io',
-      'khala': 'https://khala.subsquare.io',
-      'kintsugi': 'https://kintsugi.subsquare.io',
       'kusama': 'https://kusama.subsquare.io',
       'phala': 'https://phala.subsquare.io',
       'moonbeam': 'https://moonbeam.subsquare.io',
+
+      // inactivity
+      // 'bifrost-kusama': 'https://bifrost-kusama.subsquare.io',
+      // 'centrifuge-polkadot': 'https://centrifuge.subsquare.io',
+      // 'interlay': 'https://interlay.subsquare.io',
+      // 'karura': 'https://karura.subsquare.io',
+      // 'khala': 'https://khala.subsquare.io',
+      // 'kintsugi': 'https://kintsugi.subsquare.io',
     },
     logo: 'https://subsquare.io/imgs/logo-img.svg',
     background: '#fff',

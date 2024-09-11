@@ -6,14 +6,16 @@ const supportedChains: Partial<Record<SupportedChainIds, string>> = {
   'kusama': 'kusama',
   'acala': 'acala',
   'bifrost-polkadot': 'bifrost',
-  'bifrost-kusama': 'bifrost-kusama',
   'hydradx': 'hydradx',
   'phala': 'phala',
-  'khala': 'khala',
-  'karura': 'karura',
-  'kintsugi': 'kintsugi',
   // testnets
   'rococo-testnet': 'rococo',
+
+  // inactivity
+  // 'khala': 'khala',
+  // 'bifrost-kusama': 'bifrost-kusama',
+  // 'kintsugi': 'kintsugi',
+  // 'karura': 'karura',
 }
 // This only a partial Referendum interface
 interface Referendum {
