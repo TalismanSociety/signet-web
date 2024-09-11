@@ -7,10 +7,12 @@ import { AccountDetails } from './AccountDetails'
 import { Input } from '@components/ui/input'
 import { useAzeroIDPromise } from '@domains/azeroid/AzeroIDResolver'
 
+export type AddressType = 'Extension' | 'Contacts' | 'Vault' | 'Smart Contract' | undefined
+
 export type AddressWithName = {
   address: Address
   name: string
-  type: string
+  type: AddressType
   chain?: Chain
 
   extensionName?: string
