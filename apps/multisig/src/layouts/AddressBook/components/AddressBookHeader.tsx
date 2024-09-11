@@ -189,32 +189,34 @@ const AddressBookHeader: React.FC<{
               />
             </>
           ) : (
-            <div className="flex flex-row gap-[8px]">
-              <Button
-                variant="default"
-                className="h-max px-[12px] py-[10px] text-[16px] w-[145px]"
-                size="lg"
-                disabled={isPending}
-                onClick={() => {
-                  const addressesInput = parsedCsvRows.map(row => {
-                    return { ...row, address: row.address.toSs58(selectedMultisig.chain) }
-                  })
-                  mutate(addressesInput)
-                }}
-              >
-                <div className="flex gap-4 items-center">
-                  <div>Save</div> {isPending && <CircularProgressIndicator size={16} />}
-                </div>
-              </Button>
-              <Button
-                variant="secondary"
-                className="h-max px-[12px] py-[10px] text-[16px] w-[145px]"
-                size="lg"
-                onClick={handleCsvImportCancel}
-              >
-                Cancel
-              </Button>
-            </div>
+            isCsvImport && (
+              <div className="flex flex-row gap-[8px]">
+                <Button
+                  variant="default"
+                  className="h-max px-[12px] py-[10px] text-[16px] w-[145px]"
+                  size="lg"
+                  disabled={isPending}
+                  onClick={() => {
+                    const addressesInput = parsedCsvRows.map(row => {
+                      return { ...row, address: row.address.toSs58(selectedMultisig.chain) }
+                    })
+                    mutate(addressesInput)
+                  }}
+                >
+                  <div className="flex gap-4 items-center">
+                    <div>Save</div> {isPending && <CircularProgressIndicator size={16} />}
+                  </div>
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="h-max px-[12px] py-[10px] text-[16px] w-[145px]"
+                  size="lg"
+                  onClick={handleCsvImportCancel}
+                >
+                  Cancel
+                </Button>
+              </div>
+            )
           )}
 
           {!isCsvImport && (
