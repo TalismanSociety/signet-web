@@ -435,20 +435,25 @@ export const useAsMultiThreshold1 = (
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(multisig.chain.nativeToken.id))
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
 
-  const extrinsic = useMemo(() => {
+  const innerExtrinsic = useMemo(() => {
     if (!api || !t?.callData) return undefined
     return decodeCallData(api, t.callData)
   }, [api, t?.callData])
 
   const ready = useMemo(
     () =>
-      !!api && extensionAddress && !!extrinsic && nativeToken.state === 'hasValue' && !!hash && multisig !== undefined,
-    [api, extensionAddress, extrinsic, hash, multisig, nativeToken.state]
+      !!api &&
+      extensionAddress &&
+      !!innerExtrinsic &&
+      nativeToken.state === 'hasValue' &&
+      !!hash &&
+      multisig !== undefined,
+    [api, extensionAddress, innerExtrinsic, hash, multisig, nativeToken.state]
   )
 
   // Creates some tx from calldata
-  const createExtrinsic = useCallback(async () => {
-    if (!ready || !api || !extrinsic || !extensionAddress) return
+  const asMultiThreshold1Extrinsic = useMemo(() => {
+    if (!ready || !api || !innerExtrinsic || !extensionAddress) return
 
     if (!api.tx.multisig?.asMultiThreshold1) throw new Error('chain missing multisig pallet')
 
@@ -456,18 +461,17 @@ export const useAsMultiThreshold1 = (
       Address.sortAddresses(multisig.signers)
         .filter(s => s && !s.isEqual(extensionAddress))
         .map(s => s.bytes),
-      extrinsic.method.toHex()
+      innerExtrinsic.method.toHex()
     )
-  }, [api, extensionAddress, extrinsic, multisig.signers, ready])
+  }, [api, extensionAddress, innerExtrinsic, multisig.signers, ready])
 
   const estimateFee = useCallback(async () => {
-    const extrinsic = await createExtrinsic()
-    if (!extrinsic || !extensionAddress) return
+    if (!asMultiThreshold1Extrinsic || !extensionAddress) return
 
     // Fee estimation
-    const paymentInfo = await extrinsic.paymentInfo(extensionAddress.toSs58(multisig.chain))
+    const paymentInfo = await asMultiThreshold1Extrinsic.paymentInfo(extensionAddress.toSs58(multisig.chain))
     setEstimatedFee({ token: nativeToken.contents, amount: paymentInfo.partialFee as unknown as BN })
-  }, [extensionAddress, nativeToken, createExtrinsic, multisig.chain])
+  }, [extensionAddress, nativeToken, asMultiThreshold1Extrinsic, multisig.chain])
 
   // Estimate the fee as soon as the hook is used and the extensionAddress or apiLoadable changes
   useEffect(() => {
@@ -484,8 +488,7 @@ export const useAsMultiThreshold1 = (
       metadata?: Pick<TxMetadata, 'changeConfigDetails' | 'contractDeployed' | 'callData' | 'description'>
       saveMetadata?: boolean
     }) => {
-      const extrinsic = await createExtrinsic()
-      if (!extrinsic || !extensionAddress || !hash || !multisig) {
+      if (!asMultiThreshold1Extrinsic || !extensionAddress || !hash || !multisig) {
         console.error('tried to call asMultiThreshold1 before it was ready')
         return onFailure('Please try again.')
       }
@@ -495,7 +498,7 @@ export const useAsMultiThreshold1 = (
       const { signer, metadata: extensionMetadata } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
       if (extensionMetadata) await injectMetadata(extensionMetadata)
 
-      const unsubscribe = await extrinsic
+      const unsubscribe = await asMultiThreshold1Extrinsic
         .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
           try {
             handleSubmittableResultError(result)
@@ -578,7 +581,7 @@ export const useAsMultiThreshold1 = (
         })
     },
     [
-      createExtrinsic,
+      asMultiThreshold1Extrinsic,
       extensionAddress,
       hash,
       multisig,

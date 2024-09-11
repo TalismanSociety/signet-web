@@ -160,8 +160,8 @@ export const TransactionsList = ({
                               }
                             : undefined,
                         }}
-                        onApproved={() => {
-                          if (openTransaction?.decoded?.changeConfigDetails) {
+                        onApproved={res => {
+                          if (openTransaction?.decoded?.changeConfigDetails && res.executed) {
                             updateMultisigConfig({
                               ...multisig,
                               threshold: openTransaction.decoded.changeConfigDetails.threshold,

@@ -373,9 +373,8 @@ export const useConfirmedTransactions = (teams: Team[]) => {
         if (!ext) return
 
         const innerExt =
-          ext.method.args[
-            isMultiThreshold1 ? AS_MULTI_THRESHOLD_1_INNER_EXT_INDEX : AS_MULTI_THRESHOLD_INNER_EXT_INDEX
-          ]!
+          ext.method.args[isMultiThreshold1 ? AS_MULTI_THRESHOLD_1_INNER_EXT_INDEX : AS_MULTI_THRESHOLD_INNER_EXT_INDEX]
+        if (!innerExt) return
         const callData = innerExt.toHex()
 
         // decode call data

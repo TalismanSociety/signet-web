@@ -106,11 +106,6 @@ export const BalancesWatcher = () => {
     }
   }, [provider, rates])
 
-  // clean up for loading state
-  useEffect(() => {
-    setBalances(undefined)
-  }, [multisigs, setBalances])
-
   useSetBalancesAddresses(
     useMemo(
       () => multisigAddresses.concat(user ? [user.injected.address] : []).map(a => a.toSs58(selectedMultisig.chain)),

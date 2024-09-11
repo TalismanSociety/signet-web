@@ -92,21 +92,6 @@ export const useAddressBook = () => {
   }
 }
 
-const CREATE_ADDRESS_MUTATION = gql`
-  mutation CreateAddress($address: String!, $name: String!, $orgId: uuid!) {
-    insert_address_one(
-      object: { address: $address, name: $name, org_id: $orgId }
-      on_conflict: { constraint: address_address_org_id_team_id_key, update_columns: [address, name] }
-    ) {
-      id
-      org_id
-      team_id
-      name
-      address
-    }
-  }
-`
-
 export const useDeleteContact = () => {
   const { toast } = useToast()
   const [addressBookByOrgId, setAddressBookByOrgId] = useRecoilState(addressBookByOrgIdState)
