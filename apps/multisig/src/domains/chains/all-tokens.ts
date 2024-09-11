@@ -6757,10 +6757,24 @@ export const ALL_TOKENS = [
       id: 'rococo-neuro-web-testnet',
     },
   },
+  {
+    id: 'mythos-substrate-native',
+    type: 'substrate-native',
+    isTestnet: false,
+    isDefault: true,
+    symbol: 'MYTH',
+    decimals: 18,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/mythos.svg',
+    existentialDeposit: '10000000000000000',
+    chain: {
+      id: 'mythos',
+    },
+    coingeckoId: 'mythos',
+  },
 ]
 
 export const ALL_TOKENS_BY_ID = ALL_TOKENS.reduce((a, b) => {
-  const chain = supportedChains.find(c => c.squidIds.chainData === b.chain.id)
+  const chain = supportedChains.find(c => c.id === b.chain.id)
   if (!chain) return a
   a[b.id] = {
     ...b,

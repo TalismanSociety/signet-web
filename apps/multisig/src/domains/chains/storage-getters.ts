@@ -20,7 +20,7 @@ import { atom, selector, selectorFamily, useRecoilValueLoadable } from 'recoil'
 
 import { BaseToken, Chain, tokenByIdQuery } from './tokens'
 import { u8aToString, u8aUnwrapBytes } from '@polkadot/util'
-import { PalletIdentityRegistration, FrameSystemEventRecord } from '@polkadot/types/lookup'
+import { FrameSystemEventRecord } from '@polkadot/types/lookup'
 
 export const useAddressIsProxyDelegatee = (chain: Chain) => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
@@ -204,20 +204,26 @@ export const blockHashSelector = selectorFamily({
 })
 
 /** Give a {blockHash}-{chainGenesisHash}, get the block on chain */
-export const blockSelector = selectorFamily<SignedBlock, string>({
+export const blockSelector = selectorFamily<SignedBlock | null, string>({
   key: 'blockSelector',
   get:
     blockAndChainHash =>
     async ({ get }) => {
       const [blockHash, chainHash] = blockAndChainHash.split('-') as [string, string]
+
       const api = get(pjsApiSelector(chainHash))
-      const block = await api.rpc.chain.getBlock(blockHash)
-      return block
+      try {
+        const block = await api.rpc.chain.getBlock(blockHash)
+        return block
+      } catch (error) {
+        console.error({ error })
+        return null
+      }
     },
   dangerouslyAllowMutability: true,
 })
 
-export const blocksSelector = selectorFamily<SignedBlock[], string>({
+export const blocksSelector = selectorFamily<(SignedBlock | null)[], string>({
   key: 'blocksSelector',
   get:
     blockAndChainHashes =>
@@ -246,24 +252,25 @@ export const blockEventsSelector = selectorFamily<FrameSystemEventRecord[], [str
   dangerouslyAllowMutability: true,
 })
 
-export const identitySelector = selectorFamily<
-  { identity: Option<PalletIdentityRegistration>; subIdentity?: string } | null | undefined,
-  string
->({
+export const identitySelector = selectorFamily({
   key: 'identitySelector',
   get:
     (identifier: string) =>
     async ({ get }) => {
-      const [genesisHash, address] = identifier.split(':') as [string, string]
+      const [genesisHash, identifierAddress] = identifier.split(':') as [string, string]
       if (genesisHash === 'undefined') return undefined
       const api = get(pjsApiSelector(genesisHash))
       await api.isReady
       if (!api.query.identity || !api.query.identity.identityOf) return null
 
+      const address = Address.fromSs58(identifierAddress)
+      // identity pallet is only available for Substrate addresses
+      if (!address || address.isEthereum) return null
+
       // get identity + superOf to check if user has set its own identity or has a super identity
       const [identity, superOf] = await Promise.all([
-        api.query.identity.identityOf(address),
-        api.query.identity.superOf(address),
+        api.query.identity.identityOf(address.bytes),
+        api.query.identity.superOf(address.bytes),
       ])
 
       // anyone can be set as a sub identity without permission, we should make sure that sub identity

@@ -39,7 +39,7 @@ export const DraftTransactionsList: React.FC<Props> = ({ value }) => {
 
   const parsedTransactions = useMemo(() => {
     if (allActiveChainTokens.state !== 'hasValue') return undefined
-    const curChainTokens = allActiveChainTokens.contents.get(selectedMultisig.chain.squidIds.chainData)
+    const curChainTokens = allActiveChainTokens.contents.get(selectedMultisig.chain.id)
 
     if (!data?.tx_metadata_draft || !api || !curChainTokens) return undefined
 

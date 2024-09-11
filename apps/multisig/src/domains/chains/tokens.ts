@@ -1,4 +1,4 @@
-import { activeMultisigsState } from '@domains/multisig'
+import { activeMultisigsState, DUMMY_MULTISIG_ID, useSelectedMultisig } from '@domains/multisig'
 import { selector, selectorFamily } from 'recoil'
 import { ApiPromise } from '@polkadot/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -191,10 +191,10 @@ export type Rpc = {
   url: string
 }
 
+type Account = '*25519' | 'secp256k1'
+
 export type Chain<ChainIds = string> = {
-  squidIds: {
-    chainData: ChainIds
-  }
+  id: ChainIds
   genesisHash: string
   chainName: string
   logo: string
@@ -206,11 +206,12 @@ export type Chain<ChainIds = string> = {
   ss58Prefix: number
   subscanUrl: string
   polkaAssemblyUrl?: string
+  account: Account
 }
 
 export const chainTokensByIdQuery = selectorFamily({
   key: 'ChainTokensById',
-  get: (id: string) => () => Object.values(ALL_TOKENS_BY_ID).filter(token => token.chain.squidIds.chainData === id),
+  get: (id: string) => () => Object.values(ALL_TOKENS_BY_ID).filter(token => token.chain.id === id),
 })
 
 // Get tokens for all active chains
@@ -221,7 +222,7 @@ export const allChainTokensSelector = selector({
 
     const entries: [string, BaseToken[]][] = multisigs
       .filter(({ chain }) => chain !== undefined)
-      .map(({ chain }) => [chain.squidIds.chainData, get(chainTokensByIdQuery(chain.squidIds.chainData))])
+      .map(({ chain }) => [chain.id, get(chainTokensByIdQuery(chain.id))])
 
     return new Map(entries.filter(([tokens]) => !!tokens[0]))
   },
@@ -241,12 +242,17 @@ export const useSystemToken = (api: ApiPromise | undefined) => {
 
 export const useNativeTokenBalance = (api: ApiPromise | undefined, address: string | Address) => {
   const [balanceBN, setBalanceBN] = useState<bigint>()
+  const [selectedMultisig] = useSelectedMultisig()
+  const isLoggedIn = selectedMultisig.id !== DUMMY_MULTISIG_ID
+
   const getBalance = useCallback(() => {
-    if (!api) return undefined
+    const addr = typeof address !== 'string' ? address : Address.fromSs58(address)
+    if (!api || !isLoggedIn || !addr || addr.isEthereum !== selectedMultisig.isEthereumAccount) return undefined
+
     api.query.system.account(typeof address === 'string' ? address : address.toSs58(), (acc): void => {
       setBalanceBN(acc.data.free.toBigInt())
     })
-  }, [address, api])
+  }, [address, api, isLoggedIn, selectedMultisig.isEthereumAccount])
 
   useEffect(() => {
     getBalance()

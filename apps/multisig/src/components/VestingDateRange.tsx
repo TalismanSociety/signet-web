@@ -54,12 +54,12 @@ export const VestingDateRange: React.FC<{
         </p>
       }
     >
-      <p className={cn('text-right text-offWhite text-[14px] cursor-default', className)}>
+      <p className={cn('text-right text-offWhite text-[12px] cursor-default', className)}>
         {sameDay ? `${startDateString}, ` : ''}
         {sameDay ? `≈${startDate?.toLocaleTimeString()}` : startDateString} &rarr;{' '}
         {sameDay ? `≈${endDate?.toLocaleTimeString()}` : endDate?.toLocaleDateString()}
         {!!duration && (
-          <span className="text-right text-gray-200 text-[14px]">&nbsp;(&asymp;{secondsToDuration(duration)})</span>
+          <span className="text-right text-gray-200 text-[12px]">&nbsp;(&asymp;{secondsToDuration(duration)})</span>
         )}
       </p>
     </Tooltip>

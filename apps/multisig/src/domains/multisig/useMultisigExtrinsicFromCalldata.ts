@@ -58,7 +58,7 @@ export const useMultisigExtrinsicFromCalldata = (
     if (submittedTx?.hash) return submittedTx as Transaction
 
     if (allActiveChainTokens.state !== 'hasValue') return undefined
-    const curChainTokens = allActiveChainTokens.contents.get(team.chain.squidIds.chainData)
+    const curChainTokens = allActiveChainTokens.contents.get(team.chain.id)
 
     if (!proxyExtrinsic?.extrinsic || !curChainTokens) return undefined
     const decoded = extrinsicToDecoded(team, proxyExtrinsic?.extrinsic, curChainTokens, otherTxMetadata)

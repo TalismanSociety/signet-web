@@ -1,10 +1,13 @@
 import { useRecoilValue } from 'recoil'
 import { AddressWithName } from '../components/AddressInput'
 import { accountsState } from '../domains/extension'
-import { addressBookByTeamIdState } from '../domains/offchain-data'
+import { addressBookByOrgIdState } from '../domains/offchain-data'
 import { useMemo } from 'react'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useSmartContracts } from '../domains/offchain-data/smart-contract'
+import { Category, Subcategory } from '../domains/offchain-data/address-book/address-book'
+
+type AddressWithNameAndCategory = AddressWithName & { category?: Category; sub_category?: Subcategory }
 
 export const useKnownAddresses = (
   teamId?: string,
@@ -12,13 +15,13 @@ export const useKnownAddresses = (
     includeSelectedMultisig = false,
     includeContracts = false,
   }: { includeSelectedMultisig?: boolean; includeContracts?: boolean } = {}
-): { addresses: AddressWithName[]; contactByAddress: Record<string, AddressWithName> } => {
+): { addresses: AddressWithNameAndCategory[]; contactByAddress: Record<string, AddressWithNameAndCategory> } => {
   const extensionAccounts = useRecoilValue(accountsState)
-  const addressBookByTeamId = useRecoilValue(addressBookByTeamIdState)
+  const addressBookByOrgId = useRecoilValue(addressBookByOrgIdState)
   const [multisig] = useSelectedMultisig()
   const { contracts } = useSmartContracts()
 
-  const extensionContacts: AddressWithName[] = extensionAccounts.map(({ address, meta }) => ({
+  const extensionContacts: AddressWithNameAndCategory[] = extensionAccounts.map(({ address, meta }) => ({
     address,
     name: meta.name ?? '',
     type: 'Extension',
@@ -28,14 +31,16 @@ export const useKnownAddresses = (
   const addressBookContacts = useMemo(() => {
     if (!teamId) return []
 
-    const addresses = addressBookByTeamId[teamId ?? ''] ?? []
+    const addresses = addressBookByOrgId[teamId ?? ''] ?? []
 
-    return addresses.map(({ address, name }) => ({
+    return addresses.map(({ address, name, category, sub_category }) => ({
       address,
       name,
+      category,
+      sub_category,
       type: 'Contacts',
     }))
-  }, [addressBookByTeamId, teamId])
+  }, [addressBookByOrgId, teamId])
 
   const combinedList = useMemo(() => {
     let list = extensionContacts
@@ -108,7 +113,7 @@ export const useKnownAddresses = (
       const addressString = contact.address.toSs58()
       if (!acc[addressString]) acc[addressString] = contact
       return acc
-    }, {} as Record<string, AddressWithName>)
+    }, {} as Record<string, AddressWithNameAndCategory>)
   }, [combinedList])
 
   return { addresses: combinedList, contactByAddress }

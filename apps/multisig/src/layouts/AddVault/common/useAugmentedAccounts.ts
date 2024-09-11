@@ -3,11 +3,19 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import { accountsState } from '../../../domains/extension'
 import { selectedAccountState } from '../../../domains/auth'
 import { Address } from '../../../util/addresses'
+import { Chain } from '@domains/chains'
 
-export const useAugmentedAccounts = () => {
-  const [addedAccounts, setAddedAccounts] = useState<Address[]>([])
+export const useAugmentedAccounts = ({
+  chain,
+  isChainAccountEth,
+  initialAddedAccounts,
+}: { chain?: Chain; isChainAccountEth?: boolean; initialAddedAccounts?: Address[] } = {}) => {
+  const [addedAccounts, setAddedAccounts] = useState<Address[]>(initialAddedAccounts || [])
   const [extensionAccounts] = useRecoilState(accountsState)
   const selectedSigner = useRecoilValue(selectedAccountState)
+
+  const selectedSignerMatchesChainAccount =
+    selectedSigner && chain ? selectedSigner.injected.address.isEthereum === isChainAccountEth : true
 
   const augmentedAccounts = useMemo(() => {
     const augmentedAddedAccounts = addedAccounts.map(a => {
@@ -21,7 +29,7 @@ export const useAugmentedAccounts = () => {
       }
     })
 
-    return selectedSigner
+    return selectedSigner && selectedSignerMatchesChainAccount
       ? [
           {
             address: selectedSigner.injected.address,
@@ -32,9 +40,9 @@ export const useAugmentedAccounts = () => {
           ...augmentedAddedAccounts,
         ]
       : augmentedAddedAccounts
-  }, [addedAccounts, extensionAccounts, selectedSigner])
+  }, [addedAccounts, extensionAccounts, selectedSigner, selectedSignerMatchesChainAccount])
 
-  // remove selected signer from addedAcounts list to prevent duplicate
+  // remove selected signer from addedAccounts list to prevent duplicate
   useEffect(() => {
     if (!selectedSigner) return
 

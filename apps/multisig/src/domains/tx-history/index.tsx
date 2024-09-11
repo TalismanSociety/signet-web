@@ -179,7 +179,8 @@ const getMultisigCall = (
     if (multisigArgs.call.__kind === 'Multisig' && multisigArgs.call.value.__kind === 'as_multi')
       return getMultisigCall(signerString, { name: 'Multisig.as_multi', args: multisigArgs.call.value })
 
-    const signer = Address.fromPubKey(signerString)
+    // Use Address.fromPubKey for Substrate addresses and Address.fromSs58 for EVM addresses
+    const signer = Address.fromPubKey(signerString) || Address.fromSs58(signerString)
     // impossible unless squid is broken
     if (!signer) {
       console.error(`Invalid signer from subsquid: ${signerString}`)
@@ -188,7 +189,8 @@ const getMultisigCall = (
 
     const otherSigners: Address[] = []
     for (const otherSigner of multisigArgs.otherSignatories) {
-      const address = Address.fromPubKey(otherSigner)
+      // Use Address.fromPubKey for Substrate addresses and Address.fromSs58 for EVM addresses
+      const address = Address.fromPubKey(otherSigner) || Address.fromSs58(otherSigner)
       if (!address) {
         console.error(`Invalid signer from subsquid: ${otherSigner}`)
         return undefined
@@ -209,7 +211,10 @@ const getMultisigCall = (
           }
         }
       }
-      const realAddress = Address.fromPubKey(parseCallAddressArg(innerProxyCall.real))
+      // Use Address.fromPubKey for Substrate addresses and Address.fromSs58 for EVM addresses
+      const realAddress =
+        Address.fromPubKey(parseCallAddressArg(innerProxyCall.real)) ||
+        Address.fromSs58(parseCallAddressArg(innerProxyCall?.real))
       if (!realAddress) {
         console.error(`Invalid realAddress from subsquid: ${innerProxyCall.real}`)
         return undefined
@@ -339,9 +344,9 @@ export const useConfirmedTransactions = (teams: Team[]) => {
 
     paginatedTransactions.forEach(tx => {
       try {
-        const block = blocks.find(b => b.block.header.hash.toString() === tx.block.hash)
+        const block = blocks.find(b => b?.block.header.hash.toString() === tx.block.hash)
         const chain = teams.find(t => t.chain.genesisHash === tx.block.chainGenesisHash)?.chain
-        const chainTokens = chain ? allActiveChainTokens.contents.get(chain.squidIds.chainData) : undefined
+        const chainTokens = chain ? allActiveChainTokens.contents.get(chain.id) : undefined
         const api = apis.contents[tx.block.chainGenesisHash]
         const isMultiThreshold1 = tx.call.name === 'Multisig.as_multi_threshold_1'
         const AS_MULTI_THRESHOLD_1_INNER_EXT_INDEX = 1

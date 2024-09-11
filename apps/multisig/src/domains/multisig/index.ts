@@ -104,7 +104,7 @@ export const selectedMultisigChainTokensState = selector<BaseToken[]>({
   key: 'SelectedMultisigChainTokens',
   get: ({ get }) => {
     const multisig = get(selectedMultisigState)
-    const tokens = get(chainTokensByIdQuery(multisig.chain.squidIds.chainData))
+    const tokens = get(chainTokensByIdQuery(multisig.chain.id))
     return tokens
   },
 })
@@ -811,6 +811,7 @@ const pendingTransactionsSelector = selector<Transaction[]>({
     const allRawPendingTransactions = get(allRawPendingTransactionsSelector)
     const txMetadataByTeamId = get(txMetadataByTeamIdState)
     const tempCalldata = get(tempCalldataState)
+    const isTxMetadataByTeamIdInitialized = Object.keys(txMetadataByTeamId).length !== 0
 
     const transactions: Transaction[] = []
     for (const rawPending of allRawPendingTransactions) {
@@ -819,9 +820,10 @@ const pendingTransactionsSelector = selector<Transaction[]>({
       const transactionID = makeTransactionID(rawPending.multisig.chain, timepoint_height, timepoint_index)
 
       const metadata = txMetadataByTeamId[rawPending.multisig.id]?.data[transactionID]
+
       let calldata = metadata?.callData ?? tempCalldata[transactionID]
 
-      if (!calldata) {
+      if (!calldata && isTxMetadataByTeamIdInitialized) {
         const block = get(blockSelector(`${rawPending.blockHash.toHex()}-${rawPending.multisig.chain.genesisHash}`))
         if (block) {
           const ext = block.block.extrinsics[timepoint_index]
@@ -836,7 +838,7 @@ const pendingTransactionsSelector = selector<Transaction[]>({
         try {
           // Validate calldata from the metadata service matches the hash from the chain
           const pjsApi = get(pjsApiSelector(rawPending.multisig.chain.genesisHash))
-          if (!pjsApi) throw Error(`pjsApi found for rpc ${rawPending.multisig.chain.squidIds.chainData}!`)
+          if (!pjsApi) throw Error(`pjsApi found for rpc ${rawPending.multisig.chain.id}!`)
 
           // create extrinsic from callData
           const extrinsic = decodeCallData(pjsApi, calldata)
@@ -856,7 +858,7 @@ const pendingTransactionsSelector = selector<Transaction[]>({
 
           const allActiveChainTokens = get(allChainTokensSelector)
           // get chain tokens
-          const chainTokens = allActiveChainTokens.get(rawPending.multisig.chain.squidIds.chainData)
+          const chainTokens = allActiveChainTokens.get(rawPending.multisig.chain.id)
           if (!chainTokens) throw Error('Failed to load chainTokens for chain!')
 
           const decoded = extrinsicToDecoded(
@@ -942,7 +944,7 @@ export const EMPTY_BALANCE: Balance = {
     type: 'substrate-native',
     symbol: 'DOT',
     decimals: 10,
-    chain: supportedChains.find(c => c.squidIds.chainData === 'polkadot') as Chain,
+    chain: supportedChains.find(c => c.id === 'polkadot') as Chain,
   },
   amount: new BN(0),
 }
@@ -953,7 +955,7 @@ export const createImportPath = (name: string, signers: Address[], threshold: nu
     signers: signers.map(a => a.toSs58(chain)).join(','),
     threshold,
     proxy: proxy.toSs58(chain),
-    chain_id: chain.squidIds.chainData,
+    chain_id: chain.id,
   }
   return `import?${queryString.stringify(params)}`
 }

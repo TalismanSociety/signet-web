@@ -2,6 +2,7 @@
 // When CAPI is ready, the internals of these hooks can be replaced without needing to make many
 // changes in other areas of the codebase.
 // TODO: refactor code to remove repititon
+import { RuntimeDispatchInfo } from '@polkadot/types/interfaces'
 import { customExtensions, pjsApiSelector, useApi } from '@domains/chains/pjs-api'
 import { isNumber } from '@polkadot/util'
 import { InjectedMetadata } from '@polkadot/extension-inject/types'
@@ -14,11 +15,18 @@ import type { Call, ExtrinsicPayload, Timepoint } from '@polkadot/types/interfac
 import { assert, compactToU8a, u8aConcat, u8aEq } from '@polkadot/util'
 import { Address } from '@util/addresses'
 import { getErrorString, makeTransactionID } from '@util/misc'
-import BN from 'bn.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import { Loadable, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import { BN } from '@polkadot/util'
 
-import { Chain, isSubstrateAssetsToken, isSubstrateNativeToken, isSubstrateTokensToken, tokenByIdQuery } from './tokens'
+import {
+  BaseToken,
+  Chain,
+  isSubstrateAssetsToken,
+  isSubstrateNativeToken,
+  isSubstrateTokensToken,
+  tokenByIdQuery,
+} from './tokens'
 import { TxMetadata, useInsertTxMetadata } from '../offchain-data/metadata'
 import { captureException } from '@sentry/react'
 import { handleSubmittableResultError } from '@util/errors'
@@ -68,70 +76,92 @@ export const buildTransferExtrinsic = (
 // Original code: https://github.com/polkadot-js/apps/blob/b6923ea003e1b043f22d3beaa685847c2bc54c24/packages/page-extrinsics/src/Decoder.tsx#L55
 // Inherits Apache-2.0 license.
 export const decodeCallData = (api: ApiPromise, callData: string) => {
+  let extrinsicCall: Call
+  let extrinsicPayload: ExtrinsicPayload | null = null
+
   try {
-    let extrinsicCall: Call
-    let extrinsicPayload: ExtrinsicPayload | null = null
-    let decoded: SubmittableExtrinsic<'promise'> | null = null
+    // cater for an extrinsic input
+    const tx = api.tx(callData)
 
+    // ensure that the full data matches here
+    if (tx.toHex() !== callData) throw new Error('Cannot decode data as extrinsic, length mismatch')
+
+    // tx decoded correctly
+    return tx
+  } catch {
     try {
-      // cater for an extrinsic input
-      const tx = api.tx(callData)
+      // attempt to decode as Call
+      extrinsicCall = api.createType('Call', callData)
+      const callHex = extrinsicCall.toHex()
 
-      // ensure that the full data matches here
-      if (tx.toHex() !== callData) {
-        throw new Error('Cannot decode data as extrinsic, length mismatch')
-      }
-
-      decoded = tx
-      extrinsicCall = api.createType('Call', decoded.method)
-    } catch {
-      try {
-        // attempt to decode as Call
-        extrinsicCall = api.createType('Call', callData)
-
-        const callHex = extrinsicCall.toHex()
-
-        if (callHex === callData) {
-          // all good, we have a call
-        } else if (callData.startsWith(callHex)) {
-          // this could be an un-prefixed payload...
-          const prefixed = u8aConcat(compactToU8a(extrinsicCall.encodedLength), callData)
-
-          extrinsicPayload = api.createType('ExtrinsicPayload', prefixed)
-
-          assert(u8aEq(extrinsicPayload.toU8a(), prefixed), 'Unable to decode data as un-prefixed ExtrinsicPayload')
-
-          extrinsicCall = api.createType('Call', extrinsicPayload.method.toHex())
-        } else {
-          throw new Error('Unable to decode data as Call, length mismatch in supplied data')
-        }
-      } catch {
-        // final attempt, we try this as-is as a (prefixed) payload
-        extrinsicPayload = api.createType('ExtrinsicPayload', callData)
-
-        assert(
-          extrinsicPayload.toHex() === callData,
-          'Unable to decode input data as Call, Extrinsic or ExtrinsicPayload'
-        )
+      if (callHex === callData) {
+        // all good, we have a call
+        return api.tx(extrinsicCall)
+      } else if (callData.startsWith(callHex)) {
+        // this could be an un-prefixed payload...
+        const prefixed = u8aConcat(compactToU8a(extrinsicCall.encodedLength), callData)
+        extrinsicPayload = api.createType('ExtrinsicPayload', prefixed)
+        assert(u8aEq(extrinsicPayload.toU8a(), prefixed), 'Unable to decode data as un-prefixed ExtrinsicPayload')
 
         extrinsicCall = api.createType('Call', extrinsicPayload.method.toHex())
+      } else {
+        throw new Error('Unable to decode data as Call, length mismatch in supplied data')
       }
+    } catch (e) {
+      // final attempt, we try this as-is as a (prefixed) payload
+      extrinsicPayload = api.createType('ExtrinsicPayload', callData)
+
+      assert(
+        extrinsicPayload.toHex() === callData,
+        'Unable to decode input data as Call, Extrinsic or ExtrinsicPayload'
+      )
+
+      extrinsicCall = api.createType('Call', extrinsicPayload.method.toHex())
     }
-
-    if (!decoded) {
-      const { method, section } = api.registry.findMetaCall(extrinsicCall.callIndex)
-      // @ts-ignore
-      const extrinsicFn = api.tx[section][method] as any
-      decoded = extrinsicFn(...extrinsicCall.args)
-
-      if (!decoded) throw Error('Unable to decode extrinsic')
-      return decoded
-    }
-
-    throw Error('unable to decode')
-  } catch (e) {
-    throw e
   }
+
+  const { method, section } = api.registry.findMetaCall(extrinsicCall.callIndex)
+  // @ts-ignore
+  const extrinsicFn = api.tx[section][method] as any
+  const decoded = extrinsicFn(...extrinsicCall.args)
+
+  if (!decoded) throw Error('Unable to decode extrinsic')
+  return decoded
+}
+
+export const useEstimateFee = (
+  extrinsic: SubmittableExtrinsic<'promise'> | undefined,
+  extensionAddress: Address | undefined,
+  nativeTokenLoadable?: Loadable<BaseToken | undefined>
+) => {
+  const [paymentInfo, setPaymentInfo] = useState<RuntimeDispatchInfo | undefined>()
+
+  const estimateFee = useCallback(async () => {
+    try {
+      if (!extrinsic || !extensionAddress || paymentInfo) return
+      const res = await extrinsic.paymentInfo(extensionAddress.toPubKey())
+      setPaymentInfo(res)
+    } catch (e) {
+      console.error('Error in estimateFee', e)
+    }
+  }, [extrinsic, extensionAddress, paymentInfo])
+
+  // Estimate the fee as soon as the hook is used and the extensionAddress or apiLoadable changes
+  useEffect(() => {
+    estimateFee()
+  }, [estimateFee])
+
+  // reset fee when extrinsic is changed
+  useEffect(() => {
+    setPaymentInfo(undefined)
+  }, [extrinsic])
+
+  const estimatedFee = useMemo(() => {
+    if (!paymentInfo || nativeTokenLoadable?.state !== 'hasValue') return
+    return { token: nativeTokenLoadable.contents, amount: paymentInfo.partialFee } as Balance
+  }, [nativeTokenLoadable, paymentInfo])
+
+  return { estimatedFee, paymentInfo }
 }
 
 const useInjectMetadata = (chainGenesisHash: string) => {
@@ -141,7 +171,7 @@ const useInjectMetadata = (chainGenesisHash: string) => {
   const inject = useCallback(
     async (metadata: InjectedMetadata) => {
       if (!chain || !api) return
-      const customExtension = customExtensions[chain.squidIds.chainData]
+      const customExtension = customExtensions[chain.id]
       const curMetadata = await metadata.get()
       const specVersion = api.runtimeVersion.specVersion.toNumber()
       const genesisHash = api.genesisHash.toHex()
@@ -172,7 +202,6 @@ export const useCancelAsMulti = (tx?: Transaction) => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(tx?.multisig.chain.genesisHash || ''))
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(tx?.multisig.chain.nativeToken.id))
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
-  const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
   const injectMetadata = useInjectMetadata(tx?.multisig.chain.genesisHash ?? supportedChains[0]!.genesisHash)
   // Only the original signer can cancel
   const depositorAddress: Address | undefined = useMemo(() => {
@@ -192,14 +221,12 @@ export const useCancelAsMulti = (tx?: Transaction) => {
   }, [extensionAddresses, depositorAddress])
 
   // Creates cancel extrinsic
-  const createExtrinsic = useCallback(async (): Promise<SubmittableExtrinsic<'promise'> | undefined> => {
-    if (loading) return
+  const extrinsic = useMemo(() => {
+    if (loading || apiLoadable.state !== 'hasValue') return undefined
     if (!tx.rawPending) throw Error('Missing expected pendingData!')
 
     const api = apiLoadable.contents
-    if (!api.tx.multisig?.cancelAsMulti) {
-      throw new Error('chain missing multisig pallet')
-    }
+    if (!api.tx.multisig?.cancelAsMulti) throw new Error('chain missing multisig pallet')
 
     return api.tx.multisig.cancelAsMulti(
       tx.multisig.threshold,
@@ -211,23 +238,10 @@ export const useCancelAsMulti = (tx?: Transaction) => {
     )
   }, [apiLoadable, tx, loading, depositorAddress])
 
-  const estimateFee = useCallback(async () => {
-    const extrinsic = await createExtrinsic()
-    if (!extrinsic || !depositorAddress || !tx) return
-
-    // Fee estimation
-    const paymentInfo = await extrinsic.paymentInfo(depositorAddress.toSs58(tx.multisig.chain))
-    setEstimatedFee({ token: nativeToken.contents, amount: paymentInfo.partialFee as unknown as BN })
-  }, [depositorAddress, nativeToken, createExtrinsic, tx])
-
-  // Estimate the fee as soon as the hook is used and the extensionAddress or apiLoadable changes
-  useEffect(() => {
-    estimateFee()
-  }, [estimateFee])
+  const { estimatedFee } = useEstimateFee(extrinsic, depositorAddress, nativeToken)
 
   const cancelAsMulti = useCallback(
     async ({ onSuccess, onFailure }: ExecuteCallbacks) => {
-      const extrinsic = await createExtrinsic()
       if (loading || !extrinsic || !depositorAddress || !canCancel) {
         console.error('tried to call cancelAsMulti before it was ready')
         return onFailure('Please try again.')
@@ -261,8 +275,8 @@ export const useCancelAsMulti = (tx?: Transaction) => {
         })
     },
     [
-      createExtrinsic,
       loading,
+      extrinsic,
       depositorAddress,
       canCancel,
       tx?.multisig.chain,
@@ -271,7 +285,12 @@ export const useCancelAsMulti = (tx?: Transaction) => {
     ]
   )
 
-  return { cancelAsMulti, ready: !loading && !!estimatedFee, estimatedFee, canCancel }
+  return {
+    cancelAsMulti,
+    ready: !loading && !!estimatedFee,
+    estimatedFee,
+    canCancel,
+  }
 }
 
 export const useAsMulti = (extensionAddress: Address | undefined, t?: Transaction) => {
@@ -280,7 +299,6 @@ export const useAsMulti = (extensionAddress: Address | undefined, t?: Transactio
   const { api } = useApi(multisig.chain.genesisHash)
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(multisig.chain.nativeToken.id))
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
-  const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
   const { addContract } = useAddSmartContract()
   const injectMetadata = useInjectMetadata(multisig?.chain.genesisHash ?? supportedChains[0]!.genesisHash)
 
@@ -294,19 +312,18 @@ export const useAsMulti = (extensionAddress: Address | undefined, t?: Transactio
     () => !!api && extensionAddress && !!extrinsic && nativeToken.state === 'hasValue' && timepoint !== undefined,
     [api, extensionAddress, extrinsic, nativeToken.state, timepoint]
   )
+  const { paymentInfo } = useEstimateFee(extrinsic, extensionAddress)
 
   // Creates some tx from calldata
-  const createExtrinsic = useCallback(async () => {
-    if (!ready || !api || !extrinsic || !extensionAddress || timepoint === undefined) return
+  const asMultiExtrinsic = useMemo(() => {
+    if (!ready || !api || !extrinsic || !extensionAddress || timepoint === undefined || !paymentInfo) return
 
     if (!api.tx.multisig?.asMulti) throw new Error('chain missing multisig pallet')
 
-    const weightEstimation = (await extrinsic.paymentInfo(extensionAddress.toSs58(multisig.chain))).weight as any
-
     // Provide some buffer for the weight
     const weight = api.createType('Weight', {
-      refTime: api.createType('Compact<u64>', Math.ceil(weightEstimation.refTime * 1.1)),
-      proofSize: api.createType('Compact<u64>', Math.ceil(weightEstimation.proofSize * 1.1)),
+      refTime: api.createType('Compact<u64>', Math.ceil(paymentInfo.weight.refTime.toNumber() * 1.1)),
+      proofSize: api.createType('Compact<u64>', Math.ceil(paymentInfo.weight.proofSize.toNumber() * 1.1)),
     })
 
     return api.tx.multisig.asMulti(
@@ -318,26 +335,13 @@ export const useAsMulti = (extensionAddress: Address | undefined, t?: Transactio
       extrinsic.method.toHex(),
       weight
     )
-  }, [api, extensionAddress, extrinsic, multisig.chain, multisig.signers, multisig.threshold, ready, timepoint])
+  }, [api, extensionAddress, extrinsic, multisig.signers, multisig.threshold, paymentInfo, ready, timepoint])
 
-  const estimateFee = useCallback(async () => {
-    const extrinsic = await createExtrinsic()
-    if (!extrinsic || !extensionAddress) return
-
-    // Fee estimation
-    const paymentInfo = await extrinsic.paymentInfo(extensionAddress.toSs58(multisig.chain))
-    setEstimatedFee({ token: nativeToken.contents, amount: paymentInfo.partialFee as unknown as BN })
-  }, [extensionAddress, nativeToken, createExtrinsic, multisig.chain])
-
-  // Estimate the fee as soon as the hook is used and the extensionAddress or apiLoadable changes
-  useEffect(() => {
-    estimateFee()
-  }, [estimateFee])
+  const { estimatedFee } = useEstimateFee(asMultiExtrinsic, extensionAddress, nativeToken)
 
   const asMulti = useCallback(
     async ({ onSuccess, onFailure }: ExecuteCallbacks) => {
-      const extrinsic = await createExtrinsic()
-      if (!extrinsic || !extensionAddress) {
+      if (!asMultiExtrinsic || !extensionAddress) {
         console.error('tried to call approveAsMulti before it was ready')
         return onFailure('Please try again.')
       }
@@ -346,7 +350,7 @@ export const useAsMulti = (extensionAddress: Address | undefined, t?: Transactio
       const { signer, metadata } = await web3FromAddress(extensionAddress.toSs58(multisig.chain))
       if (metadata) await injectMetadata(metadata)
 
-      const unsubscribe = await extrinsic
+      const unsubscribe = await asMultiExtrinsic
         .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
           try {
             handleSubmittableResultError(result)
@@ -402,7 +406,7 @@ export const useAsMulti = (extensionAddress: Address | undefined, t?: Transactio
         })
     },
     [
-      createExtrinsic,
+      asMultiExtrinsic,
       extensionAddress,
       multisig.chain,
       injectMetadata,
@@ -600,7 +604,6 @@ export const useApproveAsMulti = (
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(multisig?.chain.nativeToken.id || null))
   const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
   const insertTxMetadata = useInsertTxMetadata()
-  const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
   const injectMetadata = useInjectMetadata(multisig?.chain.genesisHash ?? supportedChains[0]!.genesisHash)
 
   const ready =
@@ -612,7 +615,7 @@ export const useApproveAsMulti = (
     multisig !== undefined
 
   // Creates some tx from callhash
-  const createExtrinsic = useCallback(async () => {
+  const extrinsic = useMemo(() => {
     if (!ready) return
 
     const api = apiLoadable.contents
@@ -625,6 +628,7 @@ export const useApproveAsMulti = (
       refTime: api.createType('Compact<u64>', 0),
       proofSize: api.createType('Compact<u64>', 0),
     })
+
     return api.tx.multisig.approveAsMulti(
       multisig.threshold,
       Address.sortAddresses(multisig.signers)
@@ -636,19 +640,7 @@ export const useApproveAsMulti = (
     )
   }, [apiLoadable, extensionAddress, hash, multisig, ready, timepoint])
 
-  const estimateFee = useCallback(async () => {
-    const extrinsic = await createExtrinsic()
-    if (!extrinsic || !extensionAddress || !multisig) return
-
-    // Fee estimation
-    const paymentInfo = await extrinsic.paymentInfo(extensionAddress.toSs58(multisig.chain))
-    setEstimatedFee({ token: nativeToken.contents, amount: paymentInfo.partialFee as unknown as BN })
-  }, [extensionAddress, nativeToken, createExtrinsic, multisig])
-
-  // Estimate the fee as soon as the hook is used and the extensionAddress or apiLoadable changes
-  useEffect(() => {
-    estimateFee()
-  }, [estimateFee])
+  const { estimatedFee } = useEstimateFee(extrinsic, extensionAddress, nativeToken)
 
   const approveAsMulti = useCallback(
     async ({
@@ -660,7 +652,6 @@ export const useApproveAsMulti = (
       metadata?: Pick<TxMetadata, 'changeConfigDetails' | 'contractDeployed' | 'callData' | 'description'>
       saveMetadata?: boolean
     }) => {
-      const extrinsic = await createExtrinsic()
       if (!extrinsic || !extensionAddress || !hash || !multisig) {
         console.error('tried to call approveAsMulti before it was ready')
         return onFailure('Please try again.')
@@ -720,15 +711,7 @@ export const useApproveAsMulti = (
           onFailure(getErrorString(e))
         })
     },
-    [
-      createExtrinsic,
-      extensionAddress,
-      hash,
-      multisig,
-      injectMetadata,
-      insertTxMetadata,
-      setRawPendingTransactionDependency,
-    ]
+    [extrinsic, extensionAddress, hash, multisig, injectMetadata, insertTxMetadata, setRawPendingTransactionDependency]
   )
 
   return { approveAsMulti, ready: ready && !!estimatedFee, estimatedFee }
@@ -737,10 +720,9 @@ export const useApproveAsMulti = (
 export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefined) => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(chain.genesisHash))
   const nativeToken = useRecoilValueLoadable(tokenByIdQuery(chain.nativeToken.id))
-  const [estimatedFee, setEstimatedFee] = useState<Balance | undefined>()
   const injectMetadata = useInjectMetadata(chain.genesisHash)
 
-  const createTx = useCallback(async () => {
+  const extrinsic = useMemo(() => {
     if (apiLoadable.state !== 'hasValue' || !extensionAddress) {
       return
     }
@@ -752,19 +734,7 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
     return api.tx.proxy.createPure('Any', 0, 0)
   }, [apiLoadable, extensionAddress])
 
-  const estimateFee = useCallback(async () => {
-    const tx = await createTx()
-    if (!tx || !extensionAddress || nativeToken.state !== 'hasValue' || !nativeToken.contents) return
-
-    // Fee estimation
-    const paymentInfo = await tx.paymentInfo(extensionAddress.toSs58(chain))
-    setEstimatedFee({ token: nativeToken.contents, amount: paymentInfo.partialFee as unknown as BN })
-  }, [extensionAddress, createTx, nativeToken, chain])
-
-  // Estimate the fee as soon as the hook is used and the extensionAddress or apiLoadable changes
-  useEffect(() => {
-    estimateFee()
-  }, [estimateFee])
+  const { estimatedFee } = useEstimateFee(extrinsic, extensionAddress, nativeToken)
 
   const createProxy = useCallback(
     async ({
@@ -774,13 +744,12 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
       onSuccess: (proxyAddress: Address) => void
       onFailure: (message: string) => void
     }) => {
-      const tx = await createTx()
-      if (!tx || !extensionAddress) return
+      if (!extrinsic || !extensionAddress) return
 
       const { signer, metadata } = await web3FromAddress(extensionAddress.toSs58(chain))
       if (metadata) await injectMetadata(metadata)
 
-      const unsubscribe = await tx
+      const unsubscribe = await extrinsic
         .signAndSend(extensionAddress.toSs58(chain), { signer }, result => {
           try {
             handleSubmittableResultError(result)
@@ -815,7 +784,7 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
           onFailure(getErrorString(e))
         })
     },
-    [createTx, extensionAddress, chain, injectMetadata]
+    [extrinsic, extensionAddress, chain, injectMetadata]
   )
 
   return { createProxy, ready: apiLoadable.state === 'hasValue' && !!estimatedFee, estimatedFee }

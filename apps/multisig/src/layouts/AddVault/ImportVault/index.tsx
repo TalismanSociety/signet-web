@@ -37,13 +37,15 @@ export const ImportVault: React.FC = () => {
   const { augmentedAccounts, setAddedAccounts } = useAugmentedAccounts()
   const { createOrganisation } = useCreateOrganisation()
 
+  const isChainAccountEth = chain?.account === 'secp256k1'
+
   const handleImport = useCallback(async () => {
     if (!proxiedAddress) return
     setImporting(true)
     try {
       const { ok, error } = await createOrganisation({
         name,
-        chain: chain.squidIds.chainData,
+        chain: chain.id,
         multisig_config: { signers: augmentedAccounts.map(a => a.address.toSs58()), threshold },
         proxied_address: proxiedAddress.toSs58(),
       })
@@ -61,7 +63,7 @@ export const ImportVault: React.FC = () => {
     } finally {
       setImporting(false)
     }
-  }, [augmentedAccounts, chain.squidIds.chainData, createOrganisation, name, navigate, proxiedAddress, threshold])
+  }, [augmentedAccounts, chain.id, createOrganisation, name, navigate, proxiedAddress, threshold])
 
   return (
     <>
@@ -75,6 +77,7 @@ export const ImportVault: React.FC = () => {
         />
       ) : step === Step.SelectFirstChain ? (
         <SelectChain
+          isChainAccountEth={isChainAccountEth}
           header="Import Multisig"
           onBack={() => setStep(Step.NameVault)}
           onNext={() => setStep(Step.ProxiedAccountAddress)}

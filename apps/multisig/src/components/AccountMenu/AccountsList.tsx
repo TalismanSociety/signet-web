@@ -15,7 +15,11 @@ export const blockAccountSwitcher = atom<boolean>({
   default: false,
 })
 
-export const AccountsList: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
+export const AccountsList: React.FC<{ onBack?: () => void; hideHeader?: boolean; onlyEthAccounts?: boolean }> = ({
+  onBack,
+  hideHeader = false,
+  onlyEthAccounts,
+}) => {
   const accounts = useRecoilValue(accountsState)
   const [query, setQuery] = useState('')
   const { user } = useUser()
@@ -28,6 +32,9 @@ export const AccountsList: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const filteredAccounts = useMemo(() => {
     return accounts.filter(acc => {
       const isSelectedAccount = user?.injected?.address.isEqual(acc.address)
+      // If no filter is applied, show all accounts, otherwise filter by onlyEthAccounts
+      const shouldFilterAccount =
+        onlyEthAccounts !== undefined ? (onlyEthAccounts ? acc.address.isEthereum : !acc.address.isEthereum) : true
 
       let queryAddress: Address | false = false
       try {
@@ -39,9 +46,9 @@ export const AccountsList: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
       const isQueryMatch =
         !query || `${acc.meta.name} ${acc.address.toSs58()}`.toLowerCase().includes(query.toLowerCase())
-      return !isSelectedAccount && isQueryMatch
+      return !isSelectedAccount && isQueryMatch && shouldFilterAccount
     })
-  }, [accounts, user?.injected?.address, query])
+  }, [accounts, user?.injected?.address, onlyEthAccounts, query])
 
   const selectAccount = useCallback(
     async (account: InjectedAccount) => {
@@ -66,7 +73,7 @@ export const AccountsList: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
   if (accountToSignIn) {
     return (
-      <div className="flex flex-col gap-[4px] h-[210px] items-center justify-center">
+      <div className="flex flex-col gap-[4px] h-[210px] items-center justify-center bg-gray-700 rounded-[8px]">
         <div className="flex items-center gap-[8px] mb-[24px]">
           <CircularProgressIndicator />
           <p className="text-offWhite font-bold">Signing In</p>
@@ -81,27 +88,28 @@ export const AccountsList: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   }
 
   return (
-    <div className="flex flex-col gap-[4px] h-[210px] flex-1">
-      <div className="flex items-center justify-between ">
-        <Button size="icon" className="items-center" variant="ghost" onClick={onBack}>
-          <ChevronLeft size={14} />
-        </Button>
-        <h4 className="text-[14px] font-semibold mt-[3px]">Switch Account</h4>
-        <div className="w-[30px]" />
-      </div>
+    <div className="flex flex-col gap-[12px] h-[210px] flex-1">
+      {!hideHeader && (
+        <div className="flex items-center justify-between ">
+          <Button size="icon" className="items-center" variant="ghost" onClick={onBack}>
+            <ChevronLeft size={14} />
+          </Button>
+          <h4 className="text-[14px] font-semibold mt-[3px]">Switch Account</h4>
+          <div className="w-[30px]" />
+        </div>
+      )}
       <Input
         placeholder="Search by name or address..."
-        className="text-[14px] h-max min-h-max px-[12px] py-[8px] rounded-[8px]"
+        className="text-[14px] px-[12px] py-[9px] rounded-[8px]"
         value={query}
         onChange={e => setQuery(e.target.value)}
       />
-      <div className="w-full h-[1px] bg-gray-700" />
-      <div className="flex flex-col flex-1 items-start justify-start overflow-y-auto">
+      <div className="flex flex-col flex-1 items-start justify-start overflow-y-auto bg-gray-800 gap-[8px] p-[8px] rounded-[8px]">
         {filteredAccounts.map(acc => (
           <Button
             variant="ghost"
             size="lg"
-            className="h-max w-full py-[8px]"
+            className="h-max w-full py-[8px] bg-gray-700"
             key={acc.address.toSs58()}
             onClick={() => selectAccount(acc)}
           >
