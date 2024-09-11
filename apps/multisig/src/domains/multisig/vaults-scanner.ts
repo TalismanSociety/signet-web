@@ -88,8 +88,12 @@ export const vaultsOfAccount = selector({
         const chain = supportedChains.find(c => c.genesisHash === tx.extrinsic.block.chainGenesisHash)
         if (!chain) throw new Error('Chain not supported')
 
-        // a multisig transaction should have a threshold
-        if (typeof tx.extrinsic.callArgs.threshold !== 'number') throw new Error('Threshold not a number')
+        // a multisig transaction should have a threshold, except for as_multi_threshold_1
+        if (
+          typeof tx.extrinsic.callArgs.threshold !== 'number' &&
+          tx.extrinsic.callName !== 'Multisig.as_multi_threshold_1'
+        )
+          throw new Error('Threshold not a number')
 
         // get other signers so we can derive the multisig address
         const otherSignersPubkey = tx.extrinsic.callArgs.otherSignatories ?? []
