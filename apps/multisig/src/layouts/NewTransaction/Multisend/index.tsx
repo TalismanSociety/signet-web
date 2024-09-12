@@ -72,7 +72,9 @@ const MultiSend = () => {
         (send.recipient === undefined && (send.amount === undefined || send.amount === '') && send.vested === undefined)
       )
         return null
-      if (!send.amount || !send.recipient) return undefined
+
+      const sendAddressMatchesChain = send.recipient && send.recipient.isEthereum === multisig.isEthereumAccount
+      if (!send.amount || !send.recipient || !sendAddressMatchesChain) return undefined
       const amountBN = parseAmount(send.amount)
       return {
         recipient: send.recipient,
@@ -82,7 +84,7 @@ const MultiSend = () => {
     })
 
     return sends.filter(send => send !== null)
-  }, [newSends, parseAmount])
+  }, [multisig.isEthereumAccount, newSends, parseAmount])
 
   const { hasInvalidSend, totalAmount, validSends } = useMemo(() => {
     const validSends = parsedSends.filter(send => send !== undefined)
