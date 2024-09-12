@@ -52,6 +52,7 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
           compact={compactInput}
           chain={chain}
           onChange={handleAddressChange}
+          error={error}
         />
 
         <Button disabled={!address || error} variant="outline" type="submit" className="px-[12px] gap-[4px]">
@@ -59,9 +60,6 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
           <p css={{ marginTop: 4, marginLeft: 8 }}>Add</p>
         </Button>
       </form>
-      {error && (
-        <div className="absolute mt-[4px] text-orange-400 text-[14px]">{`Address format not compatible with ${chain?.chainName} chain`}</div>
-      )}
     </div>
   )
 }
