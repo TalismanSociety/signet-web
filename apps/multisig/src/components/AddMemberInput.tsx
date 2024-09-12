@@ -37,15 +37,13 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
       setAddress(undefined)
     }
   }
+
   const handleAddressChange = (address: Address | undefined, input: string) => {
-    if (isChainAccountEth !== address?.isEthereum) {
-      setError(true)
-    }
-    if (!address) {
-      setError(false)
-    }
-    setAddressInput(input)
+    const isAddressMismatch = address && isChainAccountEth !== address.isEthereum
+
+    setError(!!isAddressMismatch)
     setAddress(address)
+    setAddressInput(input)
   }
 
   return (

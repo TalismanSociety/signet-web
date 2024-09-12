@@ -86,11 +86,9 @@ export const DetailsForm: React.FC<Props> = ({
   }, [blocksDiff, currentBlock, vestedConfig.endBlock, vestedConfig.on, vestedConfig.startBlock])
 
   const handleAddressChange = (address: Address | undefined) => {
-    if (!address) {
-      setAddressError(false)
-    } else if (address.isEthereum !== multisig.isEthereumAccount) {
-      setAddressError(true)
-    }
+    const isAddressMismatch = address && multisig.isEthereumAccount !== address.isEthereum
+
+    setAddressError(!!isAddressMismatch)
     setDestinationAddress(address)
   }
 
