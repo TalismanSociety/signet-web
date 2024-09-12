@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Plus } from '@talismn/icons'
 import { Chain } from '@domains/chains'
 import { Button } from './ui/button'
+import { useSelectedMultisig } from '@domains/multisig'
 
 type Props = {
   onNewAddress: (a: Address) => void
@@ -18,7 +19,11 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
   const [addressInput, setAddressInput] = useState('')
   const [address, setAddress] = useState<Address | undefined>()
   const [error, setError] = useState<boolean>(false)
-  const isChainAccountEth = chain?.account === 'secp256k1'
+  const [multisig] = useSelectedMultisig()
+
+  const isSelectedChainAccountEth = chain?.account === 'secp256k1'
+  // // handles the case where a user is creating/importing a multisig, or is changing the settings of an existing one
+  const isChainAccountEth = !!chain ? isSelectedChainAccountEth : multisig.isEthereumAccount
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,22 +49,20 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
   }
 
   return (
-    <div className="relative">
-      <form onSubmit={handleSubmit} className="flex items-center gap-[8px]">
-        <AddressInput
-          addresses={addresses}
-          value={addressInput}
-          compact={compactInput}
-          chain={chain}
-          onChange={handleAddressChange}
-          error={error}
-        />
+    <form onSubmit={handleSubmit} className="flex items-center gap-[8px]">
+      <AddressInput
+        addresses={addresses}
+        value={addressInput}
+        compact={compactInput}
+        chain={chain || multisig.chain}
+        onChange={handleAddressChange}
+        error={error}
+      />
 
-        <Button disabled={!address || error} variant="outline" type="submit" className="px-[12px] gap-[4px]">
-          <Plus size={24} />
-          <p css={{ marginTop: 4, marginLeft: 8 }}>Add</p>
-        </Button>
-      </form>
-    </div>
+      <Button disabled={!address || error} variant="outline" type="submit" className="px-[12px] gap-[4px]">
+        <Plus size={24} />
+        <p css={{ marginTop: 4, marginLeft: 8 }}>Add</p>
+      </Button>
+    </form>
   )
 }

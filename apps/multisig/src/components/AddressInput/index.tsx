@@ -182,7 +182,7 @@ const AddressInput: React.FC<Props> = ({
         error={error}
       />
       {error && (
-        <div className="flex items-center gap-2">
+        <div className="absolute flex items-center gap-2">
           <AlertTriangle size={12} className="text-red-400" />
           <div className="mt-[4px] text-red-400 text-[12px]">{`Address format not compatible with ${chain?.chainName} chain`}</div>
         </div>
