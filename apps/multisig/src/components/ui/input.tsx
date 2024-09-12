@@ -15,7 +15,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   externalSuffix?: React.ReactNode
   onClear?: () => void
   showClearButton?: boolean
-  error?: boolean
+  hasError?: boolean
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -32,7 +32,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       suffix,
       supportingLabel,
       showClearButton,
-      error,
+      hasError,
       ...props
     },
     ref
@@ -59,7 +59,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               className={cn(
                 'flex h-[56px] w-full rounded-[12px] bg-gray-800 pl-[24px] pt-[16px] pb-[14px] text-[16px] text-offWhite border border-gray-800 file:border-0 file:bg-transparent file:text-[14px] file:text-gray-200 file:cursor-pointer file:font-medium placeholder:text-gray-400/90 focus-visible:border-gray-400 disabled:cursor-not-allowed disabled:opacity-50',
                 className,
-                { 'border border-red-400': error }
+                { 'border border-red-400': hasError }
               )}
               css={{ paddingRight: suffixWidth || 24 }}
               ref={ref}

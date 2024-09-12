@@ -191,7 +191,7 @@ export type Rpc = {
   url: string
 }
 
-type Account = '*25519' | 'secp256k1'
+export type Account = '*25519' | 'secp256k1'
 
 export type Chain<ChainIds = string> = {
   id: ChainIds

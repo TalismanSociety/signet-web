@@ -25,7 +25,7 @@ type Props = {
   onChange: (address: Address | undefined, input: string) => void
   addresses?: AddressWithName[]
   chain?: Chain
-  error?: boolean
+  hasError?: boolean
   leadingLabel?: string
   compact?: boolean
 }
@@ -40,7 +40,7 @@ const AddressInput: React.FC<Props> = ({
   defaultAddress,
   addresses = [],
   chain,
-  error,
+  hasError,
   leadingLabel,
   compact,
 }) => {
@@ -90,7 +90,7 @@ const AddressInput: React.FC<Props> = ({
   )
 
   const handleSelectFromList = (address: Address, contact?: AddressWithName) => {
-    if (error) {
+    if (hasError) {
       return
     }
     handleQueryChange(address.toSs58(chain))
@@ -179,9 +179,9 @@ const AddressInput: React.FC<Props> = ({
         onFocus={() => setExpanded(addresses.length > 0 || validRawInputAddress !== undefined)}
         onClear={handleClearInput}
         showClearButton={!!controlledSelectedInput}
-        error={error}
+        hasError={hasError}
       />
-      {error && (
+      {hasError && (
         <div className="absolute flex items-center gap-2">
           <AlertTriangle size={12} className="text-red-400" />
           <div className="mt-[4px] text-red-400 text-[12px]">{`Address format not compatible with ${chain?.chainName} chain`}</div>
@@ -217,7 +217,7 @@ const AddressInput: React.FC<Props> = ({
                   'alignItems': 'center',
                   'justifyContent': 'space-between',
                   'padding': '8px 12px',
-                  'cursor': error ? 'not-allowed' : 'pointer',
+                  'cursor': hasError ? 'not-allowed' : 'pointer',
                   ':hover': { filter: 'brightness(1.2)' },
                 }}
               >
@@ -228,7 +228,7 @@ const AddressInput: React.FC<Props> = ({
                   disableCopy
                   breakLine={compact}
                   identiconSize={compact ? 32 : 24}
-                  disabled={error}
+                  disabled={hasError}
                 />
                 <p className="whitespace-nowrap text-[14px] font-bold text-right text-gray-200">{contact.type}</p>
               </div>
@@ -238,7 +238,7 @@ const AddressInput: React.FC<Props> = ({
             <div
               css={{
                 'padding': '8px 12px',
-                'cursor': error ? 'not-allowed' : 'pointer',
+                'cursor': hasError ? 'not-allowed' : 'pointer',
                 ':hover': {
                   filter: 'brightness(1.2)',
                 },
@@ -251,7 +251,7 @@ const AddressInput: React.FC<Props> = ({
                 disableCopy
                 breakLine={compact}
                 identiconSize={compact ? 32 : 24}
-                disabled={error}
+                disabled={hasError}
               />
             </div>
           ) : (

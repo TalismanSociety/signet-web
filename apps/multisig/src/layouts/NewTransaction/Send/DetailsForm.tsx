@@ -156,7 +156,7 @@ export const DetailsForm: React.FC<Props> = ({
             addresses={addresses}
             leadingLabel="Recipient"
             chain={chain}
-            error={addressError}
+            hasError={addressError}
           />
         </div>
         <div className="text-offWhite">

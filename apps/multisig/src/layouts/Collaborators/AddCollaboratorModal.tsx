@@ -62,7 +62,7 @@ export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
             onChange={handleAddressChange}
             addresses={addresses}
             chain={selectedMultisig.chain}
-            error={error}
+            hasError={error}
           />
           {conflict ? (
             <p className="text-red-500 text-[12px] ml-[12px] mt-[4px]">

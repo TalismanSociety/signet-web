@@ -54,7 +54,7 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
         compact={compactInput}
         chain={chain || multisig.chain}
         onChange={handleAddressChange}
-        error={error}
+        hasError={error}
       />
 
       <Button disabled={!address || error} variant="outline" type="submit" className="px-[12px] gap-[4px]">
