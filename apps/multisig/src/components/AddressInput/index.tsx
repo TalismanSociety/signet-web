@@ -6,6 +6,7 @@ import { SelectedAddress } from './SelectedAddressPill'
 import { AccountDetails } from './AccountDetails'
 import { Input } from '@components/ui/input'
 import { useAzeroIDPromise } from '@domains/azeroid/AzeroIDResolver'
+import { AlertTriangle } from '@talismn/icons'
 
 export type AddressType = 'Extension' | 'Contacts' | 'Vault' | 'Smart Contract' | undefined
 
@@ -14,7 +15,6 @@ export type AddressWithName = {
   name: string
   type: AddressType
   chain?: Chain
-
   extensionName?: string
   addressBookName?: string
 }
@@ -25,6 +25,7 @@ type Props = {
   onChange: (address: Address | undefined, input: string) => void
   addresses?: AddressWithName[]
   chain?: Chain
+  error?: boolean
   leadingLabel?: string
   compact?: boolean
 }
@@ -39,6 +40,7 @@ const AddressInput: React.FC<Props> = ({
   defaultAddress,
   addresses = [],
   chain,
+  error,
   leadingLabel,
   compact,
 }) => {
@@ -88,6 +90,9 @@ const AddressInput: React.FC<Props> = ({
   )
 
   const handleSelectFromList = (address: Address, contact?: AddressWithName) => {
+    if (error) {
+      return
+    }
     handleQueryChange(address.toSs58(chain))
     setAddress(address)
     setContact(contact)
@@ -174,7 +179,14 @@ const AddressInput: React.FC<Props> = ({
         onFocus={() => setExpanded(addresses.length > 0 || validRawInputAddress !== undefined)}
         onClear={handleClearInput}
         showClearButton={!!controlledSelectedInput}
+        error={error}
       />
+      {error && (
+        <div className="flex items-center gap-2">
+          <AlertTriangle size={12} className="text-red-400" />
+          <div className="mt-[4px] text-red-400 text-[12px]">{`Address format not compatible with ${chain?.chainName} chain`}</div>
+        </div>
+      )}
       <div
         className={'bg-gray-800 shadow-lg'}
         css={{
@@ -205,7 +217,7 @@ const AddressInput: React.FC<Props> = ({
                   'alignItems': 'center',
                   'justifyContent': 'space-between',
                   'padding': '8px 12px',
-                  'cursor': 'pointer',
+                  'cursor': error ? 'not-allowed' : 'pointer',
                   ':hover': { filter: 'brightness(1.2)' },
                 }}
               >
@@ -216,6 +228,7 @@ const AddressInput: React.FC<Props> = ({
                   disableCopy
                   breakLine={compact}
                   identiconSize={compact ? 32 : 24}
+                  disabled={error}
                 />
                 <p className="whitespace-nowrap text-[14px] font-bold text-right text-gray-200">{contact.type}</p>
               </div>
@@ -225,7 +238,7 @@ const AddressInput: React.FC<Props> = ({
             <div
               css={{
                 'padding': '8px 12px',
-                'cursor': 'pointer',
+                'cursor': error ? 'not-allowed' : 'pointer',
                 ':hover': {
                   filter: 'brightness(1.2)',
                 },
@@ -238,6 +251,7 @@ const AddressInput: React.FC<Props> = ({
                 disableCopy
                 breakLine={compact}
                 identiconSize={compact ? 32 : 24}
+                disabled={error}
               />
             </div>
           ) : (
