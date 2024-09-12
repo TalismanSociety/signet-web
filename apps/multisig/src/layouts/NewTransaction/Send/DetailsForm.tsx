@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import AddressInput from '@components/AddressInput'
 import { AmountFlexibleInput } from '@components/AmountFlexibleInput'
 import { BaseToken, Chain, vestingConstsSelector } from '@domains/chains'
@@ -66,6 +67,7 @@ export const DetailsForm: React.FC<Props> = ({
   vestingSupported,
   loading,
 }) => {
+  const [addressError, setAddressError] = useState<boolean>(false)
   const [multisig] = useSelectedMultisig()
   const { addresses } = useKnownAddresses(multisig.orgId)
   const { hasDelayedPermission, hasNonDelayedPermission } = hasPermission(multisig, 'transfer')
@@ -82,6 +84,15 @@ export const DetailsForm: React.FC<Props> = ({
     if (vestedConfig.endBlock < vestedConfig.startBlock) return 'End block must be after start block.'
     return null
   }, [blocksDiff, currentBlock, vestedConfig.endBlock, vestedConfig.on, vestedConfig.startBlock])
+
+  const handleAddressChange = (address: Address | undefined) => {
+    if (!address) {
+      setAddressError(false)
+    } else if (address.isEthereum !== multisig.isEthereumAccount) {
+      setAddressError(true)
+    }
+    setDestinationAddress(address)
+  }
 
   return (
     <>
@@ -142,7 +153,13 @@ export const DetailsForm: React.FC<Props> = ({
           />
         </div>
         <div className="text-offWhite">
-          <AddressInput onChange={setDestinationAddress} addresses={addresses} leadingLabel="Recipient" chain={chain} />
+          <AddressInput
+            onChange={handleAddressChange}
+            addresses={addresses}
+            leadingLabel="Recipient"
+            chain={chain}
+            error={addressError}
+          />
         </div>
         <div className="text-offWhite">
           <Input
@@ -177,7 +194,8 @@ export const DetailsForm: React.FC<Props> = ({
               !selectedToken ||
               !name ||
               !hasNonDelayedPermission ||
-              vestingError !== null
+              vestingError !== null ||
+              addressError
             }
             onClick={onNext}
             children="Review"
