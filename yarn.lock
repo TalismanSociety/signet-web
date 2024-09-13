@@ -10150,7 +10150,6 @@ __metadata:
     class-variance-authority: ^0.7.0
     clsx: ^2.0.0
     cmdk: ^0.2.0
-    date-fns: ^3.6.0
     eslint: ^8.33.0
     eslint-config-prettier: ^8.6.0
     eslint-plugin-storybook: ^0.6.10
@@ -10161,12 +10160,10 @@ __metadata:
     jsonwebtoken: ^9.0.2
     lodash: ^4.17.21
     lucide-react: ^0.292.0
-    md5: ^2.3.0
     query-string: ^8.1.0
     react: ^18.2.0
     react-ace: ^10.1.0
     react-app-alias: ^2.2.2
-    react-countup: ^6.4.1
     react-day-picker: ^8.10.0
     react-dom: ^18.2.0
     react-helmet: ^6.1.0
@@ -10303,14 +10300,17 @@ __metadata:
     "@types/react": ^18.0.28
     babel-loader: ^8.3.0
     colorjs.io: ^0.4.4-patch.1
+    date-fns: ^3.6.0
     eslint: ^8.37.0
     eslint-plugin-storybook: ^0.6.12
     framer-motion: ^10.16.1
     hex-to-rgba: ^2.0.1
+    md5: ^2.3.0
     mime: ^3.0.0
     mime-db: ^1.52.0
     prop-types: ^15.8.1
     react: ^18.2.0
+    react-countup: ^6.4.1
     react-dom: ^18.2.0
     react-hot-toast: ^2.4.0
     storybook: ^7.0.12
