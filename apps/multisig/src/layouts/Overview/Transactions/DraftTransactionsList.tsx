@@ -1,11 +1,11 @@
 import {
   ChangeConfigDetails,
   ContractDetails,
-  DUMMY_MULTISIG_ID,
   Transaction,
   TransactionApprovals,
   useSelectedMultisig,
 } from '@domains/multisig'
+import { DUMMY_MULTISIG_ID } from '@util/constants'
 import { useHasura } from '@domains/offchain-data/hasura'
 import { useMemo } from 'react'
 import { allChainTokensSelector } from '@domains/chains'
