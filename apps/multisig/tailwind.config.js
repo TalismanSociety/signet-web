@@ -90,5 +90,6 @@ module.exports = {
       },
     },
   },
+  // tailwindcss-animate is used for animating the toasts
   plugins: [require('tailwindcss-animate')],
 }
