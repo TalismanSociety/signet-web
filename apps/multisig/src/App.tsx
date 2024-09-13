@@ -7,7 +7,6 @@ import './index.css'
 
 import { BalancesWatcher } from '@domains/balances'
 import { ExtensionWatcher } from '@domains/extension'
-import { BalancesProvider } from '@talismn/balances-react'
 import { ToastBar } from '@talismn/ui'
 import { Analytics } from '@vercel/analytics/react'
 import React, { Suspense } from 'react'
@@ -17,7 +16,6 @@ import { RecoilRoot } from 'recoil'
 
 import ThemeProvider from './App.Theme'
 import router from './routes'
-import { supportedChains } from '@domains/chains'
 import { AccountWatcher } from '@domains/auth'
 import { OffchainDataWatcher } from '@domains/offchain-data/offchain-watcher'
 import { ActiveMultisigWatcher } from './domains/multisig'
@@ -31,20 +29,18 @@ import { WalletConnectProvider } from '@domains/wallet-connect'
 import { SkeletonLayout } from './layouts/SkeletonLayout'
 import { Helmet } from 'react-helmet'
 import { CONFIG } from '@lib/config'
+import SelectedChainBalancesProvider from './providers/SelectedChainBalancesProvider'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const App: React.FC = () => {
   const queryClient = new QueryClient()
+
   return (
     <ThemeProvider>
       <RecoilRoot>
-        <BalancesProvider
-          withTestnets
-          enabledChains={supportedChains.map(chain => chain.genesisHash)}
-          coingeckoApiUrl="https://coingecko.talismn.workers.dev"
-        >
+        <SelectedChainBalancesProvider>
           <HasuraProvider>
             <AzeroIDResolverProvider>
               <Suspense fallback={<SkeletonLayout />}>
@@ -74,7 +70,7 @@ const App: React.FC = () => {
               </Suspense>
             </AzeroIDResolverProvider>
           </HasuraProvider>
-        </BalancesProvider>
+        </SelectedChainBalancesProvider>
       </RecoilRoot>
     </ThemeProvider>
   )
