@@ -109,7 +109,7 @@ export const vaultsOfAccount = selector({
         }
 
         // derive the multisig address
-        const multisigAddress = toMultisigAddress(signers, tx.extrinsic.callArgs.threshold)
+        const multisigAddress = toMultisigAddress(signers, threshold)
 
         multisigs[multisigAddress.toSs58()] = {
           multisigAddress,
