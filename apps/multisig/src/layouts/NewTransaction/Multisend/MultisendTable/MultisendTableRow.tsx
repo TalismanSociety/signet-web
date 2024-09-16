@@ -13,6 +13,7 @@ import { useRecoilValue } from 'recoil'
 import { multisendAmountUnitAtom, multisendTokenAtom } from './atom'
 import { validateMultisendRow } from './utils'
 import { Address } from '@util/addresses'
+import { useSelectedMultisig } from '@domains/multisig'
 
 type Props = {
   index: number
@@ -100,9 +101,10 @@ export const MultisendTableRow: React.FC<Props> = ({
   send,
   hideVesting,
 }) => {
+  const [multisig] = useSelectedMultisig()
   const unit = useRecoilValue(multisendAmountUnitAtom)
   const token = useRecoilValue(multisendTokenAtom)
-  const errors = useMemo(() => validateMultisendRow(send, canVest), [canVest, send])
+  const errors = useMemo(() => validateMultisendRow(send, multisig, canVest), [canVest, multisig, send])
   return (
     <TableRow key={index} className="border-t border-gray-500 relative h-[48px]">
       <TableCell
@@ -141,6 +143,7 @@ export const MultisendTableRow: React.FC<Props> = ({
                 e.currentTarget.blur()
                 onSendsChange?.(validSends)
               }}
+              hasError={!!errors?.recipient}
             />
           </div>
         </Tooltip>

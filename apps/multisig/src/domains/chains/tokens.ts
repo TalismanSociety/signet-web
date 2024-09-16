@@ -1,4 +1,5 @@
-import { activeMultisigsState, DUMMY_MULTISIG_ID, useSelectedMultisig } from '@domains/multisig'
+import { activeMultisigsState, useSelectedMultisig } from '@domains/multisig'
+import { DUMMY_MULTISIG_ID } from '@util/constants'
 import { selector, selectorFamily } from 'recoil'
 import { ApiPromise } from '@polkadot/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -191,7 +192,7 @@ export type Rpc = {
   url: string
 }
 
-type Account = '*25519' | 'secp256k1'
+export type Account = '*25519' | 'secp256k1'
 
 export type Chain<ChainIds = string> = {
   id: ChainIds

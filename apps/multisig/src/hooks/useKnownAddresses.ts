@@ -1,13 +1,13 @@
 import { useRecoilValue } from 'recoil'
-import { AddressWithName } from '../components/AddressInput'
+import { AddressWithName, AddressType } from '../components/AddressInput'
 import { accountsState } from '../domains/extension'
 import { addressBookByOrgIdState } from '../domains/offchain-data'
 import { useMemo } from 'react'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useSmartContracts } from '../domains/offchain-data/smart-contract'
-import { Category, Subcategory } from '../domains/offchain-data/address-book/address-book'
+import { Contact } from '../domains/offchain-data/address-book/address-book'
 
-type AddressWithNameAndCategory = AddressWithName & { category?: Category; sub_category?: Subcategory }
+type ContactWithNameAndCategory = Partial<Contact> & AddressWithName
 
 export const useKnownAddresses = (
   teamId?: string,
@@ -15,32 +15,46 @@ export const useKnownAddresses = (
     includeSelectedMultisig = false,
     includeContracts = false,
   }: { includeSelectedMultisig?: boolean; includeContracts?: boolean } = {}
-): { addresses: AddressWithNameAndCategory[]; contactByAddress: Record<string, AddressWithNameAndCategory> } => {
+): { addresses: ContactWithNameAndCategory[]; contactByAddress: Record<string, ContactWithNameAndCategory> } => {
   const extensionAccounts = useRecoilValue(accountsState)
   const addressBookByOrgId = useRecoilValue(addressBookByOrgIdState)
   const [multisig] = useSelectedMultisig()
   const { contracts } = useSmartContracts()
 
-  const extensionContacts: AddressWithNameAndCategory[] = extensionAccounts.map(({ address, meta }) => ({
-    address,
-    name: meta.name ?? '',
-    type: 'Extension',
-    extensionName: meta.name,
-  }))
+  const extensionContacts = extensionAccounts.reduce<AddressWithName[]>(
+    (acc, { address, meta: { name = '' } = {} }) => {
+      if (multisig.isEthereumAccount === address.isEthereum) {
+        acc.push({
+          address,
+          name,
+          type: 'Extension',
+          extensionName: name,
+        })
+      }
+      return acc
+    },
+    []
+  )
 
   const addressBookContacts = useMemo(() => {
     if (!teamId) return []
 
     const addresses = addressBookByOrgId[teamId ?? ''] ?? []
 
-    return addresses.map(({ address, name, category, sub_category }) => ({
-      address,
-      name,
-      category,
-      sub_category,
-      type: 'Contacts',
-    }))
-  }, [addressBookByOrgId, teamId])
+    return addresses.reduce<ContactWithNameAndCategory[]>((acc, { address, name, category, sub_category }) => {
+      if (multisig.isEthereumAccount === address.isEthereum) {
+        acc.push({
+          address,
+          name,
+          category,
+          sub_category,
+
+          type: 'Contacts',
+        })
+      }
+      return acc
+    }, [])
+  }, [addressBookByOrgId, multisig.isEthereumAccount, teamId])
 
   const combinedList = useMemo(() => {
     let list = extensionContacts
@@ -91,7 +105,7 @@ export const useKnownAddresses = (
         ...contracts.map(({ address, name }) => ({
           address,
           name,
-          type: 'Smart Contract',
+          type: 'Smart Contract' as AddressType,
         })),
       ]
     }
@@ -113,7 +127,7 @@ export const useKnownAddresses = (
       const addressString = contact.address.toSs58()
       if (!acc[addressString]) acc[addressString] = contact
       return acc
-    }, {} as Record<string, AddressWithNameAndCategory>)
+    }, {} as Record<string, ContactWithNameAndCategory>)
   }, [combinedList])
 
   return { addresses: combinedList, contactByAddress }

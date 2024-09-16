@@ -1,6 +1,7 @@
 import { Multisig, MultisigWithExtraData, ProxyDefinition } from './types'
 import { atom, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
-import { DUMMY_MULTISIG_ID, selectedMultisigIdState, selectedMultisigState } from '.'
+import { selectedMultisigIdState, selectedMultisigState } from '.'
+import { DUMMY_MULTISIG_ID } from '@util/constants'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useProxies } from '../proxy/useProxies'
 import { isEqual } from 'lodash'

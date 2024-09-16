@@ -15,12 +15,21 @@ type Props = {
 export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const [address, setAddress] = useState<Address | undefined>()
+  const [error, setError] = useState<boolean>(false)
   const { addresses } = useKnownAddresses(selectedMultisig.orgId)
   const { addCollaborator, adding } = useAddOrgCollaborator()
+
+  const handleAddressChange = (address: Address | undefined) => {
+    const isAddressMismatch = address && selectedMultisig.isEthereumAccount !== address.isEthereum
+
+    setError(!!isAddressMismatch)
+    setAddress(address)
+  }
 
   const handleClose = useCallback(() => {
     if (adding) return
     setAddress(undefined)
+    setError(false)
     onClose?.()
   }, [adding, onClose])
 
@@ -49,7 +58,12 @@ export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
       </p>
       <div className="mt-[24px] flex flex-col gap-[24px]">
         <div className="w-full">
-          <AddressInput onChange={setAddress} addresses={addresses} chain={selectedMultisig.chain} />
+          <AddressInput
+            onChange={handleAddressChange}
+            addresses={addresses}
+            chain={selectedMultisig.chain}
+            hasError={error}
+          />
           {conflict ? (
             <p className="text-red-500 text-[12px] ml-[12px] mt-[4px]">
               {isCollaboratorConflict
@@ -65,7 +79,7 @@ export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <Button type="button" variant="outline" disabled={adding} onClick={handleClose}>
             <p>Cancel</p>
           </Button>
-          <Button disabled={disabled || adding} loading={adding} onClick={handleCreateContact}>
+          <Button disabled={disabled || adding || error} loading={adding} onClick={handleCreateContact}>
             <p>Save</p>
           </Button>
         </div>

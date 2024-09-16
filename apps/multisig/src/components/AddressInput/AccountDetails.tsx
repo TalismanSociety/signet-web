@@ -5,12 +5,14 @@ import { NameAndAddress } from './NameAndAddress'
 import { Check, Copy } from '@talismn/icons'
 import AddressTooltip from '../AddressTooltip'
 import useCopied from '@hooks/useCopied'
+import { cn } from '@util/tailwindcss'
 
 type Props = {
   chain?: Chain
   address: Address
   name?: string
   disableCopy?: boolean
+  disabled?: boolean
   nameOrAddressOnly?: boolean
   withAddressTooltip?: boolean
   hideIdenticon?: boolean
@@ -24,6 +26,7 @@ export const AccountDetails: React.FC<Props> = ({
   address,
   name,
   disableCopy,
+  disabled,
   nameOrAddressOnly,
   identiconSize = 24,
   withAddressTooltip,
@@ -34,7 +37,11 @@ export const AccountDetails: React.FC<Props> = ({
   const { copy, copied } = useCopied()
 
   const accountDetailsUI = (
-    <div className="flex items-center gap-[8px] w-full overflow-hidden cursor-pointer">
+    <div
+      className={cn('flex items-center gap-[8px] w-full overflow-hidden cursor-pointer', {
+        'cursor-not-allowed': disabled,
+      })}
+    >
       {!hideIdenticon && (
         <div css={{ minheight: identiconSize, minWidth: identiconSize }}>
           <Identicon size={identiconSize} value={address.toSs58(chain)} />

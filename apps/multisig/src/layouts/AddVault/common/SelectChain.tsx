@@ -11,8 +11,6 @@ import {
 import { CancleOrNext } from './CancelOrNext'
 import { useCallback, useMemo } from 'react'
 import { AccountsList } from '@components/AccountMenu/AccountsList'
-import { Address } from '@util/addresses'
-import { Param } from '../CreateVault'
 import { selectedAccountState } from '@domains/auth'
 import { useRecoilValue } from 'recoil'
 
@@ -42,8 +40,6 @@ const SelectChain = ({
   chain,
   chains,
   isChainAccountEth = false,
-  setAddedAccounts,
-  updateSearchParm,
 }: {
   header?: string
   isChainAccountEth: boolean
@@ -52,8 +48,6 @@ const SelectChain = ({
   setChain: (chain: Chain) => void
   chain: Chain
   chains: Chain[]
-  setAddedAccounts?: React.Dispatch<React.SetStateAction<Address[]>>
-  updateSearchParm?: ({ param, value }: { param: Param; value: string }) => void
 }) => {
   const mainnets = useMemo(() => chains.filter(chain => !chain.isTestnet), [chains])
   const testnets = useMemo(() => chains.filter(chain => chain.isTestnet), [chains])
@@ -63,13 +57,9 @@ const SelectChain = ({
   const onValueChange = useCallback(
     (value: string) => {
       const selectedChain = chains.find(chain => chain.genesisHash === value) as Chain
-      if (selectedChain.account !== chain.account) {
-        setAddedAccounts?.([])
-        updateSearchParm?.({ param: 'members', value: selectedChain.account })
-      }
       setChain(selectedChain)
     },
-    [chains, chain.account, setChain, setAddedAccounts, updateSearchParm]
+    [chains, setChain]
   )
 
   return (

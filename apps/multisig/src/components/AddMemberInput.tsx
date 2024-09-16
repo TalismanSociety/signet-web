@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Plus } from '@talismn/icons'
 import { Chain } from '@domains/chains'
 import { Button } from './ui/button'
+import { useSelectedMultisig } from '@domains/multisig'
 
 type Props = {
   onNewAddress: (a: Address) => void
@@ -18,7 +19,11 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
   const [addressInput, setAddressInput] = useState('')
   const [address, setAddress] = useState<Address | undefined>()
   const [error, setError] = useState<boolean>(false)
-  const isChainAccountEth = chain?.account === 'secp256k1'
+  const [multisig] = useSelectedMultisig()
+
+  const isSelectedChainAccountEth = chain?.account === 'secp256k1'
+  // // handles the case where a user is creating/importing a multisig, or is changing the settings of an existing one
+  const isChainAccountEth = !!chain ? isSelectedChainAccountEth : multisig.isEthereumAccount
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,36 +37,30 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
       setAddress(undefined)
     }
   }
+
   const handleAddressChange = (address: Address | undefined, input: string) => {
-    if (isChainAccountEth !== address?.isEthereum) {
-      setError(true)
-    }
-    if (!address) {
-      setError(false)
-    }
-    setAddressInput(input)
+    const isAddressMismatch = address && isChainAccountEth !== address.isEthereum
+
+    setError(!!isAddressMismatch)
     setAddress(address)
+    setAddressInput(input)
   }
 
   return (
-    <div className="relative">
-      <form onSubmit={handleSubmit} className="flex items-center gap-[8px]">
-        <AddressInput
-          addresses={addresses}
-          value={addressInput}
-          compact={compactInput}
-          chain={chain}
-          onChange={handleAddressChange}
-        />
+    <form onSubmit={handleSubmit} className="flex items-center gap-[8px]">
+      <AddressInput
+        addresses={addresses}
+        value={addressInput}
+        compact={compactInput}
+        chain={chain || multisig.chain}
+        onChange={handleAddressChange}
+        hasError={error}
+      />
 
-        <Button disabled={!address || error} variant="outline" type="submit" className="px-[12px] gap-[4px]">
-          <Plus size={24} />
-          <p css={{ marginTop: 4, marginLeft: 8 }}>Add</p>
-        </Button>
-      </form>
-      {error && (
-        <div className="absolute mt-[4px] text-orange-400 text-[14px]">{`Address format not compatible with ${chain?.chainName} chain`}</div>
-      )}
-    </div>
+      <Button disabled={!address || error} variant="outline" type="submit" className="px-[12px] gap-[4px]">
+        <Plus size={24} />
+        <p css={{ marginTop: 4, marginLeft: 8 }}>Add</p>
+      </Button>
+    </form>
   )
 }

@@ -10,6 +10,7 @@ type Props = {
   contacts?: { name: string; address: Address }[]
   address?: Address
   onChangeAddress: (address?: Address) => void
+  hasError?: boolean
 } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>
 
 export const AddressInputCell: React.FC<Props> = ({
@@ -19,6 +20,7 @@ export const AddressInputCell: React.FC<Props> = ({
   onBlur,
   onChangeAddress,
   onFocus,
+  hasError,
   ...inputProps
 }) => {
   const [value, setValue] = useState('')
@@ -69,7 +71,7 @@ export const AddressInputCell: React.FC<Props> = ({
             address={address}
             name={contacts?.find(contact => contact.address.isEqual(address))?.name}
             nameOrAddressOnly
-            withAddressTooltip
+            withAddressTooltip={!hasError}
           />
           <Button
             size="icon"
