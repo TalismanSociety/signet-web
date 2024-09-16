@@ -42,7 +42,7 @@ export const AccountMenu: React.FC = () => {
           <ChevronVertical />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="bg-gray-900 border border-gray-700 w-[240px] p-[4px]">
+      <PopoverContent align="end" className="bg-gray-900 border border-gray-700 w-[260px] p-[4px]">
         {showAccounts ? (
           <AccountsList onBack={() => setShowAccounts(false)} />
         ) : showCustomRpcs ? (

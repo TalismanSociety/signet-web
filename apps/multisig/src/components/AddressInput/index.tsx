@@ -90,9 +90,7 @@ const AddressInput: React.FC<Props> = ({
   )
 
   const handleSelectFromList = (address: Address, contact?: AddressWithName) => {
-    if (hasError) {
-      return
-    }
+    if (hasError) return
     handleQueryChange(address.toSs58(chain))
     setAddress(address)
     setContact(contact)
@@ -184,7 +182,7 @@ const AddressInput: React.FC<Props> = ({
       {hasError && (
         <div className="absolute flex items-center gap-2">
           <AlertTriangle size={12} className="text-red-400" />
-          <div className="mt-[4px] text-red-400 text-[12px]">{`Address format not compatible with ${chain?.chainName} chain`}</div>
+          <div className="mt-[4px] text-red-400 text-[12px]">{`Invalid ${chain?.chainName} address`}</div>
         </div>
       )}
       <div

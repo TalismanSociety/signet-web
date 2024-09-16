@@ -73,7 +73,7 @@ export const AccountsList: React.FC<{ onBack?: () => void; hideHeader?: boolean;
 
   if (accountToSignIn) {
     return (
-      <div className="flex flex-col gap-[4px] h-[210px] items-center justify-center bg-gray-700 rounded-[8px]">
+      <div className="flex flex-col gap-[4px] h-[260px] items-center justify-center rounded-[8px]">
         <div className="flex items-center gap-[8px] mb-[24px]">
           <CircularProgressIndicator />
           <p className="text-offWhite font-bold">Signing In</p>
@@ -88,7 +88,7 @@ export const AccountsList: React.FC<{ onBack?: () => void; hideHeader?: boolean;
   }
 
   return (
-    <div className="flex flex-col gap-[12px] h-[210px] flex-1">
+    <div className="flex flex-col gap-[12px] h-[260px] flex-1">
       {!hideHeader && (
         <div className="flex items-center justify-between ">
           <Button size="icon" className="items-center" variant="ghost" onClick={onBack}>
@@ -100,16 +100,16 @@ export const AccountsList: React.FC<{ onBack?: () => void; hideHeader?: boolean;
       )}
       <Input
         placeholder="Search by name or address..."
-        className="text-[14px] px-[12px] py-[9px] rounded-[8px]"
+        className="text-[14px] px-[12px] py-[9px] rounded-[8px] h-max"
         value={query}
         onChange={e => setQuery(e.target.value)}
       />
-      <div className="flex flex-col flex-1 items-start justify-start overflow-y-auto bg-gray-800 gap-[8px] p-[8px] rounded-[8px]">
+      <div className="flex flex-col flex-1 items-start justify-start overflow-y-auto bg-gray-800 gap-[4px] p-[4px] rounded-[12px]">
         {filteredAccounts.map(acc => (
           <Button
             variant="ghost"
             size="lg"
-            className="h-max w-full py-[8px] bg-gray-700"
+            className="h-max w-full py-[8px] bg-gray-700 hover:bg-gray-500"
             key={acc.address.toSs58()}
             onClick={() => selectAccount(acc)}
           >
