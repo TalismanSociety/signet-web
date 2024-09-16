@@ -94,8 +94,8 @@ export const vaultsOfAccount = selector({
 
         // a multisig transaction should have a threshold, except for as_multi_threshold_1
         let threshold: number | undefined = tx.extrinsic.callArgs.threshold
-        if (tx.extrinsic.callName !== MultisigCallNames.AsMultiThreshold1) {
-          threshold = undefined
+        if (tx.extrinsic.callName === MultisigCallNames.AsMultiThreshold1) {
+          threshold = 1
         }
         if (typeof threshold !== 'number') throw new Error('Threshold not a number')
 
