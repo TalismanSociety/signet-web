@@ -40,11 +40,11 @@ import { activeTeamsState } from '@domains/offchain-data'
 import { Abi } from '@polkadot/api-contract'
 import { FrameSystemEventRecord } from '@polkadot/types/lookup'
 import { ExtrinsicErrorsFromEvents } from '@util/errors'
+import { DUMMY_MULTISIG_ID } from '@util/constants'
 
 export * from './types.d'
 export * from './useSelectedMultisig'
 
-export const DUMMY_MULTISIG_ID = 'DUMMY_MULTISIG'
 // create a new atom for deciding whether to show all balances and txns or just for the selected
 // multisig
 export const combinedViewState = atom<boolean>({

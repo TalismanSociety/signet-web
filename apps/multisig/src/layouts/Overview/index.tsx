@@ -1,4 +1,5 @@
-import { DUMMY_MULTISIG_ID, useSelectedMultisig } from '@domains/multisig'
+import { useSelectedMultisig } from '@domains/multisig'
+import { DUMMY_MULTISIG_ID } from '@util/constants'
 import { getAllChangeAttempts } from '@domains/offchain-data/metadata'
 import { toMultisigAddress } from '@util/addresses'
 import { useCallback, useEffect, useState } from 'react'
