@@ -6,20 +6,27 @@ import { useMemo } from 'react'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useSmartContracts } from '../domains/offchain-data/smart-contract'
 import { Contact } from '../domains/offchain-data/address-book/address-book'
+import useGetAddressesByOrgIdAndAddress from '../domains/offchain-data/address-book/hooks/useGetAddressesByOrgIdAndAddress'
 
 type ContactWithNameAndCategory = Partial<Contact> & AddressWithName
 
 export const useKnownAddresses = (
-  teamId?: string,
+  orgId?: string,
   {
     includeSelectedMultisig = false,
     includeContracts = false,
-  }: { includeSelectedMultisig?: boolean; includeContracts?: boolean } = {}
-): { addresses: ContactWithNameAndCategory[]; contactByAddress: Record<string, ContactWithNameAndCategory> } => {
+  }: { includeSelectedMultisig?: boolean; includeContracts?: boolean } = {},
+  addresses?: string[]
+): {
+  addresses: ContactWithNameAndCategory[]
+  contactByAddress: Record<string, ContactWithNameAndCategory>
+  isLoading: boolean
+} => {
   const extensionAccounts = useRecoilValue(accountsState)
   const addressBookByOrgId = useRecoilValue(addressBookByOrgIdState)
   const [multisig] = useSelectedMultisig()
   const { contracts } = useSmartContracts()
+  const { data: addressBookData, isLoading } = useGetAddressesByOrgIdAndAddress(addresses ?? [])
 
   const extensionContacts = extensionAccounts.reduce<AddressWithName[]>(
     (acc, { address, meta: { name = '' } = {} }) => {
@@ -37,9 +44,9 @@ export const useKnownAddresses = (
   )
 
   const addressBookContacts = useMemo(() => {
-    if (!teamId) return []
+    if (!orgId) return []
 
-    const addresses = addressBookByOrgId[teamId ?? ''] ?? []
+    const addresses = [...(addressBookByOrgId[orgId ?? ''] ?? []), ...(addressBookData ?? [])]
 
     return addresses.reduce<ContactWithNameAndCategory[]>((acc, { address, name, category, sub_category }) => {
       if (multisig.isEthereumAccount === address.isEthereum) {
@@ -54,7 +61,7 @@ export const useKnownAddresses = (
       }
       return acc
     }, [])
-  }, [addressBookByOrgId, multisig.isEthereumAccount, teamId])
+  }, [addressBookByOrgId, addressBookData, multisig.isEthereumAccount, orgId])
 
   const combinedList = useMemo(() => {
     let list = extensionContacts
@@ -130,5 +137,5 @@ export const useKnownAddresses = (
     }, {} as Record<string, ContactWithNameAndCategory>)
   }, [combinedList])
 
-  return { addresses: combinedList, contactByAddress }
+  return { addresses: combinedList, contactByAddress, isLoading }
 }
