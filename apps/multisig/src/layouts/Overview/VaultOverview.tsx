@@ -24,8 +24,9 @@ const showMemberState = atom<boolean>({
 export const VaultOverview: React.FC = () => {
   const [selectedMultisig] = useSelectedMultisig()
   const [showMembers, setShowMembers] = useRecoilState(showMemberState)
-  const { contactByAddress } = useKnownAddresses(selectedMultisig.orgId)
   const { copy, copied } = useCopied()
+  const signersAddresses = selectedMultisig.signers.map(signer => signer.toSs58())
+  const { contactByAddress, isLoading } = useKnownAddresses(selectedMultisig.orgId, {}, signersAddresses)
 
   return (
     <section className="flex flex-col p-[24px] rounded-2xl bg-gray-800">
@@ -145,6 +146,7 @@ export const VaultOverview: React.FC = () => {
                   identiconSize={20}
                   nameOrAddressOnly
                   withAddressTooltip
+                  isNameLoading={isLoading}
                 />
               ))}
             </div>
