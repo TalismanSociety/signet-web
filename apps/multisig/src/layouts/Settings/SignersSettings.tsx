@@ -19,7 +19,12 @@ type Props = {
 }
 
 export const SignersSettings: React.FC<Props> = ({ capHeight, editable, error, members, multisig, onChange }) => {
-  const { addresses: knownAddresses, contactByAddress } = useKnownAddresses(multisig.orgId)
+  const membersAddresses = members.map(m => m.toSs58())
+  const {
+    addresses: knownAddresses,
+    contactByAddress,
+    isLoading,
+  } = useKnownAddresses(multisig.orgId, {}, membersAddresses)
   const prevLength = useRef(members.length)
   const scrollView = useRef<HTMLDivElement>(null)
 
@@ -62,6 +67,7 @@ export const SignersSettings: React.FC<Props> = ({ capHeight, editable, error, m
                 disableCopy
                 chain={multisig.chain}
                 withAddressTooltip
+                isNameLoading={isLoading}
               />
               <Button
                 disabled={!editable}
