@@ -7,8 +7,17 @@ import { Address } from '@util/addresses'
 import { useSelectedMultisig } from '@domains/multisig'
 
 export const TransactionSidesheetApprovals: React.FC<{ t: Transaction }> = ({ t }) => {
-  const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
   const [{ isEthereumAccount }] = useSelectedMultisig()
+  const approversAddresses = Object.keys(t.approvals).reduce<string[]>((acc, address) => {
+    const decodedAddress = isEthereumAccount ? Address.fromSs58(address) : Address.fromPubKey(address)
+    if (decodedAddress) {
+      acc.push(decodedAddress.toSs58())
+    }
+    return acc
+  }, [])
+
+  console.log({ approversAddresses })
+  const { contactByAddress, isLoading } = useKnownAddresses(t.multisig.orgId, {}, approversAddresses)
   return (
     <div css={{ display: 'grid', gap: '14px' }}>
       {Object.entries(t.approvals).map(([address, approval]) => {
@@ -24,6 +33,7 @@ export const TransactionSidesheetApprovals: React.FC<{ t: Transaction }> = ({ t 
               <MemberRow
                 member={{ address: decodedAddress, nickname: contact?.name, you: contact?.extensionName !== undefined }}
                 chain={t.multisig.chain}
+                isNameLoading={isLoading}
               />
             </div>
             {(t.rawPending || t.executedAt) && (
