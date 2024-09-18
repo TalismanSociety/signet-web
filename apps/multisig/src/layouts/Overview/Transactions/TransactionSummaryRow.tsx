@@ -38,9 +38,10 @@ const TransactionSummaryRow = ({
   showShareButton?: boolean
   onClick?: () => void
 }) => {
-  const { contactByAddress, isLoading } = useKnownAddresses(t.multisig.orgId, {}, [
-    t?.draft?.creator.address.toSs58() || '',
-  ])
+  const { contactByAddress, isLoading } = useKnownAddresses({
+    orgId: t.multisig.orgId,
+    addresses: [t?.draft?.creator.address.toSs58() || ''],
+  })
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
   const combinedView = useRecoilValue(combinedViewState)
   const tokenPrices = useRecoilValueLoadable(tokenPricesState(sumOutgoing.map(b => b.token)))

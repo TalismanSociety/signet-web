@@ -16,7 +16,7 @@ export const TransactionSidesheetApprovals: React.FC<{ t: Transaction }> = ({ t 
     return acc
   }, [])
 
-  const { contactByAddress, isLoading } = useKnownAddresses(t.multisig.orgId, {}, approversAddresses)
+  const { contactByAddress, isLoading } = useKnownAddresses({ orgId: t.multisig.orgId, addresses: approversAddresses })
   return (
     <div css={{ display: 'grid', gap: '14px' }}>
       {Object.entries(t.approvals).map(([address, approval]) => {

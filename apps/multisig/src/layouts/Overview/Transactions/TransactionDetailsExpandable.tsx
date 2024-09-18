@@ -116,7 +116,7 @@ const MultisigCallDataBox: React.FC<{ calldata: `0x${string}`; genesisHash: stri
 }
 
 const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
-  const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
+  const { contactByAddress } = useKnownAddresses({ orgId: t.multisig.orgId })
   return (
     <div>
       <div css={{ display: 'grid', gap: 12, marginTop: '8px' }}>
@@ -155,7 +155,7 @@ const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
 
 const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
   const recipientAddresses = t.decoded?.recipients.map(r => r.address.toSs58())
-  const { contactByAddress, isLoading } = useKnownAddresses(t.multisig.orgId, {}, recipientAddresses)
+  const { contactByAddress, isLoading } = useKnownAddresses({ orgId: t.multisig.orgId, addresses: recipientAddresses })
   const shouldDisplayCategory =
     t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.category) || isLoading
   const shouldDisplaySubcategory =
@@ -325,13 +325,11 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
   const recipients = t.decoded?.recipients || []
   const [recipient] = t.decoded?.recipients || []
   const recipientAddress = recipient?.address.toSs58()
-  const { contactByAddress, isLoading } = useKnownAddresses(
-    t.multisig.orgId,
-    {
-      includeContracts: true,
-    },
-    recipients.length === 1 && recipientAddress ? [recipientAddress] : []
-  )
+  const { contactByAddress, isLoading } = useKnownAddresses({
+    orgId: t.multisig.orgId,
+    includeContracts: true,
+    addresses: recipients.length === 1 && recipientAddress ? [recipientAddress] : [],
+  })
 
   if (!t.decoded) return null
 

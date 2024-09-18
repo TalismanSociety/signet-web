@@ -26,7 +26,10 @@ export const VaultOverview: React.FC = () => {
   const [showMembers, setShowMembers] = useRecoilState(showMemberState)
   const { copy, copied } = useCopied()
   const signersAddresses = selectedMultisig.signers.map(signer => signer.toSs58())
-  const { contactByAddress, isLoading } = useKnownAddresses(selectedMultisig.orgId, {}, signersAddresses)
+  const { contactByAddress, isLoading } = useKnownAddresses({
+    orgId: selectedMultisig.orgId,
+    addresses: signersAddresses,
+  })
 
   return (
     <section className="flex flex-col p-[24px] rounded-2xl bg-gray-800">

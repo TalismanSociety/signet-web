@@ -10,14 +10,17 @@ import useGetAddressesByOrgIdAndAddress from '../domains/offchain-data/address-b
 
 type ContactWithNameAndCategory = Partial<Contact> & AddressWithName
 
-export const useKnownAddresses = (
-  orgId?: string,
-  {
-    includeSelectedMultisig = false,
-    includeContracts = false,
-  }: { includeSelectedMultisig?: boolean; includeContracts?: boolean } = {},
+export const useKnownAddresses = ({
+  orgId,
+  includeSelectedMultisig,
+  includeContracts,
+  addresses,
+}: {
+  orgId?: string
+  includeSelectedMultisig?: boolean
+  includeContracts?: boolean
   addresses?: string[]
-): {
+} = {}): {
   addresses: ContactWithNameAndCategory[]
   contactByAddress: Record<string, ContactWithNameAndCategory>
   isLoading: boolean
@@ -44,7 +47,7 @@ export const useKnownAddresses = (
   )
 
   const addressBookContacts = useMemo(() => {
-    if (!orgId) return []
+    if (!orgId || !addressBookData?.length) return []
 
     const addresses = [...(addressBookByOrgId[orgId ?? ''] ?? []), ...(addressBookData ?? [])]
 

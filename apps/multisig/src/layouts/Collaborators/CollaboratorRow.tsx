@@ -14,7 +14,11 @@ export const CollaboratorRow: React.FC<{ orgId: string; userId: string; address:
   userId,
   address,
 }) => {
-  const { contactByAddress, isLoading } = useKnownAddresses(orgId, { includeContracts: true }, [address.toSs58()])
+  const { contactByAddress, isLoading } = useKnownAddresses({
+    orgId,
+    includeContracts: true,
+    addresses: [address.toSs58()],
+  })
   const { deleteCollaborator, deleting } = useDeleteCollaborator()
   const { isCollaborator } = useUser()
 

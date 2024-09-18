@@ -69,7 +69,7 @@ export const DetailsForm: React.FC<Props> = ({
 }) => {
   const [addressError, setAddressError] = useState<boolean>(false)
   const [multisig] = useSelectedMultisig()
-  const { addresses } = useKnownAddresses(multisig.orgId)
+  const { addresses } = useKnownAddresses({ orgId: multisig.orgId })
   const { hasDelayedPermission, hasNonDelayedPermission } = hasPermission(multisig, 'transfer')
   const vestingConsts = useRecoilValueLoadable(vestingConstsSelector(multisig.chain.genesisHash))
 

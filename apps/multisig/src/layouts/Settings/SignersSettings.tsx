@@ -24,7 +24,7 @@ export const SignersSettings: React.FC<Props> = ({ capHeight, editable, error, m
     addresses: knownAddresses,
     contactByAddress,
     isLoading,
-  } = useKnownAddresses(multisig.orgId, {}, membersAddresses)
+  } = useKnownAddresses({ orgId: multisig.orgId, addresses: membersAddresses })
   const prevLength = useRef(members.length)
   const scrollView = useRef<HTMLDivElement>(null)
 

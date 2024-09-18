@@ -29,7 +29,7 @@ const ScannedMultisigs: React.FC<{
   onSelect: (multisig: { signers: Address[]; threshold: number; address: Address }) => void
 }> = ({ chain, multisigs, onSelect, orgId }) => {
   const signersAddresses = useMemo(() => multisigs.flatMap(m => m.signers.map(signer => signer.toSs58())), [multisigs])
-  const { contactByAddress, isLoading } = useKnownAddresses(orgId, {}, signersAddresses)
+  const { contactByAddress, isLoading } = useKnownAddresses({ orgId, addresses: signersAddresses })
   return (
     <div className="grid gap-[8px] max-h-[400px] overflow-y-auto">
       {multisigs.map(multisig => (
