@@ -31,6 +31,7 @@ import { isExtrinsicProxyWrapped } from '@util/extrinsics'
 import { CONFIG } from '@lib/config'
 import { VestingDateRange } from '@components/VestingDateRange'
 import { Table, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
+import { CircularProgressIndicator } from '@talismn/ui'
 
 const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
@@ -153,14 +154,17 @@ const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
 }
 
 const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
-  const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
-  const shouldDisplayCategory = t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.category)
-  const shouldDisplaySubcategory = t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.sub_category)
+  const recipientAddresses = t.decoded?.recipients.map(r => r.address.toSs58())
+  const { contactByAddress, isLoading } = useKnownAddresses(t.multisig.orgId, {}, recipientAddresses)
+  const shouldDisplayCategory =
+    t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.category) || isLoading
+  const shouldDisplaySubcategory =
+    t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.sub_category) || isLoading
   const shouldDisplayVesting = t.decoded?.recipients.some(r => r.vestingSchedule)
 
   return (
     <div className="border border-gray-500 rounded-[8px] overflow-hidden">
-      <Table className="border-b-0">
+      <Table className="border-b-0 table-auto">
         <TableHeader>
           <TableRow>
             <TableHead>Recipient</TableHead>
@@ -172,7 +176,7 @@ const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
         </TableHeader>
 
         {t.decoded?.recipients.map(({ address, balance, vestingSchedule }, i) => (
-          <TableRow key={i} className="last:border-b-0">
+          <TableRow key={i} className="last:border-b-0 h-[55px]">
             <TableCell>
               <AccountDetails
                 name={contactByAddress[address.toSs58()]?.name}
@@ -183,13 +187,30 @@ const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
                 identiconSize={28}
                 disableCopy
                 hideIdenticon
+                isNameLoading={isLoading}
               />
             </TableCell>
             {shouldDisplayCategory && (
-              <TableCell className="text-right">{contactByAddress[address.toSs58()]?.category?.name}</TableCell>
+              <TableCell className="text-right ml-auto">
+                {isLoading ? (
+                  <div className="flex justify-end">
+                    <CircularProgressIndicator size={16} />
+                  </div>
+                ) : (
+                  contactByAddress[address.toSs58()]?.category?.name
+                )}
+              </TableCell>
             )}
             {shouldDisplaySubcategory && (
-              <TableCell className="text-right">{contactByAddress[address.toSs58()]?.sub_category?.name}</TableCell>
+              <TableCell className="text-right">
+                {isLoading ? (
+                  <div className="flex justify-end">
+                    <CircularProgressIndicator size={16} />
+                  </div>
+                ) : (
+                  contactByAddress[address.toSs58()]?.sub_category?.name
+                )}
+              </TableCell>
             )}
             {vestingSchedule && (
               <TableCell>

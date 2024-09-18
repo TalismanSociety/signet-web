@@ -4,6 +4,7 @@ import { useOnchainIdentity } from '@domains/identity/useOnchainIdentity'
 import { Address } from '@util/addresses'
 import { Check } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { CircularProgressIndicator } from '@talismn/ui'
 
 export const NameAndAddress: React.FC<{
   address: Address
@@ -12,7 +13,8 @@ export const NameAndAddress: React.FC<{
   nameOrAddressOnly?: boolean
   breakLine?: boolean
   hideAddress?: boolean
-}> = ({ address, name, chain, nameOrAddressOnly, breakLine, hideAddress }) => {
+  isNameLoading?: boolean
+}> = ({ address, name, chain, nameOrAddressOnly, breakLine, hideAddress, isNameLoading = false }) => {
   const { resolve } = useAzeroID()
   const [azeroId, setAzeroId] = useState<string | undefined>()
   const onchainIdentity = useOnchainIdentity(address, chain)
@@ -55,12 +57,23 @@ export const NameAndAddress: React.FC<{
     return null
   }, [address, azeroId, chain, name, nameOrAddressOnly, onchainIdentityUi])
 
-  if (!secondaryText)
+  if (!secondaryText) {
+    if (isNameLoading) {
+      return (
+        <div className="flex flex-col gap-1">
+          {true && !name && <CircularProgressIndicator size={16} />}
+          <p className="text-gray-200 text-[12px] leading-[1] whitespace-nowrap overflow-hidden text-ellipsis max-w-max w-full pt-[3px]">
+            {primaryText}
+          </p>
+        </div>
+      )
+    }
     return (
       <p className="text-offWhite overflow-hidden text-ellipsis mt-[3px] w-full max-w-max whitespace-nowrap">
         {primaryText}
       </p>
     )
+  }
 
   return (
     <div
