@@ -58,20 +58,23 @@ export const NameAndAddress: React.FC<{
   }, [address, azeroId, chain, name, nameOrAddressOnly, onchainIdentityUi])
 
   if (!secondaryText) {
-    if (isNameLoading) {
-      return (
-        <div className="flex flex-col gap-1">
-          {true && !name && <CircularProgressIndicator size={16} />}
-          <p className="text-gray-200 text-[12px] leading-[1] whitespace-nowrap overflow-hidden text-ellipsis max-w-max w-full pt-[3px]">
+    return (
+      <div className="flex flex-col gap-1">
+        {isNameLoading && !name ? (
+          <>
+            <CircularProgressIndicator size={16} />
+            {!nameOrAddressOnly && (
+              <p className="text-gray-200 text-[12px] leading-[1] whitespace-nowrap overflow-hidden text-ellipsis max-w-max w-full pt-[3px]">
+                {primaryText}
+              </p>
+            )}
+          </>
+        ) : (
+          <p className="text-offWhite overflow-hidden text-ellipsis mt-[3px] w-full max-w-max whitespace-nowrap">
             {primaryText}
           </p>
-        </div>
-      )
-    }
-    return (
-      <p className="text-offWhite overflow-hidden text-ellipsis mt-[3px] w-full max-w-max whitespace-nowrap">
-        {primaryText}
-      </p>
+        )}
+      </div>
     )
   }
 

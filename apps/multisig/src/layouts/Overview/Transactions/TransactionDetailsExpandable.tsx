@@ -322,15 +322,20 @@ function AdvancedExpendedDetails({
 }
 
 const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) => {
-  const { contactByAddress } = useKnownAddresses(t.multisig.orgId, {
-    includeContracts: true,
-  })
   const recipients = t.decoded?.recipients || []
+  const [recipient] = t.decoded?.recipients || []
+  const recipientAddress = recipient?.address.toSs58()
+  const { contactByAddress, isLoading } = useKnownAddresses(
+    t.multisig.orgId,
+    {
+      includeContracts: true,
+    },
+    recipients.length === 1 && recipientAddress ? [recipientAddress] : []
+  )
 
   if (!t.decoded) return null
 
   if (t.decoded.type === TransactionType.Transfer) {
-    const [recipient] = t.decoded.recipients
     if (recipient)
       return (
         <div className="bg-gray-500 p-[4px] px-[8px] rounded-[8px] max-w-[180px] [&>div>p]:text-[14px]">
@@ -342,6 +347,7 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
             nameOrAddressOnly
             identiconSize={16}
             disableCopy
+            isNameLoading={isLoading}
           />
         </div>
       )
