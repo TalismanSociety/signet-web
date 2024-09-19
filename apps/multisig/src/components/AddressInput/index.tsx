@@ -31,6 +31,7 @@ type Props = {
   hasError?: boolean
   shouldIncludeContacts?: boolean
   shouldIncludeSelectedMultisig?: boolean
+  shouldExcludeExtensionContacts?: boolean
   leadingLabel?: string
   compact?: boolean
 }
@@ -50,6 +51,7 @@ const AddressInput: React.FC<Props> = ({
   compact,
   shouldIncludeContacts = false,
   shouldIncludeSelectedMultisig = false,
+  shouldExcludeExtensionContacts = false,
 }) => {
   const [input, setInput] = useState(value ?? '')
   const [expanded, setExpanded] = useState(false)
@@ -60,7 +62,10 @@ const AddressInput: React.FC<Props> = ({
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { resolve, resolving, data, clear } = useAzeroIDPromise()
   const query = value ?? input
-  const { addresses: knownAddresses } = useKnownAddresses({ includeSelectedMultisig: shouldIncludeSelectedMultisig })
+  const { addresses: knownAddresses } = useKnownAddresses({
+    includeSelectedMultisig: shouldIncludeSelectedMultisig,
+    shouldExcludeExtensionContacts,
+  })
   const debouncedQuery = useDebounce(query, 300)
   const {
     data: addressData,

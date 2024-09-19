@@ -13,11 +13,13 @@ export const useKnownAddresses = ({
   orgId,
   includeSelectedMultisig,
   includeContracts,
+  shouldExcludeExtensionContacts = false,
   addresses,
 }: {
-  orgId?: string
+  orgId?: string // TODO: Remove this prop
   includeSelectedMultisig?: boolean
   includeContracts?: boolean
+  shouldExcludeExtensionContacts?: boolean
   addresses?: string[]
 } = {}): {
   addresses: ContactWithNameAndCategory[]
@@ -29,8 +31,9 @@ export const useKnownAddresses = ({
   const { contracts } = useSmartContracts()
   const { data: addressBookData, isLoading } = useGetAddressesByOrgIdAndAddress(addresses ?? [])
 
-  const extensionContacts = extensionAccounts.reduce<AddressWithName[]>(
-    (acc, { address, meta: { name = '' } = {} }) => {
+  const extensionContacts = useMemo(() => {
+    if (shouldExcludeExtensionContacts) return []
+    return extensionAccounts.reduce<AddressWithName[]>((acc, { address, meta: { name = '' } = {} }) => {
       if (multisig.isEthereumAccount === address.isEthereum) {
         acc.push({
           address,
@@ -40,12 +43,11 @@ export const useKnownAddresses = ({
         })
       }
       return acc
-    },
-    []
-  )
+    }, [])
+  }, [extensionAccounts, multisig.isEthereumAccount, shouldExcludeExtensionContacts])
 
   const addressBookContacts = useMemo(() => {
-    if (!orgId || !addressBookData?.length) return []
+    if (!addressBookData?.length) return []
 
     return addressBookData.reduce<ContactWithNameAndCategory[]>((acc, { address, name, category, sub_category }) => {
       if (multisig.isEthereumAccount === address.isEthereum) {
@@ -60,7 +62,7 @@ export const useKnownAddresses = ({
       }
       return acc
     }, [])
-  }, [addressBookData, multisig.isEthereumAccount, orgId])
+  }, [addressBookData, multisig.isEthereumAccount])
 
   const combinedList = useMemo(() => {
     let list = extensionContacts
@@ -134,7 +136,8 @@ export const useKnownAddresses = ({
       if (!acc[addressString]) acc[addressString] = contact
       return acc
     }, {} as Record<string, ContactWithNameAndCategory>)
-  }, [combinedList])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combinedList, combinedList.length]) // added combinedList.length to fix stale combinedList value
 
   return { addresses: combinedList, contactByAddress, isLoading }
 }
