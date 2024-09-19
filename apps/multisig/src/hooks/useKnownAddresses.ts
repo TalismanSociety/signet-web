@@ -8,7 +8,7 @@ import { useSmartContracts } from '../domains/offchain-data/smart-contract'
 import { Contact } from '../domains/offchain-data/address-book/address-book'
 import useGetAddressesByOrgIdAndAddress from '../domains/offchain-data/address-book/hooks/useGetAddressesByOrgIdAndAddress'
 
-type ContactWithNameAndCategory = Partial<Contact> & AddressWithName
+export type ContactWithNameAndCategory = Partial<Contact> & AddressWithName
 
 export const useKnownAddresses = ({
   orgId,
