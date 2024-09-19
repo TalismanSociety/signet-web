@@ -20,11 +20,7 @@ type Props = {
 
 export const SignersSettings: React.FC<Props> = ({ capHeight, editable, error, members, multisig, onChange }) => {
   const membersAddresses = members.map(m => m.toSs58())
-  const {
-    addresses: knownAddresses,
-    contactByAddress,
-    isLoading,
-  } = useKnownAddresses({ orgId: multisig.orgId, addresses: membersAddresses })
+  const { contactByAddress, isLoading } = useKnownAddresses({ orgId: multisig.orgId, addresses: membersAddresses })
   const prevLength = useRef(members.length)
   const scrollView = useRef<HTMLDivElement>(null)
 
@@ -90,7 +86,6 @@ export const SignersSettings: React.FC<Props> = ({ capHeight, editable, error, m
             if (conflict) toast.error('Duplicate address')
             return !conflict
           }}
-          addresses={knownAddresses}
         />
       )}
     </div>
