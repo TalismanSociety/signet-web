@@ -51,7 +51,7 @@ const fetchGraphQLData = async ({
   }
 }
 
-export const useGetInfiniteAddresses = (search: string) => {
+export const useGetInfiniteAddresses = ({ search, isEnabled }: { search: string; isEnabled: boolean }) => {
   const selectedAccount = useRecoilValue(selectedAccountState)
   const [selectedMultisig] = useSelectedMultisig()
   const { data, ...rest } = useInfiniteQuery({
@@ -63,6 +63,7 @@ export const useGetInfiniteAddresses = (search: string) => {
         search,
         pageParam,
       }),
+    enabled: isEnabled,
     initialPageParam: 0,
     getNextPageParam: (lastPage, pages) => {
       return lastPage.nextPage

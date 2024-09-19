@@ -9,9 +9,10 @@ import { useAzeroIDPromise } from '@domains/azeroid/AzeroIDResolver'
 import { AlertTriangle } from '@talismn/icons'
 import { useGetInfiniteAddresses } from '@domains/offchain-data/address-book/hooks/useGetInfiniteAddresses'
 import { useDebounce } from '@hooks/useDebounce'
+import { useKnownAddresses } from '@hooks/useKnownAddresses'
 
+// TODO: Move types
 export type AddressType = 'Extension' | 'Contacts' | 'Vault' | 'Smart Contract' | undefined
-
 export type AddressWithName = {
   address: Address
   name: string
@@ -25,9 +26,10 @@ type Props = {
   defaultAddress?: Address
   value?: string
   onChange: (address: Address | undefined, input: string) => void
-  addresses?: AddressWithName[]
+  addresses?: AddressWithName[] // TODO: Remove this prop
   chain?: Chain
   hasError?: boolean
+  shouldIncludeContacts?: boolean
   leadingLabel?: string
   compact?: boolean
 }
@@ -45,6 +47,7 @@ const AddressInput: React.FC<Props> = ({
   hasError,
   leadingLabel,
   compact,
+  shouldIncludeContacts = false,
 }) => {
   const [input, setInput] = useState(value ?? '')
   const [expanded, setExpanded] = useState(false)
@@ -55,8 +58,23 @@ const AddressInput: React.FC<Props> = ({
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { resolve, resolving, data, clear } = useAzeroIDPromise()
   const query = value ?? input
+  const { addresses: knownAddresses } = useKnownAddresses()
   const debouncedQuery = useDebounce(query, 300)
-  const { data: addressData, hasNextPage, fetchNextPage, isFetching } = useGetInfiniteAddresses(debouncedQuery)
+  const {
+    data: addressData,
+    hasNextPage,
+    fetchNextPage,
+    isFetching,
+  } = useGetInfiniteAddresses({ search: debouncedQuery, isEnabled: shouldIncludeContacts })
+
+  const joinedAddresses = useMemo(() => {
+    const filteredKnownAddresses = knownAddresses.filter(
+      contact =>
+        contact.address.toSs58().toLowerCase().includes(query.toLowerCase()) ||
+        contact.name.toLowerCase().includes(query.toLowerCase())
+    )
+    return shouldIncludeContacts ? [...filteredKnownAddresses, ...addressData] : knownAddresses
+  }, [addressData, knownAddresses, query, shouldIncludeContacts])
 
   const handleQueryChange = useCallback(
     (addressString: string) => {
@@ -103,7 +121,7 @@ const AddressInput: React.FC<Props> = ({
   const controlledSelectedInput = address !== undefined
 
   const handleScroll = () => {
-    if (!dropdownRef.current || !hasNextPage || isFetching) return
+    if (!dropdownRef.current || !hasNextPage || isFetching || !shouldIncludeContacts) return
     const { scrollTop, scrollHeight, clientHeight } = dropdownRef.current
     if (scrollTop + clientHeight >= scrollHeight - 10) {
       fetchNextPage()
@@ -117,8 +135,6 @@ const AddressInput: React.FC<Props> = ({
     setContact(contact)
     blur()
   }
-
-  const joinedAddresses = [...addresses, ...addressData]
 
   const handleClearInput = () => {
     setExpanded(joinedAddresses.length > 0)
