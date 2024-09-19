@@ -1,7 +1,6 @@
 import { useRecoilValue } from 'recoil'
 import { AddressWithName, AddressType } from '../components/AddressInput'
 import { accountsState } from '../domains/extension'
-import { addressBookByOrgIdState } from '../domains/offchain-data'
 import { useMemo } from 'react'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useSmartContracts } from '../domains/offchain-data/smart-contract'
@@ -26,7 +25,6 @@ export const useKnownAddresses = ({
   isLoading: boolean
 } => {
   const extensionAccounts = useRecoilValue(accountsState)
-  const addressBookByOrgId = useRecoilValue(addressBookByOrgIdState)
   const [multisig] = useSelectedMultisig()
   const { contracts } = useSmartContracts()
   const { data: addressBookData, isLoading } = useGetAddressesByOrgIdAndAddress(addresses ?? [])
@@ -49,9 +47,7 @@ export const useKnownAddresses = ({
   const addressBookContacts = useMemo(() => {
     if (!orgId || !addressBookData?.length) return []
 
-    const addresses = [...(addressBookByOrgId[orgId ?? ''] ?? []), ...(addressBookData ?? [])]
-
-    return addresses.reduce<ContactWithNameAndCategory[]>((acc, { address, name, category, sub_category }) => {
+    return addressBookData.reduce<ContactWithNameAndCategory[]>((acc, { address, name, category, sub_category }) => {
       if (multisig.isEthereumAccount === address.isEthereum) {
         acc.push({
           address,
@@ -64,7 +60,7 @@ export const useKnownAddresses = ({
       }
       return acc
     }, [])
-  }, [addressBookByOrgId, addressBookData, multisig.isEthereumAccount, orgId])
+  }, [addressBookData, multisig.isEthereumAccount, orgId])
 
   const combinedList = useMemo(() => {
     let list = extensionContacts
