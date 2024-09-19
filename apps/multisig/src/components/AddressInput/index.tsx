@@ -7,6 +7,8 @@ import { AccountDetails } from './AccountDetails'
 import { Input } from '@components/ui/input'
 import { useAzeroIDPromise } from '@domains/azeroid/AzeroIDResolver'
 import { AlertTriangle } from '@talismn/icons'
+import { useGetInfiniteAddresses } from '@domains/offchain-data/address-book/hooks/useGetInfiniteAddresses'
+import { useDebounce } from '@hooks/useDebounce'
 
 export type AddressType = 'Extension' | 'Contacts' | 'Vault' | 'Smart Contract' | undefined
 
@@ -50,26 +52,11 @@ const AddressInput: React.FC<Props> = ({
   const [address, setAddress] = useState(defaultAddress ?? (value ? Address.fromSs58(value) || undefined : undefined))
   const [contact, setContact] = useState<AddressWithName | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const { resolve, resolving, data, clear } = useAzeroIDPromise()
-
-  useEffect(() => {
-    if (value !== undefined && value === '') {
-      setAddress(undefined)
-      setContact(undefined)
-    }
-  }, [value])
-
-  const blur = useCallback(() => {
-    setExpanded(false)
-    setQuerying(false)
-  }, [])
-
-  useOnClickOutside(containerRef.current, blur)
-
   const query = value ?? input
-
-  // input displays a non editable pill that shows selected contact's name, address and identicon
-  const controlledSelectedInput = address !== undefined
+  const debouncedQuery = useDebounce(query, 300)
+  const { data: addressData, hasNextPage, fetchNextPage, isFetching } = useGetInfiniteAddresses(debouncedQuery)
 
   const handleQueryChange = useCallback(
     (addressString: string) => {
@@ -82,30 +69,18 @@ const AddressInput: React.FC<Props> = ({
         address = undefined
       }
 
-      if (value === undefined) setInput(addressString)
+      if (value === undefined) {
+        setInput(addressString)
+      } else if (value === '') {
+        setAddress(undefined)
+        setContact(undefined)
+      }
+
       onChange(address, addressString)
       return address !== undefined
     },
     [onChange, value]
   )
-
-  const handleSelectFromList = (address: Address, contact?: AddressWithName) => {
-    if (hasError) return
-    handleQueryChange(address.toSs58(chain))
-    setAddress(address)
-    setContact(contact)
-    blur()
-  }
-
-  const handleClearInput = () => {
-    setExpanded(addresses.length > 0)
-
-    // clear states
-    handleQueryChange('')
-    setContact(undefined)
-    setAddress(undefined)
-    setQuerying(false)
-  }
 
   useEffect(() => {
     if (data?.address) {
@@ -117,25 +92,43 @@ const AddressInput: React.FC<Props> = ({
     }
   }, [chain, clear, data, handleQueryChange])
 
-  const filteredAddresses = useMemo(() => {
-    let inputAddress: Address | undefined
-    try {
-      const parsedInputAddress = Address.fromSs58(query)
-      if (parsedInputAddress) inputAddress = parsedInputAddress
-    } catch (e) {}
+  const blur = useCallback(() => {
+    setExpanded(false)
+    setQuerying(false)
+  }, [])
 
-    return addresses.filter(({ address, name }) => {
-      if (inputAddress && inputAddress.isEqual(address)) return true
-      if (name.toLowerCase().includes(query.toLowerCase())) return true
+  useOnClickOutside(containerRef.current, blur)
 
-      const addressString = address.toSs58(chain)
-      const genericAddressString = address.toSs58()
-      return (
-        addressString.toLowerCase().includes(query.toLowerCase()) ||
-        genericAddressString.toLowerCase().includes(query.toLowerCase())
-      )
-    })
-  }, [addresses, chain, query])
+  // input displays a non editable pill that shows selected contact's name, address and identicon
+  const controlledSelectedInput = address !== undefined
+
+  const handleScroll = () => {
+    if (!dropdownRef.current || !hasNextPage || isFetching) return
+    const { scrollTop, scrollHeight, clientHeight } = dropdownRef.current
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
+      fetchNextPage()
+    }
+  }
+
+  const handleSelectFromList = (address: Address, contact?: AddressWithName) => {
+    if (hasError) return
+    handleQueryChange(address.toSs58(chain))
+    setAddress(address)
+    setContact(contact)
+    blur()
+  }
+
+  const joinedAddresses = [...addresses, ...addressData]
+
+  const handleClearInput = () => {
+    setExpanded(joinedAddresses.length > 0)
+
+    // clear states
+    handleQueryChange('')
+    setContact(undefined)
+    setAddress(undefined)
+    setQuerying(false)
+  }
 
   const validRawInputAddress = useMemo(() => {
     try {
@@ -152,15 +145,15 @@ const AddressInput: React.FC<Props> = ({
         <SelectedAddress
           address={address}
           chain={chain}
-          name={contact?.name ?? addresses.find(t => t.address.isEqual(address))?.name}
+          name={contact?.name ?? joinedAddresses.find(t => t.address.isEqual(address))?.name}
           onClear={handleClearInput}
         />
       )}
       <Input
         label={leadingLabel}
-        loading={resolving}
+        loading={resolving || isFetching}
         placeholder={
-          controlledSelectedInput ? '' : addresses.length > 0 ? 'Search or paste address...' : 'Enter address...'
+          controlledSelectedInput ? '' : joinedAddresses.length > 0 ? 'Search or paste address...' : 'Enter address...'
         }
         value={address ? '' : query}
         onChange={e => {
@@ -174,7 +167,7 @@ const AddressInput: React.FC<Props> = ({
             setExpanded(true)
           }
         }}
-        onFocus={() => setExpanded(addresses.length > 0 || validRawInputAddress !== undefined)}
+        onFocus={() => setExpanded(joinedAddresses.length > 0 || validRawInputAddress !== undefined)}
         onClear={handleClearInput}
         showClearButton={!!controlledSelectedInput}
         hasError={hasError}
@@ -203,10 +196,12 @@ const AddressInput: React.FC<Props> = ({
           transition: '0.2s ease-in-out',
           overflowY: 'auto',
         }}
+        ref={dropdownRef}
+        onScroll={handleScroll}
       >
         <div css={{ padding: '8px 0px' }}>
-          {filteredAddresses.length > 0 ? (
-            filteredAddresses.map(contact => (
+          {joinedAddresses.length > 0 ? (
+            joinedAddresses.map(contact => (
               <div
                 key={contact.address.toSs58(chain)}
                 onClick={() => handleSelectFromList(contact.address, contact)}
