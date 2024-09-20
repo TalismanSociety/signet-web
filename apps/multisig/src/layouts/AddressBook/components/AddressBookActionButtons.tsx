@@ -1,7 +1,7 @@
 import { CircularProgressIndicator, IconButton } from '@talismn/ui'
 import { Copy, Trash } from '@talismn/icons'
 import { Row, PaginationState } from '@tanstack/react-table'
-import { ContactAddress } from '@domains/offchain-data/address-book/hooks/useGetAddressesByOrgIdAndAddress'
+import { Contact } from '@domains/offchain-data/address-book/types'
 import { cn } from '@util/tailwindcss'
 import useCopied from '@hooks/useCopied'
 import { useDeleteContact } from '@domains/offchain-data'
@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSelectedMultisig } from '@domains/multisig'
 
 interface Props {
-  row: Row<ContactAddress>
+  row: Row<Contact>
   hideCollaboratorActions: boolean
   isCsvImport: boolean
   pagination: PaginationState

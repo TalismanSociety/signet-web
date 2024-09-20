@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ContactAddress } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
+import { Contact } from '@domains/offchain-data/address-book/types'
 import { PaginatedAddresses } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
 import { PaginationState, useReactTable, getCoreRowModel, ColumnDef, flexRender } from '@tanstack/react-table'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
@@ -32,8 +32,8 @@ const AddressBookTable = ({
     pagination.pageIndex + 1 === (dataQuery?.pageCount ?? -1) &&
     dataQuery?.rowCount === 1
 
-  const columns = useMemo<ColumnDef<ContactAddress>[]>(() => {
-    const baseColumns: ColumnDef<ContactAddress>[] = [
+  const columns = useMemo<ColumnDef<Contact>[]>(() => {
+    const baseColumns: ColumnDef<Contact>[] = [
       {
         header: 'Name',
         accessorKey: 'name',
@@ -80,7 +80,7 @@ const AddressBookTable = ({
       },
     ]
 
-    const paidColumns: ColumnDef<ContactAddress>[] = [
+    const paidColumns: ColumnDef<Contact>[] = [
       {
         header: 'Category',
         accessorKey: 'category.name',

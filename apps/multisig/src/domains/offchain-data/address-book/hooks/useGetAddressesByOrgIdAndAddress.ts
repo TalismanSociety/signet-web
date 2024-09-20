@@ -6,16 +6,8 @@ import { useQuery } from '@tanstack/react-query'
 import { ADDRESSES_BY_ORG_ID_AND_ADDRESS } from '@domains/offchain-data/address-book/queries/queries'
 import { useSelectedMultisig } from '@domains/multisig'
 import { Address } from '@util/addresses'
-import { Contact } from '../address-book'
 
-export type ContactAddress = Omit<Contact, 'orgId'> & { team_id?: string; org_id: string }
-export type ContactAddressIO = Omit<ContactAddress, 'address'> & { address: string }
-
-export type PaginatedAddresses = {
-  rows: ContactAddress[]
-  pageCount: number
-  rowCount: number
-}
+import { Contact, ContactIO } from '../types'
 
 const fetchGraphQLData = async ({
   orgId,
@@ -25,7 +17,7 @@ const fetchGraphQLData = async ({
   orgId: string
   addresses: string[]
   selectedAccount: SignedInAccount
-}): Promise<ContactAddress[]> => {
+}): Promise<Contact[]> => {
   const { data } = await requestSignetBackend(
     ADDRESSES_BY_ORG_ID_AND_ADDRESS,
     {
@@ -36,7 +28,11 @@ const fetchGraphQLData = async ({
   )
 
   return (
-    data.address?.map((contact: ContactAddressIO) => ({ ...contact, address: Address.fromSs58(contact.address) })) ?? []
+    data.address?.map((contact: ContactIO) => ({
+      ...contact,
+      address: Address.fromSs58(contact.address),
+      type: 'Contacts',
+    })) ?? []
   )
 }
 

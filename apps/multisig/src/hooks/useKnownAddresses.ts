@@ -1,13 +1,15 @@
 import { useRecoilValue } from 'recoil'
-import { AddressWithName, AddressType } from '../components/AddressInput'
 import { accountsState } from '../domains/extension'
 import { useMemo } from 'react'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useSmartContracts } from '../domains/offchain-data/smart-contract'
-import { Contact } from '../domains/offchain-data/address-book/address-book'
 import useGetAddressesByOrgIdAndAddress from '../domains/offchain-data/address-book/hooks/useGetAddressesByOrgIdAndAddress'
+import { Contact, AddressType } from '../domains/offchain-data/address-book/types'
 
-export type ContactWithNameAndCategory = Partial<Contact> & AddressWithName
+type ExtensionContact = Omit<Contact, 'id' | 'org_id'> & { extensionName: string }
+export type KnownAddress = Omit<ExtensionContact, 'extensionName'> &
+  Partial<Pick<ExtensionContact, 'extensionName'>> &
+  Partial<Pick<Contact, 'id' | 'org_id'>>
 
 export const useKnownAddresses = ({
   includeSelectedMultisig,
@@ -20,8 +22,8 @@ export const useKnownAddresses = ({
   shouldExcludeExtensionContacts?: boolean
   addresses?: string[]
 } = {}): {
-  addresses: ContactWithNameAndCategory[]
-  contactByAddress: Record<string, ContactWithNameAndCategory>
+  addresses: KnownAddress[]
+  contactByAddress: Record<string, KnownAddress>
   isLoading: boolean
 } => {
   const extensionAccounts = useRecoilValue(accountsState)
@@ -31,7 +33,7 @@ export const useKnownAddresses = ({
 
   const extensionContacts = useMemo(() => {
     if (shouldExcludeExtensionContacts) return []
-    return extensionAccounts.reduce<AddressWithName[]>((acc, { address, meta: { name = '' } = {} }) => {
+    return extensionAccounts.reduce<ExtensionContact[]>((acc, { address, meta: { name = '' } = {} }) => {
       if (multisig.isEthereumAccount === address.isEthereum) {
         acc.push({
           address,
@@ -47,14 +49,10 @@ export const useKnownAddresses = ({
   const addressBookContacts = useMemo(() => {
     if (!addressBookData?.length) return []
 
-    return addressBookData.reduce<ContactWithNameAndCategory[]>((acc, { address, name, category, sub_category }) => {
-      if (multisig.isEthereumAccount === address.isEthereum) {
+    return addressBookData.reduce<Contact[]>((acc, contact) => {
+      if (multisig.isEthereumAccount === contact.address.isEthereum) {
         acc.push({
-          address,
-          name,
-          category,
-          sub_category,
-
+          ...contact,
           type: 'Contacts',
         })
       }
@@ -63,7 +61,7 @@ export const useKnownAddresses = ({
   }, [addressBookData, multisig.isEthereumAccount])
 
   const combinedList = useMemo(() => {
-    let list = extensionContacts
+    let list: KnownAddress[] = extensionContacts
 
     addressBookContacts.forEach(contact => {
       const extensionIndex = list.findIndex(item => item.address.isEqual(contact.address))
@@ -133,7 +131,7 @@ export const useKnownAddresses = ({
       const addressString = contact.address.toSs58()
       if (!acc[addressString]) acc[addressString] = contact
       return acc
-    }, {} as Record<string, ContactWithNameAndCategory>)
+    }, {} as Record<string, KnownAddress>)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combinedList, combinedList.length]) // added combinedList.length to fix stale combinedList value
 

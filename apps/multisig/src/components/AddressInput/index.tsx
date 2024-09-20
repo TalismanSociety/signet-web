@@ -9,24 +9,12 @@ import { useAzeroIDPromise } from '@domains/azeroid/AzeroIDResolver'
 import { AlertTriangle } from '@talismn/icons'
 import { useGetInfiniteAddresses } from '@domains/offchain-data/address-book/hooks/useGetInfiniteAddresses'
 import { useDebounce } from '@hooks/useDebounce'
-import { useKnownAddresses } from '@hooks/useKnownAddresses'
-
-// TODO: Move types
-export type AddressType = 'Extension' | 'Contacts' | 'Vault' | 'Smart Contract' | undefined
-export type AddressWithName = {
-  address: Address
-  name: string
-  type: AddressType
-  chain?: Chain
-  extensionName?: string
-  addressBookName?: string
-}
+import { useKnownAddresses, KnownAddress } from '@hooks/useKnownAddresses'
 
 type Props = {
   defaultAddress?: Address
   value?: string
   onChange: (address: Address | undefined, input: string) => void
-  addresses?: AddressWithName[] // TODO: Remove this prop
   chain?: Chain
   hasError?: boolean
   shouldIncludeContacts?: boolean
@@ -44,7 +32,6 @@ const AddressInput: React.FC<Props> = ({
   onChange,
   value,
   defaultAddress,
-  addresses = [],
   chain,
   hasError,
   leadingLabel,
@@ -57,7 +44,7 @@ const AddressInput: React.FC<Props> = ({
   const [expanded, setExpanded] = useState(false)
   const [querying, setQuerying] = useState(false)
   const [address, setAddress] = useState(defaultAddress ?? (value ? Address.fromSs58(value) || undefined : undefined))
-  const [contact, setContact] = useState<AddressWithName | undefined>(undefined)
+  const [contact, setContact] = useState<KnownAddress | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { resolve, resolving, data, clear } = useAzeroIDPromise()
@@ -135,7 +122,7 @@ const AddressInput: React.FC<Props> = ({
     }
   }
 
-  const handleSelectFromList = (address: Address, contact?: AddressWithName) => {
+  const handleSelectFromList = (address: Address, contact?: KnownAddress) => {
     if (hasError) return
     handleQueryChange(address.toSs58(chain))
     setAddress(address)

@@ -7,7 +7,7 @@ import FileUploadButton from '@components/FileUploadButton'
 import { PaginatedAddresses } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
 import { Address } from '@util/addresses'
 import { DEFAULT_PAGE_SIZE } from '..'
-import { ContactAddress } from '@domains/offchain-data/address-book/hooks/useGetPaginatedAddressesByOrgId'
+import { Contact } from '@domains/offchain-data/address-book/types'
 import { useToast } from '@components/ui/use-toast'
 import { Info } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -32,7 +32,7 @@ const parseCSV = async (file: File): Promise<ParsedPaginatedAddresses> => {
     return { rows: [], pageCount: 0, rowCount: 0, invalidRows }
   }
 
-  const rows: ContactAddress[] = lines.slice(1).map((line, index) => {
+  const rows: Contact[] = lines.slice(1).map((line, index) => {
     const data = line.split(',')
     const name = data[headers.indexOf('Name')]
     const csvAddress = data[headers.indexOf('Address')] ?? ''
@@ -75,7 +75,7 @@ const AddressBookHeader: React.FC<{
   hideAddButton: boolean
   isPaidPlan: boolean
   isCsvImport: boolean
-  parsedCsvRows: ContactAddress[]
+  parsedCsvRows: Contact[]
   onAddContact: () => void
   setParsedCsv: React.Dispatch<React.SetStateAction<PaginatedAddresses>>
   handleCsvImportSuccess: (data: PaginatedAddresses) => void

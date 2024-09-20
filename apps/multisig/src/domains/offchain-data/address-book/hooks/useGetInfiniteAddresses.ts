@@ -5,14 +5,14 @@ import { SignedInAccount } from '@domains/auth'
 import { useRecoilValue } from 'recoil'
 import { selectedAccountState } from '@domains/auth'
 import { useSelectedMultisig } from '@domains/multisig'
-import { ContactAddressIO } from './useGetAddressesByOrgIdAndAddress'
-import { ContactWithNameAndCategory } from '@hooks/useKnownAddresses'
+import { ContactIO } from '../types'
 import { Address } from '@util/addresses'
+import { Contact } from '../types'
 
 const PAGE_SIZE = 10
 
 type PaginatedAddresses = {
-  data: ContactWithNameAndCategory[]
+  data: Contact[]
   nextPage?: number
 }
 
@@ -42,7 +42,7 @@ const fetchGraphQLData = async ({
 
   return {
     data:
-      data.address?.map((contact: ContactAddressIO) => ({
+      data.address?.map((contact: ContactIO) => ({
         ...contact,
         type: 'Contacts',
         address: Address.fromSs58(contact.address),
