@@ -10,13 +10,11 @@ import useGetAddressesByOrgIdAndAddress from '../domains/offchain-data/address-b
 export type ContactWithNameAndCategory = Partial<Contact> & AddressWithName
 
 export const useKnownAddresses = ({
-  orgId,
   includeSelectedMultisig,
   includeContracts,
   shouldExcludeExtensionContacts = false,
   addresses,
 }: {
-  orgId?: string // TODO: Remove this prop
   includeSelectedMultisig?: boolean
   includeContracts?: boolean
   shouldExcludeExtensionContacts?: boolean

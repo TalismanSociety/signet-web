@@ -25,11 +25,10 @@ type Props = {
 const ScannedMultisigs: React.FC<{
   multisigs: { signers: Address[]; threshold: number; address: Address }[]
   chain: Chain
-  orgId: string
   onSelect: (multisig: { signers: Address[]; threshold: number; address: Address }) => void
-}> = ({ chain, multisigs, onSelect, orgId }) => {
+}> = ({ chain, multisigs, onSelect }) => {
   const signersAddresses = useMemo(() => multisigs.flatMap(m => m.signers.map(signer => signer.toSs58())), [multisigs])
-  const { contactByAddress, isLoading } = useKnownAddresses({ orgId, addresses: signersAddresses })
+  const { contactByAddress, isLoading } = useKnownAddresses({ addresses: signersAddresses })
   return (
     <div className="grid gap-[8px] max-h-[400px] overflow-y-auto">
       {multisigs.map(multisig => (
@@ -186,7 +185,6 @@ export const RecoverMultisig: React.FC<Props> = ({ multisig }) => {
               )}
               <ScannedMultisigs
                 chain={multisig.chain}
-                orgId={multisig.id}
                 multisigs={applicableMultisigs.map(({ multisigAddress, signers, threshold }) => ({
                   address: multisigAddress,
                   signers,

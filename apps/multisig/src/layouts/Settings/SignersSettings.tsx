@@ -20,7 +20,7 @@ type Props = {
 
 export const SignersSettings: React.FC<Props> = ({ capHeight, editable, error, members, multisig, onChange }) => {
   const membersAddresses = members.map(m => m.toSs58())
-  const { contactByAddress, isLoading } = useKnownAddresses({ orgId: multisig.orgId, addresses: membersAddresses })
+  const { contactByAddress, isLoading } = useKnownAddresses({ addresses: membersAddresses })
   const prevLength = useRef(members.length)
   const scrollView = useRef<HTMLDivElement>(null)
 

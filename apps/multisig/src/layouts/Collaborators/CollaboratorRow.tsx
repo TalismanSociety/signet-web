@@ -15,7 +15,6 @@ export const CollaboratorRow: React.FC<{ orgId: string; userId: string; address:
   address,
 }) => {
   const { contactByAddress, isLoading } = useKnownAddresses({
-    orgId,
     includeContracts: true,
     addresses: [address.toSs58()],
   })

@@ -39,7 +39,6 @@ const TransactionSummaryRow = ({
   onClick?: () => void
 }) => {
   const { contactByAddress, isLoading } = useKnownAddresses({
-    orgId: t.multisig.orgId,
     addresses: [t?.draft?.creator.address.toSs58() || ''],
   })
   const sumOutgoing: Balance[] = useMemo(() => calcSumOutgoing(t), [t])
