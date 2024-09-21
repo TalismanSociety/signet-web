@@ -48,6 +48,7 @@ const AddressInput = ({
   )
   const [contact, setContact] = useState<KnownAddress | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { resolve, resolving, data, clear } = useAzeroIDPromise()
   const { addresses: knownAddresses } = useKnownAddresses({
@@ -104,6 +105,7 @@ const AddressInput = ({
   )
 
   const handleClearInput = () => {
+    inputRef.current?.focus()
     setExpanded(knownAddresses.length > 0 || shouldIncludeContacts)
 
     // clear states
@@ -131,6 +133,7 @@ const AddressInput = ({
         />
       )}
       <Input
+        ref={inputRef}
         label={leadingLabel}
         loading={resolving || isFetching}
         placeholder={address ? '' : combinedAddresses.length > 0 ? 'Search or paste address...' : 'Enter address...'}
@@ -138,11 +141,18 @@ const AddressInput = ({
         onChange={e => {
           resolve(e.target.value)
           const validInput = handleQueryChange(e.target.value)
-          if (validInput) {
+          if (validInput || combinedAddresses.length > 0) {
             setExpanded(true)
           }
         }}
-        onFocus={() => setExpanded(combinedAddresses.length > 0 || address !== undefined)}
+        onClick={() => {
+          setExpanded(prev => {
+            if (!prev) {
+              return combinedAddresses.length > 0 || address !== undefined
+            }
+            return !prev
+          })
+        }}
         onClear={handleClearInput}
         showClearButton={!!address}
         hasError={hasError}
@@ -201,7 +211,7 @@ const AddressInput = ({
               />
             </div>
           ) : (
-            <p className="text-center p-[12px]">No result found.</p>
+            <p className="text-center p-[12px]">{isFetching ? 'Loading...' : 'No result found.'}</p>
           )}
         </div>
       </div>
