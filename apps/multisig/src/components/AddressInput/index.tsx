@@ -85,12 +85,14 @@ const AddressInput = ({
     }
   }, [chain, clear, data, handleQueryChange])
 
+  // filter client side addresses
   const filteredKnownAddresses = knownAddresses.filter(
     contact =>
       contact.address.toSs58().toLowerCase().includes(input.toLowerCase()) ||
       contact.name.toLowerCase().includes(input.toLowerCase())
   )
 
+  // combine known addresses and contacts that have already been filtered by the search input query
   const combinedAddresses = shouldIncludeContacts ? [...filteredKnownAddresses, ...contacts] : filteredKnownAddresses
 
   const handleSelectFromList = useCallback(
@@ -174,7 +176,7 @@ const AddressInput = ({
           {combinedAddresses.length > 0 ? (
             combinedAddresses.map((contact, index) => (
               <div
-                key={index}
+                key={index} // deliberate use of index as key. Using id or address will cause the UI to render stale data if the list has more than 1 page and the user searches for a new address
                 onClick={() => handleSelectFromList(contact.address, contact)}
                 className={cn(
                   'flex items-center justify-between py-[8px] px-[12px] cursor-pointer hover:brightness-125',
