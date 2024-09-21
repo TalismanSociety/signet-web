@@ -1,5 +1,5 @@
 import { Address } from '@util/addresses'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Chain } from '@domains/chains'
 import { useOnClickOutside } from '@domains/common/useOnClickOutside'
 import { SelectedAddress } from './SelectedAddressPill'
@@ -10,6 +10,7 @@ import { AlertTriangle } from '@talismn/icons'
 import { useGetInfiniteAddresses } from '@domains/offchain-data/address-book/hooks/useGetInfiniteAddresses'
 import { useDebounce } from '@hooks/useDebounce'
 import { useKnownAddresses, KnownAddress } from '@hooks/useKnownAddresses'
+import { cn } from '@util/tailwindcss'
 
 type Props = {
   defaultAddress?: Address
@@ -28,91 +29,88 @@ type Props = {
  * Handles validating address input as well as displaying a list of addresses to select from.
  * Supports both controlled and uncontrolled usage input.
  */
-const AddressInput: React.FC<Props> = ({
+const AddressInput = ({
   onChange,
   value,
   defaultAddress,
   chain,
-  hasError,
+  hasError = false,
   leadingLabel,
   compact,
   shouldIncludeContacts = false,
   shouldIncludeSelectedMultisig = false,
   shouldExcludeExtensionContacts = false,
-}) => {
+}: Props) => {
   const [input, setInput] = useState(value ?? '')
   const [expanded, setExpanded] = useState(false)
-  const [querying, setQuerying] = useState(false)
-  const [address, setAddress] = useState(defaultAddress ?? (value ? Address.fromSs58(value) || undefined : undefined))
+  const [address, setAddress] = useState<Address | undefined>(
+    defaultAddress ?? (value ? Address.fromSs58(value) || undefined : undefined)
+  )
   const [contact, setContact] = useState<KnownAddress | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { resolve, resolving, data, clear } = useAzeroIDPromise()
-  const query = value ?? input
   const { addresses: knownAddresses } = useKnownAddresses({
     includeSelectedMultisig: shouldIncludeSelectedMultisig,
     shouldExcludeExtensionContacts,
   })
-  const debouncedQuery = useDebounce(query, 300)
+  const debouncedQuery = useDebounce(input, 300)
   const {
-    data: addressData,
+    data: contacts,
     hasNextPage,
     fetchNextPage,
     isFetching,
   } = useGetInfiniteAddresses({ search: debouncedQuery, isEnabled: shouldIncludeContacts })
-
-  const joinedAddresses = useMemo(() => {
-    const filteredKnownAddresses = knownAddresses.filter(
-      contact =>
-        contact.address.toSs58().toLowerCase().includes(query.toLowerCase()) ||
-        contact.name.toLowerCase().includes(query.toLowerCase())
-    )
-    return shouldIncludeContacts ? [...filteredKnownAddresses, ...addressData] : knownAddresses
-  }, [addressData, knownAddresses, query, shouldIncludeContacts])
+  useOnClickOutside(containerRef.current, () => setExpanded(false))
 
   const handleQueryChange = useCallback(
     (addressString: string) => {
-      let address: Address | undefined
-      try {
-        const parsedAddress = Address.fromSs58(addressString)
-        if (!parsedAddress) throw new Error('Invalid address')
-        address = parsedAddress
-      } catch (e) {
-        address = undefined
-      }
-
-      if (value === undefined) {
-        setInput(addressString)
-      } else if (value === '') {
-        setAddress(undefined)
-        setContact(undefined)
-      }
-
+      const address = Address.fromSs58(addressString) || undefined
+      setInput(addressString)
+      setAddress(address)
       onChange(address, addressString)
+
       return address !== undefined
     },
-    [onChange, value]
+    [onChange]
   )
 
   useEffect(() => {
     if (data?.address) {
       setAddress(data.address)
       handleQueryChange(data.address.toSs58(chain))
-      setQuerying(false)
       setExpanded(false)
       clear()
     }
   }, [chain, clear, data, handleQueryChange])
 
-  const blur = useCallback(() => {
-    setExpanded(false)
-    setQuerying(false)
-  }, [])
+  const filteredKnownAddresses = knownAddresses.filter(
+    contact =>
+      contact.address.toSs58().toLowerCase().includes(input.toLowerCase()) ||
+      contact.name.toLowerCase().includes(input.toLowerCase())
+  )
 
-  useOnClickOutside(containerRef.current, blur)
+  const combinedAddresses = shouldIncludeContacts ? [...filteredKnownAddresses, ...contacts] : filteredKnownAddresses
 
-  // input displays a non editable pill that shows selected contact's name, address and identicon
-  const controlledSelectedInput = address !== undefined
+  const handleSelectFromList = useCallback(
+    (address: Address, contact?: KnownAddress) => {
+      if (hasError) return
+      handleQueryChange(address.toSs58(chain))
+      setAddress(address)
+      setContact(contact)
+      setExpanded(false)
+    },
+    [chain, handleQueryChange, hasError]
+  )
+
+  const handleClearInput = () => {
+    setExpanded(knownAddresses.length > 0 || shouldIncludeContacts)
+
+    // clear states
+    handleQueryChange('')
+    setContact(undefined)
+    setAddress(undefined)
+  }
 
   const handleScroll = () => {
     if (!dropdownRef.current || !hasNextPage || isFetching || !shouldIncludeContacts) return
@@ -122,64 +120,31 @@ const AddressInput: React.FC<Props> = ({
     }
   }
 
-  const handleSelectFromList = (address: Address, contact?: KnownAddress) => {
-    if (hasError) return
-    handleQueryChange(address.toSs58(chain))
-    setAddress(address)
-    setContact(contact)
-    blur()
-  }
-
-  const handleClearInput = () => {
-    setExpanded(joinedAddresses.length > 0)
-
-    // clear states
-    handleQueryChange('')
-    setContact(undefined)
-    setAddress(undefined)
-    setQuerying(false)
-  }
-
-  const validRawInputAddress = useMemo(() => {
-    try {
-      const parsedInputAddress = Address.fromSs58(query)
-      if (parsedInputAddress) return parsedInputAddress
-    } catch (e) {}
-
-    return undefined
-  }, [query])
-
   return (
-    <div css={{ width: '100%', position: 'relative' }} ref={containerRef}>
-      {controlledSelectedInput && (
+    <div className="w-full relative" ref={containerRef}>
+      {address && (
         <SelectedAddress
           address={address}
           chain={chain}
-          name={contact?.name ?? joinedAddresses.find(t => t.address.isEqual(address))?.name}
+          name={contact?.name ?? combinedAddresses.find(t => t.address.isEqual(address))?.name}
           onClear={handleClearInput}
         />
       )}
       <Input
         label={leadingLabel}
         loading={resolving || isFetching}
-        placeholder={
-          controlledSelectedInput ? '' : joinedAddresses.length > 0 ? 'Search or paste address...' : 'Enter address...'
-        }
-        value={address ? '' : query}
+        placeholder={address ? '' : combinedAddresses.length > 0 ? 'Search or paste address...' : 'Enter address...'}
+        value={address ? '' : input}
         onChange={e => {
-          setQuerying(true)
           resolve(e.target.value)
           const validInput = handleQueryChange(e.target.value)
-
-          // user pasted a valid address, so they're no longer querying
           if (validInput) {
-            setQuerying(false)
             setExpanded(true)
           }
         }}
-        onFocus={() => setExpanded(joinedAddresses.length > 0 || validRawInputAddress !== undefined)}
+        onFocus={() => setExpanded(combinedAddresses.length > 0 || address !== undefined)}
         onClear={handleClearInput}
-        showClearButton={!!controlledSelectedInput}
+        showClearButton={!!address}
         hasError={hasError}
       />
       {hasError && (
@@ -189,40 +154,22 @@ const AddressInput: React.FC<Props> = ({
         </div>
       )}
       <div
-        className={'bg-gray-800 shadow-lg'}
-        css={{
-          position: 'absolute',
-          top: '100%',
-          marginTop: 8,
-          left: 0,
-          // backgroundColor: color.foreground,
-          width: '100%',
-          zIndex: 1,
-          borderRadius: 8,
-
-          height: 'max-content',
-          maxHeight: expanded ? 150 : 0,
-          overflow: 'hidden',
-          transition: '0.2s ease-in-out',
-          overflowY: 'auto',
-        }}
+        className={`absolute top-full mt-2 left-0 w-full z-10 rounded-[8px] h-max overflow-hidden overflow-y-auto transition-all duration-200 ease-in-out bg-gray-800 shadow-lg ${
+          expanded ? 'max-h-[150px]' : 'max-h-0'
+        }`}
         ref={dropdownRef}
         onScroll={handleScroll}
       >
-        <div css={{ padding: '8px 0px' }}>
-          {joinedAddresses.length > 0 ? (
-            joinedAddresses.map(contact => (
+        <div className="py-[8px] px-0">
+          {combinedAddresses.length > 0 ? (
+            combinedAddresses.map((contact, index) => (
               <div
-                key={contact.address.toSs58(chain)}
+                key={index}
                 onClick={() => handleSelectFromList(contact.address, contact)}
-                css={{
-                  'display': 'flex',
-                  'alignItems': 'center',
-                  'justifyContent': 'space-between',
-                  'padding': '8px 12px',
-                  'cursor': hasError ? 'not-allowed' : 'pointer',
-                  ':hover': { filter: 'brightness(1.2)' },
-                }}
+                className={cn(
+                  'flex items-center justify-between py-[8px] px-[12px] cursor-pointer hover:brightness-125',
+                  { 'cursor-not-allowed': hasError }
+                )}
               >
                 <AccountDetails
                   name={contact.name}
@@ -236,20 +183,16 @@ const AddressInput: React.FC<Props> = ({
                 <p className="whitespace-nowrap text-[14px] font-bold text-right text-gray-200">{contact.type}</p>
               </div>
             ))
-          ) : address || (!querying && validRawInputAddress) ? (
+          ) : address || (!isFetching && address) ? (
             // user pasted an unknown but valid address, show identicon and formatted address to indicate the address is valid
             <div
-              css={{
-                'padding': '8px 12px',
-                'cursor': hasError ? 'not-allowed' : 'pointer',
-                ':hover': {
-                  filter: 'brightness(1.2)',
-                },
-              }}
-              onClick={() => handleSelectFromList((validRawInputAddress || address) as Address)}
+              className={cn('py-[8px] px-[12px] cursor-pointer hover:brightness-125', {
+                'cursor-not-allowed': hasError,
+              })}
+              onClick={() => handleSelectFromList(address)}
             >
               <AccountDetails
-                address={(validRawInputAddress || address) as Address}
+                address={address}
                 chain={chain}
                 disableCopy
                 breakLine={compact}
@@ -258,7 +201,7 @@ const AddressInput: React.FC<Props> = ({
               />
             </div>
           ) : (
-            <p css={{ textAlign: 'center', padding: 12 }}>No result found.</p>
+            <p className="text-center p-[12px]">No result found.</p>
           )}
         </div>
       </div>
