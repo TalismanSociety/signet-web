@@ -18,7 +18,7 @@ type MeOutput = {
 }
 
 const ME_QUERY = gql`
-  {
+  query MeQuery {
     me {
       error
       user {
@@ -40,6 +40,7 @@ export const useMe = () => {
   } = useQuery<MeOutput>(ME_QUERY, {
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
+    skip: !selectedAccount,
   })
   const signOut = useSignOut()
 
