@@ -27,14 +27,17 @@ export const ValidatorsWatcher: React.FC = () => {
     try {
       const identities = await api.query.identity.identityOf.multi(addresses)
       const addressesWithIdentity: [string, string][] = []
-      identities.forEach(({ value: [registration] }, index) => {
-        const nameRaw = registration?.info?.display.toHuman() as { Raw: string }
-        let name = nameRaw?.Raw
-        const address = addresses[index]
+      identities.forEach((option, index) => {
+        if (option.isSome) {
+          const [registration] = option.value
+          const nameRaw = registration?.info?.display.toHuman() as { Raw: string }
+          const name = u8aToString(u8aUnwrapBytes(nameRaw?.Raw))
+          const address = addresses[index]
 
-        name = u8aToString(u8aUnwrapBytes(name))
-
-        if (name && address) addressesWithIdentity.push([address, name])
+          if (name && address) {
+            addressesWithIdentity.push([address, name])
+          }
+        }
       })
       return addressesWithIdentity
     } catch (e) {
