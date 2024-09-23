@@ -30,7 +30,7 @@ import { cn } from '@util/tailwindcss'
 import { isExtrinsicProxyWrapped } from '@util/extrinsics'
 import { CONFIG } from '@lib/config'
 import { VestingDateRange } from '@components/VestingDateRange'
-import { Table, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
+import { Table, TableCell, TableHead, TableHeader, TableRow, TableBody } from '@components/ui/table'
 
 const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
@@ -171,76 +171,45 @@ const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
           </TableRow>
         </TableHeader>
 
-        {t.decoded?.recipients.map(({ address, balance, vestingSchedule }, i) => (
-          <TableRow key={i} className="last:border-b-0">
-            <TableCell>
-              <AccountDetails
-                name={contactByAddress[address.toSs58()]?.name}
-                address={address}
-                chain={t.multisig.chain}
-                breakLine
-                withAddressTooltip
-                identiconSize={28}
-                disableCopy
-                hideIdenticon
-              />
-            </TableCell>
-            {shouldDisplayCategory && (
-              <TableCell className="text-right">{contactByAddress[address.toSs58()]?.category?.name}</TableCell>
-            )}
-            {shouldDisplaySubcategory && (
-              <TableCell className="text-right">{contactByAddress[address.toSs58()]?.sub_category?.name}</TableCell>
-            )}
-            {vestingSchedule && (
+        <TableBody>
+          {t.decoded?.recipients.map(({ address, balance, vestingSchedule }, i) => (
+            <TableRow key={i} className="last:border-b-0">
               <TableCell>
-                <div className="[&>p>span]:block [&>p]:whitespace-nowrap">
-                  <VestingDateRange chainGenesisHash={t.multisig.chain.genesisHash} vestingSchedule={vestingSchedule} />
+                <AccountDetails
+                  name={contactByAddress[address.toSs58()]?.name}
+                  address={address}
+                  chain={t.multisig.chain}
+                  breakLine
+                  withAddressTooltip
+                  identiconSize={28}
+                  disableCopy
+                  hideIdenticon
+                />
+              </TableCell>
+              {shouldDisplayCategory && (
+                <TableCell className="text-right">{contactByAddress[address.toSs58()]?.category?.name}</TableCell>
+              )}
+              {shouldDisplaySubcategory && (
+                <TableCell className="text-right">{contactByAddress[address.toSs58()]?.sub_category?.name}</TableCell>
+              )}
+              {vestingSchedule && (
+                <TableCell>
+                  <div className="[&>p>span]:block [&>p]:whitespace-nowrap">
+                    <VestingDateRange
+                      chainGenesisHash={t.multisig.chain.genesisHash}
+                      vestingSchedule={vestingSchedule}
+                    />
+                  </div>
+                </TableCell>
+              )}
+              <TableCell>
+                <div className="flex flex-col items-end">
+                  <AmountRow balance={balance} hideIcon hideSymbol fontSize={14} />
                 </div>
               </TableCell>
-            )}
-            <TableCell>
-              <div className="flex flex-col items-end">
-                <AmountRow balance={balance} hideIcon hideSymbol fontSize={14} />
-              </div>
-            </TableCell>
-          </TableRow>
-
-          // <div
-          //   key={`${address.toSs58(t.multisig.chain)}-${JSON.stringify(balance.amount)}`}
-          //   className="grid gap-[16px] border-b border-gray-500 py-[8px] last:border-b-0 last:pb-0"
-          // >
-          //   <div className="flex items-center gap-[8px]">
-          //     <div className="w-full flex flex-col">
-          //       <div className="flex items-center justify-between">
-          //         <div className="[&>div>div]:gap-0">
-          //           <AccountDetails
-          //             name={contactByAddress[address.toSs58()]?.name}
-          //             address={address}
-          //             chain={t.multisig.chain}
-          //             breakLine
-          //             withAddressTooltip
-          //             identiconSize={28}
-          //             disableCopy
-          //           />
-          //         </div>
-          //         <div className="text-right flex flex-col items-end">
-          //           <AmountRow balance={balance} />
-          //         </div>
-          //       </div>
-          //       {vestingSchedule ? (
-          //         <div className="w-full flex items-center justify-between pl-[36px]">
-          //           <p className="text-[14px] text-offWhite">Vesting Period</p>
-          //           <VestingDateRange
-          //             className="text-center"
-          //             chainGenesisHash={t.multisig.chain.genesisHash}
-          //             vestingSchedule={vestingSchedule}
-          //           />
-          //         </div>
-          //       ) : null}
-          //     </div>
-          //   </div>
-          // </div>
-        ))}
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
     </div>
   )
