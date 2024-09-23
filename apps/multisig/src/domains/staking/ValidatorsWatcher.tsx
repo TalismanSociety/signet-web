@@ -23,7 +23,7 @@ export const ValidatorsWatcher: React.FC = () => {
   const [validators, setValidators] = useRecoilState(validatorsState)
 
   const fetchIdentities = useCallback(async (addresses: string[], api: ApiPromise) => {
-    if (!api.query.identity.identityOf) return []
+    if (!api.query.identity?.identityOf) return []
     try {
       const identities = await api.query.identity.identityOf.multi(addresses)
       const addressesWithIdentity: [string, string][] = []
@@ -45,7 +45,7 @@ export const ValidatorsWatcher: React.FC = () => {
 
   const fetchSupersIdentities = useCallback(
     async (addresses: string[], api: ApiPromise) => {
-      if (!api.query.identity.superOf) return []
+      if (!api.query.identity?.superOf) return []
 
       const addressesWithIdentity: [string, { name: string; subName: string }][] = []
       const addressesWithSubIdentity: [string, { subIdentity: string; superAddress: string }][] = []
