@@ -163,15 +163,13 @@ const AddressBookTable = ({
       <div className="grid gap-[8px]">
         {/* Column Headers */}
         <div className="grid grid-cols-[1fr_2fr_1fr_1fr] gap-4 font-semibold px-4">
-          {table
-            .getHeaderGroups()
-            .map(headerGroup =>
-              headerGroup.headers.map(header => (
-                <div className="p-2 text-left last:text-right last:pr-[50px] text-[14px]">
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </div>
-              ))
-            )}
+          {table.getHeaderGroups().map(headerGroup =>
+            headerGroup.headers.map(header => (
+              <div className="p-2 text-left last:text-right last:pr-[50px] text-[14px]" key={header.id}>
+                {flexRender(header.column.columnDef.header, header.getContext())}
+              </div>
+            ))
+          )}
         </div>
 
         {/* Rows */}
