@@ -32,37 +32,43 @@ export type ScannedVault = {
 
 const getTransactionsOfAccount = selectorFamily({
   key: 'getTransactionsOfAccount',
-  get: (address: string) => async () => {
-    return (await fetchGraphQL(
-      gql`
-        query GetTransactions($address: String!, $callNameIn: [String!]!, $supportedChains: [String!]!) {
-          accountExtrinsics(
-            where: {
-              account: { address_eq: $address }
-              extrinsic: { callName_in: $callNameIn, block: { chainGenesisHash_in: $supportedChains } }
-            }
-          ) {
-            extrinsic {
-              callName
-              callArgs
-              signer
-              block {
-                chainGenesisHash
+  get:
+    ({ address, supportedChains }: { address: string; supportedChains: string[] }) =>
+    async () => {
+      return (await fetchGraphQL(
+        gql`
+          query GetTransactions($address: String!, $callNameIn: [String!]!, $supportedChains: [String!]!) {
+            accountExtrinsics(
+              where: {
+                account: { address_eq: $address }
+                extrinsic: { callName_in: $callNameIn, block: { chainGenesisHash_in: $supportedChains } }
+              }
+            ) {
+              extrinsic {
+                callName
+                callArgs
+                signer
+                block {
+                  chainGenesisHash
+                }
               }
             }
           }
-        }
-      `,
-      {
-        address,
-        callNameIn: [MultisigCallNames.ApproveAsMulti, MultisigCallNames.AsMulti, MultisigCallNames.AsMultiThreshold1],
-        supportedChains: supportedChains.map(c => c.genesisHash),
-      },
-      'tx-history'
-    )) as {
-      data: RawData
-    }
-  },
+        `,
+        {
+          address,
+          callNameIn: [
+            MultisigCallNames.ApproveAsMulti,
+            MultisigCallNames.AsMulti,
+            MultisigCallNames.AsMultiThreshold1,
+          ],
+          supportedChains,
+        },
+        'tx-history'
+      )) as {
+        data: RawData
+      }
+    },
 })
 
 const getAddressProxiesSelector = selectorFamily<PalletProxyProxyDefinition[], [string, string]>({
@@ -82,8 +88,21 @@ export const vaultsOfAccount = selector({
   get: async ({ get }) => {
     const selectedAccount = get(selectedAccountState)
     if (!selectedAccount) return
+    const {
+      injected: { type },
+    } = selectedAccount
 
-    const { data } = get(getTransactionsOfAccount(selectedAccount.injected.address.toPubKey()))
+    const isEthereumAccount = type === 'ethereum'
+    const supportedChainsByType = supportedChains
+      .filter(c => (isEthereumAccount ? c.account === 'secp256k1' : c.account === '*25519'))
+      .map(c => c.genesisHash)
+
+    const { data } = get(
+      getTransactionsOfAccount({
+        address: selectedAccount.injected.address.toPubKey(),
+        supportedChains: supportedChainsByType,
+      })
+    )
 
     const multisigs: Record<string, { multisigAddress: Address; signers: Address[]; threshold: number }> = {}
     const proxiedAccounts: Record<string, { address: Address; chain: Chain }> = {}
