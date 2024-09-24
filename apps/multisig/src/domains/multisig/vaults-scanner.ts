@@ -35,8 +35,13 @@ const getTransactionsOfAccount = selectorFamily({
   get: (address: string) => async () => {
     return (await fetchGraphQL(
       gql`
-        query GetTransactions($address: String!, $callNameIn: [String!]!) {
-          accountExtrinsics(where: { account: { address_eq: $address }, extrinsic: { callName_in: $callNameIn } }) {
+        query GetTransactions($address: String!, $callNameIn: [String!]!, $supportedChains: [String!]!) {
+          accountExtrinsics(
+            where: {
+              account: { address_eq: $address }
+              extrinsic: { callName_in: $callNameIn, block: { chainGenesisHash_in: $supportedChains } }
+            }
+          ) {
             extrinsic {
               callName
               callArgs
@@ -51,6 +56,7 @@ const getTransactionsOfAccount = selectorFamily({
       {
         address,
         callNameIn: [MultisigCallNames.ApproveAsMulti, MultisigCallNames.AsMulti, MultisigCallNames.AsMultiThreshold1],
+        supportedChains: supportedChains.map(c => c.genesisHash),
       },
       'tx-history'
     )) as {
@@ -76,6 +82,7 @@ export const vaultsOfAccount = selector({
   get: async ({ get }) => {
     const selectedAccount = get(selectedAccountState)
     if (!selectedAccount) return
+
     const { data } = get(getTransactionsOfAccount(selectedAccount.injected.address.toPubKey()))
 
     const multisigs: Record<string, { multisigAddress: Address; signers: Address[]; threshold: number }> = {}
@@ -87,13 +94,6 @@ export const vaultsOfAccount = selector({
           Address.fromPubKey(parseCallAddressArg(tx.extrinsic.signer)) ||
           Address.fromSs58(parseCallAddressArg(tx.extrinsic.signer))
         if (!signer) throw new Error('Invalid signer')
-
-        // check if the multisig is on a supported chain
-        const chain = supportedChains.find(c => c.genesisHash === tx.extrinsic.block.chainGenesisHash)
-        if (!chain) {
-          console.warn('Chain not supported')
-          return
-        }
 
         // a multisig transaction should have a threshold, except for as_multi_threshold_1
         let threshold: number | undefined = tx.extrinsic.callArgs.threshold
@@ -139,7 +139,14 @@ export const vaultsOfAccount = selector({
           Address.fromPubKey(parseCallAddressArg(innerCall.value.real)) || Address.fromSs58(innerCall.value.real)
         if (!proxiedAccount) throw new Error('Invalid proxied account')
 
-        proxiedAccounts[`${proxiedAccount.toSs58()}-${chain.genesisHash}`] = {
+        // check if the multisig is on a supported chain
+        const chain = supportedChains.find(c => c.genesisHash === tx.extrinsic.block.chainGenesisHash)
+        if (!chain) {
+          console.warn('Chain not supported')
+          return
+        }
+
+        proxiedAccounts[`${proxiedAccount.toSs58()}-${tx.extrinsic.block.chainGenesisHash}`] = {
           address: proxiedAccount,
           chain,
         }
