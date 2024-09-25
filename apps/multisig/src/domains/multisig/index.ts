@@ -1,40 +1,23 @@
 import {
   BaseToken,
   Chain,
-  allChainTokensSelector,
   chainTokensByIdQuery,
-  decodeCallData,
   filteredSupportedChains,
   isSubstrateAssetsToken,
   isSubstrateTokensToken,
   supportedChains,
 } from '@domains/chains'
-import { pjsApiSelector } from '@domains/chains/pjs-api'
-import {
-  RawPendingTransaction,
-  allRawPendingTransactionsSelector,
-  blockSelector,
-  rawPendingTransactionsSelector,
-} from '@domains/chains/storage-getters'
+import { RawPendingTransaction, rawPendingTransactionsSelector } from '@domains/chains/storage-getters'
 import { InjectedAccount, accountsState } from '@domains/extension'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { Address, parseCallAddressArg, toMultisigAddress } from '@util/addresses'
-import { makeTransactionID } from '@util/misc'
 import BN from 'bn.js'
 import queryString from 'query-string'
-import { useEffect, useMemo, useState } from 'react'
-import {
-  atom,
-  selector,
-  useRecoilRefresher_UNSTABLE,
-  useRecoilState,
-  useRecoilValue,
-  useRecoilValueLoadable,
-} from 'recoil'
+import { atom, selector, useRecoilRefresher_UNSTABLE, useRecoilState, useRecoilValue } from 'recoil'
 import persistAtom from '../persist'
 import { VoteDetails, mapConvictionToIndex } from '../referenda'
 import { selectedAccountState } from '../auth'
-import { TxMetadata, txMetadataByTeamIdState } from '../offchain-data/metadata'
+import { TxMetadata } from '../offchain-data/metadata'
 import { Multisig } from './types'
 import { activeTeamsState } from '@domains/offchain-data'
 import { Abi } from '@polkadot/api-contract'
@@ -804,136 +787,8 @@ export const tempCalldataState = atom<Record<string, `0x${string}`>>({
   default: {},
 })
 
-const pendingTransactionsSelector = selector<Transaction[]>({
-  key: 'pendingTransactionsSelector',
-  dangerouslyAllowMutability: true,
-  get: ({ get }) => {
-    const allRawPendingTransactions = get(allRawPendingTransactionsSelector)
-    const txMetadataByTeamId = get(txMetadataByTeamIdState)
-    const tempCalldata = get(tempCalldataState)
-    const isTxMetadataByTeamIdInitialized = Object.keys(txMetadataByTeamId).length !== 0
-
-    const transactions: Transaction[] = []
-    for (const rawPending of allRawPendingTransactions) {
-      const timepoint_height = rawPending.onChainMultisig.when.height.toNumber()
-      const timepoint_index = rawPending.onChainMultisig.when.index.toNumber()
-      const transactionID = makeTransactionID(rawPending.multisig.chain, timepoint_height, timepoint_index)
-
-      const metadata = txMetadataByTeamId[rawPending.multisig.id]?.data[transactionID]
-
-      let calldata = metadata?.callData ?? tempCalldata[transactionID]
-
-      if (!calldata && isTxMetadataByTeamIdInitialized) {
-        const block = get(blockSelector(`${rawPending.blockHash.toHex()}-${rawPending.multisig.chain.genesisHash}`))
-        if (block) {
-          const ext = block.block.extrinsics[timepoint_index]
-          if (ext) {
-            const innerExt = ext.method.args[3]! // proxy ext is 3rd arg
-            calldata = innerExt.toHex()
-          }
-        }
-      }
-
-      if (calldata) {
-        try {
-          // Validate calldata from the metadata service matches the hash from the chain
-          const pjsApi = get(pjsApiSelector(rawPending.multisig.chain.genesisHash))
-          if (!pjsApi) throw Error(`pjsApi found for rpc ${rawPending.multisig.chain.id}!`)
-
-          // create extrinsic from callData
-          const extrinsic = decodeCallData(pjsApi, calldata)
-          if (!extrinsic) {
-            throw new Error(
-              `Failed to create extrinsic from callData recieved from metadata sharing service for transactionID ${transactionID}`
-            )
-          }
-
-          // validate hash of extrinsic matches hash from chain
-          const derivedHash = extrinsic.registry.hash(extrinsic.method.toU8a()).toHex()
-          if (derivedHash !== rawPending.callHash) {
-            throw new Error(
-              `CallData from metadata sharing service for transactionID ${transactionID} does not match hash from chain. Expected ${rawPending.callHash}, got ${derivedHash}`
-            )
-          }
-
-          const allActiveChainTokens = get(allChainTokensSelector)
-          // get chain tokens
-          const chainTokens = allActiveChainTokens.get(rawPending.multisig.chain.id)
-          if (!chainTokens) throw Error('Failed to load chainTokens for chain!')
-
-          const decoded = extrinsicToDecoded(
-            rawPending.multisig,
-            extrinsic,
-            chainTokens,
-            metadata ?? { callData: calldata }
-          )
-          if (decoded === 'not_ours') continue
-
-          transactions.push({
-            date: rawPending.date,
-            callData: calldata as `0x${string}`,
-            hash: rawPending.callHash,
-            rawPending: rawPending,
-            multisig: rawPending.multisig,
-            approvals: rawPending.approvals,
-            id: transactionID,
-            metadataSaved: true,
-            ...decoded,
-          })
-          continue
-        } catch (error) {
-          console.error(`Invalid metadata for for transactionID ${transactionID}:`, error)
-        }
-
-        // no calldata. return unknown transaction
-        transactions.push({
-          date: rawPending.date,
-          description: `Transaction ${transactionID}`,
-          hash: rawPending.callHash,
-          rawPending: rawPending,
-          multisig: rawPending.multisig,
-          approvals: rawPending.approvals,
-          id: transactionID,
-        })
-      }
-    }
-    return transactions
-  },
-})
-
 export const useRefreshMultisigPendingTransactions = (teamId?: string) => {
   return useRecoilRefresher_UNSTABLE(rawPendingTransactionsSelector(teamId ?? ''))
-}
-
-export const usePendingTransactions = () => {
-  const aggregatedMultisigs = useRecoilValue(aggregatedMultisigsState)
-  const [loaded, setLoaded] = useState(false)
-  const transactionsLoadable = useRecoilValueLoadable(pendingTransactionsSelector)
-  const executingTransactions = useRecoilValue(executingTransactionsState)
-  const [cachedTransactions, setCachedTransactions] = useState<Transaction[]>([])
-
-  useEffect(() => {
-    setLoaded(false)
-    setCachedTransactions([])
-  }, [aggregatedMultisigs])
-
-  useEffect(() => {
-    if (transactionsLoadable.state === 'hasValue') {
-      setLoaded(true)
-      setCachedTransactions(transactionsLoadable.contents ?? [])
-    }
-  }, [transactionsLoadable])
-
-  const allTransactions = useMemo(() => {
-    const indexing = executingTransactions.filter(({ hash }) => !cachedTransactions.find(t => t.hash === hash))
-    return [...cachedTransactions, ...indexing]
-  }, [cachedTransactions, executingTransactions])
-
-  return {
-    loading: !loaded && transactionsLoadable.state === 'loading',
-    transactions: allTransactions,
-    error: transactionsLoadable.state === 'hasError' ? transactionsLoadable.contents : undefined,
-  }
 }
 
 export const EMPTY_BALANCE: Balance = {

@@ -8,11 +8,12 @@ import {
   Balance,
   Transaction,
   TransactionType,
-  usePendingTransactions,
+  // usePendingTransactions,
   useSelectedMultisig,
   calcSumOutgoing,
   calcVoteSum,
 } from '@domains/multisig'
+import usePendingTransactions from '@domains/multisig/usePendingTransactions'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { cn } from '@util/tailwindcss'
@@ -49,7 +50,7 @@ export const SignerCta: React.FC<{
   const [sumOutgoing] = useMemo(() => calcSumOutgoing(t), [t])
   const voteSum = useMemo(() => calcVoteSum(t), [t])
   const [multisig] = useSelectedMultisig()
-  const { transactions: pendingTransactions, loading: pendingLoading } = usePendingTransactions()
+  const { data: pendingTransactions, isLoading: pendingLoading } = usePendingTransactions()
   const feeTokenPrice = useRecoilValueLoadable(tokenPriceState(fee?.token))
   const existentialDepositLoadable = useRecoilValueLoadable(existentialDepositSelector(t.multisig.chain.id))
   const multisigDepositTotal = useRecoilValueLoadable(
