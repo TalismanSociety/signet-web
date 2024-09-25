@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { requestSignetBackend } from '@domains/offchain-data/hasura'
 import { selectedAccountState } from '@domains/auth'
 import { SignedInAccount } from '@domains/auth'
@@ -49,7 +49,7 @@ const useGetTxsMetadataByTimepoints = ({ timepoints }: { timepoints: Timepoint[]
   const [selectedMultisig] = useSelectedMultisig()
 
   return useQuery({
-    queryKey: ['txMetadataByTimepoints', selectedMultisig.id],
+    queryKey: ['txMetadataByTimepoints', selectedMultisig.id, timepoints],
     queryFn: async () =>
       fetchGraphQLData({
         teamId: selectedMultisig.id,
@@ -58,6 +58,7 @@ const useGetTxsMetadataByTimepoints = ({ timepoints }: { timepoints: Timepoint[]
         signedInAccount: selectedAccount!,
       }),
     enabled: !!selectedAccount && timepoints.length > 0,
+    placeholderData: keepPreviousData,
   })
 }
 
