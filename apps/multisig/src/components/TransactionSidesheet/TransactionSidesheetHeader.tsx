@@ -1,4 +1,4 @@
-import { Transaction } from '@domains/multisig'
+import { Transaction } from '@domains/offchain-data/metadata/types'
 import { cn } from '@util/tailwindcss'
 import { useMemo } from 'react'
 

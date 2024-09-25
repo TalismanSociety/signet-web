@@ -1,5 +1,5 @@
 import { VestingDateRange } from '@components/VestingDateRange'
-import { Transaction, VestingSchedule } from '@domains/multisig'
+import { Transaction, VestingSchedule } from '@domains/offchain-data/metadata/types'
 
 type Props = {
   t: Transaction

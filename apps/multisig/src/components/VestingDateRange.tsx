@@ -1,7 +1,7 @@
 import { useApi } from '@domains/chains/pjs-api'
 import { useLatestBlockNumber } from '@domains/chains/useLatestBlockNumber'
 import { expectedBlockTime } from '@domains/common/substratePolyfills'
-import { VestingSchedule } from '@domains/multisig'
+import { VestingSchedule } from '@domains/offchain-data/metadata/types'
 import { useMemo } from 'react'
 import { Tooltip } from './ui/tooltip'
 import { secondsToDuration } from '@util/misc'

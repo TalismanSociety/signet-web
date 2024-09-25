@@ -1,10 +1,5 @@
-import {
-  ChangeConfigDetails,
-  ContractDetails,
-  Transaction,
-  TransactionApprovals,
-  useSelectedMultisig,
-} from '@domains/multisig'
+import { ChangeConfigDetails, ContractDetails, useSelectedMultisig } from '@domains/multisig'
+import { Transaction, TransactionApprovals } from '@domains/offchain-data/metadata/types'
 import { DUMMY_MULTISIG_ID } from '@util/constants'
 import { useHasura } from '@domains/offchain-data/hasura'
 import { useMemo } from 'react'

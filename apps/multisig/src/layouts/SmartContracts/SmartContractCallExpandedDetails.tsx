@@ -1,4 +1,4 @@
-import { Transaction } from '@domains/multisig'
+import { Transaction } from '@domains/offchain-data/metadata/types'
 import { useContractByAddress } from '@domains/substrate-contracts/useContractByAddress'
 import { useMemo } from 'react'
 import { hexToU8a, compactAddLength, formatBalance } from '@polkadot/util'

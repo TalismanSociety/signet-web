@@ -7,7 +7,8 @@ import {
   isSubstrateTokensToken,
   supportedChains,
 } from '@domains/chains'
-import { RawPendingTransaction, rawPendingTransactionsSelector } from '@domains/chains/storage-getters'
+import { TransactionType } from '@domains/offchain-data/metadata/types'
+import { rawPendingTransactionsSelector } from '@domains/chains/storage-getters'
 import { InjectedAccount, accountsState } from '@domains/extension'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { Address, parseCallAddressArg, toMultisigAddress } from '@util/addresses'
@@ -17,13 +18,19 @@ import { atom, selector, useRecoilRefresher_UNSTABLE, useRecoilState, useRecoilV
 import persistAtom from '../persist'
 import { VoteDetails, mapConvictionToIndex } from '../referenda'
 import { selectedAccountState } from '../auth'
-import { TxMetadata } from '../offchain-data/metadata'
+import { TxMetadata } from '@domains/offchain-data/metadata/types'
 import { Multisig } from './types'
 import { activeTeamsState } from '@domains/offchain-data'
 import { Abi } from '@polkadot/api-contract'
-import { FrameSystemEventRecord } from '@polkadot/types/lookup'
-import { ExtrinsicErrorsFromEvents } from '@util/errors'
 import { DUMMY_MULTISIG_ID } from '@util/constants'
+import {
+  Balance,
+  VestingSchedule,
+  TransactionRecipient,
+  TransactionDecoded,
+  TransactionApprovals,
+  Transaction,
+} from '@domains/offchain-data/metadata/types'
 
 export * from './types.d'
 export * from './useSelectedMultisig'
@@ -109,18 +116,6 @@ export const useNextTransactionSigner = (approvals: TransactionApprovals | undef
   return extensionAccounts.find(account => approvals[account.address.toPubKey()] === false)
 }
 
-export enum TransactionType {
-  MultiSend,
-  Transfer,
-  ChangeConfig,
-  Advanced,
-  Vote,
-  NominateFromNomPool,
-  NominateFromStaking,
-  ContractCall,
-  DeployContract,
-}
-
 export interface ChangeConfigDetails {
   newThreshold: number
   newMembers: Address[]
@@ -137,82 +132,6 @@ export interface AugmentedAccount {
   nickname?: string
   excluded?: boolean
   injected?: InjectedAccount
-}
-
-export interface Balance {
-  token: BaseToken
-  amount: BN
-}
-
-export type VestingSchedule = {
-  start: number
-  period: number
-  totalAmount: BN
-}
-export interface TransactionRecipient {
-  address: Address
-  balance: Balance
-  vestingSchedule?: VestingSchedule
-}
-
-export interface TransactionApprovals {
-  [key: string]: boolean
-}
-
-export interface ExecutedAt {
-  block: number
-  index: number
-  by: Address
-  events?: FrameSystemEventRecord[]
-  errors?: ExtrinsicErrorsFromEvents
-}
-
-export interface TransactionDecoded {
-  type: TransactionType
-  recipients: TransactionRecipient[]
-  changeConfigDetails?: {
-    signers: Address[]
-    threshold: number
-  }
-  nominate?: {
-    poolId?: number
-    validators: string[]
-  }
-  contractCall?: {
-    address: Address
-    data: `0x${string}`
-  }
-  contractDeployment?: {
-    abi: Abi
-    name: string
-    code: `0x${string}`
-    data: `0x${string}`
-    salt: `0x${string}`
-    value: BN
-  }
-  voteDetails?: VoteDetails & { token: BaseToken }
-}
-
-export interface Transaction {
-  description: string
-  hash: `0x${string}`
-  multisig: Multisig
-  approvals: TransactionApprovals
-  executedAt?: ExecutedAt
-  date: Date
-  rawPending?: RawPendingTransaction
-  decoded?: TransactionDecoded
-  callData?: `0x${string}`
-  id?: string
-  metadataSaved?: boolean
-  draft?: {
-    createdAt: Date
-    creator: {
-      id: string
-      address: Address
-    }
-    id: string
-  }
 }
 
 export const toConfirmedTxUrl = (t: Transaction) =>

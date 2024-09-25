@@ -4,15 +4,9 @@ import { selectedAccountState } from '@domains/auth'
 import { multisigDepositTotalSelector, tokenPriceState } from '@domains/chains'
 import { accountsState } from '@domains/extension'
 import { balancesState } from '@domains/balances'
-import {
-  Balance,
-  Transaction,
-  TransactionType,
-  // usePendingTransactions,
-  useSelectedMultisig,
-  calcSumOutgoing,
-  calcVoteSum,
-} from '@domains/multisig'
+import { useSelectedMultisig, calcSumOutgoing, calcVoteSum } from '@domains/multisig'
+import { Transaction, Balance } from '@domains/offchain-data/metadata/types'
+import { TransactionType } from '@domains/offchain-data/metadata/types'
 import usePendingTransactions from '@domains/multisig/usePendingTransactions'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Transaction, TransactionType } from '@domains/multisig'
+import { TransactionType, Transaction } from '@domains/offchain-data/metadata/types'
 import { css } from '@emotion/css'
 import { ExternalLink } from '@talismn/icons'
 import AmountRow from '@components/AmountRow'

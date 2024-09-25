@@ -1,6 +1,6 @@
 import { useRecoilValueLoadable } from 'recoil'
 import { tokenPriceState } from '@domains/chains'
-import { Balance } from '@domains/multisig'
+import { Balance } from '@domains/offchain-data/metadata/types'
 import { balanceToFloat, formatUsd } from '../util/numbers'
 import { Skeleton } from '@talismn/ui'
 import { cn } from '@util/tailwindcss'

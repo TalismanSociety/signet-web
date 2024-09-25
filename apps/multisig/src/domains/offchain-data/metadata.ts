@@ -1,18 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { atom, useRecoilState, useRecoilValue } from 'recoil'
-import { ChangeConfigDetails, ContractDetails, aggregatedMultisigsState } from '../multisig'
+import { ChangeConfigDetails, aggregatedMultisigsState } from '../multisig'
 import { activeTeamsState, teamsState } from './teams'
 import { gql } from 'graphql-tag'
 import { requestSignetBackend } from './hasura'
 import { SignedInAccount, selectedAccountState } from '../auth'
-import { makeTransactionID } from '../../util/misc'
-import { supportedChains } from '../chains'
 import { isEqual } from 'lodash'
 import { Multisig } from '../multisig/index'
 import toast from 'react-hot-toast'
 import { Address } from '../../util/addresses'
 import { useMutation } from '@apollo/client'
-import { Abi } from '@polkadot/api-contract'
+import { TxMetadata, RawTxMetadata } from '@domains/offchain-data/metadata/types'
+import { parseTxMetadata } from '@domains/offchain-data/metadata/utils'
 
 // TODO: should handle pagination
 const TX_METADATA_QUERY = gql`
@@ -31,33 +30,6 @@ const TX_METADATA_QUERY = gql`
   }
 `
 
-export type RawTxMetadata = {
-  team_id: string
-  timepoint_height: number
-  timepoint_index: number
-  chain: string
-  call_data: string
-  change_config_details: any
-  created: string
-  description: string
-  other_metadata: any
-  multisig_address: string
-  proxy_address: string
-}
-
-export type TxMetadata = {
-  extrinsicId: string
-  teamId: string
-  timepointHeight: number
-  timepointIndex: number
-  chain: string
-  callData: string
-  changeConfigDetails?: ChangeConfigDetails
-  contractDeployed?: ContractDetails
-  created: Date
-  description: string
-}
-
 // TODO: add more properties to support pagination
 type TxMetadataByTeamId = Record<string, { data: Record<string, TxMetadata> }>
 
@@ -72,54 +44,6 @@ export const txMetadataLoadingState = atom({
   key: 'txMetadataLoading',
   default: false,
 })
-
-const parseTxMetadata = (rawTxMetadata: RawTxMetadata): TxMetadata => {
-  const chain = supportedChains.find(c => c.id === rawTxMetadata.chain)
-  if (!chain) throw Error(`Chain ${rawTxMetadata.chain} not found`)
-
-  let changeConfigDetails: ChangeConfigDetails | undefined = undefined
-  if (rawTxMetadata.change_config_details) {
-    let newMembers: Address[] | undefined = undefined
-    let newThreshold: number | undefined
-    if (rawTxMetadata.change_config_details.newMembers) {
-      newMembers = rawTxMetadata.change_config_details.newMembers.map((s: string) => Address.fromSs58(s))
-    }
-    if (rawTxMetadata.change_config_details.newThreshold) {
-      newThreshold = rawTxMetadata.change_config_details.newThreshold
-    }
-    if (typeof newThreshold !== 'number' || !newMembers || newThreshold > newMembers.length) {
-      console.error(`Invalid change config details: ${rawTxMetadata.change_config_details}`)
-    } else {
-      changeConfigDetails = { newMembers, newThreshold }
-    }
-  }
-
-  let contractDeployed: ContractDetails | undefined
-  if (rawTxMetadata.other_metadata && rawTxMetadata.other_metadata.contractDeployed) {
-    const { name, abiString } = rawTxMetadata.other_metadata.contractDeployed
-    if (name && abiString) {
-      try {
-        const abi = new Abi(abiString)
-        contractDeployed = { abi, name }
-      } catch (e) {
-        console.error('Failed to parse abi', rawTxMetadata)
-      }
-    }
-  }
-
-  return {
-    extrinsicId: makeTransactionID(chain, rawTxMetadata.timepoint_height, rawTxMetadata.timepoint_index),
-    teamId: rawTxMetadata.team_id,
-    timepointHeight: rawTxMetadata.timepoint_height,
-    timepointIndex: rawTxMetadata.timepoint_index,
-    chain: rawTxMetadata.chain,
-    callData: rawTxMetadata.call_data,
-    changeConfigDetails,
-    created: new Date(rawTxMetadata.created),
-    description: rawTxMetadata.description,
-    contractDeployed,
-  }
-}
 
 const getTransactionsMetadata = async (teamIds: string[], signedInAccount: SignedInAccount): Promise<TxMetadata[]> => {
   try {
