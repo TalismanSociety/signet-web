@@ -103,7 +103,7 @@ export const ImportVault: React.FC = () => {
           onBack={() => setStep(Step.ProxiedAccountAddress)}
           onNext={() => setStep(Step.Confirmation)}
           members={augmentedAccounts}
-          onMembersChange={setAddedAccounts}
+          setAddedAccounts={setAddedAccounts}
         />
       ) : step === Step.Confirmation ? (
         <Confirmation
