@@ -135,7 +135,7 @@ export const VoteExpandedDetails: React.FC<Props> = ({ t }) => {
           {!!t.multisig.chain.polkaAssemblyUrl ? (
             <a
               className="text-[16px] text-offWhite hover:text-primary flex items-center"
-              href={`${t.multisig.chain.polkaAssemblyUrl}/referenda/${referendumId}`}
+              href={`${t.multisig.chain.polkaAssemblyUrl}/referenda/${String(referendumId).replace(/,/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
             >
