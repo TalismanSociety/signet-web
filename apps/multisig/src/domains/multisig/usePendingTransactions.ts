@@ -9,6 +9,7 @@ import { pjsApiSelector } from '@domains/chains/pjs-api'
 import { useSelectedMultisig } from '@domains/multisig'
 import { decodeCallData } from '@domains/chains'
 import { allChainTokensSelector } from '@domains/chains'
+import { useBlocksByHashes } from '@domains/chains/storage-getters'
 
 type RawPendingTransactionWithId = RawPendingTransaction & { id: string }
 
@@ -48,9 +49,12 @@ const usePendingTransactions = () => {
     },
     { timepoints: [] as Timepoint[], rawPendingTransactionsWithId: [] as RawPendingTransactionWithId[] }
   )
-
   const { data, isLoading, isError } = useGetTxsMetadataByTimepoints({ timepoints })
 
+  const blocksString = (
+    rawPendingTransactionsWithId.map(tx => `${tx.blockHash.toHex()}-${tx.multisig.chain.genesisHash}`) ?? []
+  ).join(',')
+  const blocksLoadable = useBlocksByHashes(blocksString)
   const tempCalldata = useRecoilValue(tempCalldataState)
   const pjsApi = useRecoilValue(pjsApiSelector(genesisHash))
   const allActiveChainTokens = useRecoilValue(allChainTokensSelector)
@@ -79,9 +83,27 @@ const usePendingTransactions = () => {
     //     }
     //   }
     // }
+
+    if (!calldata && data && blocksLoadable.state === 'hasValue') {
+      const block = blocksLoadable.contents.find(b => b?.block.header.hash.toHex() === rawPending.blockHash.toHex())
+
+      if (block) {
+        const timepoint_index = rawPending.onChainMultisig.when.index.toNumber()
+        const ext = block.block.extrinsics[timepoint_index]
+        if (ext) {
+          const innerExt = ext.method.args[3]! // proxy ext is 3rd arg
+          console.log({ innerExt: innerExt.toHex() }) // not the correct callData
+          calldata = innerExt.toHex()
+        }
+      }
+    }
+
+    // }
     if (calldata) {
+      console.log({ calldata })
       // create extrinsic from callData
       const extrinsic = decodeCallData(pjsApi, calldata)
+      console.log({ extrinsic })
       if (!extrinsic) {
         throw new Error(
           `Failed to create extrinsic from callData recieved from metadata sharing service for transactionID ${id}`
