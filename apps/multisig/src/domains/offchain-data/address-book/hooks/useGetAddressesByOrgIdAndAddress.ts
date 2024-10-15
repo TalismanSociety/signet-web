@@ -45,8 +45,7 @@ const useGetAddressesByOrgIdAndAddress = (addresses: string[]) => {
   const [selectedMultisig] = useSelectedMultisig()
   return useQuery({
     queryKey: ['addresses', selectedMultisig.id, addresses],
-    queryFn: async () =>
-      fetchGraphQLData({ orgId: selectedMultisig.orgId, addresses, selectedAccount: selectedAccount! }),
+    queryFn: () => fetchGraphQLData({ orgId: selectedMultisig.orgId, addresses, selectedAccount: selectedAccount! }),
     enabled: !!selectedAccount && addresses.length > 0,
   })
 }
