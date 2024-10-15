@@ -80,9 +80,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
   const disabled = !address || !nameInput.value
   const conflict = useMemo(() => {
     if (isKnownAddressLoading) return true
-    if (!address || isPaidPlan) {
-      return false
-    }
+    if (!address || isPaidPlan) return false
     return !!contactByAddress[address.toSs58()]
   }, [address, contactByAddress, isPaidPlan, isKnownAddressLoading])
 
