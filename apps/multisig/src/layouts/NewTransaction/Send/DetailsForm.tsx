@@ -3,7 +3,6 @@ import AddressInput from '@components/AddressInput'
 import { AmountFlexibleInput } from '@components/AmountFlexibleInput'
 import { BaseToken, Chain, vestingConstsSelector } from '@domains/chains'
 import { useSelectedMultisig } from '@domains/multisig'
-import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Address } from '@util/addresses'
 import { Button } from '@components/ui/button'
 import { NewTransactionHeader } from '../NewTransactionHeader'
@@ -69,7 +68,6 @@ export const DetailsForm: React.FC<Props> = ({
 }) => {
   const [addressError, setAddressError] = useState<boolean>(false)
   const [multisig] = useSelectedMultisig()
-  const { addresses } = useKnownAddresses({ orgId: multisig.orgId })
   const { hasDelayedPermission, hasNonDelayedPermission } = hasPermission(multisig, 'transfer')
   const vestingConsts = useRecoilValueLoadable(vestingConstsSelector(multisig.chain.genesisHash))
 
@@ -153,7 +151,7 @@ export const DetailsForm: React.FC<Props> = ({
         <div className="text-offWhite">
           <AddressInput
             onChange={handleAddressChange}
-            addresses={addresses}
+            shouldIncludeContacts
             leadingLabel="Recipient"
             chain={chain}
             hasError={addressError}

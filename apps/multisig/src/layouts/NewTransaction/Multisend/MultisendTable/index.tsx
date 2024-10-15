@@ -1,6 +1,5 @@
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@components/ui/table'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AddressWithName } from '@components/AddressInput'
 import {
   ColumnsInputType,
   MultisendSend,
@@ -26,7 +25,6 @@ import multisendCopyPastaGif from './multisend-copy-pasta.gif'
 import { CONFIG } from '@lib/config'
 
 type Props = {
-  contacts?: AddressWithName[]
   chainGenesisHash: string
   disableVesting: boolean
   hideVesting: boolean
@@ -50,7 +48,7 @@ const isInputKeyboardEvent = (
   return key !== 'vested'
 }
 
-export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, disableVesting, hideVesting }) => {
+export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, disableVesting, hideVesting }) => {
   const [lines, setLines] = useState(5)
   const inputRefs = useRef<ColumnsInputType[]>([])
   const lastAddedLine = useRef<number>(4)
@@ -394,7 +392,6 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, contacts, di
               <MultisendTableRow
                 key={i}
                 index={i}
-                contacts={contacts}
                 handleKeyDown={handleKeyDown}
                 handleRef={handleRef}
                 canVest={token?.type === 'substrate-native'}

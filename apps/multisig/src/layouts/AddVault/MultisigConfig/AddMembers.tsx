@@ -7,7 +7,6 @@ import { toast } from 'react-hot-toast'
 import { selectedAccountState } from '../../../domains/auth/index'
 import { useRecoilValue } from 'recoil'
 import { AddMemberInput } from '../../../components/AddMemberInput'
-import { useKnownAddresses } from '@hooks/useKnownAddresses'
 
 const AddMembers = (props: {
   setAddedAccounts: React.Dispatch<React.SetStateAction<Address[]>>
@@ -15,7 +14,6 @@ const AddMembers = (props: {
   chain: Chain
 }) => {
   const selectedAccount = useRecoilValue(selectedAccountState)
-  const { addresses: knownAddresses } = useKnownAddresses()
 
   const selectedAugmentedAccount = selectedAccount
     ? props.augmentedAccounts.find(a => a.address.isEqual(selectedAccount.injected.address))
@@ -70,7 +68,6 @@ const AddMembers = (props: {
           }}
           chain={props.chain}
           onNewAddress={address => props.setAddedAccounts(addedAccounts => [...addedAccounts, address])}
-          addresses={knownAddresses}
         />
       </div>
     </div>

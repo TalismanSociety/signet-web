@@ -5,9 +5,9 @@ export const useOnClickOutside = (element: HTMLElement | undefined | null, cb: (
     function handleClickOutside(event: MouseEvent) {
       if (element && !element.contains(event.target as Node)) cb()
     }
-    document.addEventListener('click', handleClickOutside)
+    document.addEventListener('mousedown', handleClickOutside)
     return () => {
-      document.removeEventListener('click', handleClickOutside)
+      document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [cb, element])
 }

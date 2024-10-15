@@ -3,7 +3,6 @@ import { Address } from '@util/addresses'
 import { Button } from '@components/ui/button'
 import { useSelectedMultisig } from '@domains/multisig'
 import AddressInput from '@components/AddressInput'
-import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import Modal from '@components/Modal'
 import { useAddOrgCollaborator } from '@domains/offchain-data'
 
@@ -16,7 +15,6 @@ export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const [address, setAddress] = useState<Address | undefined>()
   const [error, setError] = useState<boolean>(false)
-  const { addresses } = useKnownAddresses({ orgId: selectedMultisig.orgId })
   const { addCollaborator, adding } = useAddOrgCollaborator()
 
   const handleAddressChange = (address: Address | undefined) => {
@@ -60,7 +58,7 @@ export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
         <div className="w-full">
           <AddressInput
             onChange={handleAddressChange}
-            addresses={addresses}
+            shouldIncludeContacts
             chain={selectedMultisig.chain}
             hasError={error}
           />

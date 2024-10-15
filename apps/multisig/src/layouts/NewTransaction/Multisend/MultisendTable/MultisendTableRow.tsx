@@ -2,7 +2,6 @@ import { TableCell, TableRow } from '@components/ui/table'
 import { AddressInputCell } from './AddressInputCell'
 import { Switch } from '@components/ui/switch'
 import { MultisendSend, MultisendTableKeyDownHandler, MultisendTableRefHandler } from './MultisendTable'
-import { AddressWithName } from '@components/AddressInput'
 import { MultisendTableBlockInput } from './MultisendTableBlockInput'
 import { AmountUnit } from '@components/AmountUnitSelector'
 import { parseUnits } from '@util/numbers'
@@ -19,7 +18,6 @@ type Props = {
   index: number
   handleRef: MultisendTableRefHandler
   handleKeyDown: MultisendTableKeyDownHandler
-  contacts?: AddressWithName[]
   canVest?: boolean
   send: MultisendSend
   onSendsChange?: (send: MultisendSend[]) => void
@@ -90,7 +88,6 @@ const findAddressAndAmount = (
 
 export const MultisendTableRow: React.FC<Props> = ({
   blockTime,
-  contacts,
   currentBlock,
   handleKeyDown,
   handleRef,
@@ -113,7 +110,6 @@ export const MultisendTableRow: React.FC<Props> = ({
         <Tooltip content={errors?.recipient}>
           <div className="w-full">
             <AddressInputCell
-              contacts={contacts}
               inputRef={ref => handleRef(ref, index, 'recipient')}
               className="bg-transparent w-full text-ellipsis"
               onKeyDown={e => handleKeyDown(e, index, 'recipient')}
