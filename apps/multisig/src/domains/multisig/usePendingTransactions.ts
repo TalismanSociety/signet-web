@@ -72,18 +72,6 @@ const usePendingTransactions = () => {
 
     let calldata = metadata?.callData ?? tempCalldata[id]
 
-    // TODO: Add fetchBlocks logic
-    // if (!calldata && data && data?.length > 0) {
-    //   const block = useRecoilValue(blockSelector(`${rawPending.blockHash.toHex()}-${rawPending.multisig.chain.genesisHash}`))
-    //   if (block) {
-    //     const ext = block.block.extrinsics[timepoint_index]
-    //     if (ext) {
-    //       const innerExt = ext.method.args[3]! // proxy ext is 3rd arg
-    //       calldata = innerExt.toHex()
-    //     }
-    //   }
-    // }
-
     if (!calldata && data && blocksLoadable.state === 'hasValue') {
       const block = blocksLoadable.contents.find(b => b?.block.header.hash.toHex() === rawPending.blockHash.toHex())
 
@@ -100,10 +88,8 @@ const usePendingTransactions = () => {
 
     // }
     if (calldata) {
-      console.log({ calldata })
       // create extrinsic from callData
       const extrinsic = decodeCallData(pjsApi, calldata)
-      console.log({ extrinsic })
       if (!extrinsic) {
         throw new Error(
           `Failed to create extrinsic from callData recieved from metadata sharing service for transactionID ${id}`
