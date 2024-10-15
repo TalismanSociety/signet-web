@@ -16,7 +16,7 @@ export const AddCollaboratorModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const [address, setAddress] = useState<Address | undefined>()
   const [error, setError] = useState<boolean>(false)
-  const { addresses } = useKnownAddresses(selectedMultisig.orgId)
+  const { addresses } = useKnownAddresses({ orgId: selectedMultisig.orgId })
   const { addCollaborator, adding } = useAddOrgCollaborator()
 
   const handleAddressChange = (address: Address | undefined) => {

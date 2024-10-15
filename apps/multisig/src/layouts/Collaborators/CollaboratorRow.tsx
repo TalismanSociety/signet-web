@@ -14,7 +14,11 @@ export const CollaboratorRow: React.FC<{ orgId: string; userId: string; address:
   userId,
   address,
 }) => {
-  const { contactByAddress } = useKnownAddresses(orgId, { includeContracts: true })
+  const { contactByAddress, isLoading } = useKnownAddresses({
+    orgId,
+    includeContracts: true,
+    addresses: [address.toSs58()],
+  })
   const { deleteCollaborator, deleting } = useDeleteCollaborator()
   const { isCollaborator } = useUser()
 
@@ -25,7 +29,12 @@ export const CollaboratorRow: React.FC<{ orgId: string; userId: string; address:
   return (
     <div className="w-full bg-gray-900 p-[16px] rounded-[12px] flex items-center justify-between">
       <div>
-        <AccountDetails address={address} name={contactByAddress?.[address.toSs58()]?.name} withAddressTooltip />
+        <AccountDetails
+          address={address}
+          name={contactByAddress?.[address.toSs58()]?.name}
+          withAddressTooltip
+          isNameLoading={isLoading}
+        />
       </div>
       {!isCollaborator && (
         <Tooltip content="Remove collaborator">

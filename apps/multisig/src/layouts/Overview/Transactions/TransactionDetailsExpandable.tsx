@@ -31,6 +31,7 @@ import { isExtrinsicProxyWrapped } from '@util/extrinsics'
 import { CONFIG } from '@lib/config'
 import { VestingDateRange } from '@components/VestingDateRange'
 import { Table, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
+import { CircularProgressIndicator } from '@talismn/ui'
 
 const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
@@ -115,7 +116,7 @@ const MultisigCallDataBox: React.FC<{ calldata: `0x${string}`; genesisHash: stri
 }
 
 const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
-  const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
+  const { contactByAddress } = useKnownAddresses({ orgId: t.multisig.orgId })
   return (
     <div>
       <div css={{ display: 'grid', gap: 12, marginTop: '8px' }}>
@@ -153,14 +154,17 @@ const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
 }
 
 const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
-  const { contactByAddress } = useKnownAddresses(t.multisig.orgId)
-  const shouldDisplayCategory = t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.category)
-  const shouldDisplaySubcategory = t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.sub_category)
+  const recipientAddresses = t.decoded?.recipients.map(r => r.address.toSs58())
+  const { contactByAddress, isLoading } = useKnownAddresses({ orgId: t.multisig.orgId, addresses: recipientAddresses })
+  const shouldDisplayCategory =
+    t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.category) || isLoading
+  const shouldDisplaySubcategory =
+    t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.sub_category) || isLoading
   const shouldDisplayVesting = t.decoded?.recipients.some(r => r.vestingSchedule)
 
   return (
     <div className="border border-gray-500 rounded-[8px] overflow-hidden">
-      <Table className="border-b-0">
+      <Table className="border-b-0 table-auto">
         <TableHeader>
           <TableRow>
             <TableHead>Recipient</TableHead>
@@ -172,7 +176,7 @@ const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
         </TableHeader>
 
         {t.decoded?.recipients.map(({ address, balance, vestingSchedule }, i) => (
-          <TableRow key={i} className="last:border-b-0">
+          <TableRow key={i} className="last:border-b-0 h-[55px]">
             <TableCell>
               <AccountDetails
                 name={contactByAddress[address.toSs58()]?.name}
@@ -183,13 +187,30 @@ const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
                 identiconSize={28}
                 disableCopy
                 hideIdenticon
+                isNameLoading={isLoading}
               />
             </TableCell>
             {shouldDisplayCategory && (
-              <TableCell className="text-right">{contactByAddress[address.toSs58()]?.category?.name}</TableCell>
+              <TableCell className="text-right ml-auto">
+                {isLoading ? (
+                  <div className="flex justify-end">
+                    <CircularProgressIndicator size={16} />
+                  </div>
+                ) : (
+                  contactByAddress[address.toSs58()]?.category?.name
+                )}
+              </TableCell>
             )}
             {shouldDisplaySubcategory && (
-              <TableCell className="text-right">{contactByAddress[address.toSs58()]?.sub_category?.name}</TableCell>
+              <TableCell className="text-right">
+                {isLoading ? (
+                  <div className="flex justify-end">
+                    <CircularProgressIndicator size={16} />
+                  </div>
+                ) : (
+                  contactByAddress[address.toSs58()]?.sub_category?.name
+                )}
+              </TableCell>
             )}
             {vestingSchedule && (
               <TableCell>
@@ -301,15 +322,18 @@ function AdvancedExpendedDetails({
 }
 
 const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) => {
-  const { contactByAddress } = useKnownAddresses(t.multisig.orgId, {
-    includeContracts: true,
-  })
   const recipients = t.decoded?.recipients || []
+  const [recipient] = t.decoded?.recipients || []
+  const recipientAddress = recipient?.address.toSs58()
+  const { contactByAddress, isLoading } = useKnownAddresses({
+    orgId: t.multisig.orgId,
+    includeContracts: true,
+    addresses: recipients.length === 1 && recipientAddress ? [recipientAddress] : [],
+  })
 
   if (!t.decoded) return null
 
   if (t.decoded.type === TransactionType.Transfer) {
-    const [recipient] = t.decoded.recipients
     if (recipient)
       return (
         <div className="bg-gray-500 p-[4px] px-[8px] rounded-[8px] max-w-[180px] [&>div>p]:text-[14px]">
@@ -321,6 +345,7 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
             nameOrAddressOnly
             identiconSize={16}
             disableCopy
+            isNameLoading={isLoading}
           />
         </div>
       )

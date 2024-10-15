@@ -37,7 +37,8 @@ export const SmartContractCallExpandedDetails: React.FC<{ t: Transaction }> = ({
   const { api } = useApi(t.multisig.chain.genesisHash)
   const { contract, contractDetails, loading } = useContractByAddress(t.decoded?.contractCall?.address, api)
   const { symbol, decimal } = useTokenByChain(t.multisig.chain.genesisHash)
-  const { contactByAddress } = useKnownAddresses(t.multisig.orgId, {
+  const { contactByAddress } = useKnownAddresses({
+    orgId: t.multisig.orgId,
     includeContracts: true,
     includeSelectedMultisig: true,
   })

@@ -4,7 +4,13 @@ import { css } from '@emotion/css'
 import { ExternalLink, Trash } from '@talismn/icons'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 
-const MemberRow = (props: { member: AugmentedAccount; chain: Chain; onDelete?: () => void; truncate?: boolean }) => {
+const MemberRow = (props: {
+  member: AugmentedAccount
+  chain: Chain
+  onDelete?: () => void
+  truncate?: boolean
+  isNameLoading?: boolean
+}) => {
   return (
     <div
       className={css`
@@ -27,6 +33,7 @@ const MemberRow = (props: { member: AugmentedAccount; chain: Chain; onDelete?: (
           disableCopy
           withAddressTooltip
           chain={props.chain}
+          isNameLoading={props.isNameLoading}
         />
         {props.member.you ? <span className="text-offWhite text-[14px]"> (You)</span> : null}
       </div>
