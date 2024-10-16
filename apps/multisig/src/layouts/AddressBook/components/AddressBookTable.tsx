@@ -155,15 +155,13 @@ const AddressBookTable = ({
             'grid-cols-[1fr_1fr]': !isPaidPlan,
           })}
         >
-          {table
-            .getHeaderGroups()
-            .map(headerGroup =>
-              headerGroup.headers.map(header => (
-                <div className="p-2 text-left last:text-right last:pr-[62px] text-[14px]">
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </div>
-              ))
-            )}
+          {table.getHeaderGroups().map(headerGroup =>
+            headerGroup.headers.map(header => (
+              <div key={header.id} className="p-2 text-left last:text-right last:pr-[62px] text-[14px]">
+                {flexRender(header.column.columnDef.header, header.getContext())}
+              </div>
+            ))
+          )}
         </div>
 
         {/* Rows */}
