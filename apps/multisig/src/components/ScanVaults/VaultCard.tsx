@@ -21,7 +21,8 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
   const { toast } = useToast()
   const setImportedTeams = useSetRecoilState(importedTeamsState)
   const navigate = useNavigate()
-  const { contactByAddress } = useKnownAddresses()
+  const signerAddresses = vault.multisig.signers.map(s => s.toSs58())
+  const { contactByAddress } = useKnownAddresses({ addresses: showMultisig ? signerAddresses : [] })
   useEffect(() => {
     if (add && showMultisig) setShowMultisig(false)
   }, [add, showMultisig])

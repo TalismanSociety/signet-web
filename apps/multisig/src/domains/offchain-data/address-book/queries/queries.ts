@@ -70,6 +70,25 @@ export const PAGINATED_SUB_CATEGORIES_BY_ORG_ID = gql`
   }
 `
 
+export const ADDRESSES_BY_ORG_ID_AND_ADDRESS = gql`
+  query AddressesByOrgIdAndAddress($orgId: uuid!, $addresses: [String!]!) {
+    address(where: { org_id: { _eq: $orgId }, address: { _in: $addresses } }) {
+      id
+      org_id
+      name
+      address
+      category {
+        id
+        name
+      }
+      sub_category {
+        id
+        name
+      }
+    }
+  }
+`
+
 export const UPSERT_ADDRESSES = gql`
   mutation UpsertAddressesMutation($orgId: String!, $teamId: String!, $addressesInput: [AddressInput!]!) {
     UpsertAddresses(addressesInput: { addresses: $addressesInput, org_id: $orgId, team_id: $teamId }) {

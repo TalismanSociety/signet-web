@@ -31,7 +31,7 @@ const MultiSend = () => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
   const { toast } = useToast()
   const permissions = hasPermission(multisig, 'transfer')
-  const { addresses } = useKnownAddresses(multisig.orgId)
+  const { addresses } = useKnownAddresses({ orgId: multisig.orgId })
   const newSends = useRecoilValue(multisendSendsAtom)
   const unit = useRecoilValue(multisendAmountUnitAtom)
   const token = useRecoilValue(multisendTokenAtom)
