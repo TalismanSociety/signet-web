@@ -90,7 +90,10 @@ export const vaultsOfAccount = selector({
 
         // check if the multisig is on a supported chain
         const chain = supportedChains.find(c => c.genesisHash === tx.extrinsic.block.chainGenesisHash)
-        if (!chain) throw new Error('Chain not supported')
+        if (!chain) {
+          console.warn('Chain not supported')
+          return
+        }
 
         // a multisig transaction should have a threshold, except for as_multi_threshold_1
         let threshold: number | undefined = tx.extrinsic.callArgs.threshold

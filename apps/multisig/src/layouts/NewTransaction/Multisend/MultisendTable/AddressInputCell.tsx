@@ -140,6 +140,7 @@ export const AddressInputCell: React.FC<Props> = ({
         >
           {filteredContacts?.map(contact => (
             <div
+              key={contact.address.toSs58()}
               className="w-full p-[12px] hover:bg-gray-700 cursor-pointer"
               onClick={() => onChangeAddress(contact.address)}
             >
