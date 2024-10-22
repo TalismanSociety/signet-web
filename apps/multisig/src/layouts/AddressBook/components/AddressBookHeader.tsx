@@ -16,6 +16,7 @@ import { PaginationState } from '@tanstack/react-table'
 import useUpsertAddresses from '@domains/offchain-data/address-book/hooks/useUpsertAddresses'
 import { CircularProgressIndicator } from '@talismn/ui'
 import { useSelectedMultisig } from '@domains/multisig'
+import { removeSurroundingCharacters } from '@util/strings'
 
 type ParsedPaginatedAddresses = PaginatedAddresses & {
   invalidRows: number[]
@@ -27,13 +28,13 @@ const parseCSV = async (file: File): Promise<ParsedPaginatedAddresses> => {
   const text = await file.text()
 
   const lines = text.split('\r\n')
-  const headers = lines[0]?.split(',')
+  const headers = lines[0]?.split(',').map(removeSurroundingCharacters)
   if (!headers) {
     return { rows: [], pageCount: 0, rowCount: 0, invalidRows }
   }
 
   const rows: ContactAddress[] = lines.slice(1).map((line, index) => {
-    const data = line.split(',')
+    const data = line.split(',').map(removeSurroundingCharacters)
     const name = data[headers.indexOf('Name')]
     const csvAddress = data[headers.indexOf('Address')] ?? ''
     const address = Address.fromSs58(csvAddress)
