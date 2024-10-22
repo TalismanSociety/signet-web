@@ -28,7 +28,7 @@ const parseCSV = async (file: File): Promise<ParsedPaginatedAddresses> => {
   const text = await file.text()
 
   const lines = text.split('\r\n')
-  const headers = lines[0]?.split(',')
+  const headers = lines[0]?.split(',').map(removeSurroundingCharacters)
   if (!headers) {
     return { rows: [], pageCount: 0, rowCount: 0, invalidRows }
   }
