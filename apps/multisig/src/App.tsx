@@ -19,7 +19,6 @@ import router from './routes'
 import { AccountWatcher } from '@domains/auth'
 import { OffchainDataWatcher } from '@domains/offchain-data/offchain-watcher'
 import { ActiveMultisigWatcher } from './domains/multisig'
-import { NomPoolsWatcher } from './domains/staking'
 import { ValidatorsWatcher } from './domains/staking/ValidatorsWatcher'
 import ConstsWatcher from './domains/chains/ConstsWatcher'
 import { Toaster as NewToaster } from '@components/ui/toaster'
@@ -54,7 +53,6 @@ const App: React.FC = () => {
                   <ExtensionWatcher />
                   <AccountWatcher />
                   <OffchainDataWatcher />
-                  <NomPoolsWatcher />
                   <ValidatorsWatcher />
                   <ActiveMultisigWatcher />
                   <ConstsWatcher />

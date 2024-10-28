@@ -1,4 +1,3 @@
-import { bondedPoolsState } from '@domains/staking'
 import { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
 import { Identicon, Skeleton } from '@talismn/ui'
@@ -6,8 +5,8 @@ import AddressTooltip from '@components/AddressTooltip'
 import { Chain } from '@domains/chains'
 import { Validator, validatorsState } from '@domains/staking/ValidatorsWatcher'
 import { shortenAddress } from '@util/addresses'
-import { Transaction, useSelectedMultisig } from '@domains/multisig'
-import { useNomPoolOf } from '@domains/staking/useNomPool'
+import { Transaction } from '@domains/multisig'
+import { useNomPoolsOf } from '@domains/staking/useNomPoolsOf'
 import { useNominations } from '@domains/staking/useNominations'
 
 export const NominationCard: React.FC<{
@@ -43,22 +42,14 @@ export const NominationCard: React.FC<{
 }
 
 export const ValidatorsRotationHeader: React.FC<{ t: Transaction }> = ({ t }) => {
-  const [selectedMultisig] = useSelectedMultisig()
-  const pool = useNomPoolOf(selectedMultisig.proxyAddress)
-  const { nominations: nomPoolNominations } = useNominations(
-    selectedMultisig.chain,
-    pool?.pool.stash.toSs58(selectedMultisig.chain)
+  const pools = useNomPoolsOf(t.multisig.proxyAddress, t.multisig.chain)
+  const pool = useMemo(
+    () => pools?.find(p => p.id === t.decoded?.nominate?.poolId),
+    [pools, t.decoded?.nominate?.poolId]
   )
-
-  const bondedPools = useRecoilValue(bondedPoolsState)
+  const { nominations: nomPoolNominations } = useNominations(t.multisig.chain, pool?.stash.toSs58(t.multisig.chain))
 
   const existingNominations = useMemo(() => nomPoolNominations?.map(({ address }) => address), [nomPoolNominations])
-
-  const nominatedPool = useMemo(() => {
-    if (t.decoded?.nominate?.poolId === undefined) return null
-    if (bondedPools === undefined) return undefined
-    return bondedPools.poolsMap[t.decoded?.nominate?.poolId]
-  }, [bondedPools, t.decoded?.nominate?.poolId])
 
   const newNominations = useMemo(() => {
     return t.decoded?.nominate?.validators ?? []
@@ -84,17 +75,13 @@ export const ValidatorsRotationHeader: React.FC<{ t: Transaction }> = ({ t }) =>
 
   return (
     <div className="flex items-center gap-[8px]">
-      {nominatedPool === null ? null : nominatedPool === undefined ? (
+      {pool === null ? null : pool === undefined ? (
         <Skeleton.Surface className="h-[21px] w-[100px]" />
       ) : (
-        <AddressTooltip
-          address={nominatedPool.stash}
-          name={`Pool #${nominatedPool.id} (Stash)`}
-          chain={selectedMultisig.chain}
-        >
+        <AddressTooltip address={pool.stash} name={`Pool #${pool.id} (Stash)`} chain={t.multisig.chain}>
           <div className="flex items-center bg-gray-500 gap-[4px] px-[8px] rounded-[8px]">
-            <Identicon size={14} value={nominatedPool.stash.toSs58()} />
-            <p className="text-offWhite text-[14px] mt-[2px]">Pool #{nominatedPool.id}</p>
+            <Identicon size={14} value={pool.stash.toSs58()} />
+            <p className="text-offWhite text-[14px] mt-[2px]">Pool #{pool.id}</p>
           </div>
         </AddressTooltip>
       )}
@@ -108,13 +95,13 @@ export const ValidatorsRotationHeader: React.FC<{ t: Transaction }> = ({ t }) =>
 }
 
 export const ValidatorsRotationExpandedDetails: React.FC<{ t: Transaction }> = ({ t }) => {
-  const [selectedMultisig] = useSelectedMultisig()
-  const pool = useNomPoolOf(selectedMultisig.proxyAddress)
+  const pools = useNomPoolsOf(t.multisig.proxyAddress, t.multisig.chain)
   const validators = useRecoilValue(validatorsState)
-  const { nominations: nomPoolNominations } = useNominations(
-    selectedMultisig.chain,
-    pool?.pool.stash.toSs58(selectedMultisig.chain)
+  const pool = useMemo(
+    () => pools?.find(p => p.id === t.decoded?.nominate?.poolId),
+    [pools, t.decoded?.nominate?.poolId]
   )
+  const { nominations: nomPoolNominations } = useNominations(t.multisig.chain, pool?.stash.toSs58(t.multisig.chain))
 
   const newNominations = useMemo(() => {
     return t.decoded?.nominate?.validators ?? []
@@ -151,12 +138,7 @@ export const ValidatorsRotationExpandedDetails: React.FC<{ t: Transaction }> = (
         </div>
         <div className="grid grid-cols-4 gap-[8px] mt-[8px]">
           {newNominations.map(addr => (
-            <NominationCard
-              key={addr}
-              address={addr}
-              chain={selectedMultisig.chain}
-              validators={validators?.validators}
-            />
+            <NominationCard key={addr} address={addr} chain={t.multisig.chain} validators={validators?.validators} />
           ))}
         </div>
       </div>
@@ -170,12 +152,7 @@ export const ValidatorsRotationExpandedDetails: React.FC<{ t: Transaction }> = (
           </div>
           <div className="grid grid-cols-4 gap-[8px] mt-[8px]">
             {addedNominations.map(addr => (
-              <NominationCard
-                key={addr}
-                address={addr}
-                chain={selectedMultisig.chain}
-                validators={validators?.validators}
-              />
+              <NominationCard key={addr} address={addr} chain={t.multisig.chain} validators={validators?.validators} />
             ))}
           </div>
         </div>
@@ -190,12 +167,7 @@ export const ValidatorsRotationExpandedDetails: React.FC<{ t: Transaction }> = (
           </div>
           <div className="grid grid-cols-4 gap-[8px] mt-[8px]">
             {removedNominations.map(addr => (
-              <NominationCard
-                key={addr}
-                address={addr}
-                chain={selectedMultisig.chain}
-                validators={validators?.validators}
-              />
+              <NominationCard key={addr} address={addr} chain={t.multisig.chain} validators={validators?.validators} />
             ))}
           </div>
         </div>

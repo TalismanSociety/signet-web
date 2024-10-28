@@ -7,7 +7,7 @@ import { useAugmentedBalances } from '@domains/balances'
 import { useNativeToken } from '@domains/chains'
 import { usePoolMembership } from '@domains/staking/usePoolMembership'
 import { useEffect, useState } from 'react'
-import { BondedPool } from '@domains/staking'
+import { BondedPool } from '@domains/nomination-pools'
 import { Nomination } from '@domains/staking/useNominations'
 import { Address } from '@util/addresses'
 import { ValidatorsRotation } from './ValidatorsRotation'
@@ -26,7 +26,7 @@ const Staking = () => {
   // user is editing nominations for a nom pool if `pool` exists
   // else we're editing via `staking` pallet
   const [editing, setEditing] = useState<
-    { address: Address; nominations: Nomination[]; pool?: BondedPool } | undefined
+    { address: Address; nominations: Nomination[]; pool: BondedPool } | undefined
   >()
 
   const augmentedTokens = useAugmentedBalances()
