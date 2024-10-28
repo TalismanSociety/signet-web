@@ -27,7 +27,6 @@ export const VaultOverview: React.FC = () => {
   const { copy, copied } = useCopied()
   const signersAddresses = selectedMultisig.signers.map(signer => signer.toSs58())
   const { contactByAddress, isLoading } = useKnownAddresses({
-    orgId: selectedMultisig.orgId,
     addresses: signersAddresses,
   })
 

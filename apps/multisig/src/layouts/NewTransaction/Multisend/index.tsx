@@ -12,7 +12,6 @@ import { NewTransactionHeader } from '../NewTransactionHeader'
 import { Share2 } from '@talismn/icons'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
-import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { multisendAmountUnitAtom, multisendSendsAtom, multisendTokenAtom } from './MultisendTable/atom'
 import { AmountUnit } from '@components/AmountUnitSelector'
 import { parseUnits } from '@util/numbers'
@@ -31,7 +30,6 @@ const MultiSend = () => {
   const apiLoadable = useRecoilValueLoadable(pjsApiSelector(multisig.chain.genesisHash))
   const { toast } = useToast()
   const permissions = hasPermission(multisig, 'transfer')
-  const { addresses } = useKnownAddresses({ orgId: multisig.orgId })
   const newSends = useRecoilValue(multisendSendsAtom)
   const unit = useRecoilValue(multisendAmountUnitAtom)
   const token = useRecoilValue(multisendTokenAtom)
@@ -141,7 +139,6 @@ const MultiSend = () => {
             setName={setName}
             tokens={tokens}
             onNext={() => setStep(Step.Review)}
-            contacts={addresses}
             chain={multisig.chain}
             totalAmount={totalAmount}
             totalSends={validSends.length}

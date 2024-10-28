@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast'
-import AddressInput, { AddressWithName } from './AddressInput'
+import AddressInput from './AddressInput'
 import { Address } from '../util/addresses'
 import { useState } from 'react'
 import { Plus } from '@talismn/icons'
@@ -10,12 +10,11 @@ import { useSelectedMultisig } from '@domains/multisig'
 type Props = {
   onNewAddress: (a: Address) => void
   validateAddress?: (a: Address) => boolean
-  addresses?: AddressWithName[]
   compactInput?: boolean
   chain?: Chain
 }
 
-export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewAddress, addresses, compactInput }) => {
+export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewAddress, compactInput }) => {
   const [addressInput, setAddressInput] = useState('')
   const [address, setAddress] = useState<Address | undefined>()
   const [error, setError] = useState<boolean>(false)
@@ -49,7 +48,7 @@ export const AddMemberInput: React.FC<Props> = ({ chain, validateAddress, onNewA
   return (
     <form onSubmit={handleSubmit} className="flex items-center gap-[8px]">
       <AddressInput
-        addresses={addresses}
+        shouldIncludeContacts
         value={addressInput}
         compact={compactInput}
         chain={chain || multisig.chain}

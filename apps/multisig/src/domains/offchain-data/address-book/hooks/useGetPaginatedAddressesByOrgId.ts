@@ -6,13 +6,10 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { PAGINATED_ADDRESSES_BY_ORG_ID } from '@domains/offchain-data/address-book/queries/queries'
 import { useSelectedMultisig } from '@domains/multisig'
 import { Address } from '@util/addresses'
-import { Contact } from '../address-book'
-
-export type ContactAddress = Omit<Contact, 'orgId'> & { team_id?: string; org_id: string }
-export type ContactAddressIO = Omit<ContactAddress, 'address'> & { address: string }
+import { Contact, ContactIO } from '../types'
 
 export type PaginatedAddresses = {
-  rows: ContactAddress[]
+  rows: Contact[]
   pageCount: number
   rowCount: number
 }
@@ -40,7 +37,11 @@ const fetchGraphQLData = async ({
   )
 
   return {
-    rows: data.address.map((row: ContactAddressIO) => ({ ...row, address: Address.fromSs58(row.address) })),
+    rows: data.address.map((row: ContactIO) => ({
+      ...row,
+      address: Address.fromSs58(row.address),
+      type: 'Contacts',
+    })),
     pageCount: Math.ceil(data.address_aggregate.aggregate.count / pagination.pageSize),
     rowCount: data.address.length,
   }
@@ -50,7 +51,7 @@ const useGetPaginatedAddressesByOrgId = (pagination: { pageIndex: number; pageSi
   const selectedAccount = useRecoilValue(selectedAccountState)
   const [selectedMultisig] = useSelectedMultisig()
   return useQuery({
-    queryKey: ['addresses', selectedMultisig.id, pagination, search],
+    queryKey: ['addressesPaginated', selectedMultisig.id, pagination, search],
     queryFn: async () =>
       fetchGraphQLData({ pagination, orgId: selectedMultisig.orgId, selectedAccount: selectedAccount!, search }),
     placeholderData: keepPreviousData, // don't have 0 rows flash while changing pages/loading next page

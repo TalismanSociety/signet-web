@@ -1,9 +1,8 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Button } from '@components/ui/button'
 import Modal from '@components/Modal'
 import { useInput } from '@hooks/useInput'
 import { Address } from '@util/addresses'
-import { useAddressBook } from '../../domains/offchain-data'
 import { useSelectedMultisig } from '../../domains/multisig'
 import { Input } from '@components/ui/input'
 import AddressInput from '@components/AddressInput'
@@ -12,6 +11,7 @@ import { useGetInfiniteCategories } from '@domains/offchain-data/address-book/ho
 import { useGetInfiniteSubcategories } from '@domains/offchain-data/address-book/hooks/useGetInfiniteSubcategories'
 import CreatableDropdown from '@components/DropdownSearchable'
 import { useDebounce } from '@hooks/useDebounce'
+import { useKnownAddresses } from '@hooks/useKnownAddresses'
 
 type Props = {
   onClose?: () => void
@@ -28,11 +28,13 @@ const DEFAULT_SELECTED_OPTION: SelectedOption = { id: '', name: '' }
 
 export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }) => {
   const nameInput = useInput('')
-  const [address, setAddress] = useState<Address | undefined>(undefined)
+  const [address, setAddress] = useState<Address>()
   const [selectedCategory, setSelectedCategory] = useState<SelectedOption>(DEFAULT_SELECTED_OPTION)
   const [selectedSubcategory, setSelectedSubcategory] = useState<SelectedOption>(DEFAULT_SELECTED_OPTION)
   const [selectedMultisig] = useSelectedMultisig()
-  const { contactsByAddress } = useAddressBook()
+  const { contactByAddress, isLoading: isKnownAddressLoading } = useKnownAddresses({
+    addresses: [address?.toSs58() || ''],
+  })
 
   const debouncedCategorySearch = useDebounce(selectedCategory.name, 300)
   const debouncedSubcategorySearch = useDebounce(selectedSubcategory.name, 300)
@@ -76,7 +78,11 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
   }
 
   const disabled = !address || !nameInput.value
-  const conflict = isPaidPlan ? false : address ? !!contactsByAddress[address.toSs58()] : false
+  const conflict = useMemo(() => {
+    if (isKnownAddressLoading) return true
+    if (!address || isPaidPlan) return false
+    return !!contactByAddress[address.toSs58()]
+  }, [address, contactByAddress, isPaidPlan, isKnownAddressLoading])
 
   return (
     <Modal isOpen={isOpen ?? false} width="100%" maxWidth={420} contentLabel="Add new contact">
@@ -92,6 +98,7 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
             leadingLabel="Address"
             onChange={newAddress => setAddress(newAddress)}
             chain={selectedMultisig.chain}
+            shouldExcludeExtensionContacts
           />
           {conflict ? (
             <p className="text-gray-200 mt-[8px] ml-[12px] text-[14px]">Address already exists in address book.</p>
@@ -152,7 +159,11 @@ export const AddContactModal: React.FC<Props> = ({ isOpen, onClose, isPaidPlan }
           <Button type="button" variant="outline" css={{ width: '100%' }} onClick={handleClose}>
             <p>Cancel</p>
           </Button>
-          <Button css={{ width: '100%' }} disabled={disabled || isPending || conflict} loading={isPending}>
+          <Button
+            css={{ width: '100%' }}
+            disabled={disabled || isPending || conflict || isKnownAddressLoading}
+            loading={isPending}
+          >
             <p>Save</p>
           </Button>
         </div>

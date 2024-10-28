@@ -8,7 +8,6 @@ import { Alert } from '@components/Alert'
 import { Button } from '@components/ui/button'
 import { Input } from '@components/ui/input'
 import { MultiSendTable } from './MultisendTable'
-import { AddressWithName } from '@components/AddressInput'
 import { multisendTokenAtom } from './MultisendTable/atom'
 import { useSelectedMultisig } from '@domains/multisig'
 import { userOrganisationsState } from '@domains/offchain-data'
@@ -21,7 +20,6 @@ const MultiSendForm = (props: {
   onNext: () => void
   hasNonDelayedPermission?: boolean
   hasDelayedPermission?: boolean
-  contacts?: AddressWithName[]
   chain: Chain
   totalAmount: BN
   totalSends: number
@@ -59,7 +57,6 @@ const MultiSendForm = (props: {
         onChange={token => setSelectedToken(token)}
       />
       <MultiSendTable
-        contacts={props.contacts}
         chainGenesisHash={props.chain.genesisHash}
         disableVesting={props.disableVesting}
         hideVesting={CONFIG.USE_PAYWALL ? org === undefined || org.plan.id === 0 : false}
