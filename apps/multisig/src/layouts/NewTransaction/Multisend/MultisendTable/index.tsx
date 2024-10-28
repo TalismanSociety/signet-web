@@ -23,6 +23,7 @@ import { Address } from '@util/addresses'
 import { useToast } from '@components/ui/use-toast'
 import multisendCopyPastaGif from './multisend-copy-pasta.gif'
 import { CONFIG } from '@lib/config'
+import { removeSurroundingCharacters } from '@util/strings'
 
 type Props = {
   chainGenesisHash: string
@@ -285,7 +286,10 @@ export const MultiSendTable: React.FC<Props> = ({ chainGenesisHash, disableVesti
             const [file] = files
             if (!file) return
             const text = await file.text()
-            const lines = text.split('\n').map(line => line.replaceAll('\r', '').split(','))
+            const lines = text
+              .split('\n')
+              .map(line => line.replaceAll('\r', '').split(',').map(removeSurroundingCharacters))
+
             const headerIndex = lines.findIndex(line => line.includes('Recipient') && line.includes('Amount'))
 
             let addressCol = 0
