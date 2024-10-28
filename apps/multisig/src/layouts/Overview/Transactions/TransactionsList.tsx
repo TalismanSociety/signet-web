@@ -1,4 +1,5 @@
-import { Transaction, selectedMultisigState } from '@domains/multisig'
+import { selectedMultisigState } from '@domains/multisig'
+import { Transaction } from '@domains/offchain-data/metadata/types'
 import { useMemo } from 'react'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'

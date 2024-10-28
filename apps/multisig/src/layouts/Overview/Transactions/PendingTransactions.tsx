@@ -1,23 +1,12 @@
-import { rawPendingTransactionsDependency } from '@domains/chains/storage-getters'
-import { usePendingTransactions } from '@domains/multisig'
-import { useEffect } from 'react'
-import { useSetRecoilState } from 'recoil'
 import { TransactionsList } from './TransactionsList'
+import usePendingTransactions from '@domains/multisig/usePendingTransactions'
 
 type Props = {
   value: string
 }
 
 export const PendingTansactions: React.FC<Props> = ({ value }) => {
-  const { transactions, loading } = usePendingTransactions()
-  const setRawPendingTransactionDependency = useSetRecoilState(rawPendingTransactionsDependency)
+  const { data, isLoading } = usePendingTransactions()
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRawPendingTransactionDependency(new Date())
-    }, 20000)
-    return () => clearInterval(interval)
-  })
-
-  return <TransactionsList value={value} loading={loading} transactions={transactions} />
+  return <TransactionsList value={value} loading={isLoading && data.length === 0} transactions={data} />
 }

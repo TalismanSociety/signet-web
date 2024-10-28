@@ -5,7 +5,7 @@
 // TODO: use pjs types instead of force casting
 
 import { pjsApiSelector } from '@domains/chains/pjs-api'
-import { Balance } from '@domains/multisig'
+import { Balance } from '@domains/offchain-data/metadata/types'
 import { ApiPromise } from '@polkadot/api'
 import { Balance as PjsBalance } from '@polkadot/types/interfaces'
 import BN from 'bn.js'

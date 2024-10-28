@@ -2,10 +2,10 @@ import { ApiPromise, SubmittableResult } from '@polkadot/api'
 import { useCallback, useMemo, useState } from 'react'
 import { allChainTokensSelector, decodeCallData, useApproveAsMulti, useAsMulti, useAsMultiThreshold1 } from '../chains'
 import { Multisig } from './types'
-import { Transaction, TransactionApprovals, extrinsicToDecoded, useNextTransactionSigner } from './index'
+import { extrinsicToDecoded, useNextTransactionSigner } from './index'
+import { Balance as MultisigBalance, Transaction, TransactionApprovals } from '@domains/offchain-data/metadata/types'
 import { useRecoilValueLoadable } from 'recoil'
-import { TxMetadata } from '@domains/offchain-data'
-import { Balance as MultisigBalance } from '@domains/multisig'
+import { TxMetadata } from '@domains/offchain-data/metadata/types'
 
 /**
  * @param submittedTx calldata, description and otherTxMetadata are ignored if this is provided

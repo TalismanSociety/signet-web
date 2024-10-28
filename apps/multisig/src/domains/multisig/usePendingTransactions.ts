@@ -1,0 +1,114 @@
+import { useState, useEffect } from 'react'
+import { allRawPendingTransactionsSelector, RawPendingTransaction } from '@domains/chains/storage-getters'
+import { tempCalldataState, extrinsicToDecoded } from '@domains/multisig'
+import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
+import useGetTxsMetadataByTimepoints from '@domains/offchain-data/metadata/hooks/useGetTxsMetadataByTimepoints'
+import { Timepoint, Transaction } from '@domains/offchain-data/metadata/types'
+import { makeTransactionID } from '@util/misc'
+import { pjsApiSelector } from '@domains/chains/pjs-api'
+import { useSelectedMultisig } from '@domains/multisig'
+import { decodeCallData } from '@domains/chains'
+import { allChainTokensSelector } from '@domains/chains'
+
+type RawPendingTransactionWithId = RawPendingTransaction & { id: string }
+
+const usePendingTransactions = () => {
+  const [allRawPendingTransactions, setAllRawPendingTransactions] = useState<RawPendingTransaction[]>([])
+  const [
+    {
+      chain: { id: chainId, genesisHash },
+    },
+  ] = useSelectedMultisig()
+  const allRawPendingTransactionsLoadable = useRecoilValueLoadable(allRawPendingTransactionsSelector)
+
+  useEffect(() => {
+    if (allRawPendingTransactionsLoadable.state === 'hasValue') {
+      setAllRawPendingTransactions(allRawPendingTransactionsLoadable.contents)
+    }
+  }, [allRawPendingTransactionsLoadable])
+
+  const { timepoints, rawPendingTransactionsWithId } = allRawPendingTransactions.reduce(
+    (acc, rawPending) => {
+      const timepoint_height = rawPending.onChainMultisig.when.height.toNumber()
+      const timepoint_index = rawPending.onChainMultisig.when.index.toNumber()
+
+      const timepoint = {
+        _and: [{ timepoint_height: { _eq: timepoint_height }, timepoint_index: { _eq: timepoint_index } }],
+      }
+
+      const id = makeTransactionID(rawPending.multisig.chain, timepoint_height, timepoint_index)
+
+      acc.timepoints.push(timepoint)
+      acc.rawPendingTransactionsWithId.push({
+        ...rawPending,
+        id,
+      })
+
+      return acc
+    },
+    { timepoints: [] as Timepoint[], rawPendingTransactionsWithId: [] as RawPendingTransactionWithId[] }
+  )
+  const { data, isLoading, isError } = useGetTxsMetadataByTimepoints({ timepoints })
+
+  const tempCalldata = useRecoilValue(tempCalldataState)
+  const pjsApi = useRecoilValue(pjsApiSelector(genesisHash))
+  const allActiveChainTokens = useRecoilValue(allChainTokensSelector)
+
+  // get chain tokens
+  const chainTokens = allActiveChainTokens.get(chainId)
+
+  if (!pjsApi) throw Error(`pjsApi found for rpc ${chainId}!`)
+  if (!chainTokens) throw Error(`Failed to load chainTokens for chain ${chainId}!`)
+
+  const transactions: Transaction[] = []
+  for (const rawPending of rawPendingTransactionsWithId) {
+    const { id } = rawPending
+    const metadata = data?.find(txMeta => txMeta.extrinsicId === id)
+
+    let calldata = metadata?.callData ?? tempCalldata[id]
+
+    if (calldata) {
+      // create extrinsic from callData
+      const extrinsic = decodeCallData(pjsApi, calldata)
+      if (!extrinsic) {
+        throw new Error(
+          `Failed to create extrinsic from callData recieved from metadata sharing service for transactionID ${id}`
+        )
+      }
+
+      // validate hash of extrinsic matches hash from chain
+      const derivedHash = extrinsic.registry.hash(extrinsic.method.toU8a()).toHex()
+      if (derivedHash !== rawPending.callHash) {
+        throw new Error(
+          `CallData from metadata sharing service for transactionID ${id} does not match hash from chain. Expected ${rawPending.callHash}, got ${derivedHash}`
+        )
+      }
+
+      const decoded = extrinsicToDecoded(
+        rawPending.multisig,
+        extrinsic,
+        chainTokens,
+        metadata ?? { callData: calldata }
+      )
+      if (decoded === 'not_ours') continue
+
+      transactions.push({
+        date: rawPending.date,
+        callData: calldata as `0x${string}`,
+        hash: rawPending.callHash,
+        rawPending: rawPending,
+        multisig: rawPending.multisig,
+        approvals: rawPending.approvals,
+        id,
+        metadataSaved: true,
+        ...decoded,
+      })
+    }
+  }
+
+  const loading = isLoading || allRawPendingTransactionsLoadable.state === 'loading'
+
+  return { data: transactions, isLoading: loading, isError }
+}
+
+export default usePendingTransactions

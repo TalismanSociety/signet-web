@@ -32,31 +32,43 @@ export type ScannedVault = {
 
 const getTransactionsOfAccount = selectorFamily({
   key: 'getTransactionsOfAccount',
-  get: (address: string) => async () => {
-    return (await fetchGraphQL(
-      gql`
-        query GetTransactions($address: String!, $callNameIn: [String!]!) {
-          accountExtrinsics(where: { account: { address_eq: $address }, extrinsic: { callName_in: $callNameIn } }) {
-            extrinsic {
-              callName
-              callArgs
-              signer
-              block {
-                chainGenesisHash
+  get:
+    ({ address, supportedChains }: { address: string; supportedChains: string[] }) =>
+    async () => {
+      return (await fetchGraphQL(
+        gql`
+          query GetTransactions($address: String!, $callNameIn: [String!]!, $supportedChains: [String!]!) {
+            accountExtrinsics(
+              where: {
+                account: { address_eq: $address }
+                extrinsic: { callName_in: $callNameIn, block: { chainGenesisHash_in: $supportedChains } }
+              }
+            ) {
+              extrinsic {
+                callName
+                callArgs
+                signer
+                block {
+                  chainGenesisHash
+                }
               }
             }
           }
-        }
-      `,
-      {
-        address,
-        callNameIn: [MultisigCallNames.ApproveAsMulti, MultisigCallNames.AsMulti, MultisigCallNames.AsMultiThreshold1],
-      },
-      'tx-history'
-    )) as {
-      data: RawData
-    }
-  },
+        `,
+        {
+          address,
+          callNameIn: [
+            MultisigCallNames.ApproveAsMulti,
+            MultisigCallNames.AsMulti,
+            MultisigCallNames.AsMultiThreshold1,
+          ],
+          supportedChains,
+        },
+        'tx-history'
+      )) as {
+        data: RawData
+      }
+    },
 })
 
 const getAddressProxiesSelector = selectorFamily<PalletProxyProxyDefinition[], [string, string]>({
@@ -76,7 +88,21 @@ export const vaultsOfAccount = selector({
   get: async ({ get }) => {
     const selectedAccount = get(selectedAccountState)
     if (!selectedAccount) return
-    const { data } = get(getTransactionsOfAccount(selectedAccount.injected.address.toPubKey()))
+    const {
+      injected: { type },
+    } = selectedAccount
+
+    const isEthereumAccount = type === 'ethereum'
+    const supportedChainsByType = supportedChains
+      .filter(c => (isEthereumAccount ? c.account === 'secp256k1' : c.account === '*25519'))
+      .map(c => c.genesisHash)
+
+    const { data } = get(
+      getTransactionsOfAccount({
+        address: selectedAccount.injected.address.toPubKey(),
+        supportedChains: supportedChainsByType,
+      })
+    )
 
     const multisigs: Record<string, { multisigAddress: Address; signers: Address[]; threshold: number }> = {}
     const proxiedAccounts: Record<string, { address: Address; chain: Chain }> = {}
@@ -87,13 +113,6 @@ export const vaultsOfAccount = selector({
           Address.fromPubKey(parseCallAddressArg(tx.extrinsic.signer)) ||
           Address.fromSs58(parseCallAddressArg(tx.extrinsic.signer))
         if (!signer) throw new Error('Invalid signer')
-
-        // check if the multisig is on a supported chain
-        const chain = supportedChains.find(c => c.genesisHash === tx.extrinsic.block.chainGenesisHash)
-        if (!chain) {
-          console.warn('Chain not supported')
-          return
-        }
 
         // a multisig transaction should have a threshold, except for as_multi_threshold_1
         let threshold: number | undefined = tx.extrinsic.callArgs.threshold
@@ -139,7 +158,14 @@ export const vaultsOfAccount = selector({
           Address.fromPubKey(parseCallAddressArg(innerCall.value.real)) || Address.fromSs58(innerCall.value.real)
         if (!proxiedAccount) throw new Error('Invalid proxied account')
 
-        proxiedAccounts[`${proxiedAccount.toSs58()}-${chain.genesisHash}`] = {
+        // check if the multisig is on a supported chain
+        const chain = supportedChains.find(c => c.genesisHash === tx.extrinsic.block.chainGenesisHash)
+        if (!chain) {
+          console.warn('Chain not supported')
+          return
+        }
+
+        proxiedAccounts[`${proxiedAccount.toSs58()}-${tx.extrinsic.block.chainGenesisHash}`] = {
           address: proxiedAccount,
           chain,
         }

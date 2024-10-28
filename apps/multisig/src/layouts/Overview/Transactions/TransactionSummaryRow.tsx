@@ -1,13 +1,8 @@
 import StatusCircle, { StatusCircleType } from '@components/StatusCircle'
 import { tokenPricesState } from '@domains/chains'
-import {
-  Balance,
-  Transaction,
-  TransactionType,
-  calcSumOutgoing,
-  combinedViewState,
-  toConfirmedTxUrl,
-} from '@domains/multisig'
+import { calcSumOutgoing, combinedViewState, toConfirmedTxUrl } from '@domains/multisig'
+import { Balance, Transaction } from '@domains/offchain-data/metadata/types'
+import { TransactionType } from '@domains/offchain-data/metadata/types'
 import { Contract, List, Send, Settings, Share2, Unknown, Vote, Zap, Check, Link } from '@talismn/icons'
 import { Skeleton, Button } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
