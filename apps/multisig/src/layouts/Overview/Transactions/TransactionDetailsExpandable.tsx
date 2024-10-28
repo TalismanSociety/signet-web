@@ -8,7 +8,9 @@ import AmountRow from '@components/AmountRow'
 import MemberRow from '@components/MemberRow'
 import { decodeCallData } from '@domains/chains'
 import { pjsApiSelector, useApi } from '@domains/chains/pjs-api'
-import { Balance, Transaction, TransactionType, calcSumOutgoing, tempCalldataState } from '@domains/multisig'
+import { calcSumOutgoing, tempCalldataState } from '@domains/multisig'
+import { Transaction, Balance } from '@domains/offchain-data/metadata/types'
+import { TransactionType } from '@domains/offchain-data/metadata/types'
 import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote, Zap } from '@talismn/icons'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import AceEditor from 'react-ace'
@@ -116,7 +118,7 @@ const MultisigCallDataBox: React.FC<{ calldata: `0x${string}`; genesisHash: stri
 }
 
 const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
-  const { contactByAddress } = useKnownAddresses({ orgId: t.multisig.orgId })
+  const { contactByAddress } = useKnownAddresses()
   return (
     <div>
       <div css={{ display: 'grid', gap: 12, marginTop: '8px' }}>
@@ -155,7 +157,7 @@ const ChangeConfigExpandedDetails = ({ t }: { t: Transaction }) => {
 
 const MultiSendExpandedDetails = ({ t }: { t: Transaction }) => {
   const recipientAddresses = t.decoded?.recipients.map(r => r.address.toSs58())
-  const { contactByAddress, isLoading } = useKnownAddresses({ orgId: t.multisig.orgId, addresses: recipientAddresses })
+  const { contactByAddress, isLoading } = useKnownAddresses({ addresses: recipientAddresses })
   const shouldDisplayCategory =
     t.decoded?.recipients.some(r => contactByAddress[r.address.toSs58()]?.category) || isLoading
   const shouldDisplaySubcategory =
@@ -295,7 +297,6 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
   const [recipient] = t.decoded?.recipients || []
   const recipientAddress = recipient?.address.toSs58()
   const { contactByAddress, isLoading } = useKnownAddresses({
-    orgId: t.multisig.orgId,
     includeContracts: true,
     addresses: recipients.length === 1 && recipientAddress ? [recipientAddress] : [],
   })

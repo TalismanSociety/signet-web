@@ -1,7 +1,7 @@
 import MemberRow from '@components/MemberRow'
 import StatusCircle, { StatusCircleType } from '@components/StatusCircle'
 import { Tooltip } from '@components/ui/tooltip'
-import { Transaction } from '@domains/multisig'
+import { Transaction } from '@domains/offchain-data/metadata/types'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { Address } from '@util/addresses'
 import { useSelectedMultisig } from '@domains/multisig'
@@ -16,7 +16,7 @@ export const TransactionSidesheetApprovals: React.FC<{ t: Transaction }> = ({ t 
     return acc
   }, [])
 
-  const { contactByAddress, isLoading } = useKnownAddresses({ orgId: t.multisig.orgId, addresses: approversAddresses })
+  const { contactByAddress, isLoading } = useKnownAddresses({ addresses: approversAddresses })
   return (
     <div css={{ display: 'grid', gap: '14px' }}>
       {Object.entries(t.approvals).map(([address, approval]) => {

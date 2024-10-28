@@ -5,7 +5,7 @@ import AddressTooltip from '@components/AddressTooltip'
 import { Chain } from '@domains/chains'
 import { Validator, validatorsState } from '@domains/staking/ValidatorsWatcher'
 import { shortenAddress } from '@util/addresses'
-import { Transaction } from '@domains/multisig'
+import { Transaction } from '@domains/offchain-data/metadata/types'
 import { useNomPoolsOf } from '@domains/staking/useNomPoolsOf'
 import { useNominations } from '@domains/staking/useNominations'
 

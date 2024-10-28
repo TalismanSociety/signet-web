@@ -1,9 +1,10 @@
 import { BaseToken, decodeCallData } from '@domains/chains'
-import { TransactionDecoded, extrinsicToDecoded } from './index'
+import { extrinsicToDecoded } from './index'
+import { TransactionDecoded } from '@domains/offchain-data/metadata/types'
 import { ApiPromise } from '@polkadot/api'
 import { getErrorString } from '@util/misc'
 import { Multisig } from './index'
-import { TxMetadata } from '@domains/offchain-data'
+import { TxMetadata } from '@domains/offchain-data/metadata/types'
 
 export const innerCalldataToTransaction = (
   calldata: `0x${string}`,

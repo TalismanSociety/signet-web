@@ -1,4 +1,5 @@
-import { Transaction, extrinsicToDecoded } from '@domains/multisig'
+import { extrinsicToDecoded } from '@domains/multisig'
+import { Transaction } from '@domains/offchain-data/metadata/types'
 import { gql } from 'graphql-request'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { atom, useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'

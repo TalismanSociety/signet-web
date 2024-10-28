@@ -7,13 +7,8 @@ import { isEqual } from 'lodash'
 import { AccountDetails } from '@components/AddressInput/AccountDetails'
 import { ChainPill } from '@components/ChainPill'
 import { BaseToken, Chain, Price } from '@domains/chains'
-import {
-  AugmentedAccount,
-  Balance,
-  ProxyDefinition,
-  activeMultisigsState,
-  useSelectedMultisig,
-} from '@domains/multisig'
+import { Balance } from '@domains/offchain-data/metadata/types'
+import { AugmentedAccount, ProxyDefinition, activeMultisigsState, useSelectedMultisig } from '@domains/multisig'
 import { useProxies } from '@domains/proxy/useProxies'
 import { Address, toMultisigAddress } from '@util/addresses'
 import { balanceToFloat, formatUsd } from '@util/numbers'

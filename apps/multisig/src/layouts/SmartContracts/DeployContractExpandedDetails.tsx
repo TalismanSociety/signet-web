@@ -1,4 +1,4 @@
-import { Transaction } from '@domains/multisig'
+import { Transaction } from '@domains/offchain-data/metadata/types'
 import { useMemo } from 'react'
 import { hexToU8a, compactAddLength, BN_ZERO } from '@polkadot/util'
 import { StatusMessage } from '@components/StatusMessage'
@@ -33,7 +33,6 @@ export const DeployContractExpandedDetails: React.FC<{ t: Transaction }> = ({ t 
   const { api } = useApi(t.multisig.chain.genesisHash)
   const { decimal, symbol } = useTokenByChain(t.multisig.chain.genesisHash)
   const { contactByAddress } = useKnownAddresses({
-    orgId: t.multisig.orgId,
     includeContracts: true,
     includeSelectedMultisig: true,
   })

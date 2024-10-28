@@ -1,4 +1,5 @@
-import { Balance, EMPTY_BALANCE } from '@domains/multisig'
+import { EMPTY_BALANCE } from '@domains/multisig'
+import { Balance } from '@domains/offchain-data/metadata/types'
 import Decimal from 'decimal.js'
 import BN from 'bn.js'
 

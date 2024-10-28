@@ -7,7 +7,8 @@ import { customExtensions, pjsApiSelector, useApi } from '@domains/chains/pjs-ap
 import { isNumber } from '@polkadot/util'
 import { InjectedMetadata } from '@polkadot/extension-inject/types'
 import { accountsState } from '@domains/extension'
-import { Balance, Multisig, Transaction, useSelectedMultisig } from '@domains/multisig'
+import { Multisig, useSelectedMultisig } from '@domains/multisig'
+import { Balance, Transaction } from '@domains/offchain-data/metadata/types'
 import { ApiPromise, SubmittableResult } from '@polkadot/api'
 import type { SubmittableExtrinsic } from '@polkadot/api/types'
 import { web3FromAddress } from '@polkadot/extension-dapp'
@@ -27,7 +28,8 @@ import {
   isSubstrateTokensToken,
   tokenByIdQuery,
 } from './tokens'
-import { TxMetadata, useInsertTxMetadata } from '../offchain-data/metadata'
+import { TxMetadata } from '@domains/offchain-data/metadata/types'
+import { useInsertTxMetadata } from '../offchain-data/metadata'
 import { captureException } from '@sentry/react'
 import { handleSubmittableResultError } from '@util/errors'
 import { useAddSmartContract } from '@domains/offchain-data'

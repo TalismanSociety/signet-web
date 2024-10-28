@@ -4,10 +4,13 @@ import { Popover, PopoverTrigger, PopoverContent } from '@components/ui/popover'
 import { Address } from '@util/addresses'
 import { XIcon } from 'lucide-react'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
+import { useGetInfiniteAddresses } from '@domains/offchain-data/address-book/hooks/useGetInfiniteAddresses'
+import { useDebounce } from '@hooks/useDebounce'
+import { CircularProgressIndicator } from '@talismn/ui'
+import { useKnownAddresses } from '@hooks/useKnownAddresses'
 
 type Props = {
   inputRef: (node: HTMLInputElement | null) => void
-  contacts?: { name: string; address: Address }[]
   address?: Address
   onChangeAddress: (address?: Address) => void
   hasError?: boolean
@@ -15,7 +18,6 @@ type Props = {
 
 export const AddressInputCell: React.FC<Props> = ({
   address,
-  contacts,
   inputRef,
   onBlur,
   onChangeAddress,
@@ -26,26 +28,24 @@ export const AddressInputCell: React.FC<Props> = ({
   const [value, setValue] = useState('')
   const [focus, setFocus] = useState(false)
   const localRef = useRef<HTMLInputElement>(null)
-
-  const parsedAddress = useMemo(() => {
-    try {
-      return Address.fromSs58(value)
-    } catch {
-      return false
-    }
-  }, [value])
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const debouncedQuery = useDebounce(value, 300)
+  const { addresses: knownAddresses } = useKnownAddresses()
+  const {
+    data: addressData,
+    hasNextPage,
+    fetchNextPage,
+    isFetching,
+  } = useGetInfiniteAddresses({ search: debouncedQuery })
 
   const filteredContacts = useMemo(() => {
-    if (!value) return contacts
-    return contacts?.filter(contact => {
-      if (
-        contact.name.toLowerCase().includes(value.toLowerCase()) ||
-        contact.address.toSs58().toLowerCase().includes(value.toLowerCase())
-      )
-        return true
-      return parsedAddress && contact.address.isEqual(parsedAddress)
-    })
-  }, [contacts, parsedAddress, value])
+    const filteredKnownAddresses = knownAddresses.filter(
+      contact =>
+        contact.address.toSs58().toLowerCase().includes(value.toLowerCase()) ||
+        contact.name.toLowerCase().includes(value.toLowerCase())
+    )
+    return [...filteredKnownAddresses, ...addressData]
+  }, [addressData, knownAddresses, value])
 
   const handleFocus = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
@@ -63,29 +63,47 @@ export const AddressInputCell: React.FC<Props> = ({
     [onBlur]
   )
 
+  const handleScroll = () => {
+    if (!dropdownRef.current || !hasNextPage || isFetching) return
+    const { scrollTop, scrollHeight, clientHeight } = dropdownRef.current
+    if (scrollTop + clientHeight >= scrollHeight - 10) {
+      fetchNextPage()
+    }
+  }
+
+  const selectedContactName = address ? filteredContacts?.find(contact => contact.address.isEqual(address))?.name : ''
+
   return (
-    <div className="w-full relative">
-      {address ? (
-        <div className="w-full absolute top-0 left-0 flex items-center flex-1 gap-[8px]">
-          <AccountDetails
-            address={address}
-            name={contacts?.find(contact => contact.address.isEqual(address))?.name}
-            nameOrAddressOnly
-            withAddressTooltip={!hasError}
-          />
-          <Button
-            size="icon"
-            variant="secondary"
-            className="w-[24px] h-[24px] min-w-[24px]"
-            onClick={() => {
-              onChangeAddress(undefined)
-              setValue('')
-            }}
-          >
-            <XIcon size={16} />
-          </Button>
-        </div>
-      ) : null}
+    <div className="w-full flex items-center relative">
+      <div className="w-full absolute left-0 flex items-center flex-1 gap-[8px]">
+        {address && (
+          <>
+            <AccountDetails
+              address={address}
+              name={selectedContactName}
+              nameOrAddressOnly
+              withAddressTooltip={!hasError}
+            />
+            <Button
+              size="icon"
+              variant="secondary"
+              className="w-[24px] h-[24px] min-w-[24px]"
+              onClick={() => {
+                onChangeAddress(undefined)
+                setValue('')
+              }}
+            >
+              <XIcon size={16} />
+            </Button>
+          </>
+        )}
+        {!selectedContactName && (address || value || focus) && isFetching && (
+          <div className="ml-auto">
+            <CircularProgressIndicator size={12} />
+          </div>
+        )}
+      </div>
+
       <Popover open={focus}>
         <PopoverTrigger className="w-full">
           <input
@@ -117,6 +135,8 @@ export const AddressInputCell: React.FC<Props> = ({
           onOpenAutoFocus={e => {
             e.preventDefault()
           }}
+          ref={dropdownRef}
+          onScroll={handleScroll}
         >
           {filteredContacts?.map(contact => (
             <div

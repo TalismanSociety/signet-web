@@ -5,7 +5,8 @@
 // TODO: use pjs types instead of force casting
 
 import { pjsApiSelector } from '@domains/chains/pjs-api'
-import { Multisig, TransactionApprovals, activeMultisigsState, aggregatedMultisigsState } from '@domains/multisig'
+import { Multisig, activeMultisigsState, aggregatedMultisigsState } from '@domains/multisig'
+import { TransactionApprovals } from '@domains/offchain-data/metadata/types'
 import { Option } from '@polkadot/types-codec'
 import {
   BlockHash,
