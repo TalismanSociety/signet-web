@@ -760,22 +760,22 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
             handleSubmittableResultError(result)
             // typically we wait for inclusion only but for create proxy we wait for finalization
             // so in case there is a chain reorg, users wouldn't have deposited into an account that doesn't exist
-            if (!result?.status?.isFinalized) return
+            if (result.status.isInBlock || result?.status?.isFinalized) {
+              result.events.forEach(({ event }): void => {
+                const { method, data, section } = event
 
-            result.events.forEach(({ event }): void => {
-              const { method, data, section } = event
-
-              if (section === 'proxy' && method === 'PureCreated') {
-                if (data[0]) {
-                  const pureStr = data[0].toString()
-                  const pure = Address.fromSs58(pureStr)
-                  if (!pure) throw Error(`chain returned invalid address ${pureStr}`)
-                  onSuccess(pure)
-                } else {
-                  throw new Error('No proxies exist')
+                if (section === 'proxy' && method === 'PureCreated') {
+                  if (data[0]) {
+                    const pureStr = data[0].toString()
+                    const pure = Address.fromSs58(pureStr)
+                    if (!pure) throw Error(`chain returned invalid address ${pureStr}`)
+                    onSuccess(pure)
+                  } else {
+                    throw new Error('No proxies exist')
+                  }
                 }
-              }
-            })
+              })
+            }
           } catch (e) {
             if (unsubscribe) unsubscribe()
             captureException(e)
@@ -852,7 +852,7 @@ export const useTransferProxyToMultisig = (chain: Chain) => {
         .signAndSend(extensionAddress.toSs58(chain), { signer }, result => {
           try {
             handleSubmittableResultError(result)
-            if (!result?.status?.isFinalized) return
+            if (!(result?.status?.isFinalized || result.status.isInBlock)) return
 
             result.events.forEach(({ event }): void => {
               if (event.section === 'system' && event.method === 'ExtrinsicSuccess') onSuccess(result)

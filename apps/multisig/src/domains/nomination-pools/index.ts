@@ -78,6 +78,7 @@ export const bondedPoolsAtom = atomFamily({
       async ({ get }) => {
         const api = get(pjsApiSelector(chainGenesisHash))
 
+        if (!api.query.nominationPools?.bondedPools) return []
         const pools = await api.query.nominationPools.bondedPools.entries()
         const ids = pools.map(([key]) => getPoolId(key))
         const metadata = await api.query.nominationPools.metadata.multi(ids)
@@ -127,4 +128,27 @@ export const bondedPoolsAtom = atomFamily({
 export const selectedPoolIdAtom = atom<number | undefined>({
   key: 'selectedPoolIdAtom',
   default: undefined,
+})
+
+export const nominationsAtom = atomFamily({
+  key: 'nominationsAtom',
+  default: selectorFamily({
+    key: 'nominationsAtom/default',
+    get:
+      (genesisHashAndAddress: string) =>
+      async ({ get }) => {
+        const [genesisHash, address] = genesisHashAndAddress.split('-')
+        if (!genesisHash || !address) throw new Error('Invalid parameters for nominators')
+        const api = get(pjsApiSelector(genesisHash))
+
+        if (!api.query.staking?.nominators) return [] // staking pallet / nominators query not supported
+
+        const nominators = await api.query.staking.nominators(address)
+        if (nominators.isEmpty) return []
+        return nominators.value.targets.toHuman() as string[]
+      },
+    cachePolicy_UNSTABLE: {
+      eviction: 'most-recent',
+    },
+  }),
 })

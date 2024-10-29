@@ -81,7 +81,7 @@ const NominationCard: React.FC<Nomination & { onClick: () => void; disabled?: bo
 export const ValidatorsRotation: React.FC<{
   address: Address
   nominations: Nomination[]
-  pool: BondedPool
+  pool?: BondedPool
   onBack: () => void
 }> = ({ address, nominations, onBack, pool }) => {
   const [multisig] = useSelectedMultisig()

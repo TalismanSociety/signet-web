@@ -16,8 +16,6 @@ export const useNominateTransaction = (
   const extrinsic = useMemo(() => {
     if (!api) return undefined
 
-    if (!api.tx.proxy || !api.tx.proxy.proxy) return console.warn('Proxy pallet not supported on this chain.')
-
     try {
       // if pool exists, create a nom pool nominate extrinsic
       if (pool) {
