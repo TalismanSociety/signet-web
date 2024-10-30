@@ -1,6 +1,5 @@
 import { Button, Identicon } from '@talismn/ui'
 import { Address, shortenAddress } from '@util/addresses'
-import { BondedPool } from '@domains/staking/NomPoolsWatcher'
 import { Nomination } from '@domains/staking/useNominations'
 import { ChevronLeft, Trash2, X } from '@talismn/icons'
 import { useSelectedMultisig } from '@domains/multisig'
@@ -12,6 +11,8 @@ import { useConsts } from '@domains/chains/ConstsWatcher'
 import { useToast } from '@components/ui/use-toast'
 import { useNominateTransaction } from '../../domains/staking/useNominateTransaction'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
+import { u8aToString, u8aUnwrapBytes } from '@polkadot/util'
+import { BondedPool } from '@domains/nomination-pools'
 
 const NominationCard: React.FC<Nomination & { onClick: () => void; disabled?: boolean; icon?: React.ReactNode }> = ({
   address,
@@ -80,7 +81,7 @@ const NominationCard: React.FC<Nomination & { onClick: () => void; disabled?: bo
 export const ValidatorsRotation: React.FC<{
   address: Address
   nominations: Nomination[]
-  pool?: BondedPool
+  pool: BondedPool
   onBack: () => void
 }> = ({ address, nominations, onBack, pool }) => {
   const [multisig] = useSelectedMultisig()
@@ -164,8 +165,10 @@ export const ValidatorsRotation: React.FC<{
           <Identicon size={32} value={address.toSs58(multisig.chain)} />
           {pool ? (
             <div>
-              <p css={({ color }) => ({ color: color.offWhite })}>Pool #{pool.id}</p>
-              <p css={{ fontSize: 14 }}>{pool.metadata ?? address.toShortSs58(multisig.chain)}</p>
+              <p className="text-offWhite">Pool #{pool.id}</p>
+              <p className="text-[14px]">
+                {pool.metadata ? u8aToString(u8aUnwrapBytes(pool.metadata)) : address.toShortSs58(multisig.chain)}
+              </p>
             </div>
           ) : (
             <p>{address.toShortSs58(multisig.chain)}</p>

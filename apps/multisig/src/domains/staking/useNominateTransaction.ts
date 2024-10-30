@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { useSelectedMultisig } from '../multisig'
-import { BondedPool } from './NomPoolsWatcher'
 import { useApi } from '../chains/pjs-api'
 import { Address } from '../../util/addresses'
+import { BondedPool } from '@domains/nomination-pools'
 
 export const useNominateTransaction = (
   address: Address,
