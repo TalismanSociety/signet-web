@@ -76,9 +76,14 @@ const getAddressProxiesSelector = selectorFamily<PalletProxyProxyDefinition[], [
   get:
     ([address, chain]) =>
     async ({ get }) => {
-      const api = get(pjsApiSelector(chain))
-      if (!api.query.proxy?.proxies) return []
-      return (await api.query.proxy.proxies(address))[0].toArray()
+      try {
+        const api = get(pjsApiSelector(chain))
+        if (!api.query.proxy?.proxies) return []
+        return (await api.query.proxy.proxies(address))[0].toArray()
+      } catch (e) {
+        console.error({ e })
+        return []
+      }
     },
   dangerouslyAllowMutability: true,
 })
