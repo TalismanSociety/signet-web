@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import { Chain } from '../chains'
 import { useRecoilValueLoadable } from 'recoil'
-import { nominationsAtom } from '@domains/nomination-pools'
+import { nominationsAtom } from '.'
+
 import { Address } from '@util/addresses'
 
 export type Nomination = {

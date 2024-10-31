@@ -1,15 +1,9 @@
 import { useMemo } from 'react'
 import { useSelectedMultisig } from '../multisig'
 import { useApi } from '../chains/pjs-api'
-import { Address } from '../../util/addresses'
 import { BondedPool } from '@domains/nomination-pools'
 
-export const useNominateTransaction = (
-  address: Address,
-  description: string,
-  validators: string[],
-  pool?: BondedPool
-) => {
+export const useNominateTransaction = (validators: string[], pool?: BondedPool) => {
   const [multisig] = useSelectedMultisig()
   const { api } = useApi(multisig.chain.genesisHash)
 

@@ -11,7 +11,7 @@ import { pjsApiSelector, useApi } from '@domains/chains/pjs-api'
 import { calcSumOutgoing, tempCalldataState } from '@domains/multisig'
 import { Transaction, Balance } from '@domains/offchain-data/metadata/types'
 import { TransactionType } from '@domains/offchain-data/metadata/types'
-import { Check, Contract, Copy, List, Send, Settings, Share2, Unknown, Users, Vote, Zap } from '@talismn/icons'
+import { Check, Contract, Copy, List, Lock, Send, Settings, Share2, Unknown, Users, Vote, Zap } from '@talismn/icons'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import AceEditor from 'react-ace'
 import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
@@ -34,6 +34,7 @@ import { CONFIG } from '@lib/config'
 import { VestingDateRange } from '@components/VestingDateRange'
 import { Table, TableCell, TableHead, TableHeader, TableRow, TableBody } from '@components/ui/table'
 import { CircularProgressIndicator } from '@talismn/ui'
+import { BondHeader } from '../../../layouts/Staking/BondSummaryDetails'
 
 const CopyPasteBox: React.FC<{ content: string; label?: string }> = ({ content, label }) => {
   const [copied, setCopied] = useState(false)
@@ -345,6 +346,9 @@ const TransactionDetailsHeaderContent: React.FC<{ t: Transaction }> = ({ t }) =>
   if (t.decoded.type === TransactionType.NominateFromNomPool || t.decoded.type === TransactionType.NominateFromStaking)
     return <ValidatorsRotationHeader t={t} />
 
+  if (t.decoded.type === TransactionType.Bond || t.decoded.type === TransactionType.BondExtra)
+    return <BondHeader t={t} />
+
   return null
 }
 
@@ -373,9 +377,13 @@ const TransactionDetailsExpandable = ({ t }: { t: Transaction }) => {
       case TransactionType.DeployContract:
         return { name: 'Deploy Contract', icon: <Upload /> }
       case TransactionType.NominateFromNomPool:
-        return { name: 'Staking (Nom Pool)', icon: <Zap /> }
+        return { name: 'Nominate (Nom Pool)', icon: <Zap /> }
       case TransactionType.NominateFromStaking:
-        return { name: `Staking`, icon: <Zap /> }
+        return { name: `Nominate`, icon: <Zap /> }
+      case TransactionType.Bond:
+        return { name: `Bond`, icon: <Lock /> }
+      case TransactionType.BondExtra:
+        return { name: `Bond Extra`, icon: <Lock /> }
       default:
         return { name: 'Unknown Transaction', icon: <Unknown /> }
     }

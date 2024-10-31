@@ -135,8 +135,6 @@ export const ValidatorsRotation: React.FC<{
   )
 
   const { extrinsic } = useNominateTransaction(
-    address,
-    description,
     newNominations.map(n => n?.address.toSs58()),
     pool
   )

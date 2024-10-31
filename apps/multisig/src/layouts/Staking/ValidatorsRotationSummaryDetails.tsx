@@ -38,8 +38,8 @@ const useNominationsDiff = ({
   }, [proposedValidatorsAddresses, validators])
 
   const addedNominations = useMemo(
-    () => proposedValidators.filter(v => ~!nominations?.some(n => n.isEqual(v.address))),
-    [nominations, proposedValidators]
+    () => proposedValidators.filter(v => !nominatedValidators?.some(n => n.address.isEqual(v.address))),
+    [nominatedValidators, proposedValidators]
   )
 
   const removedNominations = useMemo(

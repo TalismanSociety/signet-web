@@ -8,6 +8,7 @@ import { TxDecoder } from './tx-decoders.types'
 import { decodeInstantiate } from './instantiate-contract.decoder'
 import { decodeChangeProxy } from './change-proxy.decoder'
 import { decodeVestedTransfer } from './vested-transfer.decoder'
+import { decodeBond } from './bond.decoder'
 
 export const txDecoders: TxDecoder[] = [
   decodeContractCall,
@@ -18,4 +19,5 @@ export const txDecoders: TxDecoder[] = [
   decodeNominate,
   decodeTransfers,
   decodeVestedTransfer,
+  decodeBond,
 ]

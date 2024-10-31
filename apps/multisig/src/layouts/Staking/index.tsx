@@ -10,6 +10,10 @@ import { Address } from '@util/addresses'
 import { ValidatorsRotation } from './ValidatorsRotation'
 import { useRecoilValueLoadable } from 'recoil'
 import { u8aToString, u8aUnwrapBytes } from '@polkadot/util'
+import { BondingForm } from './BondingForm'
+import { Button } from '@components/ui/button'
+import { stakingLedgerAtom } from '@domains/staking'
+import { formatUnits } from '@util/numbers'
 
 const Wrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex flex-1 py-[16px] px-[8px] lg:px-[4%] flex-col gap-[16px] w-full">{children}</div>
@@ -24,15 +28,17 @@ const Staking = () => {
   // user is editing nominations for a nom pool if `pool` exists
   // else we're editing via `staking` pallet
   const [editing, setEditing] = useState<{ address: Address; pool?: BondedPool } | undefined>()
+  const [bonding, setBonding] = useState(false)
 
   const augmentedTokens = useAugmentedBalances()
   const balance = augmentedTokens?.find(
     ({ details }) => details.id === multisig.chain.nativeToken.id || details.id.includes(multisig.chain.nativeToken.id)
   )
 
-  // total staked funds
-  const locksStaking = balance?.balanceDetails.locks.find(({ label }) => label === 'staking')
-  const stakingAmount = balance === undefined ? undefined : +(locksStaking?.amount.tokens ?? 0)
+  const stakingLedger = useRecoilValueLoadable(
+    stakingLedgerAtom(`${multisig.chain.genesisHash}-${multisig.proxyAddress.toSs58()}`)
+  )
+  const stakedAmount = stakingLedger.state === 'hasValue' ? stakingLedger.contents?.active.toBigInt() : undefined
 
   // total funds in pool, pallet is not supported when membership = null
   const pooledAmount = membership === null ? 0 : membership?.balance.toHuman().split(' ')[0]
@@ -70,7 +76,19 @@ const Staking = () => {
           price={balance?.price}
           label="Available"
         />
-        <BalanceCard symbol={nativeToken?.symbol} amount={stakingAmount} price={balance?.price} label="Staked" />
+        <BalanceCard
+          symbol={nativeToken?.symbol}
+          amount={
+            stakedAmount !== undefined && nativeToken ? +formatUnits(stakedAmount, nativeToken.decimals) : undefined
+          }
+          price={balance?.price}
+          label="Staked"
+          cta={
+            <Button size="sm" variant="outline" onClick={() => setBonding(!bonding)}>
+              {bonding ? 'Cancel' : stakedAmount !== undefined && stakedAmount > 0n ? 'Bond extra' : 'Bond'}
+            </Button>
+          }
+        />
         <BalanceCard
           symbol={nativeToken?.symbol}
           amount={membership === undefined ? undefined : +(pooledAmount ?? '0')}
@@ -87,7 +105,7 @@ const Staking = () => {
         />
       </div>
       {/** Add support for other proxy address (e.g. nested proxied address) */}
-      <NominationsOverview chain={multisig.chain} onEdit={handleEditNomPool} />
+      {bonding ? <BondingForm /> : <NominationsOverview chain={multisig.chain} onEdit={handleEditNomPool} />}
     </Wrapper>
   )
 }
