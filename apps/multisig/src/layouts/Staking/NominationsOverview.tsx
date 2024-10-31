@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { BondedPool, selectedPoolIdAtom } from '@domains/nomination-pools'
 import { useNomPoolsOf } from '@domains/staking/useNomPoolsOf'
 import { Button, CircularProgressIndicator, Identicon, Skeleton } from '@talismn/ui'
@@ -66,10 +66,6 @@ const NominationsOverview: React.FC<{
       )
     return <p className="text-[14px]">Nominate validators to earn staking rewards.</p>
   }, [api, nomPoolPalletSupported, nomPools])
-
-  useEffect(() => {
-    console.log(nomPool)
-  }, [multisig, nomPool, setSelectedPoolId])
 
   if (stakingPalletSupported === undefined)
     return (
