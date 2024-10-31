@@ -1,21 +1,18 @@
 import { useMemo } from 'react'
 import { Chain } from '../chains'
-import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
-import { validatorsState } from './ValidatorsWatcher'
+import { useRecoilValueLoadable } from 'recoil'
 import { nominationsAtom } from '@domains/nomination-pools'
+import { Address } from '@util/addresses'
 
 export type Nomination = {
-  address: string
-  name?: string
-  subName?: string
+  address: Address
 }
 
 export const useNominations = (
   chain: Chain,
   address?: string
-): { nominations: Nomination[] | undefined; isReady: boolean } => {
+): { nominations: Address[] | undefined; isReady: boolean } => {
   const nominationsLoadable = useRecoilValueLoadable(nominationsAtom(`${chain.genesisHash}-${address}`))
-  const validators = useRecoilValue(validatorsState)
 
   const nominations = useMemo(
     () => (nominationsLoadable.state === 'hasValue' ? nominationsLoadable.contents : undefined),
@@ -24,14 +21,9 @@ export const useNominations = (
 
   return useMemo(
     () => ({
-      nominations: nominations?.map(addressString => ({
-        // dont need to parse to Address class because we don't need to convert this address between chains
-        address: addressString,
-        name: validators?.validators[addressString]?.name,
-        subName: validators?.validators[addressString]?.subName,
-      })),
-      isReady: validators !== undefined && nominations !== undefined,
+      nominations: nominations?.map(addressString => Address.fromSs58(addressString) as Address),
+      isReady: nominations !== undefined,
     }),
-    [nominations, validators]
+    [nominations]
   )
 }

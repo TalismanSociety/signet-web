@@ -200,7 +200,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       },
     ],
     ss58Prefix: 42,
-    subscanUrl: 'https://test.azero.dev/#/explorer/',
+    subscanUrl: 'https://alephzero-testnet.subscan.io/',
     account: '*25519',
   },
   {

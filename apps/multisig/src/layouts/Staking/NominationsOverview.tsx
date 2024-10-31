@@ -4,7 +4,7 @@ import { useNomPoolsOf } from '@domains/staking/useNomPoolsOf'
 import { Button, CircularProgressIndicator, Identicon, Skeleton } from '@talismn/ui'
 import { Chain } from '@domains/chains'
 import { useApi } from '@domains/chains/pjs-api'
-import { Nomination, useNominations } from '@domains/staking/useNominations'
+import { useNominations } from '@domains/staking/useNominations'
 import { Address } from '@util/addresses'
 import { u8aToString, u8aUnwrapBytes } from '@polkadot/util'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@components/ui/dropdown-menu'
@@ -35,7 +35,7 @@ const NominationPoolDetails: React.FC<{ pool: BondedPool; chain?: Chain }> = ({ 
  */
 const NominationsOverview: React.FC<{
   chain: Chain
-  onEdit: (nominations: Nomination[], bondedPool?: BondedPool) => void
+  onEdit: (bondedPool?: BondedPool) => void
 }> = ({ chain, onEdit }) => {
   const [multisig] = useSelectedMultisig()
   const { api } = useApi(chain.genesisHash)
@@ -49,7 +49,10 @@ const NominationsOverview: React.FC<{
     nomPool?.stash.toSs58(chain) ?? multisig.proxyAddress.toSs58(chain)
   )
 
-  const stakingPalletSupported = useMemo(() => api && Boolean(api.query.staking), [api])
+  const stakingPalletSupported = useMemo(
+    () => api && Boolean(api.query.staking) && Boolean(api.tx.staking.nominate),
+    [api]
+  )
   const nomPoolPalletSupported = useMemo(() => (api ? Boolean(api.query?.nominationPools) : undefined), [api])
 
   const statementUI = useMemo(() => {
@@ -64,7 +67,9 @@ const NominationsOverview: React.FC<{
     return <p className="text-[14px]">Nominate validators to earn staking rewards.</p>
   }, [api, nomPoolPalletSupported, nomPools])
 
-  useEffect(() => setSelectedPoolId(undefined), [multisig, setSelectedPoolId])
+  useEffect(() => {
+    console.log(nomPool)
+  }, [multisig, nomPool, setSelectedPoolId])
 
   if (stakingPalletSupported === undefined)
     return (
@@ -107,37 +112,36 @@ const NominationsOverview: React.FC<{
                 <ChevronDown size={20} className="min-w-[20px]" />
               )}
             </DropdownMenuTrigger>
-            {nomPools && nomPools.length > 1 && (
-              <DropdownMenuContent align="start">
+
+            <DropdownMenuContent align="start" className="w-[var(--radix-popper-anchor-width)]">
+              <div
+                className="hover:bg-gray-800 p-[8px] rounded-[8px] cursor-pointer"
+                onClick={() => {
+                  setOpenPoolsDropdown(false)
+                  setSelectedPoolId(undefined)
+                }}
+              >
+                <AccountDetails
+                  identiconSize={32}
+                  disableCopy
+                  address={multisig.proxyAddress}
+                  name={multisig.name}
+                  breakLine
+                />
+              </div>
+              {nomPools?.map(pool => (
                 <div
+                  key={pool.id}
                   className="hover:bg-gray-800 p-[8px] rounded-[8px] cursor-pointer"
                   onClick={() => {
                     setOpenPoolsDropdown(false)
-                    setSelectedPoolId(undefined)
+                    setSelectedPoolId(pool.id)
                   }}
                 >
-                  <AccountDetails
-                    identiconSize={32}
-                    disableCopy
-                    address={multisig.proxyAddress}
-                    name={multisig.name}
-                    breakLine
-                  />
+                  <NominationPoolDetails pool={pool} chain={chain} />
                 </div>
-                {nomPools.map(pool => (
-                  <div
-                    key={pool.id}
-                    className="hover:bg-gray-800 p-[8px] rounded-[8px] cursor-pointer"
-                    onClick={() => {
-                      setOpenPoolsDropdown(false)
-                      setSelectedPoolId(pool.id)
-                    }}
-                  >
-                    <NominationPoolDetails pool={pool} chain={chain} />
-                  </div>
-                ))}
-              </DropdownMenuContent>
-            )}
+              ))}
+            </DropdownMenuContent>
           </DropdownMenu>
 
           <div>
@@ -156,7 +160,7 @@ const NominationsOverview: React.FC<{
                 disabled={!isReady}
                 loading={!isReady}
                 onClick={() => {
-                  if (nominations) onEdit(nominations, nomPool)
+                  if (isReady) onEdit(nomPool)
                 }}
               >
                 Nominate Validators

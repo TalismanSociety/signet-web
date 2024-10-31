@@ -6,14 +6,13 @@ import { useNativeToken } from '@domains/chains'
 import { usePoolMembership } from '@domains/staking/usePoolMembership'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BondedPool, bondedPoolsAtom } from '@domains/nomination-pools'
-import { Nomination } from '@domains/staking/useNominations'
 import { Address } from '@util/addresses'
 import { ValidatorsRotation } from './ValidatorsRotation'
 import { useRecoilValueLoadable } from 'recoil'
 import { u8aToString, u8aUnwrapBytes } from '@polkadot/util'
 
 const Wrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <div className="flex flex-1 py-[32px] px-[8px] lg:px-[8%] flex-col gap-[16px] w-full">{children}</div>
+  <div className="flex flex-1 py-[16px] px-[8px] lg:px-[4%] flex-col gap-[16px] w-full">{children}</div>
 )
 
 const Staking = () => {
@@ -24,9 +23,7 @@ const Staking = () => {
 
   // user is editing nominations for a nom pool if `pool` exists
   // else we're editing via `staking` pallet
-  const [editing, setEditing] = useState<
-    { address: Address; nominations: Nomination[]; pool?: BondedPool } | undefined
-  >()
+  const [editing, setEditing] = useState<{ address: Address; pool?: BondedPool } | undefined>()
 
   const augmentedTokens = useAugmentedBalances()
   const balance = augmentedTokens?.find(
@@ -45,8 +42,8 @@ const Staking = () => {
   }, [bondedPools.contents, bondedPools.state, multisig.proxyAddress])
 
   const handleEditNomPool = useCallback(
-    (nominations: Nomination[], pool?: BondedPool) => {
-      setEditing({ address: pool?.stash ?? multisig.proxyAddress, nominations, pool })
+    (pool?: BondedPool) => {
+      setEditing({ address: pool?.stash ?? multisig.proxyAddress, pool })
     },
     [multisig.proxyAddress]
   )
