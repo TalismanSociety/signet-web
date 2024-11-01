@@ -121,7 +121,7 @@ export const decodeCallData = (api: ApiPromise, callData: string) => {
 
         extrinsicCall = api.createType('Call', extrinsicPayload.method.toHex())
       } catch (e) {
-        throw new Error('Unable to decode input data as Call, Extrinsic or ExtrinsicPayload')
+        return undefined
       }
     }
   }
