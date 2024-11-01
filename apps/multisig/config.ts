@@ -22,7 +22,7 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   'hydradx': { id: 'hydradx', polkaAssemblyUrl: 'https://centrifuge.polkassembly.io' },
   'kusama': { id: 'kusama', polkaAssemblyUrl: 'https://kusama.polkassembly.io' },
   'rococo': { id: 'rococo', polkaAssemblyUrl: 'https://rococo.polkassembly.io' },
-  'aleph-zero-testnet': { id: 'aleph-zero-testnet', subscanUrl: 'https://test.azero.dev/#/explorer/' },
+  'aleph-zero-testnet': { id: 'aleph-zero-testnet', subscanUrl: 'https://alephzero-testnet.subscan.io/' },
   'paseo-testnet': { id: 'paseo-testnet', subscanUrl: 'https://paseo.subscan.io/' },
   'polimec': { id: 'polimec', subscanUrl: 'https://explorer.polimec.org/polimec/' },
   'bittensor': {

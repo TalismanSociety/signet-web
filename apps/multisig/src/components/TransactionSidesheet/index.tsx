@@ -22,6 +22,7 @@ import { makeTransactionID } from '@util/misc'
 import { MIN_MULTISIG_THRESHOLD } from '@util/constants'
 import useCopied from '@hooks/useCopied'
 import { Check, Link } from '@talismn/icons'
+import { stakingDependencyAtom } from '@domains/staking'
 
 type TransactionSidesheetProps = {
   onApproved?: (res: { result: SubmittableResult; executed: boolean }) => void
@@ -72,6 +73,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   const { deleteDraft, loading: deletingDraft } = useDeleteDraftMetadata()
   const { cancelAsMulti, canCancel: canReject } = useCancelAsMulti(t)
   const [executingTransactions, setExecutingTransactions] = useRecoilState(executingTransactionsState)
+  const setStakingDependency = useSetRecoilState(stakingDependencyAtom)
 
   const { toast } = useToast()
   const executing = useMemo(
@@ -124,6 +126,11 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
       }
 
       onApproved?.(r)
+
+      // update any dependencies
+      if (r.executed) {
+        setStakingDependency(x => x + 1)
+      }
       // approving from draft tab, delete the draft
       // redirect if approving from a draft or if redirect isnt disabled
       if (!preventRedirect) navigate(`/overview?tab=${r.executed ? 'history' : 'pending'}`)
@@ -149,6 +156,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
     selectedMultisig.id,
     selectedMultisig.threshold,
     setExecutingTransactions,
+    setStakingDependency,
     setUnknownTransactions,
     shouldSetUnknownTransaction,
     t,

@@ -15,8 +15,8 @@ import useCopied from '@hooks/useCopied'
 import { useOnchainIdentity } from '@domains/identity/useOnchainIdentity'
 
 export const AddressTooltip: React.FC<
-  React.PropsWithChildren & { address: Address | string; chain?: Chain; name?: string }
-> = ({ children, address: _address, chain, name }) => {
+  React.PropsWithChildren & { address: Address | string; chain?: Chain; disabled?: boolean; name?: string }
+> = ({ children, address: _address, chain, disabled, name }) => {
   const [selectedMultisig] = useSelectedMultisig()
   const { api } = useApi(chain?.genesisHash ?? selectedMultisig.chain.genesisHash)
   const token = useSystemToken(api)
@@ -74,6 +74,7 @@ export const AddressTooltip: React.FC<
 
   return (
     <Tooltip
+      disabled={disabled}
       content={
         <div className="p-3 cursor-default" onClick={e => e.stopPropagation()}>
           <div className="flex items-center justify-between">

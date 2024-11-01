@@ -19,7 +19,6 @@ import router from './routes'
 import { AccountWatcher } from '@domains/auth'
 import { OffchainDataWatcher } from '@domains/offchain-data/offchain-watcher'
 import { ActiveMultisigWatcher } from './domains/multisig'
-import { ValidatorsWatcher } from './domains/staking/ValidatorsWatcher'
 import ConstsWatcher from './domains/chains/ConstsWatcher'
 import { Toaster as NewToaster } from '@components/ui/toaster'
 import { HasuraProvider } from '@domains/offchain-data/hasura'
@@ -53,7 +52,6 @@ const App: React.FC = () => {
                   <ExtensionWatcher />
                   <AccountWatcher />
                   <OffchainDataWatcher />
-                  <ValidatorsWatcher />
                   <ActiveMultisigWatcher />
                   <ConstsWatcher />
                   <QueryClientProvider client={queryClient}>

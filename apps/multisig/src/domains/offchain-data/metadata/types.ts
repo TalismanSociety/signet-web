@@ -59,6 +59,8 @@ export enum TransactionType {
   NominateFromStaking,
   ContractCall,
   DeployContract,
+  Bond,
+  BondExtra,
 }
 
 export interface Balance {
@@ -100,6 +102,10 @@ export interface TransactionDecoded {
     data: `0x${string}`
     salt: `0x${string}`
     value: BN
+  }
+  bond?: {
+    value: Balance
+    payee?: string | undefined
   }
   voteDetails?: VoteDetails & { token: BaseToken }
 }

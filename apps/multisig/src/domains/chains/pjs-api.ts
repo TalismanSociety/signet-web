@@ -7,6 +7,7 @@ import { parseURL } from '@util/strings'
 import persistAtom from '@domains/persist'
 import { types, rpc, signedExtensions } from 'avail-js-sdk'
 import { ApiOptions } from '@polkadot/api/types'
+import { peopleChains } from './people-chains'
 
 const RPC_PROVIDER = 'onfinality'
 
@@ -26,9 +27,10 @@ export const customExtensions: Record<
 const defaultPjsApiSelector = selectorFamily({
   key: 'defaultPjsApis',
   get: (_genesisHash: string) => async (): Promise<ApiPromise> => {
-    const { rpcs, chainName, id } = supportedChains.find(({ genesisHash }) => genesisHash === _genesisHash) || {
-      rpcs: [],
-    }
+    const { rpcs, chainName, id } = supportedChains.find(({ genesisHash }) => genesisHash === _genesisHash) ||
+      Object.values(peopleChains).find(({ genesisHash }) => genesisHash === _genesisHash) || {
+        rpcs: [],
+      }
 
     // Return a dummy provider when rpcs are not known
     if (rpcs.length === 0) return ApiPromise.create({ provider: new WsProvider([]) })
@@ -138,3 +140,12 @@ export const useApi = (genesisHash: string) => {
     isConnected: apiLoadable.contents?.isConnected,
   }
 }
+
+export const peopleNetworkApiSelector = selectorFamily({
+  key: 'pjsApiByChainId',
+  get:
+    (chainId: keyof typeof peopleChains) =>
+    ({ get }) =>
+      get(pjsApiSelector(peopleChains[chainId].genesisHash)),
+  dangerouslyAllowMutability: true,
+})

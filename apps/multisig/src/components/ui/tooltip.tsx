@@ -25,14 +25,12 @@ const TooltipContent = React.forwardRef<
 ))
 TooltipContent.displayName = TooltipPrimitive.Content.displayName
 
-const Tooltip: React.FC<React.PropsWithChildren & { content?: React.ReactNode; delayDuration?: number }> = ({
-  children,
-  content,
-  delayDuration = 700,
-}) => {
+const Tooltip: React.FC<
+  React.PropsWithChildren & { content?: React.ReactNode; delayDuration?: number; disabled?: boolean }
+> = ({ children, content, delayDuration = 700, disabled }) => {
   return (
     <TooltipProvider>
-      <TooltipRoot delayDuration={delayDuration}>
+      <TooltipRoot open={disabled ? false : undefined} delayDuration={delayDuration}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
         <TooltipContent className={!content ? 'hidden' : ''}>{content}</TooltipContent>
       </TooltipRoot>
