@@ -98,6 +98,7 @@ const NominationsOverview: React.FC<{
                   identiconSize={32}
                   address={multisig.proxyAddress}
                   name={multisig.name}
+                  chain={chain}
                   breakLine
                   disableCopy
                 />

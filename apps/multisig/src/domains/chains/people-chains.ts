@@ -18,11 +18,7 @@ export const peopleChains = {
   'paseo-testnet': {
     chainName: 'Paseo People Network',
     id: 'paseo-people',
-    rpcs: [
-      {
-        url: 'wss://people-paseo.rpc.amforc.com/',
-      },
-    ],
+    rpcs: [{ url: 'wss://people-paseo.rpc.amforc.com/' }],
     genesisHash: '0xe6c30d6e148f250b887105237bcaa5cb9f16dd203bf7b5b9d4f1da7387cb86ec',
   },
 }

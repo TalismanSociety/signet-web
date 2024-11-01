@@ -110,15 +110,19 @@ export const decodeCallData = (api: ApiPromise, callData: string) => {
         throw new Error('Unable to decode data as Call, length mismatch in supplied data')
       }
     } catch (e) {
-      // final attempt, we try this as-is as a (prefixed) payload
-      extrinsicPayload = api.createType('ExtrinsicPayload', callData)
+      try {
+        // final attempt, we try this as-is as a (prefixed) payload
+        extrinsicPayload = api.createType('ExtrinsicPayload', callData)
 
-      assert(
-        extrinsicPayload.toHex() === callData,
-        'Unable to decode input data as Call, Extrinsic or ExtrinsicPayload'
-      )
+        assert(
+          extrinsicPayload.toHex() === callData,
+          'Unable to decode input data as Call, Extrinsic or ExtrinsicPayload'
+        )
 
-      extrinsicCall = api.createType('Call', extrinsicPayload.method.toHex())
+        extrinsicCall = api.createType('Call', extrinsicPayload.method.toHex())
+      } catch (e) {
+        throw new Error('Unable to decode input data as Call, Extrinsic or ExtrinsicPayload')
+      }
     }
   }
 

@@ -32,6 +32,7 @@ const VirtualizedList: React.FC<{
     getScrollElement: () => wrapperRef.current,
     count: validators.length,
     estimateSize: () => 64,
+    overscan: 64,
   })
 
   return (
