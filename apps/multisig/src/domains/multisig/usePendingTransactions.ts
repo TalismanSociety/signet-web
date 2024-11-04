@@ -62,8 +62,8 @@ const usePendingTransactions = () => {
 
   const transactions = useMemo((): Transaction[] => {
     const _transactions: Transaction[] = []
-    try {
-      for (const rawPending of rawPendingTransactionsWithId) {
+    for (const rawPending of rawPendingTransactionsWithId) {
+      try {
         const { id } = rawPending
         const metadata = data?.find(txMeta => txMeta.extrinsicId === id)
 
@@ -106,9 +106,9 @@ const usePendingTransactions = () => {
             ...decoded,
           })
         }
+      } catch (e) {
+        console.error(`Failed to create transaction from rawPendingTransaction ${rawPending.id}:`, e)
       }
-    } catch (e) {
-      return []
     }
     return _transactions
   }, [chainTokens, data, pjsApi, rawPendingTransactionsWithId, tempCalldata])

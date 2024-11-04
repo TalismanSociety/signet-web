@@ -262,7 +262,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
-        url: 'wss://bittensor-finney.api.onfinality.io/ws?apikey=',
+        url: 'wss://entrypoint-finney.opentensor.ai/',
       },
     ],
     ss58Prefix: 42,
