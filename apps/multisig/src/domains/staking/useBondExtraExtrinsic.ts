@@ -6,6 +6,11 @@ export const useBondExtraExtrinsic = (value: bigint) => {
   const [multisig] = useSelectedMultisig()
   const { api } = useApi(multisig.chain.genesisHash)
 
+  const isSupported = useMemo(() => {
+    if (!api) return undefined
+    return Boolean(api.tx.staking && api.tx.staking.bondExtra)
+  }, [api])
+
   const extrinsic = useMemo(() => {
     if (!api) return undefined
     try {
@@ -19,5 +24,5 @@ export const useBondExtraExtrinsic = (value: bigint) => {
     return undefined
   }, [api, value])
 
-  return { extrinsic }
+  return { extrinsic, isSupported }
 }

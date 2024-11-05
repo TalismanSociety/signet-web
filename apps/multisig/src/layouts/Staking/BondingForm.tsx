@@ -4,7 +4,7 @@ import { useSelectedMultisig } from '@domains/multisig'
 import React, { useState } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import { formatUnits, parseUnits } from '../../util/numbers'
-import { Skeleton } from '@talismn/ui'
+import { CircularProgressIndicator, Skeleton } from '@talismn/ui'
 import { Button } from '@components/ui/button'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useBondExtrinsic } from '@domains/staking/useBondExtrinsic'
@@ -32,8 +32,22 @@ export const BondingForm: React.FC = () => {
     }
   }, [amountString, token.nativeToken])
 
-  const { extrinsic } = useBondExtrinsic(amount)
-  const { extrinsic: bondExtraExtrinsic } = useBondExtraExtrinsic(amount)
+  const { extrinsic, isSupported: isBondSupported } = useBondExtrinsic(amount)
+  const { extrinsic: bondExtraExtrinsic, isSupported: isBondExtraSupported } = useBondExtraExtrinsic(amount)
+
+  if (isBondSupported === undefined || isBondExtraSupported === undefined)
+    return (
+      <div className="mt-[24px] flex items-center justify-center">
+        <CircularProgressIndicator size={32} />
+      </div>
+    )
+
+  if (!isBondExtraSupported || !isBondSupported)
+    return (
+      <div>
+        <p className="text-center">Staking not supported on this network.</p>
+      </div>
+    )
 
   return (
     <div className="max-w-[560px] w-full flex flex-col gap-[8px]">
