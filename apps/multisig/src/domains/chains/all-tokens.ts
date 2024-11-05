@@ -944,7 +944,7 @@ export const ALL_TOKENS = [
     isDefault: true,
     symbol: 'AVL',
     decimals: 18,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
+    logo: 'https://www.availproject.org/_next/static/media/logo_large.80d5666f.png',
     existentialDeposit: '10000000000000',
     chain: {
       id: 'avail-goldberg-testnet',
@@ -957,7 +957,7 @@ export const ALL_TOKENS = [
     isDefault: true,
     symbol: 'AVAIL',
     decimals: 18,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
+    logo: 'https://www.availproject.org/_next/static/media/logo_large.80d5666f.png',
     existentialDeposit: '10000000000000',
     chain: {
       id: 'avail-turing-testnet',

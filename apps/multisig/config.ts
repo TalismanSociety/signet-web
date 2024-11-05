@@ -41,6 +41,11 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   'rococo-testnet': { id: 'rococo-testnet' },
   'shibuya-testnet': { id: 'shibuya-testnet' },
   'mythos': { id: 'mythos', subscanUrl: 'https://mythos.subscan.io/' },
+  'avail-turing-testnet': {
+    id: 'avail-turing-testnet',
+    subscanUrl: 'https://temp-explorer.avail.so/#/explorer',
+    logo: 'https://www.availproject.org/_next/static/media/logo_large.80d5666f.png',
+  },
 
   // turned off due to inactivity
   // 'dancebox': { id: 'dancebox', subscanUrl: 'https://dancebox.subscan.io/' },
@@ -51,11 +56,6 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   // 'khala': { id: 'khala' },
   // 'kintsugi': { id: 'kintsugi' },
   // 'rococo-neuro-web-testnet': { id: 'rococo-neuro-web-testnet', subscanUrl: 'https://neuroweb-testnet.subscan.io/' },
-  // 'avail-turing-testnet': {
-  //   id: 'avail-turing-testnet',
-  //   subscanUrl: 'https://temp-explorer.avail.so/#/explorer',
-  //   logo: 'https://www.availproject.org/_next/static/media/logo_large.80d5666f.png',
-  // },
 }
 
 export type Chain = {

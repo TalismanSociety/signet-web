@@ -21,6 +21,7 @@ export type SupportedChainIds =
   | 'rococo-testnet'
   | 'shibuya-testnet'
   | 'mythos'
+  | 'avail-turing-testnet'
 export const supportedChains: Chain<SupportedChainIds>[] = [
   {
     id: 'polkadot',
@@ -550,5 +551,23 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ss58Prefix: 42,
     subscanUrl: 'https://mythos.subscan.io/',
     account: 'secp256k1',
+  },
+  {
+    id: 'avail-turing-testnet',
+    chainName: 'Avail Turing Testnet',
+    genesisHash: '0xd3d2f3a3495dc597434a99d7d449ebad6616db45e4e4f178f31cc6fa14378b70',
+    isTestnet: true,
+    logo: 'https://www.availproject.org/_next/static/media/logo_large.80d5666f.png',
+    nativeToken: {
+      id: 'avail-turing-testnet-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://turing-rpc.avail.so/ws',
+      },
+    ],
+    ss58Prefix: 42,
+    subscanUrl: 'https://temp-explorer.avail.so/#/explorer',
+    account: '*25519',
   },
 ]
