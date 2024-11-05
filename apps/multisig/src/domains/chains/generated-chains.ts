@@ -200,7 +200,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       },
     ],
     ss58Prefix: 42,
-    subscanUrl: 'https://test.azero.dev/#/explorer/',
+    subscanUrl: 'https://alephzero-testnet.subscan.io/',
     account: '*25519',
   },
   {
@@ -262,7 +262,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
-        url: 'wss://bittensor-finney.api.onfinality.io/ws?apikey=',
+        url: 'wss://entrypoint-finney.opentensor.ai/',
       },
     ],
     ss58Prefix: 42,

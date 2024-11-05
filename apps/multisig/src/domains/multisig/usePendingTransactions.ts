@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { allRawPendingTransactionsSelector, RawPendingTransaction } from '@domains/chains/storage-getters'
 import { tempCalldataState, extrinsicToDecoded } from '@domains/multisig'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
@@ -60,51 +60,58 @@ const usePendingTransactions = () => {
   if (!pjsApi) throw Error(`pjsApi found for rpc ${chainId}!`)
   if (!chainTokens) throw Error(`Failed to load chainTokens for chain ${chainId}!`)
 
-  const transactions: Transaction[] = []
-  for (const rawPending of rawPendingTransactionsWithId) {
-    const { id } = rawPending
-    const metadata = data?.find(txMeta => txMeta.extrinsicId === id)
+  const transactions = useMemo((): Transaction[] => {
+    const _transactions: Transaction[] = []
+    for (const rawPending of rawPendingTransactionsWithId) {
+      try {
+        const { id } = rawPending
+        const metadata = data?.find(txMeta => txMeta.extrinsicId === id)
 
-    let calldata = metadata?.callData ?? tempCalldata[id]
+        let calldata = metadata?.callData ?? tempCalldata[id]
 
-    if (calldata) {
-      // create extrinsic from callData
-      const extrinsic = decodeCallData(pjsApi, calldata)
-      if (!extrinsic) {
-        throw new Error(
-          `Failed to create extrinsic from callData recieved from metadata sharing service for transactionID ${id}`
-        )
+        if (calldata) {
+          // create extrinsic from callData
+          const extrinsic = decodeCallData(pjsApi, calldata)
+          if (!extrinsic) {
+            throw new Error(
+              `Failed to create extrinsic from callData recieved from metadata sharing service for transactionID ${id}`
+            )
+          }
+
+          // validate hash of extrinsic matches hash from chain
+          const derivedHash = extrinsic.registry.hash(extrinsic.method.toU8a()).toHex()
+          if (derivedHash !== rawPending.callHash) {
+            throw new Error(
+              `CallData from metadata sharing service for transactionID ${id} does not match hash from chain. Expected ${rawPending.callHash}, got ${derivedHash}`
+            )
+          }
+
+          const decoded = extrinsicToDecoded(
+            rawPending.multisig,
+            extrinsic,
+            chainTokens,
+            metadata ?? { callData: calldata }
+          )
+          if (decoded === 'not_ours') continue
+
+          _transactions.push({
+            date: rawPending.date,
+            callData: calldata as `0x${string}`,
+            hash: rawPending.callHash,
+            rawPending: rawPending,
+            multisig: rawPending.multisig,
+            approvals: rawPending.approvals,
+            id,
+            metadataSaved: true,
+            ...decoded,
+          })
+        }
+      } catch (e) {
+        console.error(`Failed to create transaction from rawPendingTransaction ${rawPending.id}:`, e)
       }
-
-      // validate hash of extrinsic matches hash from chain
-      const derivedHash = extrinsic.registry.hash(extrinsic.method.toU8a()).toHex()
-      if (derivedHash !== rawPending.callHash) {
-        throw new Error(
-          `CallData from metadata sharing service for transactionID ${id} does not match hash from chain. Expected ${rawPending.callHash}, got ${derivedHash}`
-        )
-      }
-
-      const decoded = extrinsicToDecoded(
-        rawPending.multisig,
-        extrinsic,
-        chainTokens,
-        metadata ?? { callData: calldata }
-      )
-      if (decoded === 'not_ours') continue
-
-      transactions.push({
-        date: rawPending.date,
-        callData: calldata as `0x${string}`,
-        hash: rawPending.callHash,
-        rawPending: rawPending,
-        multisig: rawPending.multisig,
-        approvals: rawPending.approvals,
-        id,
-        metadataSaved: true,
-        ...decoded,
-      })
     }
-  }
+    return _transactions
+  }, [chainTokens, data, pjsApi, rawPendingTransactionsWithId, tempCalldata])
 
   const loading = isLoading || allRawPendingTransactionsLoadable.state === 'loading'
 

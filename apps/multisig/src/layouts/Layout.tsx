@@ -7,7 +7,6 @@ import { useRecoilValue } from 'recoil'
 import { activeTeamsState } from '../domains/offchain-data'
 import { Navigate, useLocation } from 'react-router-dom'
 import BetaNotice from './Overview/BetaNotice'
-import { useDevMode } from '../domains/common/useDevMode'
 import WalletConnectLogo from '@components/WalletConnectLogo'
 import { WalletConnectRequest } from '@domains/wallet-connect/WalletConnectRequest'
 import { ScanVaultsDialog } from '@components/ScanVaults/ScanVaultsDialog'
@@ -15,7 +14,6 @@ import { useMemo } from 'react'
 
 export const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const activeTeams = useRecoilValue(activeTeamsState)
-  const devMode = useDevMode()
   const location = useLocation()
 
   const hideSideBar = useMemo(
@@ -73,7 +71,6 @@ export const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
                         name: 'Staking',
                         icon: <Zap />,
                         href: '/staking',
-                        hidden: !devMode,
                       },
                       {
                         name: 'Address Book',
@@ -89,7 +86,6 @@ export const Layout: React.FC<React.PropsWithChildren> = ({ children }) => {
                         name: 'Dapps',
                         icon: <Globe />,
                         href: '/dapps',
-                        // hidden: !devMode,
                       },
                       {
                         name: 'Smart Contracts',

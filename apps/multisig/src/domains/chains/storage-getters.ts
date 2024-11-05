@@ -20,7 +20,6 @@ import { useCallback } from 'react'
 import { atom, selector, selectorFamily, useRecoilValueLoadable } from 'recoil'
 
 import { BaseToken, Chain, tokenByIdQuery } from './tokens'
-import { u8aToString, u8aUnwrapBytes } from '@polkadot/util'
 import { FrameSystemEventRecord } from '@polkadot/types/lookup'
 
 export const useAddressIsProxyDelegatee = (chain: Chain) => {
@@ -249,44 +248,6 @@ export const blockEventsSelector = selectorFamily<FrameSystemEventRecord[], [str
       const apiAt = await api.at(blockHash)
       const allEvents = await apiAt.query.system.events()
       return allEvents.toArray()
-    },
-  dangerouslyAllowMutability: true,
-})
-
-export const identitySelector = selectorFamily({
-  key: 'identitySelector',
-  get:
-    (identifier: string) =>
-    async ({ get }) => {
-      const [genesisHash, identifierAddress] = identifier.split(':') as [string, string]
-      if (genesisHash === 'undefined') return undefined
-      const api = get(pjsApiSelector(genesisHash))
-      await api.isReady
-      if (!api.query.identity || !api.query.identity.identityOf) return null
-
-      const address = Address.fromSs58(identifierAddress)
-      // identity pallet is only available for Substrate addresses
-      if (!address || address.isEthereum) return null
-
-      // get identity + superOf to check if user has set its own identity or has a super identity
-      const [identity, superOf] = await Promise.all([
-        api.query.identity.identityOf(address.bytes),
-        api.query.identity.superOf(address.bytes),
-      ])
-
-      // anyone can be set as a sub identity without permission, we should make sure that sub identity
-      // doesnt override the actual identity set by the address itself
-      if (!identity.isSome && superOf.isSome) {
-        const [superAddress, rawIdentity] = superOf.value
-        const superIdentity = await api.query.identity.identityOf(superAddress)
-        // super identity is valid, return both super and sub identity
-        if (superIdentity.isSome) {
-          // some identities are hex, we need to convert them to readable strings
-          const subIdentity = u8aToString(u8aUnwrapBytes(rawIdentity.asRaw.toString()))
-          return { identity: superIdentity, subIdentity }
-        }
-      }
-      return { identity }
     },
   dangerouslyAllowMutability: true,
 })

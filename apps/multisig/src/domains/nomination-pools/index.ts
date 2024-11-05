@@ -78,6 +78,7 @@ export const bondedPoolsAtom = atomFamily({
       async ({ get }) => {
         const api = get(pjsApiSelector(chainGenesisHash))
 
+        if (!api.query.nominationPools?.bondedPools) return []
         const pools = await api.query.nominationPools.bondedPools.entries()
         const ids = pools.map(([key]) => getPoolId(key))
         const metadata = await api.query.nominationPools.metadata.multi(ids)

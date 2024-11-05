@@ -1,37 +1,28 @@
 import { formatDecimals } from '@talismn/util'
 import { formatUsd } from '../../util/numbers'
 import { Skeleton } from '@talismn/ui'
+import React from 'react'
 
 type Props = {
   label: string
   symbol?: string
   amount?: number
   price?: number
+  description?: React.ReactNode
+  cta?: React.ReactNode
 }
 
-export const BalanceCard: React.FC<Props> = ({ label, symbol, amount, price }) => {
+export const BalanceCard: React.FC<Props> = ({ description, label, symbol, amount, price, cta }) => {
   const amountLoading = amount === undefined || symbol === undefined
   const usdLoading = price === undefined || amountLoading
 
   return (
-    <div
-      css={({ color }) => ({
-        backgroundColor: color.surface,
-        padding: 16,
-        borderRadius: 12,
-      })}
-    >
-      <p css={{ fontSize: 14, marginTop: 2 }}>{label}</p>
-      <div
-        css={({ color }) => ({
-          display: 'flex',
-          alignItems: 'center',
-          color: color.offWhite,
-          fontSize: 16,
-          marginTop: 4,
-          gap: 8,
-        })}
-      >
+    <div className="bg-gray-900 p-[16px] rounded-[12px] w-full overflow-hidden">
+      <div className="flex items-center justify-between">
+        <p className="text-[14px] mt-[2px]">{label}</p>
+        {cta}
+      </div>
+      <div className="flex items-center text-offWhite text-[16px] mt-[4px] gap-[8px]">
         {amountLoading ? (
           <Skeleton.Surface css={{ height: 22.9, width: 120 }} />
         ) : (
@@ -49,6 +40,8 @@ export const BalanceCard: React.FC<Props> = ({ label, symbol, amount, price }) =
           </span>
         )}
       </div>
+
+      <p className="text-[14px] overflow-hidden w-full truncate">{description}</p>
     </div>
   )
 }
