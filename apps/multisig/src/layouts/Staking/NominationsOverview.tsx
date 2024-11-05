@@ -83,11 +83,8 @@ const NominationsOverview: React.FC<{
 
   return (
     <div className="w-full">
-      <div className="w-full mb-[16px]">
-        <h2 className="text-offWhite text-[16px] font-bold mb-[2px]">Validator Nominations</h2>
-        {statementUI}
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[32px] w-full">
+      {statementUI}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[32px] w-full mt-[16px]">
         <div className="w-full">
           <DropdownMenu open={openPoolsDropdown} onOpenChange={setOpenPoolsDropdown}>
             <DropdownMenuTrigger className="bg-gray-900 border-none w-full text-left px-[12px] py-[8px] flex flex-1 items-center gap-[8px] rounded-[12px] relative mb-[24px] hover:bg-gray-800">

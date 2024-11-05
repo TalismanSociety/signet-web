@@ -36,8 +36,12 @@ export const BondingForm: React.FC = () => {
   const { extrinsic: bondExtraExtrinsic } = useBondExtraExtrinsic(amount)
 
   return (
-    <div className="max-w-[450px] w-full flex flex-col gap-[8px]">
-      <p className="font-bold text-offWhite">Bond {token.nativeToken?.symbol}</p>
+    <div className="max-w-[560px] w-full flex flex-col gap-[8px]">
+      {/* <p className="font-bold text-offWhite">Bond {token.nativeToken?.symbol}</p> */}
+      <p className="text-[14px]">
+        You must bond <span className="text-offWhite">{token.nativeToken?.symbol}</span> before you can start nominating
+        with your proxied account.
+      </p>
 
       <Input
         placeholder="0.00"
@@ -53,7 +57,13 @@ export const BondingForm: React.FC = () => {
       ) : (
         <p className="text-[14px]">
           Minimum bond amount:{' '}
-          <span className="text-offWhite">
+          <span
+            className="text-offWhite hover:opacity-70 cursor-pointer"
+            onClick={() => {
+              if (token.nativeToken)
+                setAmountString(formatUnits(minNominatorBondLoadable.contents, token.nativeToken.decimals))
+            }}
+          >
             {formatUnits(minNominatorBondLoadable.contents, token.nativeToken.decimals)} {token.nativeToken.symbol}
           </span>
         </p>

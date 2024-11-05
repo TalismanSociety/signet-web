@@ -11,9 +11,9 @@ import { ValidatorsRotation } from './ValidatorsRotation'
 import { useRecoilValueLoadable } from 'recoil'
 import { u8aToString, u8aUnwrapBytes } from '@polkadot/util'
 import { BondingForm } from './BondingForm'
-import { Button } from '@components/ui/button'
 import { stakingLedgerAtom } from '@domains/staking'
 import { formatUnits } from '@util/numbers'
+import { PageTabs, PageTabsContent, PageTabsList, PageTabsTrigger } from '@components/ui/page-tabs'
 
 const Wrapper: React.FC<React.PropsWithChildren> = ({ children }) => (
   <div className="flex flex-1 py-[16px] px-[8px] lg:px-[4%] flex-col gap-[16px] w-full">{children}</div>
@@ -28,7 +28,6 @@ const Staking = () => {
   // user is editing nominations for a nom pool if `pool` exists
   // else we're editing via `staking` pallet
   const [editing, setEditing] = useState<{ address: Address; pool?: BondedPool } | undefined>()
-  const [bonding, setBonding] = useState(false)
 
   const augmentedTokens = useAugmentedBalances()
   const balance = augmentedTokens?.find(
@@ -82,12 +81,7 @@ const Staking = () => {
             stakedAmount !== undefined && nativeToken ? +formatUnits(stakedAmount, nativeToken.decimals) : undefined
           }
           price={balance?.price}
-          label="Staked"
-          cta={
-            <Button size="sm" variant="outline" onClick={() => setBonding(!bonding)}>
-              {bonding ? 'Cancel' : stakedAmount !== undefined && stakedAmount > 0n ? 'Bond extra' : 'Bond'}
-            </Button>
-          }
+          label="Bonded"
         />
         <BalanceCard
           symbol={nativeToken?.symbol}
@@ -104,8 +98,27 @@ const Staking = () => {
           }
         />
       </div>
-      {/** Add support for other proxy address (e.g. nested proxied address) */}
-      {bonding ? <BondingForm /> : <NominationsOverview chain={multisig.chain} onEdit={handleEditNomPool} />}
+
+      <PageTabs defaultValue="bond">
+        <PageTabsList className="">
+          <PageTabsTrigger value="bond" className="flex items-center gap-[4px]">
+            <p className="font-bold text-[16px]">Bond {nativeToken?.symbol}</p>
+          </PageTabsTrigger>
+          <PageTabsTrigger value="nominate" className="flex items-center gap-[4px]">
+            <p className="font-bold text-[16px]">Nominate Validators</p>
+          </PageTabsTrigger>
+          {/* <PageTabsTrigger value="pool" className="flex items-center gap-[4px]">
+            <p className="font-bold text-[16px]">Join Pool</p>
+          </PageTabsTrigger> */}
+        </PageTabsList>
+
+        <PageTabsContent value="bond">
+          <BondingForm />
+        </PageTabsContent>
+        <PageTabsContent value="nominate">
+          <NominationsOverview chain={multisig.chain} onEdit={handleEditNomPool} />
+        </PageTabsContent>
+      </PageTabs>
     </Wrapper>
   )
 }
