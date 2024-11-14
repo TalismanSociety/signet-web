@@ -1,14 +1,11 @@
 import { useCallback, useMemo, useState } from 'react'
 import { atom, selector, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { web3FromSource } from '@polkadot/extension-dapp'
-import { SiwsMessage } from '@talismn/siws'
 import { InjectedAccount, accountsState } from '../extension'
 import persistAtom from '../persist'
 import { captureException } from '@sentry/react'
 import { useSelectedMultisig } from '@domains/multisig'
 import { useToast } from '@components/ui/use-toast'
-import { useAzeroID } from '@domains/azeroid/AzeroIDResolver'
-import { CONFIG } from '@lib/config'
 
 const SIWS_ENDPOINT = process.env.REACT_APP_SIWS_ENDPOINT ?? ''
 
@@ -69,7 +66,6 @@ export const signedInAccountState = atom<string | null>({
 })
 
 export const useSignIn = () => {
-  const { resolve } = useAzeroID()
   const [authTokenBook, setAuthTokenBook] = useRecoilState(authTokenBookState)
   const setSelectedAccount = useSetRecoilState(selectedAddressState)
   const [signingIn, setSigningIn] = useState(false)
@@ -106,26 +102,18 @@ export const useSignIn = () => {
           // should've been captured by `nonceData.error`, but adding this check just to be sure
           if (!nonce) throw new Error('Failed to request for nonce.')
 
-          // construct siws message
-          const siws = new SiwsMessage({
-            address: ss58Address,
-            domain: CONFIG.IS_POLKADOT_MULTISIG ? 'polkadotmultisig.com' : 'signet.talisman.xyz',
-            nonce,
-            uri: window.location.origin,
-            statement: CONFIG.IS_POLKADOT_MULTISIG
-              ? `Welcome to Polkadot Multisig! The product is currently in beta. By signing in, you accept the Terms of Use: ${CONFIG.TERMS}`
-              : `Welcome to ${CONFIG.APP_NAME}! Please sign in to continue.`,
-            chainName: 'Substrate',
-            azeroId: resolve(ss58Address)?.a0id,
-          })
+          const message = `Sign in code: ${nonce}`
 
-          // sign payload for backend verification
-          const signed = await siws.sign(injector)
+          const { signature } = await injector.signer.signRaw({
+            address: ss58Address,
+            data: message,
+            type: 'payload',
+          })
 
           // exchange JWT token from server
           const verifyRes = await fetch(`${SIWS_ENDPOINT}/verify`, {
             method: 'post',
-            body: JSON.stringify({ ...signed, address: ss58Address }),
+            body: JSON.stringify({ signature, message, address: ss58Address }),
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
           })
@@ -162,7 +150,7 @@ export const useSignIn = () => {
         setSigningIn(false)
       }
     },
-    [authTokenBook, dismiss, resolve, setAuthTokenBook, setSelectedAccount, signingIn, toast]
+    [authTokenBook, dismiss, setAuthTokenBook, setSelectedAccount, signingIn, toast]
   )
 
   return { signIn, signingIn }
