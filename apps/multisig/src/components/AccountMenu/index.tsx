@@ -29,7 +29,10 @@ export const AccountMenu: React.FC = () => {
       }}
     >
       <PopoverTrigger asChild>
-        <Button variant="secondary" className="px-[12px] gap-[8px] bg-gray-900 hover:bg-gray-800 max-w-[240px]">
+        <Button
+          variant="secondary"
+          className="px-[12px] py-[8px] h-max gap-[8px] bg-gray-900 hover:bg-gray-800 max-w-[240px]"
+        >
           <AccountDetails
             identiconSize={32}
             address={user.injected.address}
