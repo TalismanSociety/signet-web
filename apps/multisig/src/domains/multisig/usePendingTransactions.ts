@@ -1,19 +1,18 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { allRawPendingTransactionsSelector, RawPendingTransaction } from '@domains/chains/storage-getters'
 import { tempCalldataState, extrinsicToDecoded } from '@domains/multisig'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
-import useGetTxsMetadataByTimepoints from '@domains/offchain-data/metadata/hooks/useGetTxsMetadataByTimepoints'
 import { Timepoint, Transaction } from '@domains/offchain-data/metadata/types'
 import { makeTransactionID } from '@util/misc'
 import { pjsApiSelector } from '@domains/chains/pjs-api'
 import { useSelectedMultisig } from '@domains/multisig'
 import { decodeCallData } from '@domains/chains'
 import { allChainTokensSelector } from '@domains/chains'
+import useGetTxsMetadata from '@domains/offchain-data/metadata/hooks/useGetTxsMetadata'
 
 type RawPendingTransactionWithId = RawPendingTransaction & { id: string }
 
 const usePendingTransactions = () => {
-  const [allRawPendingTransactions, setAllRawPendingTransactions] = useState<RawPendingTransaction[]>([])
   const [
     {
       chain: { id: chainId, genesisHash },
@@ -21,13 +20,14 @@ const usePendingTransactions = () => {
   ] = useSelectedMultisig()
   const allRawPendingTransactionsLoadable = useRecoilValueLoadable(allRawPendingTransactionsSelector)
 
-  useEffect(() => {
+  const allRawPendingTransactions = useMemo(() => {
     if (allRawPendingTransactionsLoadable.state === 'hasValue') {
-      setAllRawPendingTransactions(allRawPendingTransactionsLoadable.contents)
+      return allRawPendingTransactionsLoadable.contents
     }
-  }, [allRawPendingTransactionsLoadable])
+    return []
+  }, [allRawPendingTransactionsLoadable.contents, allRawPendingTransactionsLoadable.state])
 
-  const { timepoints, rawPendingTransactionsWithId } = allRawPendingTransactions.reduce(
+  const { rawPendingTransactionsWithId } = allRawPendingTransactions.reduce(
     (acc, rawPending) => {
       const timepoint_height = rawPending.onChainMultisig.when.height.toNumber()
       const timepoint_index = rawPending.onChainMultisig.when.index.toNumber()
@@ -48,7 +48,7 @@ const usePendingTransactions = () => {
     },
     { timepoints: [] as Timepoint[], rawPendingTransactionsWithId: [] as RawPendingTransactionWithId[] }
   )
-  const { data, isLoading, isError } = useGetTxsMetadataByTimepoints({ timepoints })
+  const { data, isLoading, isError } = useGetTxsMetadata()
 
   const tempCalldata = useRecoilValue(tempCalldataState)
   const pjsApi = useRecoilValue(pjsApiSelector(genesisHash))
@@ -65,7 +65,12 @@ const usePendingTransactions = () => {
     for (const rawPending of rawPendingTransactionsWithId) {
       try {
         const { id } = rawPending
-        const metadata = data?.find(txMeta => txMeta.extrinsicId === id)
+        const metadata = data?.find(txMeta => {
+          const extrinsic = decodeCallData(pjsApi, txMeta.callData)
+          return (
+            txMeta.extrinsicId === id || pjsApi.registry.hash(extrinsic?.method.toU8a()).toHex() === rawPending.callHash
+          )
+        })
 
         let calldata = metadata?.callData ?? tempCalldata[id]
 
@@ -104,6 +109,17 @@ const usePendingTransactions = () => {
             id,
             metadataSaved: true,
             ...decoded,
+          })
+        } else {
+          _transactions.push({
+            date: rawPending.date,
+            hash: rawPending.callHash,
+            rawPending: rawPending,
+            multisig: rawPending.multisig,
+            approvals: rawPending.approvals,
+            id,
+            metadataSaved: false,
+            description: `Unknown transaction @ ${rawPending.id}`,
           })
         }
       } catch (e) {

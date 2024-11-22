@@ -7,23 +7,21 @@ import { useSelectedMultisig } from '@domains/multisig'
 import { TxMetadata, RawTxMetadata } from '@domains/offchain-data/metadata/types'
 import { TXS_METADATA_BY_TIMEPOINTS } from '@domains/offchain-data/metadata/queries'
 import { parseTxMetadata } from '../utils'
-import { Timepoint } from '@domains/offchain-data/metadata/types'
 
 const fetchGraphQLData = async ({
   teamId,
-  timepoints,
   chainId,
   signedInAccount,
 }: {
   teamId: string
-  timepoints: Timepoint[]
+
   chainId: string
   signedInAccount: SignedInAccount
 }): Promise<TxMetadata[]> => {
   try {
     const { data } = await requestSignetBackend<{ tx_metadata: RawTxMetadata[] }>(
       TXS_METADATA_BY_TIMEPOINTS,
-      { teamId, chainId, timepoints },
+      { teamId, chainId },
       signedInAccount
     )
     const txMetadataList: TxMetadata[] = []
@@ -44,22 +42,21 @@ const fetchGraphQLData = async ({
   }
 }
 
-const useGetTxsMetadataByTimepoints = ({ timepoints }: { timepoints: Timepoint[] }) => {
+const useGetTxsMetadata = () => {
   const selectedAccount = useRecoilValue(selectedAccountState)
   const [selectedMultisig] = useSelectedMultisig()
 
   return useQuery({
-    queryKey: ['txMetadataByTimepoints', selectedMultisig.id, timepoints],
+    queryKey: ['txMetadataByTimepoints', selectedMultisig.id],
     queryFn: async () =>
       fetchGraphQLData({
         teamId: selectedMultisig.id,
-        timepoints,
         chainId: selectedMultisig.chain.id,
         signedInAccount: selectedAccount!,
       }),
-    enabled: !!selectedAccount && timepoints.length > 0,
+    enabled: !!selectedAccount,
     placeholderData: keepPreviousData,
   })
 }
 
-export default useGetTxsMetadataByTimepoints
+export default useGetTxsMetadata
