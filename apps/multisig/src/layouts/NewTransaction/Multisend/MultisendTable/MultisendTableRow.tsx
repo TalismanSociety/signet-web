@@ -116,6 +116,7 @@ export const MultisendTableRow: React.FC<Props> = ({
               onChangeAddress={address => {
                 onSendsChange?.([{ ...send, recipient: address }])
               }}
+              chain={multisig.chain}
               address={send.recipient}
               onPaste={e => {
                 const pastedText = e.clipboardData.getData('text/plain')
