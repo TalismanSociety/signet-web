@@ -8,8 +8,10 @@ import { useGetInfiniteAddresses } from '@domains/offchain-data/address-book/hoo
 import { useDebounce } from '@hooks/useDebounce'
 import { CircularProgressIndicator } from '@talismn/ui'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
+import { Chain } from '@domains/chains'
 
 type Props = {
+  chain?: Chain
   inputRef: (node: HTMLInputElement | null) => void
   address?: Address
   onChangeAddress: (address?: Address) => void
@@ -18,6 +20,7 @@ type Props = {
 
 export const AddressInputCell: React.FC<Props> = ({
   address,
+  chain,
   inputRef,
   onBlur,
   onChangeAddress,
@@ -83,6 +86,7 @@ export const AddressInputCell: React.FC<Props> = ({
               name={selectedContactName}
               nameOrAddressOnly
               withAddressTooltip={!hasError}
+              chain={chain}
             />
             <Button
               size="icon"
@@ -97,7 +101,7 @@ export const AddressInputCell: React.FC<Props> = ({
             </Button>
           </>
         )}
-        {!selectedContactName && (address || value || focus) && isFetching && (
+        {!selectedContactName && isFetching && address && (
           <div className="ml-auto">
             <CircularProgressIndicator size={12} />
           </div>
