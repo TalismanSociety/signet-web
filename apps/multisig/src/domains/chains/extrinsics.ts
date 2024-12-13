@@ -258,7 +258,7 @@ export const useCancelAsMulti = (tx?: Transaction) => {
 
       let completed = false
       const unsubscribe = await extrinsic
-        .signAndSend(depositorAddress.toSs58(tx.multisig.chain), { signer }, result => {
+        .signAndSend(depositorAddress.toSs58(tx.multisig.chain), { signer, withSignedTransaction: true }, result => {
           try {
             handleSubmittableResultError(result)
             const hasSuccessEvent = result.events.some(({ event: { method } }) => method === 'ExtrinsicSuccess')
@@ -357,7 +357,7 @@ export const useAsMulti = (extensionAddress: Address | undefined, t?: Transactio
       if (metadata) await injectMetadata(metadata)
 
       const unsubscribe = await asMultiExtrinsic
-        .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
+        .signAndSend(extensionAddress.toSs58(multisig.chain), { signer, withSignedTransaction: true }, result => {
           try {
             handleSubmittableResultError(result)
             const hasSuccessEvent = result.events.some(
@@ -505,7 +505,7 @@ export const useAsMultiThreshold1 = (
       if (extensionMetadata) await injectMetadata(extensionMetadata)
 
       const unsubscribe = await asMultiThreshold1Extrinsic
-        .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
+        .signAndSend(extensionAddress.toSs58(multisig.chain), { signer, withSignedTransaction: true }, result => {
           try {
             handleSubmittableResultError(result)
 
@@ -671,7 +671,7 @@ export const useApproveAsMulti = (
 
       let savedMetadata = false
       const unsubscribe = await extrinsic
-        .signAndSend(extensionAddress.toSs58(multisig.chain), { signer }, result => {
+        .signAndSend(extensionAddress.toSs58(multisig.chain), { signer, withSignedTransaction: true }, result => {
           try {
             handleSubmittableResultError(result)
 
@@ -759,7 +759,7 @@ export const useCreateProxy = (chain: Chain, extensionAddress: Address | undefin
       if (metadata) await injectMetadata(metadata)
 
       const unsubscribe = await extrinsic
-        .signAndSend(extensionAddress.toSs58(chain), { signer }, result => {
+        .signAndSend(extensionAddress.toSs58(chain), { signer, withSignedTransaction: true }, result => {
           try {
             handleSubmittableResultError(result)
             // typically we wait for inclusion only but for create proxy we wait for finalization
@@ -853,7 +853,7 @@ export const useTransferProxyToMultisig = (chain: Chain) => {
 
       // Send the batch call
       const unsubscribe = await signerBatchCall
-        .signAndSend(extensionAddress.toSs58(chain), { signer }, result => {
+        .signAndSend(extensionAddress.toSs58(chain), { signer, withSignedTransaction: true }, result => {
           try {
             handleSubmittableResultError(result)
             if (!(result?.status?.isFinalized || result.status.isInBlock)) return
