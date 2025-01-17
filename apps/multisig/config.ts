@@ -34,6 +34,7 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   'kusama-asset-hub': { id: 'kusama-asset-hub' },
   'acala': { id: 'acala' },
   'aleph-zero': { id: 'aleph-zero' },
+  'analog-timechain': { id: 'analog-timechain' },
   'bifrost-polkadot': { id: 'bifrost-polkadot' },
 
   'moonbeam': { id: 'moonbeam' },
@@ -90,4 +91,4 @@ export const CUSTOM_CHAINS: Omit<Chain, 'id'>[] = [
   // },
 ]
 
-export const CHAINDATA_URL = 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/pub/v1/chains/all.json'
+export const CHAINDATA_URL = 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/pub/v2/chains/all.json'

@@ -15,10 +15,10 @@ export type SupportedChainIds =
   | 'kusama-asset-hub'
   | 'acala'
   | 'aleph-zero'
+  | 'analog-timechain'
   | 'bifrost-polkadot'
   | 'moonbeam'
   | 'phala'
-  | 'rococo-testnet'
   | 'shibuya-testnet'
   | 'mythos'
 export const supportedChains: Chain<SupportedChainIds>[] = [
@@ -36,12 +36,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
         url: 'wss://rpc.ibp.network/polkadot',
       },
       {
-        url: 'wss://rpc.dotters.network/polkadot',
-      },
-      {
-        url: 'wss://1rpc.io/dot',
-      },
-      {
         url: 'wss://polkadot-rpc.dwellir.com',
       },
       {
@@ -54,6 +48,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
         url: 'wss://polkadot-public-rpc.blockops.network/ws',
       },
       {
+        url: 'wss://polkadot.dotters.network',
+      },
+      {
         url: 'wss://rpc-polkadot.luckyfriday.io',
       },
       {
@@ -64,6 +61,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       },
       {
         url: 'wss://dot-rpc.stakeworld.io',
+      },
+      {
+        url: 'wss://polkadot.rpc.subquery.network/public/ws',
       },
     ],
     ss58Prefix: 0,
@@ -81,9 +81,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'astar-substrate-native',
     },
     rpcs: [
-      {
-        url: 'wss://1rpc.io/astr',
-      },
       {
         url: 'wss://astar-rpc.dwellir.com',
       },
@@ -127,9 +124,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       {
         url: 'wss://hydradx.paras.ibp.network',
       },
-      {
-        url: 'wss://hydradx.paras.dotters.network',
-      },
     ],
     ss58Prefix: 63,
     subscanUrl: 'https://hydration.subscan.io/',
@@ -150,12 +144,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
         url: 'wss://rpc.ibp.network/kusama',
       },
       {
-        url: 'wss://rpc.dotters.network/kusama',
-      },
-      {
-        url: 'wss://1rpc.io/ksm',
-      },
-      {
         url: 'wss://kusama-rpc.dwellir.com',
       },
       {
@@ -163,6 +151,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       },
       {
         url: 'wss://kusama-rpc.publicnode.com',
+      },
+      {
+        url: 'wss://kusama.dotters.network',
       },
       {
         url: 'wss://rpc-kusama.luckyfriday.io',
@@ -175,6 +166,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       },
       {
         url: 'wss://ksm-rpc.stakeworld.io',
+      },
+      {
+        url: 'wss://kusama.rpc.subquery.network/public/ws',
       },
     ],
     ss58Prefix: 2,
@@ -214,7 +208,22 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
+        url: 'wss://paseo-rpc.dwellir.com',
+      },
+      {
         url: 'wss://paseo.rpc.amforc.com',
+      },
+      {
+        url: 'wss://rpc.ibp.network/paseo',
+      },
+      {
+        url: 'wss://paseo.dotters.network',
+      },
+      {
+        url: 'wss://pas-rpc.stakeworld.io',
+      },
+      {
+        url: 'wss://api2.zondax.ch/pas/node/rpc',
       },
     ],
     ss58Prefix: 0,
@@ -289,13 +298,13 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
         url: 'wss://sys.ibp.network/asset-hub-polkadot',
       },
       {
-        url: 'wss://sys.dotters.network/asset-hub-polkadot',
-      },
-      {
         url: 'wss://asset-hub-polkadot-rpc.dwellir.com',
       },
       {
         url: 'wss://statemint-rpc-tn.dwellir.com',
+      },
+      {
+        url: 'wss://asset-hub-polkadot.dotters.network',
       },
       {
         url: 'wss://rpc-asset-hub-polkadot.luckyfriday.io',
@@ -328,13 +337,13 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
         url: 'wss://sys.ibp.network/statemine',
       },
       {
-        url: 'wss://sys.dotters.network/statemine',
-      },
-      {
         url: 'wss://asset-hub-kusama-rpc.dwellir.com',
       },
       {
         url: 'wss://statemine-rpc-tn.dwellir.com',
+      },
+      {
+        url: 'wss://asset-hub-kusama.dotters.network',
       },
       {
         url: 'wss://rpc-asset-hub-kusama.luckyfriday.io',
@@ -402,6 +411,24 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     account: '*25519',
   },
   {
+    id: 'analog-timechain',
+    chainName: 'Analog Timechain',
+    genesisHash: '0x1459b0204b92719ffc978c5da3d6a2057973916bd548f8076df2064bc1cb4cfc',
+    isTestnet: false,
+    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/analog-timechain.svg',
+    nativeToken: {
+      id: 'analog-timechain-substrate-native',
+    },
+    rpcs: [
+      {
+        url: 'wss://rpc.timechain.analog.one',
+      },
+    ],
+    ss58Prefix: 12850,
+    subscanUrl: null,
+    account: '*25519',
+  },
+  {
     id: 'bifrost-polkadot',
     chainName: 'Bifrost Polkadot',
     genesisHash: '0x262e1b2ad728475fd6fe88e62d34c200abe6fd693931ddad144059b1eb884e5b',
@@ -430,7 +457,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
         url: 'wss://bifrost.public.curie.radiumblock.co/ws',
       },
     ],
-    ss58Prefix: 6,
+    ss58Prefix: 0,
     subscanUrl: 'https://bifrost.subscan.io/',
     account: '*25519',
   },
@@ -492,24 +519,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ],
     ss58Prefix: 30,
     subscanUrl: 'https://phala.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'rococo-testnet',
-    chainName: 'Rococo',
-    genesisHash: '0x6408de7737c59c238890533af25896a2c20608d8b380bb01029acb392781063e',
-    isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/rococo-testnet.svg',
-    nativeToken: {
-      id: 'rococo-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://rococo-rpc.polkadot.io',
-      },
-    ],
-    ss58Prefix: 42,
-    subscanUrl: 'https://rococo.subscan.io/',
     account: '*25519',
   },
   {
