@@ -32,6 +32,8 @@ const defaultPjsApiSelector = selectorFamily({
         rpcs: [],
       }
 
+    console.log({ rpcs })
+
     // Return a dummy provider when rpcs are not known
     if (rpcs.length === 0) return ApiPromise.create({ provider: new WsProvider([]) })
 
