@@ -28,7 +28,7 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   'bittensor': {
     id: 'bittensor',
     subscanUrl: 'https://bittensor.com/scan',
-    rpcs: [{ url: `wss://entrypoint-finney.opentensor.ai/` }],
+    rpcs: [{ url: 'wss://bittensor-finney.api.onfinality.io/ws?apikey=' }],
   },
   'polkadot-asset-hub': { id: 'polkadot-asset-hub' },
   'kusama-asset-hub': { id: 'kusama-asset-hub' },
