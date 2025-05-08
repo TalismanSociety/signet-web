@@ -30,7 +30,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'acala',
   },
   {
-    id: 'acala-substrate-tokens-ape',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcICiAnAxgJgAwgDQgDcBDAGwFc5EALGAD3i1oDMAWNAdgwGYYA2ARnZYAnABNhWJgA5hwrsLT8pAVgxNl-XjC7suolkqJSQAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -44,7 +44,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'acala-substrate-tokens-aseed',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAIICqAygCIgC+7QA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -59,7 +59,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'ausd-seed-acala',
   },
   {
-    id: 'acala-substrate-tokens-astr',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54AmAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -75,7 +75,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'astar',
   },
   {
-    id: 'acala-substrate-tokens-dai',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcICiAnAxgJgAwgDQgDcBDAGwFc5EALGAD3i1oFYAWIgZgHYisBGNACacmAIwBsvMQLHsYWIuLGiAZsoEi+LdmiYYicAL5A',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -90,7 +90,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'dai',
   },
   {
-    id: 'acala-substrate-tokens-dot',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiACIDySIAvi0A',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -105,7 +105,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'polkadot',
   },
   {
-    id: 'acala-substrate-tokens-eq',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54B2AXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -120,7 +120,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'equilibrium-token',
   },
   {
-    id: 'acala-substrate-tokens-eqd',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54AOAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -134,7 +134,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'acala-substrate-tokens-glmr',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54AGAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -149,7 +149,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'moonbeam',
   },
   {
-    id: 'acala-substrate-tokens-ibtc',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BmAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -164,7 +164,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'interbtc',
   },
   {
-    id: 'acala-substrate-tokens-intr',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54AWAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -179,7 +179,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'interlay',
   },
   {
-    id: 'acala-substrate-tokens-lcdot',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIAyBLAjgVxQEwMICcB7Ad2wBtCBDAOxABoQA3SsjOeARgGYBfIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -194,7 +194,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'liquid-crowdloan-dot',
   },
   {
-    id: 'acala-substrate-tokens-ldot',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiADIAiA8kiAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -209,7 +209,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'liquid-staking-dot',
   },
   {
-    id: 'acala-substrate-tokens-lp-aca-aseed',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAEEAwqJABfaQSGNEbTjz7kqCBSNEBVdEhnSAutKA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -223,7 +223,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'acala-substrate-tokens-lp-aseed-ibtc',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAEEAquiQgAvjIJDGiAGKt8ASwDmXUQGddMMLxLkqCAMwyAujKA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -237,7 +237,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'acala-substrate-tokens-lp-aseed-intr',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAEEAquiQgAvjIJDGiAGKt8ASwDmXUQGddMMLxLkqCACwyAujKA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -251,7 +251,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'acala-substrate-tokens-lp-aseed-lcdot',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAEEAquiQgAvjIJDGiADIBLAI4VVAEwDCuVgHdtZVth59yVBAEYAzDIC6MoA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -265,7 +265,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'acala-substrate-tokens-lp-aseed-ldot',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAEEAquiQgAvjIJDGiNpx59yVBIpEAZJAHlmsmQF0ZQA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -279,7 +279,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'acala-substrate-tokens-lp-dot-lcdot',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1ZAHlmIAL6SCQxogAyASwCOFJQBMAwrlYB3DWVbYefclQQBGAMySAupKA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -293,7 +293,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'acala-substrate-tokens-para',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -307,7 +307,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'acala-substrate-tokens-pha',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BOAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -322,7 +322,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'pha',
   },
   {
-    id: 'acala-substrate-tokens-tap',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAsgIIAKIAvs0A',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -337,7 +337,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'acala-substrate-tokens-tdot',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcIDKYCGAjANjAggZzxjAAUB7UzAFVIGsYA7EAGhADdVMBXOeABgF8gA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -351,7 +351,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'acala-substrate-tokens-usdcet',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcICiAnAxgJgAwgDQgDcBDAGwFc5EALGAD3i1qwHYATAMwE4A2VgRgDMAFj5E2fbgCMio1kIF8YGNAA4hbTsxWTMOuAF8gA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -365,7 +365,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'acala-substrate-tokens-wbtc',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcICiAnAxgJgAwgDQgDcBDAGwFc5EALGAD3i1rQA4stmAWIgMwwwGYWAIwCsATmYj+ANgCMAdmYATMTNlK0IkUO5Ki05rOYgAvkA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -379,7 +379,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'acala-substrate-tokens-weth',
+    id: 'acala-substrate-tokens-N4IgLgngDgpiBcICiAnAxgJgAwgDQgDcBDAGwFc5EALGAD3i1oFYiAWAEwDYi121WYAZhgsARgEYmAdnFSAZqyxSicmAE5pc5RlYZpADhABfIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -585,7 +585,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'amplitude-substrate-tokens-ksm',
+    id: 'amplitude-substrate-tokens-N4IgLgngDgpiBcIAaBhAsiANCAbgQwBsBXOeABgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -600,7 +600,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kusama',
   },
   {
-    id: 'amplitude-substrate-tokens-usdt',
+    id: 'amplitude-substrate-tokens-N4IgLgngDgpiBcIAaBhAsiANCAbgQwBsBXOeARgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1005,7 +1005,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'basilisk',
   },
   {
-    id: 'basilisk-substrate-tokens-aseed',
+    id: 'basilisk-substrate-tokens-ExA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1020,7 +1020,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'ausd-seed-acala',
   },
   {
-    id: 'basilisk-substrate-tokens-dai',
+    id: 'basilisk-substrate-tokens-IwZiA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1035,7 +1035,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'dai',
   },
   {
-    id: 'basilisk-substrate-tokens-ksm',
+    id: 'basilisk-substrate-tokens-IxA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1050,7 +1050,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kusama',
   },
   {
-    id: 'basilisk-substrate-tokens-tnkr',
+    id: 'basilisk-substrate-tokens-GxA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1064,7 +1064,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'basilisk-substrate-tokens-usdcet',
+    id: 'basilisk-substrate-tokens-JxA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1079,7 +1079,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'usd-coin-wormhole-from-ethereum',
   },
   {
-    id: 'basilisk-substrate-tokens-usdt',
+    id: 'basilisk-substrate-tokens-IwFiA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1094,7 +1094,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'tether',
   },
   {
-    id: 'basilisk-substrate-tokens-wbtc',
+    id: 'basilisk-substrate-tokens-IzI',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1109,7 +1109,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bitcoin',
   },
   {
-    id: 'basilisk-substrate-tokens-weth',
+    id: 'basilisk-substrate-tokens-IwBiA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1124,7 +1124,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'ethereum',
   },
   {
-    id: 'basilisk-substrate-tokens-wusdt',
+    id: 'basilisk-substrate-tokens-IwJiA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1153,7 +1153,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bifrost-native-coin',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-aseed',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIDKYCGAjANnANCAbqpgK5zyiSwIgDSAqkgCIgC+LQA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1168,7 +1168,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'ausd-seed-karura',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-blp0',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIBCAZACiANCAbgQwBsBXOeABgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1182,7 +1182,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-blp1',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIBCAZACiANCAbgQwBsBXOeARgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1196,7 +1196,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-blp2',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIBCAZACiANCAbgQwBsBXOeAJgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1210,7 +1210,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-blp3',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIBCAZACiANCAbgQwBsBXOeAZgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1224,7 +1224,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-bnc',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAEIByAwiAL6tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1239,7 +1239,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bifrost-native-coin',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-dot',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiACIDySIAvi0A',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1254,7 +1254,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'polkadot',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-kar',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANICCASiAL6tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1269,7 +1269,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'karura',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-kbtc',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc55sBfIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1284,7 +1284,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kintsugi-btc',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-kint',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc54BGAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1299,7 +1299,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kintsugi',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-ksm',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANIDKAsiAL6tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1314,7 +1314,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kusama',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-mgx',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc54AWAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1328,7 +1328,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-movr',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiALIDyAagEogC+7QA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1343,7 +1343,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'moonriver',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-pha',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAAoASAgiAL6tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1358,7 +1358,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'pha',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-rmrk',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAEoCydA0iAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1373,7 +1373,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'rmrk',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-sdn',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc54BmAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1387,7 +1387,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-usdt',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc54AGAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1402,7 +1402,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'tether',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-vbnc',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIBqAVA9gaxgOxAGhADcBDAGwFc55RJYEQAhAOQGEQBfdoA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1416,7 +1416,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-vksm',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIBqAVA9gaxgOxAGhADcBDAGwFc55RJYEQBpAZQFkQBfdoA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1430,7 +1430,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-vmovr',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIBqAVA9gaxgOxAGhADcBDAGwFc55RJYEQBZAeSQCUQBfDoA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1444,7 +1444,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-vsksm',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIBqBlAKgewNYwHYgBoQA3AQwBsBXOeUSWBEAaRQFkQBfDoA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1458,7 +1458,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'bifrost-kusama-substrate-tokens-zlk',
+    id: 'bifrost-kusama-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAFoAyA0iAL6tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1486,7 +1486,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bifrost-native-coin',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-astr',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc54BmAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1501,7 +1501,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'astar',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-bnc',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAEIByAwiAL6tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1516,7 +1516,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bifrost-native-coin',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-dot',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc54AGAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1531,7 +1531,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'polkadot',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-fil',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc54AWAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1545,7 +1545,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-glmr',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc54BGAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1560,7 +1560,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'moonbeam',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-ibtc',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc54A2AXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1575,7 +1575,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'interbtc',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-intr',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc54B2AXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1590,7 +1590,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'interlay',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-usdc',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc54BWAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1605,7 +1605,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'usd-coin',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-usdt',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdgJhAGhADcBDAGwFc55sBfIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1620,7 +1620,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'tether',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-vastr',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIBqAVA9gaxgOwEwgBoQA3AQwBsBXOeAZgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1634,7 +1634,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-vdot',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIBqAVA9gaxgOwEwgBoQA3AQwBsBXOeABgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1649,7 +1649,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'voucher-dot',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-vfil',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIBqAVA9gaxgOwEwgBoQA3AQwBsBXOeAFgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1663,7 +1663,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-vglmr',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIBqAVA9gaxgOwEwgBoQA3AQwBsBXOeARgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1677,7 +1677,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'bifrost-polkadot-substrate-tokens-vsdot',
+    id: 'bifrost-polkadot-substrate-tokens-N4IgLgngDgpiBcIBqBlAKgewNYwHYCYQAaEANwEMAbAVzngAYBfIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1903,7 +1903,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'ausd-seed-acala',
   },
   {
-    id: 'composable-finance-substrate-tokens-bnc',
+    id: 'composable-finance-substrate-tokens-EQIwlg5mB2AuBcB2AnAJlQDgIwDZUFYsAWVHIgZnMX2XPwuXwAZydlgg',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1918,7 +1918,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bifrost-native-coin',
   },
   {
-    id: 'composable-finance-substrate-tokens-dot',
+    id: 'composable-finance-substrate-tokens-EQIwlg5mB2AuBcB2AnAJlQDgIwDZUFYsAWVHIgZnMX2XPwuXwAZyTgg',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1948,7 +1948,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'karura',
   },
   {
-    id: 'composable-finance-substrate-tokens-ksm',
+    id: 'composable-finance-substrate-tokens-EQIwlg5mB2AuBcB2AnAJlQDgIwDZUFYsAWVHIgZnMX2XPwuXwAZyingg',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1963,7 +1963,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kusama',
   },
   {
-    id: 'composable-finance-substrate-tokens-movr',
+    id: 'composable-finance-substrate-tokens-EQIwlg5mB2AuBcB2AnAJlQDgIwDZUFYsAWVHIgZnMX2XPwuXwAY7lgg',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1978,7 +1978,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'moonriver',
   },
   {
-    id: 'composable-finance-substrate-tokens-usdc',
+    id: 'composable-finance-substrate-tokens-EQIwlg5mB2AuBcB2AnAJlQDgIwDZUFYsAWVHIgZnMX2XPwuXwAYiMdgg',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -1993,7 +1993,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'usd-coin',
   },
   {
-    id: 'composable-finance-substrate-tokens-usdt',
+    id: 'composable-finance-substrate-tokens-EQIwlg5mB2AuBcB2AnAJlQDgIwDZUFYsAWVHIgZnMX2XPwuXwAYiN9gg',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -2008,7 +2008,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'tether',
   },
   {
-    id: 'composable-finance-substrate-tokens-vksm',
+    id: 'composable-finance-substrate-tokens-EQIwlg5mB2AuBcB2AnAJlQDgIwDZUFYsAWVHIgZnMX2XPwuXwAZycNgg',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3168,7 +3168,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'hydradx',
   },
   {
-    id: 'hydradx-substrate-tokens-ape',
+    id: 'hydradx-substrate-tokens-GxA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3183,7 +3183,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'apecoin',
   },
   {
-    id: 'hydradx-substrate-tokens-astr',
+    id: 'hydradx-substrate-tokens-JxA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3198,7 +3198,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'astar',
   },
   {
-    id: 'hydradx-substrate-tokens-bnc',
+    id: 'hydradx-substrate-tokens-IwFiA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3213,7 +3213,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bifrost-native-coin',
   },
   {
-    id: 'hydradx-substrate-tokens-cfg',
+    id: 'hydradx-substrate-tokens-IwZiA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3228,7 +3228,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'centrifuge',
   },
   {
-    id: 'hydradx-substrate-tokens-dai',
+    id: 'hydradx-substrate-tokens-IwDiA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3243,7 +3243,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'dai',
   },
   {
-    id: 'hydradx-substrate-tokens-dot',
+    id: 'hydradx-substrate-tokens-KxA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3258,7 +3258,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'polkadot',
   },
   {
-    id: 'hydradx-substrate-tokens-ibtc',
+    id: 'hydradx-substrate-tokens-IzI',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3287,7 +3287,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'hydradx-substrate-tokens-pha',
+    id: 'hydradx-substrate-tokens-BxA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3302,7 +3302,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'pha',
   },
   {
-    id: 'hydradx-substrate-tokens-usdc',
+    id: 'hydradx-substrate-tokens-OxA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3317,7 +3317,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'usd-coin',
   },
   {
-    id: 'hydradx-substrate-tokens-usdt',
+    id: 'hydradx-substrate-tokens-IwBjHYDZyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3332,7 +3332,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'tether',
   },
   {
-    id: 'hydradx-substrate-tokens-vdot',
+    id: 'hydradx-substrate-tokens-IwViA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3347,7 +3347,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'voucher-dot',
   },
   {
-    id: 'hydradx-substrate-tokens-wbtc',
+    id: 'hydradx-substrate-tokens-MxA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3362,7 +3362,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bitcoin',
   },
   {
-    id: 'hydradx-substrate-tokens-weth',
+    id: 'hydradx-substrate-tokens-EwBiA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3377,7 +3377,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'ethereum',
   },
   {
-    id: 'hydradx-substrate-tokens-ztg',
+    id: 'hydradx-substrate-tokens-IwJiA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3434,7 +3434,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'interlay',
   },
   {
-    id: 'interlay-substrate-tokens-dot',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiACIDySIAvi0A',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3449,7 +3449,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'polkadot',
   },
   {
-    id: 'interlay-substrate-tokens-ibtc',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAJIBCSAwiAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3464,7 +3464,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'interbtc',
   },
   {
-    id: 'interlay-substrate-tokens-intr',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAJIBySASiAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3479,7 +3479,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'interlay',
   },
   {
-    id: 'interlay-substrate-tokens-kbtc',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANIBCSAwiAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3494,7 +3494,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kintsugi-btc',
   },
   {
-    id: 'interlay-substrate-tokens-kint',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANICSAckiAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3509,7 +3509,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kintsugi',
   },
   {
-    id: 'interlay-substrate-tokens-ksm',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANIDKAsiAL6tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3524,7 +3524,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kusama',
   },
   {
-    id: 'interlay-substrate-tokens-ldot',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3539,7 +3539,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'liquid-staking-dot',
   },
   {
-    id: 'interlay-substrate-tokens-lp-dot-intr',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAyUAqB7A1jAdiANCAG4CGANgK5zwDaoksCIG2ehpl1901IAIgHlUIAL4j83Roha4CxclQSTeASQByqAEqiRAXRFA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3553,7 +3553,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'interlay-substrate-tokens-lp-ibtc-dot',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAyUAqB7A1jAdiANCAG4CGANgK5zwDaoksCIG2ehpl1901IAkgCFUAYRABfMfm6NELXAWLkqCabwAiAeVTixAXTFA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3567,7 +3567,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'interlay-substrate-tokens-lp-ibtc-usdt',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAyUAqB7A1jAdiANCAG4CGANgK5zwDaoksCIG2ehpl1901IAkgCFUAYRABfMfm6NEAMXQAnGAEsA5jgCCAZy0wwBYuSoIATGIC6YoA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3581,7 +3581,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'interlay-substrate-tokens-qdot',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAyMB2ATAKgewNZpABoQA3AQwBsBXOeAJgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3595,7 +3595,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'interlay-substrate-tokens-qibtc',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAyMB2ATAKgewNZpABoQA3AQwBsBXOeARgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3609,7 +3609,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'interlay-substrate-tokens-qusdt',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIAyMB2ATAKgewNZpABoQA3AQwBsBXOeAZgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3623,7 +3623,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'interlay-substrate-tokens-usdt',
+    id: 'interlay-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54AmAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3744,7 +3744,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'karura',
   },
   {
-    id: 'karura-substrate-tokens-3usd',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIDKYCGAjANjAggZzxjAAUB7UzAFVIGsYA7EAGhADdVMBXOeARgF8gA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3758,7 +3758,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'karura-substrate-tokens-air',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGAJgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3773,7 +3773,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'altair',
   },
   {
-    id: 'karura-substrate-tokens-aris',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3787,7 +3787,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'karura-substrate-tokens-aseed',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANICqAygCIgC+7QA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3802,7 +3802,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'ausd-seed-karura',
   },
   {
-    id: 'karura-substrate-tokens-bnc',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAEIByAwiAL6tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3817,7 +3817,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bifrost-native-coin',
   },
   {
-    id: 'karura-substrate-tokens-bsx',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGFgXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3832,7 +3832,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'basilisk',
   },
   {
-    id: 'karura-substrate-tokens-crab',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGAZgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3846,7 +3846,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'karura-substrate-tokens-csm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BWAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3861,7 +3861,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'crust-storage-market',
   },
   {
-    id: 'karura-substrate-tokens-dai',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcICiAnAxgJgAwgDQgDcBDAGwFc5EALGAD3i1oBYAjFgNiIDMWBWLohhZYA7EV4ATAIxomATjkwZAZgkS+RKbxgiscoiKkgAvkA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3875,7 +3875,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-eqd',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGAVgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3889,7 +3889,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'karura-substrate-tokens-gens',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGAFgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3904,7 +3904,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'genshiro',
   },
   {
-    id: 'karura-substrate-tokens-hko',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54AWAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3918,7 +3918,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-kbtc',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANIBCSAwiAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3933,7 +3933,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kintsugi-btc',
   },
   {
-    id: 'karura-substrate-tokens-kico',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54A2AXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3947,7 +3947,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-kint',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANICSAckiAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3962,7 +3962,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kintsugi',
   },
   {
-    id: 'karura-substrate-tokens-kma',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGABgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -3977,7 +3977,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'calamari-network',
   },
   {
-    id: 'karura-substrate-tokens-ksm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANIDKAsiAL6tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4007,7 +4007,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'litentry',
   },
   {
-    id: 'karura-substrate-tokens-lksm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiADIDSAygLIgC+7QA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4022,7 +4022,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'liquid-ksm',
   },
   {
-    id: 'karura-substrate-tokens-lp-kar-ksm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAggCUQAXxkEhjRG048+5KgkUjR6ALKyZAXRlA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4036,7 +4036,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kar-kusd',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAggCUQAXxkEhjRG048+5KgkUjRAVXRJZMgLoygA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4050,7 +4050,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kar-lksm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAggCUQAXxkEhjRG048+5KgkUiAMqPQBZWTIC6MoA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4064,7 +4064,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kar-qtz',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAggCUQAXxkEhjRADFW+AJYBzLuIDOumGF4lyVBACYZAXRlA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4078,7 +4078,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-ksm-aris',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGl0AWRABfaQSGNEAMVb4AlgHMuAQQDOumGF4lyVBAEZpAXWlA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4092,7 +4092,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-ksm-lksm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGl0AWRABfaQSGNEbTjz7kqCBSIAy4qbIC60oA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4106,7 +4106,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-ksm-rmrk',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGl0AWRABfaQSGNEAMVb4AlgHMuAQQDOumGF4lyVBAAZpAXWlA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4120,7 +4120,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kusd-air',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAquiQgAvjIJDGiAGKt8ASwDmXAIIBnPTDC8S5KggCMAJhkBdGUA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4134,7 +4134,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kusd-bnc',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAquiQgAvjIJDGiNpx59yVBIpEAhAHIBhWTIC6MoA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4148,7 +4148,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kusd-csm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAquiQgAvjIJDGiAGKt8ASwDmXAIIBnPTDC8S5KggCsMgLoygA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4162,7 +4162,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kusd-kbtc',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAquiQgAvjIJDGiNpx59yVBIpGiAQswDCsmQF0ZQA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4176,7 +4176,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kusd-kint',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAquiQgAvjIJDGiNpx59yVBIpGiAkgDlmsmQF0ZQA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4190,7 +4190,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kusd-ksm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAquiQgAvjIJDGiNpx59yVBIpGj0AWVkyAujKA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4204,7 +4204,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kusd-lksm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAquiQgAvjIJDGiNpx59yVBIpEAZUegCysmQF0ZQA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4218,7 +4218,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kusd-pha',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAquiQgAvjIJDGiNpx59yVBIpEAFABIBBWTIC6MoA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4232,7 +4232,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kusd-qtz',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAquiQgAvjIJDGiAGKt8ASwDmXAIIBnPTDC8S5KggBMMgLoygA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4246,7 +4246,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-kusd-rmrk',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1EAGkAquiQgAvjIJDGiAGKt8ASwDmXAIIBnPTDC8S5KggAMMgLoygA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4260,7 +4260,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lp-tai-tksm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAiMAeBlAFgQwE5wBoQA3bAGwFc54BtUSWBEAFQHsBrGAOxCNMur1o1FgEEAkiAC+UgkMaJ0YbACMyMUQGdNMMAAVWrMm048+5KggAMUgLpSgA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4274,7 +4274,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-lt',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGATgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4288,7 +4288,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-movr',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BmAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4303,7 +4303,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'moonriver',
   },
   {
-    id: 'karura-substrate-tokens-neer',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BOAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4318,7 +4318,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'metaverse-network-pioneer',
   },
   {
-    id: 'karura-substrate-tokens-pchu',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGAdgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4332,7 +4332,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-pha',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAAoASAgiAL6tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4347,7 +4347,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'pha',
   },
   {
-    id: 'karura-substrate-tokens-qtz',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54AmAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4362,7 +4362,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'quartz',
   },
   {
-    id: 'karura-substrate-tokens-rmrk',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54AGAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4377,7 +4377,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'rmrk',
   },
   {
-    id: 'karura-substrate-tokens-sdn',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGADgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4392,7 +4392,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'shiden',
   },
   {
-    id: 'karura-substrate-tokens-tai',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAsgIICSIAvs0A',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4407,7 +4407,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'taiga',
   },
   {
-    id: 'karura-substrate-tokens-teer',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54AOAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4422,7 +4422,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'integritee',
   },
   {
-    id: 'karura-substrate-tokens-tksm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIDKYCGAjANjAggZzxjAAUB7UzAFVIGsYA7EAGhADdVMBXOeABgF8gA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4436,7 +4436,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'karura-substrate-tokens-tur',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGANgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4450,7 +4450,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-usdcet',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcICiAnAxgJgAwgDQgDcBDAGwFc5EALGAD3i1oEYAzAZiKawFYAOAdiLYmTACwwh3AEacpbXrxgwMAExWiibNvzTL+IAL5A',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4464,7 +4464,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'karura-substrate-tokens-usdt',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54B2AXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4479,7 +4479,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'tether',
   },
   {
-    id: 'karura-substrate-tokens-vsksm',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAGoDKA0gwLIgC+HQA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4493,7 +4493,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'karura-substrate-tokens-waseed',
+    id: 'karura-substrate-tokens-N4IgLgngDgpiBcICiAnAxgJgAwgDQgDcBDAGwFc5EALGAD3i1pmwDYAOAZiIBMBGGbmwBGQmAIDsMXkRjiALKN5YAZrwCcgrHICsQ7RxwBfIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4562,7 +4562,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kintsugi',
   },
   {
-    id: 'kintsugi-substrate-tokens-aseed',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BGAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4577,7 +4577,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'ausd-seed-karura',
   },
   {
-    id: 'kintsugi-substrate-tokens-dot',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiACIDySIAvi0A',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4592,7 +4592,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'polkadot',
   },
   {
-    id: 'kintsugi-substrate-tokens-ibtc',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAJIBCSAwiAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4607,7 +4607,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'interbtc',
   },
   {
-    id: 'kintsugi-substrate-tokens-intr',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiAJIBySASiAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4622,7 +4622,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'interlay',
   },
   {
-    id: 'kintsugi-substrate-tokens-kbtc',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANIBCSAwiAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4637,7 +4637,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kintsugi-btc',
   },
   {
-    id: 'kintsugi-substrate-tokens-kint',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANICSAckiAL5tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4652,7 +4652,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kintsugi',
   },
   {
-    id: 'kintsugi-substrate-tokens-ksm',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAqB7A1jAdiANCAbgIYA2ArnPKJLAiANIDKAsiAL6tA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4667,7 +4667,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kusama',
   },
   {
-    id: 'kintsugi-substrate-tokens-lksm',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54AmAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4682,7 +4682,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'liquid-ksm',
   },
   {
-    id: 'kintsugi-substrate-tokens-lp-kbtc-ksm',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAyUAqB7A1jAdiANCAG4CGANgK5zwDaoksCIG2ehpl1901IA0gCFUAYRABfMfm6NELXAWLkqCabz4BlALLixAXTFA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4696,7 +4696,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'kintsugi-substrate-tokens-lp-kbtc-usdt',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAyUAqB7A1jAdiANCAG4CGANgK5zwDaoksCIG2ehpl1901IA0gCFUAYRABfMfm6NEAMXQAnGAEsA5jgCCAZy0wwBYuSoIAzGIC6YoA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4710,7 +4710,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'kintsugi-substrate-tokens-lp-ksm-kint',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAyUAqB7A1jAdiANCAG4CGANgK5zwDaoksCIG2ehpl1901IA0gGUAsiAC+o-N0aIWuAsXJUEU3nwCSAOVRjRAXVFA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4724,7 +4724,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'kintsugi-substrate-tokens-qkbtc',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAyMB2ATAKgewNZpABoQA3AQwBsBXOeARgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4738,7 +4738,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'kintsugi-substrate-tokens-qksm',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAyMB2ATAKgewNZpABoQA3AQwBsBXOeAJgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4752,7 +4752,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'kintsugi-substrate-tokens-qusdt',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIAyMB2ATAKgewNZpABoQA3AQwBsBXOeAZgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4766,7 +4766,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'kintsugi-substrate-tokens-usdt',
+    id: 'kintsugi-substrate-tokens-N4IgLgngDgpiBcIBiB7ATjAlgcwHYEEBnQmMEAGhADcBDAGwFc54BmAXyA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -4975,7 +4975,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'mangata-substrate-tokens-mgx',
+    id: 'mangata-substrate-tokens-EQBmQ',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5192,7 +5192,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'pendulum-chain',
   },
   {
-    id: 'pendulum-substrate-tokens-dot',
+    id: 'pendulum-substrate-tokens-N4IgLgngDgpiBcIAaBhAsiANCAbgQwBsBXOeABgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5207,7 +5207,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'polkadot',
   },
   {
-    id: 'pendulum-substrate-tokens-usdt',
+    id: 'pendulum-substrate-tokens-N4IgLgngDgpiBcIAaBhAsiANCAbgQwBsBXOeARgF8g',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5263,7 +5263,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'picasso',
   },
   {
-    id: 'picasso-substrate-tokens-aseed',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGATATmEA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5278,7 +5278,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'ausd-seed-karura',
   },
   {
-    id: 'picasso-substrate-tokens-astr',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcAmADMgbMIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5293,7 +5293,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'astar',
   },
   {
-    id: 'picasso-substrate-tokens-atom',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcB2YQ',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5308,7 +5308,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'cosmos',
   },
   {
-    id: 'picasso-substrate-tokens-bcre',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGALMIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5323,7 +5323,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'liquid-staking-crescent',
   },
   {
-    id: 'picasso-substrate-tokens-bld',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGAHMIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5338,7 +5338,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'agoric',
   },
   {
-    id: 'picasso-substrate-tokens-bnc',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGADAJmEA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5353,7 +5353,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bifrost-native-coin',
   },
   {
-    id: 'picasso-substrate-tokens-bnc-dot',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBmRwg',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5368,7 +5368,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bifrost-native-coin',
   },
   {
-    id: 'picasso-substrate-tokens-bnc-ksm',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBmAjMIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5383,7 +5383,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bifrost-native-coin',
   },
   {
-    id: 'picasso-substrate-tokens-cre',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGAzMIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5398,7 +5398,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'crescent-network',
   },
   {
-    id: 'picasso-substrate-tokens-dot',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcA2YQ',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5413,7 +5413,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'polkadot',
   },
   {
-    id: 'picasso-substrate-tokens-eq',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcAmADARlcIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5428,7 +5428,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'equilibrium-token',
   },
   {
-    id: 'picasso-substrate-tokens-eqd',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGATAdmEA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5442,7 +5442,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'picasso-substrate-tokens-huahua',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcAWATABmEA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5457,7 +5457,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'chihuahua-token',
   },
   {
-    id: 'picasso-substrate-tokens-kar',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGADI4Q',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5472,7 +5472,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'karura',
   },
   {
-    id: 'picasso-substrate-tokens-ksm',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcAWYQ',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5487,7 +5487,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'kusama',
   },
   {
-    id: 'picasso-substrate-tokens-movr',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGADAFmEA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5502,7 +5502,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'moonriver',
   },
   {
-    id: 'picasso-substrate-tokens-ntrn',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGATMIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5517,7 +5517,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'neutron',
   },
   {
-    id: 'picasso-substrate-tokens-osmo',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcAOYQ',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5532,7 +5532,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'osmosis',
   },
   {
-    id: 'picasso-substrate-tokens-pica',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGYQ',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5547,7 +5547,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'picasso',
   },
   {
-    id: 'picasso-substrate-tokens-scrt',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGArMIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5562,7 +5562,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'secret',
   },
   {
-    id: 'picasso-substrate-tokens-sdn',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcAmADMg7MIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5577,7 +5577,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'shiden',
   },
   {
-    id: 'picasso-substrate-tokens-stars',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGRwg',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5592,7 +5592,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'stargaze',
   },
   {
-    id: 'picasso-substrate-tokens-statom',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGADMIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5607,7 +5607,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'stride-staked-atom',
   },
   {
-    id: 'picasso-substrate-tokens-strd',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBOYQ',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5622,7 +5622,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'stride',
   },
   {
-    id: 'picasso-substrate-tokens-tnkr',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcAmAjI4Q',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5636,7 +5636,7 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'picasso-substrate-tokens-umee',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGA7MIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5651,7 +5651,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'umee',
   },
   {
-    id: 'picasso-substrate-tokens-usdc',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGAzI4Q',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5666,7 +5666,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'usd-coin',
   },
   {
-    id: 'picasso-substrate-tokens-usdt',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGAzABmEA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5681,7 +5681,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'tether',
   },
   {
-    id: 'picasso-substrate-tokens-vdot',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBmALMIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5696,7 +5696,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'voucher-dot',
   },
   {
-    id: 'picasso-substrate-tokens-vksm',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBmATMIA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5710,7 +5710,7 @@ export const ALL_TOKENS = [
     },
   },
   {
-    id: 'picasso-substrate-tokens-wbtc',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGAzAJmEA',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
@@ -5725,7 +5725,7 @@ export const ALL_TOKENS = [
     coingeckoId: 'bitcoin',
   },
   {
-    id: 'picasso-substrate-tokens-weth',
+    id: 'picasso-substrate-tokens-EQIwlg5mB2AuBcBGAzM4Q',
     type: 'substrate-tokens',
     isTestnet: false,
     isDefault: true,
