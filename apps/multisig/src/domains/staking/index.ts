@@ -69,8 +69,9 @@ export const validatorsWithIdentityAtom = atomFamily({
           if (identity && identity.identity.isSome) {
             const identityUnwraped = identity.identity.unwrap()
             const [registration] = identityUnwraped
-            const name = u8aToString(u8aUnwrapBytes(registration.info.display.asRaw.toString()))
-            const subName = identity.subIdentity
+            const raw = registration?.info?.display?.asRaw
+            const name = raw ? u8aToString(u8aUnwrapBytes(raw.toString())) : ''
+            const subName = identity?.subIdentity
             acc[address] = { ...validator, name, subName }
           } else {
             acc[address] = validator
