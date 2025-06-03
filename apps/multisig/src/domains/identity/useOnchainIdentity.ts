@@ -22,6 +22,6 @@ export const useOnchainIdentity = (address: Address, chain?: Chain) => {
         return { identity: superIdentityString, subIdentity: identity.contents.subIdentity, verified }
     }
 
-    return { identity: u8aToString(u8aUnwrapBytes(registration.info.display.asRaw.toString())), verified }
+    return { identity: u8aToString(u8aUnwrapBytes(registration.info.display?.asRaw.toString())), verified }
   }, [identity])
 }
