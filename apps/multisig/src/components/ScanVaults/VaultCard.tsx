@@ -9,6 +9,7 @@ import { ScannedVault, importedTeamsState } from '@domains/multisig/vaults-scann
 import { useCreateOrganisation } from '@domains/offchain-data'
 import { useKnownAddresses } from '@hooks/useKnownAddresses'
 import { CONFIG } from '@lib/config'
+import { MIN_MULTISIG_THRESHOLD } from '@util/constants'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSetRecoilState } from 'recoil'
@@ -35,7 +36,7 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
         chain: vault.chain.id,
         multisig_config: {
           signers: vault.multisig.signers.map(s => s.toSs58()),
-          threshold: vault.multisig.threshold,
+          threshold: vault.multisig.threshold || MIN_MULTISIG_THRESHOLD,
         },
         proxied_address: vault.proxiedAddress.toSs58(),
       })
@@ -46,18 +47,7 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
       }
       if (error) toast({ title: 'Failed to import', description: error })
     },
-    [
-      createOrganisation,
-      name,
-      navigate,
-      onAdded,
-      setImportedTeams,
-      toast,
-      vault.chain.id,
-      vault.multisig.signers,
-      vault.multisig.threshold,
-      vault.proxiedAddress,
-    ]
+    [createOrganisation, name, navigate, onAdded, setImportedTeams, toast, vault]
   )
 
   return (
@@ -126,7 +116,7 @@ const VaultCard: React.FC<{ vault: ScannedVault; onAdded?: () => void }> = ({ on
             <div className="pr-[12px]">
               <p className="text-[14px] mb-[4px]">Threshold</p>
               <p className="text-offWhite font-bold">
-                {vault.multisig.threshold} of {vault.multisig.signers.length}
+                {vault.multisig.threshold || MIN_MULTISIG_THRESHOLD} of {vault.multisig.signers.length}
               </p>
             </div>
           </div>

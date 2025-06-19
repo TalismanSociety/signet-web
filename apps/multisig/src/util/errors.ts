@@ -66,6 +66,10 @@ export const handleSubmittableResultError = (res: SubmittableResult) => {
     console.error(errorEvent.toHuman())
     throw new Error(JSON.stringify(errorEvent.toHuman()))
   }
+
+  if (res.internalError) {
+    throw new Error(`Unhandled submittable result error: ${res.internalError}`)
+  }
 }
 
 export const getDispatchErrorMessage = (error: DispatchError) => {
