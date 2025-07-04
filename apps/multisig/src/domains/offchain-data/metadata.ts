@@ -98,6 +98,7 @@ export const TxMetadataWatcher = () => {
       txMetadataList.forEach(txMetadata => {
         if (!newTxMetadataByTeamId[txMetadata.teamId]) newTxMetadataByTeamId[txMetadata.teamId] = { data: {} }
 
+        // TODO txMetadata.extrinsicId might be an issue when eager saving, double check
         newTxMetadataByTeamId[txMetadata.teamId]!.data[txMetadata.extrinsicId] = txMetadata
       })
 
@@ -197,6 +198,7 @@ export const useInsertTxMetadata = () => {
       // save metadata to in-memory cache
       const metadata = parseTxMetadata({ ...rawTxMetadata, created: new Date().toString() })
       if (!newTxMetadataByTeamId[multisig.id]) newTxMetadataByTeamId[multisig.id] = { data: {} }
+      // TODO txMetadata.extrinsicId might be an issue when eager saving, double c
       newTxMetadataByTeamId[multisig.id]!.data[other.extrinsicId] = metadata
       setTxMetadataByTeamId(newTxMetadataByTeamId)
 

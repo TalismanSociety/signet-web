@@ -50,6 +50,8 @@ const usePendingTransactions = () => {
   )
   const { data, isLoading, isError } = useGetTxsMetadata()
 
+  console.log({ data })
+
   const tempCalldata = useRecoilValue(tempCalldataState)
   const pjsApi = useRecoilValue(pjsApiSelector(genesisHash))
   const allActiveChainTokens = useRecoilValue(allChainTokensSelector)
@@ -67,7 +69,9 @@ const usePendingTransactions = () => {
         const { id } = rawPending
         const metadata = data?.find(txMeta => {
           const extrinsic = decodeCallData(pjsApi, txMeta.callData)
+          console.log({ callData: txMeta.callData })
           return (
+            // TODO: This extrinsicId might be an issue when eager saving metadata
             txMeta.extrinsicId === id || pjsApi.registry.hash(extrinsic?.method.toU8a()).toHex() === rawPending.callHash
           )
         })

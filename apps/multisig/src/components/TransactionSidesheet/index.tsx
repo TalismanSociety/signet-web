@@ -35,7 +35,7 @@ type TransactionSidesheetProps = {
   description: string
   calldata: `0x${string}`
   otherTxMetadata?: Pick<TxMetadata, 'changeConfigDetails' | 'contractDeployed'>
-  t?: Transaction
+  submittedTx?: Transaction
   shouldSetUnknownTransaction?: boolean
 }
 
@@ -49,7 +49,7 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
   onSaved,
   onRejected,
   open,
-  t: submittedTx,
+  submittedTx,
   preventRedirect,
   shouldSetUnknownTransaction,
 }) => {

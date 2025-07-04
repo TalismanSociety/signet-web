@@ -146,7 +146,7 @@ export const TransactionsList = ({
                         calldata="0x"
                         description={openTransaction?.description ?? ''}
                         open={!!openTransaction}
-                        t={openTransaction}
+                        submittedTx={openTransaction}
                         otherTxMetadata={{
                           contractDeployed: openTransaction?.decoded?.contractDeployment
                             ? {
