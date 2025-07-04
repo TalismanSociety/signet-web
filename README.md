@@ -1,6 +1,21 @@
 # Signet
 
-## How to build on Signet
+Signet is a multisig coordination interface built by [Talisman](https://github.com/TalismanSociety), allowing users to create, manage, and sign multisig transactions across supported Substrate-based chains.
+
+> **Note:** This frontend requires a locally running instance of the [Signet Backend](https://github.com/TalismanSociety/signet-backend). Be sure to start the backend before using the app.
+
+## 🛠️ Getting Started
+
+1. Clone and start the backend:
+
+```sh
+git clone https://github.com/TalismanSociety/signet-backend
+cd signet-backend
+```
+
+Follow the README instructions to install dependencies and start the server
+
+2. Start the frontend:
 
 ```sh
 # 1. Run yarn so it automatically links all the dependencies
