@@ -9,11 +9,7 @@ const SelectedChainBalancesProvider = ({ children }: { children: ReactNode }) =>
   const selectedChainHash = multisig.id === DUMMY_MULTISIG_ID ? '' : multisig.chain.genesisHash
 
   return (
-    <BalancesProvider
-      withTestnets
-      enabledChains={[selectedChainHash || '']}
-      coingeckoApiUrl="https://coingecko.talismn.workers.dev"
-    >
+    <BalancesProvider withTestnets enabledChains={[selectedChainHash || '']}>
       {children}
     </BalancesProvider>
   )
