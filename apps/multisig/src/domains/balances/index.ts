@@ -7,6 +7,7 @@ import { useEffect, useMemo } from 'react'
 import { atom, useRecoilValue, useSetRecoilState } from 'recoil'
 import { Address } from '../../util/addresses'
 import { ALL_TOKENS_BY_ID } from '@domains/chains/all-tokens'
+import { DEFAULT_CURRENCY } from '@util/constants'
 
 export const balancesState = atom<Balances | undefined>({
   key: 'Balances',
@@ -39,7 +40,8 @@ export const useAugmentedBalances = () => {
 
   return useMemo(() => {
     if (!multisigBalances) return undefined
-    return multisigBalances.filterNonZero('total').sorted.reduce((acc: TokenAugmented[], b) => {
+
+    return multisigBalances.filterNonZeroFiat('total', DEFAULT_CURRENCY).each.reduce((acc: TokenAugmented[], b) => {
       if (b.chain === null || !b.token) return acc
       const balanceChain = b.chain
 
@@ -66,10 +68,14 @@ export const useAugmentedBalances = () => {
         logo: b.token.logo,
         type: b.token.type,
       }
-      return [
-        ...acc,
-        { details: token, balance: { avaliable, unavaliable }, price: b.rates?.usd || 0, id: b.id, balanceDetails: b },
-      ]
+      acc.push({
+        details: token,
+        balance: { avaliable, unavaliable },
+        price: typeof b.rates?.usd === 'number' ? b.rates.usd : 0,
+        id: b.id,
+        balanceDetails: b,
+      })
+      return acc
     }, [])
   }, [multisigBalances])
 }
@@ -115,7 +121,7 @@ export const BalancesWatcher = () => {
 
   const balances = useBalances()
   useEffect(() => {
-    setBalances(balances.filterNonZero('total'))
+    setBalances(balances.filterNonZeroFiat('total', DEFAULT_CURRENCY))
   }, [balances, setBalances])
 
   return null

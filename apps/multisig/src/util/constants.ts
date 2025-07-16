@@ -8,3 +8,5 @@ export enum MultisigCallNames {
   AsMulti = 'Multisig.as_multi',
   AsMultiThreshold1 = 'Multisig.as_multi_threshold_1',
 }
+
+export const DEFAULT_CURRENCY = 'usd'
