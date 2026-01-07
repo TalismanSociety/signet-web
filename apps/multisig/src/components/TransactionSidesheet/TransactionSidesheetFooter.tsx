@@ -76,16 +76,21 @@ export const SignerCta: React.FC<{
     // No need to check for multisig balance if not going to execute the transaction
     if (asDraft || !readyToExecute || existentialDepositLoadable.state === 'loading') return true
 
+    // Get the token being transferred
+    const outgoingToken = t.decoded?.type === TransactionType.Vote ? voteSum?.token : sumOutgoing?.token
+    if (!outgoingToken) return true
+
+    // Find balance for the specific token being transferred (not just native token)
     const availableBalance =
-      balances?.find(({ address, chainId, source }) => {
+      balances?.find(({ address, chainId, tokenId }) => {
         const parsedAddress = Address.fromSs58(address)
         return (
           parsedAddress &&
           parsedAddress.isEqual(multisig.proxyAddress) &&
-          source === 'substrate-native' &&
+          tokenId === outgoingToken.id &&
           chainId === t.multisig.chain.id
         )
-      }).sum.planck.transferable ?? 0n
+      })?.sum.planck.transferable ?? 0n
 
     const txTokensAmount = BigInt(
       t.decoded?.type === TransactionType.Vote ? voteSum?.amount.toString() ?? 0 : sumOutgoing?.amount.toString() ?? 0
@@ -99,9 +104,11 @@ export const SignerCta: React.FC<{
     multisig.proxyAddress,
     readyToExecute,
     sumOutgoing?.amount,
+    sumOutgoing?.token,
     t.decoded?.type,
     t.multisig.chain.id,
     voteSum?.amount,
+    voteSum?.token,
   ])
 
   const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
