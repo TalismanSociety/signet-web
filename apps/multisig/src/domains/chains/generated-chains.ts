@@ -31,6 +31,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
+        url: 'wss://polkadot.api.onfinality.io/rpc?apikey=',
+      },
+      {
         url: 'wss://rpc.ibp.network/polkadot',
       },
       {
@@ -79,6 +82,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'astar-substrate-native',
     },
     rpcs: [
+      {
+        url: 'wss://astar.api.onfinality.io/rpc?apikey=',
+      },
       {
         url: 'wss://1rpc.io/astr',
       },
@@ -144,6 +150,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'kusama-substrate-native',
     },
     rpcs: [
+      {
+        url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=',
+      },
       {
         url: 'wss://rpc.ibp.network/kusama',
       },
@@ -241,6 +250,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       {
         url: 'wss://bittensor-finney.api.onfinality.io/ws?apikey=',
       },
+      {
+        url: 'wss://entrypoint-finney.opentensor.ai:443',
+      },
     ],
     ss58Prefix: 42,
     subscanUrl: 'https://bittensor.com/scan',
@@ -256,6 +268,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'polkadot-asset-hub-substrate-native',
     },
     rpcs: [
+      {
+        url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=',
+      },
       {
         url: 'wss://sys.ibp.network/statemint',
       },
@@ -301,6 +316,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'kusama-asset-hub-substrate-native',
     },
     rpcs: [
+      {
+        url: 'wss://astar.api.onfinality.io/rpc?apikey=',
+      },
       {
         url: 'wss://sys.ibp.network/statemine',
       },
@@ -368,6 +386,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
+        url: 'wss://astar.api.onfinality.io/rpc?apikey=',
+      },
+      {
         url: 'wss://bifrost-polkadot-rpc.dwellir.com',
       },
       {
@@ -400,6 +421,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'moonbeam-substrate-native',
     },
     rpcs: [
+      {
+        url: 'wss://moonbeam.api.onfinality.io/rpc?apikey=',
+      },
       {
         url: 'wss://moonbeam-rpc.dwellir.com',
       },

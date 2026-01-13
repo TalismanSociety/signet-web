@@ -18,7 +18,7 @@ const generateSupportedChains = async () => {
         nativeToken: {
           id: chain.nativeToken?.id,
         },
-        rpcs: chainDetails.rpcs ?? chain.rpcs,
+        rpcs: [...(chainDetails.rpcs ?? []), ...chain.rpcs],
         ss58Prefix: chain.prefix,
         subscanUrl: chainDetails.subscanUrl ?? chain.subscanUrl,
         polkaAssemblyUrl: chainDetails.polkaAssemblyUrl ?? chain.polkaAssemblyUrl,
