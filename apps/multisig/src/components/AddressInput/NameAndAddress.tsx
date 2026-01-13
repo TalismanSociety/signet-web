@@ -1,9 +1,8 @@
-import { useAzeroID } from '@domains/azeroid/AzeroIDResolver'
 import { Chain } from '@domains/chains'
 import { useOnchainIdentity } from '@domains/identity/useOnchainIdentity'
 import { Address } from '@util/addresses'
 import { Check } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { CircularProgressIndicator } from '@talismn/ui'
 
 export const NameAndAddress: React.FC<{
@@ -15,18 +14,7 @@ export const NameAndAddress: React.FC<{
   hideAddress?: boolean
   isNameLoading?: boolean
 }> = ({ address, name, chain, nameOrAddressOnly, breakLine, hideAddress, isNameLoading = false }) => {
-  const { resolve } = useAzeroID()
-  const [azeroId, setAzeroId] = useState<string | undefined>()
   const onchainIdentity = useOnchainIdentity(address, chain)
-
-  useEffect(() => {
-    setAzeroId(undefined)
-  }, [address])
-
-  useEffect(() => {
-    if ((nameOrAddressOnly && name) || !!azeroId) return
-    setAzeroId(resolve(address.toSs58())?.a0id)
-  }, [address, azeroId, name, nameOrAddressOnly, resolve])
 
   const onchainIdentityUi = useMemo(() => {
     if (!onchainIdentity) return null
@@ -46,16 +34,16 @@ export const NameAndAddress: React.FC<{
   }, [onchainIdentity])
 
   const primaryText = useMemo(
-    () => name ?? onchainIdentityUi ?? azeroId ?? address.toShortSs58(chain),
-    [address, azeroId, chain, name, onchainIdentityUi]
+    () => name ?? onchainIdentityUi ?? address.toShortSs58(chain),
+    [address, chain, name, onchainIdentityUi]
   )
 
   const secondaryText = useMemo(() => {
     if (nameOrAddressOnly) return null
-    if (name) return onchainIdentityUi ?? azeroId ?? address.toShortSs58(chain)
-    if (onchainIdentityUi) return azeroId ?? address.toShortSs58(chain)
+    if (name) return onchainIdentityUi ?? address.toShortSs58(chain)
+    if (onchainIdentityUi) return address.toShortSs58(chain)
     return null
-  }, [address, azeroId, chain, name, nameOrAddressOnly, onchainIdentityUi])
+  }, [address, chain, name, nameOrAddressOnly, onchainIdentityUi])
 
   if (!secondaryText) {
     return (

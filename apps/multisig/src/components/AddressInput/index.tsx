@@ -5,7 +5,6 @@ import { useOnClickOutside } from '@domains/common/useOnClickOutside'
 import { SelectedAddress } from './SelectedAddressPill'
 import { AccountDetails } from './AccountDetails'
 import { Input } from '@components/ui/input'
-import { useAzeroIDPromise } from '@domains/azeroid/AzeroIDResolver'
 import { AlertTriangle } from '@talismn/icons'
 import { useGetInfiniteAddresses } from '@domains/offchain-data/address-book/hooks/useGetInfiniteAddresses'
 import { useDebounce } from '@hooks/useDebounce'
@@ -50,7 +49,6 @@ const AddressInput = ({
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { resolve, resolving, data, clear } = useAzeroIDPromise()
   const { addresses: knownAddresses } = useKnownAddresses({
     includeSelectedMultisig: shouldIncludeSelectedMultisig,
     shouldExcludeExtensionContacts,
@@ -75,15 +73,6 @@ const AddressInput = ({
     },
     [onChange]
   )
-
-  useEffect(() => {
-    if (data?.address) {
-      setAddress(data.address)
-      handleQueryChange(data.address.toSs58(chain))
-      setExpanded(false)
-      clear()
-    }
-  }, [chain, clear, data, handleQueryChange])
 
   // filter client side addresses
   const filteredKnownAddresses = knownAddresses.filter(
@@ -137,11 +126,10 @@ const AddressInput = ({
       <Input
         ref={inputRef}
         label={leadingLabel}
-        loading={resolving || isFetching}
+        loading={isFetching}
         placeholder={address ? '' : combinedAddresses.length > 0 ? 'Search or paste address...' : 'Enter address...'}
         value={address ? '' : input}
         onChange={e => {
-          resolve(e.target.value)
           const validInput = handleQueryChange(e.target.value)
           if (validInput || combinedAddresses.length > 0) {
             setExpanded(true)
