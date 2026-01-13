@@ -7,14 +7,12 @@ export type SupportedChainIds =
   | 'astar'
   | 'hydradx'
   | 'kusama'
-  | 'aleph-zero-testnet'
   | 'paseo-testnet'
   | 'polimec'
   | 'bittensor'
   | 'polkadot-asset-hub'
   | 'kusama-asset-hub'
   | 'acala'
-  | 'aleph-zero'
   | 'bifrost-polkadot'
   | 'moonbeam'
   | 'phala'
@@ -180,27 +178,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ss58Prefix: 2,
     subscanUrl: 'https://kusama.subscan.io/',
     polkaAssemblyUrl: 'https://kusama.polkassembly.io',
-    account: '*25519',
-  },
-  {
-    id: 'aleph-zero-testnet',
-    chainName: 'Aleph Zero Testnet',
-    genesisHash: '0x05d5279c52c484cc80396535a316add7d47b1c5b9e0398dd1f584149341460c5',
-    isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/aleph-zero-testnet.svg',
-    nativeToken: {
-      id: 'aleph-zero-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://aleph-zero-testnet-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://ws.test.azero.dev',
-      },
-    ],
-    ss58Prefix: 42,
-    subscanUrl: 'https://alephzero-testnet.subscan.io/',
     account: '*25519',
   },
   {
@@ -378,27 +355,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ],
     ss58Prefix: 10,
     subscanUrl: 'https://acala.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'aleph-zero',
-    chainName: 'Aleph Zero',
-    genesisHash: '0x70255b4d28de0fc4e1a193d7e175ad1ccef431598211c55538f1018651a0344e',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/aleph-zero.svg',
-    nativeToken: {
-      id: 'aleph-zero-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://aleph-zero-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://ws.azero.dev',
-      },
-    ],
-    ss58Prefix: 42,
-    subscanUrl: 'https://alephzero.subscan.io/',
     account: '*25519',
   },
   {
