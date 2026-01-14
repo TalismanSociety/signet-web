@@ -4,6 +4,7 @@ import { Button } from '@talismn/ui'
 import { useState } from 'react'
 import { useSignIn } from '@domains/auth'
 import AccountComboBox from './AccountComboBox'
+import { useAzeroID } from '@domains/azeroid/AzeroIDResolver'
 
 type Props = {
   accounts: InjectedAccount[]
@@ -11,6 +12,7 @@ type Props = {
 
 const SignInPage: React.FC<Props> = ({ accounts }) => {
   const [accountToSignIn, setAccountToSignIn] = useState(accounts[0] as InjectedAccount)
+  const { resolve } = useAzeroID()
   const { signIn, signingIn } = useSignIn()
 
   const handleSignIn = (e: React.FormEvent) => {
@@ -47,7 +49,14 @@ const SignInPage: React.FC<Props> = ({ accounts }) => {
           <h1 css={{ textAlign: 'center', marginBottom: 36 }}>
             {accounts.length > 1 ? 'Select an account to sign in with' : 'Sign in to access Multisig.'}
           </h1>
-          <AccountComboBox selectedAccount={accountToSignIn} accounts={accounts} onSelect={setAccountToSignIn} />
+          <AccountComboBox
+            selectedAccount={accountToSignIn}
+            accounts={accounts.map(acc => ({
+              ...acc,
+              meta: { ...acc.meta, name: acc.meta.name ?? resolve(acc.address.toSs58())?.a0id },
+            }))}
+            onSelect={setAccountToSignIn}
+          />
           <Button
             type="submit"
             onClick={handleSignIn}

@@ -2,8 +2,10 @@ import { Check, Copy, ExternalLink } from '@talismn/icons'
 import { Chain, filteredSupportedChains, useNativeTokenBalance, useSystemToken } from '../domains/chains'
 import { Address } from '../util/addresses'
 import { Tooltip } from './ui/tooltip'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { cn } from '../util/tailwindcss'
+import { useAzeroID } from '@domains/azeroid/AzeroIDResolver'
+import { AzeroIDLogo } from './OtherLogos/AzeroID'
 import { useSelectedMultisig } from '@domains/multisig'
 import { DUMMY_MULTISIG_ID } from '@util/constants'
 import { useApi } from '@domains/chains/pjs-api'
@@ -22,6 +24,8 @@ export const AddressTooltip: React.FC<
   const address = typeof _address === 'string' ? (Address.fromSs58(_address) as Address) : _address
   const ss58Address = address.toSs58(chain)
   const { copy, copied } = useCopied()
+  const { resolve } = useAzeroID()
+  const [a0Id, setA0Id] = useState<string>()
   const onchainIdentity = useOnchainIdentity(address, chain)
 
   const isLoggedIn = selectedMultisig.id !== DUMMY_MULTISIG_ID
@@ -31,6 +35,11 @@ export const AddressTooltip: React.FC<
     e.stopPropagation()
     copy(ss58Address, 'Address Copied!', <p className="text-[12px]">{address.toShortSs58(chain)}</p>)
   }
+
+  useEffect(() => {
+    if (!!a0Id) return
+    setA0Id(resolve(address.toSs58())?.a0id)
+  }, [a0Id, address, name, resolve])
 
   const onchainIdentityUi = useMemo(() => {
     if (!onchainIdentity) return null
@@ -53,8 +62,9 @@ export const AddressTooltip: React.FC<
     if (selectedMultisig.proxyAddress.isEqual(address)) return `${selectedMultisig.name} (Proxied)`
     if (selectedMultisig.multisigAddress.isEqual(address)) return `${selectedMultisig.name} (Multisig)`
 
-    return onchainIdentityUi ?? 'Unknown Address'
+    return onchainIdentityUi ?? a0Id ?? 'Unknown Address'
   }, [
+    a0Id,
     address,
     onchainIdentityUi,
     selectedMultisig.multisigAddress,
@@ -81,6 +91,19 @@ export const AddressTooltip: React.FC<
                   <ExternalLink size={16} />
                 </a>
               </div>
+            </div>
+            <div>
+              {!!a0Id && (
+                <a
+                  className="flex items-center justify-center gap-[4px] hover:text-[#E7FE1B] text-gray-200 cursor-pointer"
+                  href={`https://${a0Id}.id`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <AzeroIDLogo height={14} width={14} />
+                  <p className="text-[12px] mt-[2px]">{a0Id}</p>
+                </a>
+              )}
             </div>
           </div>
           <div className="flex items-center justify-between gap-4 p-3 bg-gray-700 border-gray-500 border rounded-[6px]">
