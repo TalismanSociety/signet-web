@@ -43,8 +43,8 @@ type UrlParams = {
 }
 
 const CreateMultisig = () => {
-  let firstChain = filteredSupportedChains[0]
-  if (!firstChain) throw Error('no supported chains')
+  const [firstChain, secondChain] = filteredSupportedChains
+  if (!firstChain || !secondChain) throw Error('no supported chains')
 
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedChainParam = filteredSupportedChains.find(c => c.id === searchParams.get('chainId'))
@@ -58,7 +58,7 @@ const CreateMultisig = () => {
   const { toast, dismiss } = useToast()
   const [step, setStep] = useState<Step>(Number(searchParams.get('step')) || Step.NameVault)
   const [name, setName] = useState<string>(searchParams.get('name') || '')
-  const [chain, setChain] = useState<Chain>(selectedChainParam || firstChain)
+  const [chain, setChain] = useState<Chain>(selectedChainParam || secondChain)
   const [threshold, setThreshold] = useState<number>(Number(searchParams.get('threshold')) || 2)
 
   const setBlockAccountSwitcher = useSetRecoilState(blockAccountSwitcher)

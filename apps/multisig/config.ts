@@ -10,6 +10,7 @@ export type SupportedChain = {
   subscanUrl?: string
   rpcs?: Array<Rpc>
   logo?: string
+  isDisabled?: boolean
 }
 
 export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
@@ -17,6 +18,7 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
     id: 'polkadot',
     polkaAssemblyUrl: 'https://polkadot.polkassembly.io',
     rpcs: [{ url: 'wss://polkadot.api.onfinality.io/rpc?apikey=' }],
+    isDisabled: true,
   },
   'astar': {
     id: 'astar',
@@ -96,6 +98,7 @@ export type Chain = {
   subscanUrl: string
   polkaAssemblyUrl?: string
   account: Account
+  isDisabled?: boolean
 }
 
 export const CUSTOM_CHAINS: Omit<Chain, 'id'>[] = [

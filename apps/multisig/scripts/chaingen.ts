@@ -23,6 +23,7 @@ const generateSupportedChains = async () => {
         subscanUrl: chainDetails.subscanUrl ?? chain.subscanUrl,
         polkaAssemblyUrl: chainDetails.polkaAssemblyUrl ?? chain.polkaAssemblyUrl,
         account: chain.account,
+        isDisabled: chainDetails.isDisabled,
       })
     }
   }

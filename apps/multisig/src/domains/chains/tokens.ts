@@ -208,6 +208,7 @@ export type Chain<ChainIds = string> = {
   subscanUrl: string
   polkaAssemblyUrl?: string
   account: Account
+  isDisabled?: boolean
 }
 
 export const chainTokensByIdQuery = selectorFamily({

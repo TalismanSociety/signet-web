@@ -72,6 +72,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     subscanUrl: 'https://polkadot.subscan.io/',
     polkaAssemblyUrl: 'https://polkadot.polkassembly.io',
     account: '*25519',
+    isDisabled: true,
   },
   {
     id: 'astar',
