@@ -5740,20 +5740,6 @@ export const ALL_TOKENS = [
     coingeckoId: 'ethereum',
   },
   {
-    id: 'polimec-substrate-native',
-    type: 'substrate-native',
-    isTestnet: false,
-    isDefault: true,
-    symbol: 'PLMC',
-    decimals: 10,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/polimec.svg',
-    existentialDeposit: '10000000',
-    chain: {
-      id: 'polimec',
-    },
-    coingeckoId: 'polimec',
-  },
-  {
     id: 'polkadex-polkadot-substrate-native',
     type: 'substrate-native',
     isTestnet: false,

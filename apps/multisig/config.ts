@@ -42,10 +42,6 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
     id: 'paseo-testnet',
     subscanUrl: 'https://paseo.subscan.io/',
   },
-  'polimec': {
-    id: 'polimec',
-    subscanUrl: 'https://explorer.polimec.org/polimec/',
-  },
   'bittensor': {
     id: 'bittensor',
     subscanUrl: 'https://bittensor.com/scan',

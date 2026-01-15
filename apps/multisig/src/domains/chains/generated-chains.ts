@@ -8,7 +8,6 @@ export type SupportedChainIds =
   | 'hydradx'
   | 'kusama'
   | 'paseo-testnet'
-  | 'polimec'
   | 'bittensor'
   | 'polkadot-asset-hub'
   | 'kusama-asset-hub'
@@ -207,36 +206,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ],
     ss58Prefix: 0,
     subscanUrl: 'https://paseo.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'polimec',
-    chainName: 'Polimec',
-    genesisHash: '0x7eb9354488318e7549c722669dcbdcdc526f1fef1420e7944667212f3601fdbd',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/polimec.svg',
-    nativeToken: {
-      id: 'polimec-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://polimec.ibp.network',
-      },
-      {
-        url: 'wss://polimec.dotters.network',
-      },
-      {
-        url: 'wss://polimec.rpc.amforc.com',
-      },
-      {
-        url: 'wss://rpc.helikon.io/polimec',
-      },
-      {
-        url: 'wss://rpc.polimec.org',
-      },
-    ],
-    ss58Prefix: 41,
-    subscanUrl: 'https://explorer.polimec.org/polimec/',
     account: '*25519',
   },
   {
