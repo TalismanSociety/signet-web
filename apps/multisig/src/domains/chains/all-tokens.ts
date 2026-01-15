@@ -545,19 +545,6 @@ export const ALL_TOKENS = [
     logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/tokens/unknown.svg',
   },
   {
-    id: 'aleph-zero-testnet-substrate-native',
-    type: 'substrate-native',
-    isTestnet: true,
-    isDefault: true,
-    symbol: 'TZERO',
-    decimals: 12,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/aleph-zero-testnet.svg',
-    existentialDeposit: '500',
-    chain: {
-      id: 'aleph-zero-testnet',
-    },
-  },
-  {
     id: 'altair-substrate-native',
     type: 'substrate-native',
     isTestnet: false,
@@ -5738,20 +5725,6 @@ export const ALL_TOKENS = [
       id: 'picasso',
     },
     coingeckoId: 'ethereum',
-  },
-  {
-    id: 'polimec-substrate-native',
-    type: 'substrate-native',
-    isTestnet: false,
-    isDefault: true,
-    symbol: 'PLMC',
-    decimals: 10,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/polimec.svg',
-    existentialDeposit: '10000000',
-    chain: {
-      id: 'polimec',
-    },
-    coingeckoId: 'polimec',
   },
   {
     id: 'polkadex-polkadot-substrate-native',

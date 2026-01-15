@@ -19,7 +19,7 @@ const Group = (props: { chains: Chain[]; label: string }) => (
     <SelectLabel>{props.label}</SelectLabel>
     <div className="grid grid-cols-2 w-full">
       {props.chains.map(chain => (
-        <SelectItem value={chain.genesisHash} key={chain.genesisHash}>
+        <SelectItem value={chain.genesisHash} key={chain.genesisHash} disabled={chain.isDisabled}>
           <div className="w-full flex items-center gap-[12px]">
             <div className="w-[40px] h-[40px] min-h-[40px] min-w-[40px]">
               <img src={chain.logo} alt={chain.chainName} />

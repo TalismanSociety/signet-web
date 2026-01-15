@@ -7,9 +7,7 @@ export type SupportedChainIds =
   | 'astar'
   | 'hydradx'
   | 'kusama'
-  | 'aleph-zero-testnet'
   | 'paseo-testnet'
-  | 'polimec'
   | 'bittensor'
   | 'polkadot-asset-hub'
   | 'kusama-asset-hub'
@@ -32,6 +30,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'polkadot-substrate-native',
     },
     rpcs: [
+      {
+        url: 'wss://polkadot.api.onfinality.io/rpc?apikey=',
+      },
       {
         url: 'wss://rpc.ibp.network/polkadot',
       },
@@ -70,6 +71,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     subscanUrl: 'https://polkadot.subscan.io/',
     polkaAssemblyUrl: 'https://polkadot.polkassembly.io',
     account: '*25519',
+    isDisabled: true,
   },
   {
     id: 'astar',
@@ -81,6 +83,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'astar-substrate-native',
     },
     rpcs: [
+      {
+        url: 'wss://astar.api.onfinality.io/rpc?apikey=',
+      },
       {
         url: 'wss://1rpc.io/astr',
       },
@@ -147,6 +152,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
+        url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=',
+      },
+      {
         url: 'wss://rpc.ibp.network/kusama',
       },
       {
@@ -183,27 +191,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     account: '*25519',
   },
   {
-    id: 'aleph-zero-testnet',
-    chainName: 'Aleph Zero Testnet',
-    genesisHash: '0x05d5279c52c484cc80396535a316add7d47b1c5b9e0398dd1f584149341460c5',
-    isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/aleph-zero-testnet.svg',
-    nativeToken: {
-      id: 'aleph-zero-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://aleph-zero-testnet-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://ws.test.azero.dev',
-      },
-    ],
-    ss58Prefix: 42,
-    subscanUrl: 'https://alephzero-testnet.subscan.io/',
-    account: '*25519',
-  },
-  {
     id: 'paseo-testnet',
     chainName: 'Paseo',
     genesisHash: '0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f',
@@ -222,36 +209,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     account: '*25519',
   },
   {
-    id: 'polimec',
-    chainName: 'Polimec',
-    genesisHash: '0x7eb9354488318e7549c722669dcbdcdc526f1fef1420e7944667212f3601fdbd',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/polimec.svg',
-    nativeToken: {
-      id: 'polimec-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://polimec.ibp.network',
-      },
-      {
-        url: 'wss://polimec.dotters.network',
-      },
-      {
-        url: 'wss://polimec.rpc.amforc.com',
-      },
-      {
-        url: 'wss://rpc.helikon.io/polimec',
-      },
-      {
-        url: 'wss://rpc.polimec.org',
-      },
-    ],
-    ss58Prefix: 41,
-    subscanUrl: 'https://explorer.polimec.org/polimec/',
-    account: '*25519',
-  },
-  {
     id: 'bittensor',
     chainName: 'Bittensor',
     genesisHash: '0x2f0555cc76fc2840a25a6ea3b9637146806f1f44b090c175ffde2a7e5ab36c03',
@@ -263,6 +220,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     rpcs: [
       {
         url: 'wss://bittensor-finney.api.onfinality.io/ws?apikey=',
+      },
+      {
+        url: 'wss://entrypoint-finney.opentensor.ai:443',
       },
     ],
     ss58Prefix: 42,
@@ -279,6 +239,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'polkadot-asset-hub-substrate-native',
     },
     rpcs: [
+      {
+        url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=',
+      },
       {
         url: 'wss://sys.ibp.network/statemint',
       },
@@ -324,6 +287,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'kusama-asset-hub-substrate-native',
     },
     rpcs: [
+      {
+        url: 'wss://astar.api.onfinality.io/rpc?apikey=',
+      },
       {
         url: 'wss://sys.ibp.network/statemine',
       },
@@ -412,6 +378,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
+        url: 'wss://astar.api.onfinality.io/rpc?apikey=',
+      },
+      {
         url: 'wss://bifrost-polkadot-rpc.dwellir.com',
       },
       {
@@ -444,6 +413,9 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'moonbeam-substrate-native',
     },
     rpcs: [
+      {
+        url: 'wss://moonbeam.api.onfinality.io/rpc?apikey=',
+      },
       {
         url: 'wss://moonbeam-rpc.dwellir.com',
       },

@@ -10,37 +10,59 @@ export type SupportedChain = {
   subscanUrl?: string
   rpcs?: Array<Rpc>
   logo?: string
+  isDisabled?: boolean
 }
 
 export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   'polkadot': {
     id: 'polkadot',
     polkaAssemblyUrl: 'https://polkadot.polkassembly.io',
+    rpcs: [{ url: 'wss://polkadot.api.onfinality.io/rpc?apikey=' }],
+    isDisabled: true,
   },
-  'astar': { id: 'astar', polkaAssemblyUrl: 'https://astar.polkassembly.io' },
-
-  'hydradx': { id: 'hydradx', polkaAssemblyUrl: 'https://centrifuge.polkassembly.io' },
-  'kusama': { id: 'kusama', polkaAssemblyUrl: 'https://kusama.polkassembly.io' },
-  'rococo': { id: 'rococo', polkaAssemblyUrl: 'https://rococo.polkassembly.io' },
-  'aleph-zero-testnet': { id: 'aleph-zero-testnet', subscanUrl: 'https://alephzero-testnet.subscan.io/' },
-  'paseo-testnet': { id: 'paseo-testnet', subscanUrl: 'https://paseo.subscan.io/' },
-  'polimec': { id: 'polimec', subscanUrl: 'https://explorer.polimec.org/polimec/' },
+  'astar': {
+    id: 'astar',
+    polkaAssemblyUrl: 'https://astar.polkassembly.io',
+    rpcs: [{ url: 'wss://astar.api.onfinality.io/rpc?apikey=' }],
+  },
+  'hydradx': {
+    id: 'hydradx',
+    polkaAssemblyUrl: 'https://centrifuge.polkassembly.io',
+  },
+  'kusama': {
+    id: 'kusama',
+    polkaAssemblyUrl: 'https://kusama.polkassembly.io',
+    rpcs: [{ url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=' }],
+  },
+  'rococo': {
+    id: 'rococo',
+    polkaAssemblyUrl: 'https://rococo.polkassembly.io',
+  },
+  'paseo-testnet': {
+    id: 'paseo-testnet',
+    subscanUrl: 'https://paseo.subscan.io/',
+  },
   'bittensor': {
     id: 'bittensor',
     subscanUrl: 'https://bittensor.com/scan',
     rpcs: [{ url: 'wss://bittensor-finney.api.onfinality.io/ws?apikey=' }],
   },
-  'polkadot-asset-hub': { id: 'polkadot-asset-hub' },
-  'kusama-asset-hub': { id: 'kusama-asset-hub' },
+  'polkadot-asset-hub': {
+    id: 'polkadot-asset-hub',
+    rpcs: [{ url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=' }],
+  },
+  'kusama-asset-hub': { id: 'kusama-asset-hub', rpcs: [{ url: 'wss://astar.api.onfinality.io/rpc?apikey=' }] },
   'acala': { id: 'acala' },
   'aleph-zero': { id: 'aleph-zero' },
-  'bifrost-polkadot': { id: 'bifrost-polkadot' },
-
-  'moonbeam': { id: 'moonbeam' },
+  'bifrost-polkadot': { id: 'bifrost-polkadot', rpcs: [{ url: 'wss://astar.api.onfinality.io/rpc?apikey=' }] },
+  'moonbeam': { id: 'moonbeam', rpcs: [{ url: 'wss://moonbeam.api.onfinality.io/rpc?apikey=' }] },
   'phala': { id: 'phala' },
   'rococo-testnet': { id: 'rococo-testnet' },
   'shibuya-testnet': { id: 'shibuya-testnet' },
-  'mythos': { id: 'mythos', subscanUrl: 'https://mythos.subscan.io/' },
+  'mythos': {
+    id: 'mythos',
+    subscanUrl: 'https://mythos.subscan.io/',
+  },
 
   // turned off due to inactivity
   // 'dancebox': { id: 'dancebox', subscanUrl: 'https://dancebox.subscan.io/' },
@@ -72,6 +94,7 @@ export type Chain = {
   subscanUrl: string
   polkaAssemblyUrl?: string
   account: Account
+  isDisabled?: boolean
 }
 
 export const CUSTOM_CHAINS: Omit<Chain, 'id'>[] = [
