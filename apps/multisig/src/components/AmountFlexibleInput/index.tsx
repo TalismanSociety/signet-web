@@ -6,6 +6,7 @@ import { Input } from '@components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@components/ui/select'
 import BN from 'bn.js'
 import { formatUnits } from '@util/numbers'
+import { isValidAmountInput } from '@util/amountValidation'
 import { Skeleton } from '@talismn/ui'
 
 type Props = {
@@ -107,27 +108,7 @@ export const AmountFlexibleInput: React.FC<Props> = ({
           value={input}
           onChange={event => {
             if (!selectedToken) return
-
-            // Create a dynamic regular expression.
-            // This regex will:
-            // - Match any string of up to `digits` count of digits, optionally separated by a decimal point.
-            // - The total count of digits, either side of the decimal point, can't exceed `digits`.
-            // - It will also match an empty string, making it a valid input.
-            const digits = selectedToken.decimals
-            let regex = new RegExp(
-              '^(?:(\\d{1,' +
-                digits +
-                '})|(\\d{0,' +
-                (digits - 1) +
-                '}\\.\\d{1,' +
-                (digits - 1) +
-                '})|(\\d{1,' +
-                (digits - 1) +
-                '}\\.\\d{0,' +
-                (digits - 1) +
-                '})|^$)$'
-            )
-            if (regex.test(event.target.value)) {
+            if (isValidAmountInput(event.target.value, selectedToken.decimals)) {
               setInput(event.target.value)
             }
           }}
