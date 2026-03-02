@@ -11,7 +11,6 @@ export type SupportedChainIds =
   | 'bittensor'
   | 'polkadot-asset-hub'
   | 'kusama-asset-hub'
-  | 'aleph-zero'
   | 'bifrost-polkadot'
   | 'moonbeam'
   | 'phala'
@@ -316,27 +315,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ],
     ss58Prefix: 2,
     subscanUrl: 'https://assethub-kusama.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'aleph-zero',
-    chainName: 'Aleph Zero',
-    genesisHash: '0x70255b4d28de0fc4e1a193d7e175ad1ccef431598211c55538f1018651a0344e',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/aleph-zero.svg',
-    nativeToken: {
-      id: 'aleph-zero-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://aleph-zero-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://ws.azero.dev',
-      },
-    ],
-    ss58Prefix: 42,
-    subscanUrl: 'https://alephzero.subscan.io/',
     account: '*25519',
   },
   {

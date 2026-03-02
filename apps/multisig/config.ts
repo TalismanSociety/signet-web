@@ -52,7 +52,7 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
     rpcs: [{ url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=' }],
   },
   'kusama-asset-hub': { id: 'kusama-asset-hub', rpcs: [{ url: 'wss://astar.api.onfinality.io/rpc?apikey=' }] },
-  'aleph-zero': { id: 'aleph-zero' },
+
   'bifrost-polkadot': { id: 'bifrost-polkadot', rpcs: [{ url: 'wss://astar.api.onfinality.io/rpc?apikey=' }] },
   'moonbeam': { id: 'moonbeam', rpcs: [{ url: 'wss://moonbeam.api.onfinality.io/rpc?apikey=' }] },
   'phala': { id: 'phala' },
