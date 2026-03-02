@@ -4,7 +4,6 @@ import { SupportedChainIds } from '@domains/chains/generated-chains'
 const supportedChains: Partial<Record<SupportedChainIds, string>> = {
   'polkadot': 'polkadot',
   'kusama': 'kusama',
-  'acala': 'acala',
   'bifrost-polkadot': 'bifrost',
   'hydradx': 'hydradx',
   'phala': 'phala',
@@ -12,6 +11,7 @@ const supportedChains: Partial<Record<SupportedChainIds, string>> = {
   'rococo-testnet': 'rococo',
 
   // inactivity
+  // 'acala': 'acala',
   // 'khala': 'khala',
   // 'bifrost-kusama': 'bifrost-kusama',
   // 'kintsugi': 'kintsugi',

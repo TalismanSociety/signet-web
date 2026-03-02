@@ -12,49 +12,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@acala-network/type-definitions@npm:4.1.8-14":
-  version: 4.1.8-14
-  resolution: "@acala-network/type-definitions@npm:4.1.8-14"
-  dependencies:
-    "@open-web3/orml-type-definitions": ^1.1.4
-  checksum: 14ca6123640e5357f0bbc31e24d89fd95a0180c31ebfb2d38517cca2abeee879e86488f90277986760648146bdd304f4b6b05082047f348e6690b24659923a08
-  languageName: node
-  linkType: hard
-
-"@acala-network/type-definitions@npm:5.1.2":
-  version: 5.1.2
-  resolution: "@acala-network/type-definitions@npm:5.1.2"
-  peerDependencies:
-    "@polkadot/types": ^10.5.1
-  checksum: cc80fb77976f39565f225d27d135ebad9ee6839429791c074f495e658bf55819b9c48b055d54b0e203525bb271ab36db67a5f7a21eae192afde7bd17c3d50f5b
-  languageName: node
-  linkType: hard
-
-"@acala-network/types@npm:^4.1.8-2.3":
-  version: 4.1.8-14
-  resolution: "@acala-network/types@npm:4.1.8-14"
-  dependencies:
-    "@acala-network/type-definitions": 4.1.8-14
-    "@babel/runtime": ^7.10.2
-    "@open-web3/api-mobx": ^1.1.4
-    "@open-web3/orml-types": ^1.1.4
-  peerDependencies:
-    "@polkadot/api": ">=8"
-  checksum: 9cc2bf143f0222b2f26ef66205b3bb987d2a47ade930efe3966b8a4f228f03bb38f220012f9b605f097e5948e9331ad1d293569332c8bfbb610a0ecb5331ddb6
-  languageName: node
-  linkType: hard
-
-"@acala-network/types@npm:^5.1.1":
-  version: 5.1.2
-  resolution: "@acala-network/types@npm:5.1.2"
-  dependencies:
-    "@acala-network/type-definitions": 5.1.2
-  peerDependencies:
-    "@polkadot/api": ^10.5.1
-  checksum: 9f5b0e2a6d2924d49c27d4d4316cd2ac418eb4c9450e5487cb89430298dc8a56bf0357564358c5c66991a0c065d7c05b82a5451690a72df822a37830384244cb
-  languageName: node
-  linkType: hard
-
 "@adobe/css-tools@npm:^4.0.1":
   version: 4.3.3
   resolution: "@adobe/css-tools@npm:4.3.3"
@@ -1924,7 +1881,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.17.8, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.23.7, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.17.8, @babel/runtime@npm:^7.18.3, @babel/runtime@npm:^7.23.2, @babel/runtime@npm:^7.23.7, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.9.2":
   version: 7.23.9
   resolution: "@babel/runtime@npm:7.23.9"
   dependencies:
@@ -4766,38 +4723,6 @@ __metadata:
     mkdirp: ^1.0.4
     rimraf: ^3.0.2
   checksum: c96381d4a37448ea280951e46233f7e541058cf57a57d4094dd4bdcaae43fa5872b5f2eb6bfb004591a68e29c5877abe3cdc210cb3588cbf20ab2877f31a7de7
-  languageName: node
-  linkType: hard
-
-"@open-web3/api-mobx@npm:^1.1.4":
-  version: 1.1.4
-  resolution: "@open-web3/api-mobx@npm:1.1.4"
-  dependencies:
-    mobx: ^5.15.7
-    mobx-utils: ^5.6.2
-  peerDependencies:
-    "@polkadot/api": ">6.3.1"
-  checksum: 8e7e609fcafe0cb0f1fd6f5226519c1000cfd6217c52a29a8923cab6bf0ee3852e847f891ae8438e4c365a908b3842659b812328e6398fbfc1065bc1ab242482
-  languageName: node
-  linkType: hard
-
-"@open-web3/orml-type-definitions@npm:1.1.4, @open-web3/orml-type-definitions@npm:^1.1.4":
-  version: 1.1.4
-  resolution: "@open-web3/orml-type-definitions@npm:1.1.4"
-  dependencies:
-    lodash.merge: ^4.6.2
-  checksum: 7a6aaef419db46346ec9449cab6b5b12f0a80779ba036561521e0f84bbed85e7a5e243409276d1dd5ace1d1446ca7a188e1133e9c031156b16faf282f3960344
-  languageName: node
-  linkType: hard
-
-"@open-web3/orml-types@npm:^1.1.4":
-  version: 1.1.4
-  resolution: "@open-web3/orml-types@npm:1.1.4"
-  dependencies:
-    "@open-web3/orml-type-definitions": 1.1.4
-  peerDependencies:
-    "@polkadot/api": ">6.3.1"
-  checksum: fb3985b70922c9bbac6fea41754467d8fa5db298383336d1d43d5aa59ed85d0036ffd077089cccf6e4936b4589829f079496e61ace3344e6a6cae22dce7cc265
   languageName: node
   linkType: hard
 
@@ -10223,7 +10148,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@talismn/multisig@workspace:apps/multisig"
   dependencies:
-    "@acala-network/types": ^4.1.8-2.3
     "@apollo/client": ^3.8.9
     "@azns/resolver-core": ^1.6.0
     "@craco/craco": ^7.0.0
@@ -10332,7 +10256,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@talismn/nft@workspace:packages/nft"
   dependencies:
-    "@acala-network/types": ^5.1.1
     "@graphql-codegen/cli": ^3.2.2
     "@polkadot/api": ^10.9.1
     graphql: ^16.6.0
@@ -24332,22 +24255,6 @@ __metadata:
     pkg-types: ^1.0.3
     ufo: ^1.3.2
   checksum: 82fda663265628ee83a31e99950553371f42f6995838795d44320c78497bf17ab04d1f26c49998944178e4e2416f6f0a580bbca3e272114ee597ae9f3c128b47
-  languageName: node
-  linkType: hard
-
-"mobx-utils@npm:^5.6.2":
-  version: 5.6.2
-  resolution: "mobx-utils@npm:5.6.2"
-  peerDependencies:
-    mobx: ^4.13.1 || ^5.13.1
-  checksum: 745f697576a838c1b728c507e7e6dd5aee38957113d2833eae207b727f4f6c953ec159c4373aa40c708b632b307ba7024268fd0aa4e58a9a66caaf387e85d9ac
-  languageName: node
-  linkType: hard
-
-"mobx@npm:^5.15.7":
-  version: 5.15.7
-  resolution: "mobx@npm:5.15.7"
-  checksum: 46aa00c330a256fdde1c030cf8bab0baebc7fdfb23709884400ac486c318ce650acc336fd8f1e629b5c8680d82051f2aed4737406c4ac6fe1b2d9f3d978c4339
   languageName: node
   linkType: hard
 

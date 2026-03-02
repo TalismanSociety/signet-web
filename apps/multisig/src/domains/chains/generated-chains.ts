@@ -11,7 +11,6 @@ export type SupportedChainIds =
   | 'bittensor'
   | 'polkadot-asset-hub'
   | 'kusama-asset-hub'
-  | 'acala'
   | 'aleph-zero'
   | 'bifrost-polkadot'
   | 'moonbeam'
@@ -317,33 +316,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ],
     ss58Prefix: 2,
     subscanUrl: 'https://assethub-kusama.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'acala',
-    chainName: 'Acala',
-    genesisHash: '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/acala.svg',
-    nativeToken: {
-      id: 'acala-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://acala-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://acala-rpc-0.aca-api.network',
-      },
-      {
-        url: 'wss://acala-rpc-1.aca-api.network',
-      },
-      {
-        url: 'wss://acala-rpc-3.aca-api.network/ws',
-      },
-    ],
-    ss58Prefix: 10,
-    subscanUrl: 'https://acala.subscan.io/',
     account: '*25519',
   },
   {
