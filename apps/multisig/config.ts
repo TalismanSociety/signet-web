@@ -34,10 +34,6 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
     polkaAssemblyUrl: 'https://kusama.polkassembly.io',
     rpcs: [{ url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=' }],
   },
-  'rococo': {
-    id: 'rococo',
-    polkaAssemblyUrl: 'https://rococo.polkassembly.io',
-  },
   'paseo-testnet': {
     id: 'paseo-testnet',
     subscanUrl: 'https://paseo.subscan.io/',
@@ -56,7 +52,6 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   'bifrost-polkadot': { id: 'bifrost-polkadot', rpcs: [{ url: 'wss://astar.api.onfinality.io/rpc?apikey=' }] },
   'moonbeam': { id: 'moonbeam', rpcs: [{ url: 'wss://moonbeam.api.onfinality.io/rpc?apikey=' }] },
   'phala': { id: 'phala' },
-  'rococo-testnet': { id: 'rococo-testnet' },
   'shibuya-testnet': { id: 'shibuya-testnet' },
   'mythos': {
     id: 'mythos',

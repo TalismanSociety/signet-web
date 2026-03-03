@@ -14,7 +14,6 @@ export type SupportedChainIds =
   | 'bifrost-polkadot'
   | 'moonbeam'
   | 'phala'
-  | 'rococo-testnet'
   | 'shibuya-testnet'
   | 'mythos'
 export const supportedChains: Chain<SupportedChainIds>[] = [
@@ -414,24 +413,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ],
     ss58Prefix: 30,
     subscanUrl: 'https://phala.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'rococo-testnet',
-    chainName: 'Rococo',
-    genesisHash: '0x6408de7737c59c238890533af25896a2c20608d8b380bb01029acb392781063e',
-    isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/rococo-testnet.svg',
-    nativeToken: {
-      id: 'rococo-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://rococo-rpc.polkadot.io',
-      },
-    ],
-    ss58Prefix: 42,
-    subscanUrl: 'https://rococo.subscan.io/',
     account: '*25519',
   },
   {

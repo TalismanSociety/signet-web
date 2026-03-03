@@ -7,8 +7,6 @@ const supportedChains: Partial<Record<SupportedChainIds, string>> = {
   'bifrost-polkadot': 'bifrost',
   'hydradx': 'hydradx',
   'phala': 'phala',
-  // testnets
-  'rococo-testnet': 'rococo',
 
   // inactivity
   // 'acala': 'acala',
