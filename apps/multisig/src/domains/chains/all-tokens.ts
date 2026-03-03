@@ -5424,19 +5424,6 @@ export const ALL_TOKENS = [
     coingeckoId: 'crust-storage-market',
   },
   {
-    id: 'shibuya-testnet-substrate-native',
-    type: 'substrate-native',
-    isTestnet: true,
-    isDefault: true,
-    symbol: 'SBY',
-    decimals: 18,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/shibuya-testnet.svg',
-    existentialDeposit: '1000000',
-    chain: {
-      id: 'shibuya-testnet',
-    },
-  },
-  {
     id: 'shiden-kusama-substrate-native',
     type: 'substrate-native',
     isTestnet: false,

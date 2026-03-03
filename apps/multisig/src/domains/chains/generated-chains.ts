@@ -13,7 +13,6 @@ export type SupportedChainIds =
   | 'bifrost-polkadot'
   | 'moonbeam'
   | 'phala'
-  | 'shibuya-testnet'
   | 'mythos'
 export const supportedChains: Chain<SupportedChainIds>[] = [
   {
@@ -394,27 +393,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ],
     ss58Prefix: 30,
     subscanUrl: 'https://phala.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'shibuya-testnet',
-    chainName: 'Shibuya',
-    genesisHash: '0xddb89973361a170839f80f152d2e9e38a376a5a7eccefcade763f46a8e567019',
-    isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/shibuya-testnet.svg',
-    nativeToken: {
-      id: 'shibuya-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://shibuya-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://rpc.shibuya.astar.network',
-      },
-    ],
-    ss58Prefix: 5,
-    subscanUrl: 'https://shibuya.subscan.io/',
     account: '*25519',
   },
   {

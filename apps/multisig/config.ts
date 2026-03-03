@@ -48,7 +48,6 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   'bifrost-polkadot': { id: 'bifrost-polkadot', rpcs: [{ url: 'wss://astar.api.onfinality.io/rpc?apikey=' }] },
   'moonbeam': { id: 'moonbeam', rpcs: [{ url: 'wss://moonbeam.api.onfinality.io/rpc?apikey=' }] },
   'phala': { id: 'phala' },
-  'shibuya-testnet': { id: 'shibuya-testnet' },
   'mythos': {
     id: 'mythos',
     subscanUrl: 'https://mythos.subscan.io/',
