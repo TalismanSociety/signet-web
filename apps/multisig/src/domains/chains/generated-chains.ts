@@ -7,7 +7,6 @@ export type SupportedChainIds =
   | 'astar'
   | 'hydradx'
   | 'kusama'
-  | 'paseo-testnet'
   | 'bittensor'
   | 'polkadot-asset-hub'
   | 'kusama-asset-hub'
@@ -185,24 +184,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ss58Prefix: 2,
     subscanUrl: 'https://kusama.subscan.io/',
     polkaAssemblyUrl: 'https://kusama.polkassembly.io',
-    account: '*25519',
-  },
-  {
-    id: 'paseo-testnet',
-    chainName: 'Paseo',
-    genesisHash: '0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f',
-    isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/paseo-testnet.svg',
-    nativeToken: {
-      id: 'paseo-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://paseo.rpc.amforc.com',
-      },
-    ],
-    ss58Prefix: 0,
-    subscanUrl: 'https://paseo.subscan.io/',
     account: '*25519',
   },
   {

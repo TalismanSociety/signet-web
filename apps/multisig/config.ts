@@ -34,10 +34,6 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
     polkaAssemblyUrl: 'https://kusama.polkassembly.io',
     rpcs: [{ url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=' }],
   },
-  'paseo-testnet': {
-    id: 'paseo-testnet',
-    subscanUrl: 'https://paseo.subscan.io/',
-  },
   'bittensor': {
     id: 'bittensor',
     subscanUrl: 'https://bittensor.com/scan',

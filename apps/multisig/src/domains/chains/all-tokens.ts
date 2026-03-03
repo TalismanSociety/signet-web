@@ -4650,19 +4650,6 @@ export const ALL_TOKENS = [
     coingeckoId: 'tether',
   },
   {
-    id: 'paseo-testnet-substrate-native',
-    type: 'substrate-native',
-    isTestnet: true,
-    isDefault: true,
-    symbol: 'PAS',
-    decimals: 10,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/paseo-testnet.svg',
-    existentialDeposit: '10000000000',
-    chain: {
-      id: 'paseo-testnet',
-    },
-  },
-  {
     id: 'pendulum-substrate-native',
     type: 'substrate-native',
     isTestnet: false,
