@@ -22,7 +22,6 @@ import { ActiveMultisigWatcher } from './domains/multisig'
 import ConstsWatcher from './domains/chains/ConstsWatcher'
 import { Toaster as NewToaster } from '@components/ui/toaster'
 import { HasuraProvider } from '@domains/offchain-data/hasura'
-import { AzeroIDResolverProvider } from '@domains/azeroid/AzeroIDResolver'
 import { WalletConnectProvider } from '@domains/wallet-connect'
 import { SkeletonLayout } from './layouts/SkeletonLayout'
 import { Helmet } from 'react-helmet'
@@ -40,31 +39,29 @@ const App: React.FC = () => {
       <RecoilRoot>
         <SelectedChainBalancesProvider>
           <HasuraProvider>
-            <AzeroIDResolverProvider>
-              <Suspense fallback={<SkeletonLayout />}>
-                <WalletConnectProvider>
-                  <Helmet>
-                    <title>{CONFIG.IS_POLKADOT_MULTISIG ? 'Polkadot Multisig by Signet' : 'Signet'}</title>
-                  </Helmet>
-                  <Analytics />
-                  {/* <PendingTransactionsWatcher /> */}
-                  <BalancesWatcher />
-                  <ExtensionWatcher />
-                  <AccountWatcher />
-                  <OffchainDataWatcher />
-                  <ActiveMultisigWatcher />
-                  <ConstsWatcher />
-                  <QueryClientProvider client={queryClient}>
-                    <RouterProvider router={router} />
-                    <ReactQueryDevtools initialIsOpen={false} />
-                  </QueryClientProvider>
-                  <Toaster position="top-right" containerStyle={{ top: '6.4rem' }}>
-                    {t => <ToastBar toast={t} />}
-                  </Toaster>
-                  <NewToaster />
-                </WalletConnectProvider>
-              </Suspense>
-            </AzeroIDResolverProvider>
+            <Suspense fallback={<SkeletonLayout />}>
+              <WalletConnectProvider>
+                <Helmet>
+                  <title>{CONFIG.IS_POLKADOT_MULTISIG ? 'Polkadot Multisig by Signet' : 'Signet'}</title>
+                </Helmet>
+                <Analytics />
+                {/* <PendingTransactionsWatcher /> */}
+                <BalancesWatcher />
+                <ExtensionWatcher />
+                <AccountWatcher />
+                <OffchainDataWatcher />
+                <ActiveMultisigWatcher />
+                <ConstsWatcher />
+                <QueryClientProvider client={queryClient}>
+                  <RouterProvider router={router} />
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </QueryClientProvider>
+                <Toaster position="top-right" containerStyle={{ top: '6.4rem' }}>
+                  {t => <ToastBar toast={t} />}
+                </Toaster>
+                <NewToaster />
+              </WalletConnectProvider>
+            </Suspense>
           </HasuraProvider>
         </SelectedChainBalancesProvider>
       </RecoilRoot>

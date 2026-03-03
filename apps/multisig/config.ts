@@ -34,14 +34,6 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
     polkaAssemblyUrl: 'https://kusama.polkassembly.io',
     rpcs: [{ url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=' }],
   },
-  'rococo': {
-    id: 'rococo',
-    polkaAssemblyUrl: 'https://rococo.polkassembly.io',
-  },
-  'paseo-testnet': {
-    id: 'paseo-testnet',
-    subscanUrl: 'https://paseo.subscan.io/',
-  },
   'bittensor': {
     id: 'bittensor',
     subscanUrl: 'https://bittensor.com/scan',
@@ -52,13 +44,10 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
     rpcs: [{ url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=' }],
   },
   'kusama-asset-hub': { id: 'kusama-asset-hub', rpcs: [{ url: 'wss://astar.api.onfinality.io/rpc?apikey=' }] },
-  'acala': { id: 'acala' },
-  'aleph-zero': { id: 'aleph-zero' },
+
   'bifrost-polkadot': { id: 'bifrost-polkadot', rpcs: [{ url: 'wss://astar.api.onfinality.io/rpc?apikey=' }] },
   'moonbeam': { id: 'moonbeam', rpcs: [{ url: 'wss://moonbeam.api.onfinality.io/rpc?apikey=' }] },
   'phala': { id: 'phala' },
-  'rococo-testnet': { id: 'rococo-testnet' },
-  'shibuya-testnet': { id: 'shibuya-testnet' },
   'mythos': {
     id: 'mythos',
     subscanUrl: 'https://mythos.subscan.io/',

@@ -20,14 +20,13 @@ export const SUPPORTED_DAPPS: SupportedDapp[] = [
       'polkadot': 'https://polkadot.subsquare.io',
 
       'bifrost-polkadot': 'https://bifrost.subsquare.io',
-      'rococo-testnet': 'https://rococo.subsquare.io',
-      'acala': 'https://acala.subsquare.io',
       'hydradx': 'https://hydradx.subsquare.io',
       'kusama': 'https://kusama.subsquare.io',
       'phala': 'https://phala.subsquare.io',
       'moonbeam': 'https://moonbeam.subsquare.io',
 
       // inactivity
+      // 'acala': 'https://acala.subsquare.io',
       // 'bifrost-kusama': 'https://bifrost-kusama.subsquare.io',
       // 'centrifuge-polkadot': 'https://centrifuge.subsquare.io',
       // 'interlay': 'https://interlay.subsquare.io',

@@ -7,17 +7,12 @@ export type SupportedChainIds =
   | 'astar'
   | 'hydradx'
   | 'kusama'
-  | 'paseo-testnet'
   | 'bittensor'
   | 'polkadot-asset-hub'
   | 'kusama-asset-hub'
-  | 'acala'
-  | 'aleph-zero'
   | 'bifrost-polkadot'
   | 'moonbeam'
   | 'phala'
-  | 'rococo-testnet'
-  | 'shibuya-testnet'
   | 'mythos'
 export const supportedChains: Chain<SupportedChainIds>[] = [
   {
@@ -191,24 +186,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     account: '*25519',
   },
   {
-    id: 'paseo-testnet',
-    chainName: 'Paseo',
-    genesisHash: '0x77afd6190f1554ad45fd0d31aee62aacc33c6db0ea801129acb813f913e0764f',
-    isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/paseo-testnet.svg',
-    nativeToken: {
-      id: 'paseo-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://paseo.rpc.amforc.com',
-      },
-    ],
-    ss58Prefix: 0,
-    subscanUrl: 'https://paseo.subscan.io/',
-    account: '*25519',
-  },
-  {
     id: 'bittensor',
     chainName: 'Bittensor',
     genesisHash: '0x2f0555cc76fc2840a25a6ea3b9637146806f1f44b090c175ffde2a7e5ab36c03',
@@ -320,54 +297,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     account: '*25519',
   },
   {
-    id: 'acala',
-    chainName: 'Acala',
-    genesisHash: '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/acala.svg',
-    nativeToken: {
-      id: 'acala-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://acala-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://acala-rpc-0.aca-api.network',
-      },
-      {
-        url: 'wss://acala-rpc-1.aca-api.network',
-      },
-      {
-        url: 'wss://acala-rpc-3.aca-api.network/ws',
-      },
-    ],
-    ss58Prefix: 10,
-    subscanUrl: 'https://acala.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'aleph-zero',
-    chainName: 'Aleph Zero',
-    genesisHash: '0x70255b4d28de0fc4e1a193d7e175ad1ccef431598211c55538f1018651a0344e',
-    isTestnet: false,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/aleph-zero.svg',
-    nativeToken: {
-      id: 'aleph-zero-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://aleph-zero-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://ws.azero.dev',
-      },
-    ],
-    ss58Prefix: 42,
-    subscanUrl: 'https://alephzero.subscan.io/',
-    account: '*25519',
-  },
-  {
     id: 'bifrost-polkadot',
     chainName: 'Bifrost Polkadot',
     genesisHash: '0x262e1b2ad728475fd6fe88e62d34c200abe6fd693931ddad144059b1eb884e5b',
@@ -464,45 +393,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     ],
     ss58Prefix: 30,
     subscanUrl: 'https://phala.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'rococo-testnet',
-    chainName: 'Rococo',
-    genesisHash: '0x6408de7737c59c238890533af25896a2c20608d8b380bb01029acb392781063e',
-    isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/rococo-testnet.svg',
-    nativeToken: {
-      id: 'rococo-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://rococo-rpc.polkadot.io',
-      },
-    ],
-    ss58Prefix: 42,
-    subscanUrl: 'https://rococo.subscan.io/',
-    account: '*25519',
-  },
-  {
-    id: 'shibuya-testnet',
-    chainName: 'Shibuya',
-    genesisHash: '0xddb89973361a170839f80f152d2e9e38a376a5a7eccefcade763f46a8e567019',
-    isTestnet: true,
-    logo: 'https://raw.githubusercontent.com/TalismanSociety/chaindata/main/assets/chains/shibuya-testnet.svg',
-    nativeToken: {
-      id: 'shibuya-testnet-substrate-native',
-    },
-    rpcs: [
-      {
-        url: 'wss://shibuya-rpc.dwellir.com',
-      },
-      {
-        url: 'wss://rpc.shibuya.astar.network',
-      },
-    ],
-    ss58Prefix: 5,
-    subscanUrl: 'https://shibuya.subscan.io/',
     account: '*25519',
   },
   {
