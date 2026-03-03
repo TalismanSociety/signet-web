@@ -32,10 +32,6 @@ jobs:
             networks: 'polkadot,kusama,polkadot-asset-hub,kusama-asset-hub'
             hasuraUrl: 'https://signet-metadata.talisman.xyz'
             siwsUrl: 'https://signet-metadata.talisman.xyz/siws'
-          - imageName: signet-parity-testnet
-            networks: 'rococo-testnet,paseo-testnet'
-            hasuraUrl: 'https://signet-metadata.talisman.xyz'
-            siwsUrl: 'https://signet-metadata.talisman.xyz/siws'
     runs-on: ubuntu-latest
     needs: ['set-tags']
     steps:
