@@ -12,6 +12,7 @@
     "dev": "yarn turbo run dev",
     "build": "yarn turbo run build",
     "test": "yarn turbo run test",
+    "test:multisig": "yarn workspace @talismn/multisig run test",
     "lint": "echo \"skipping until fixed\"",
     "check-types": "echo \"skipping until fixed\"",
     "e2e": "yarn turbo run e2e",

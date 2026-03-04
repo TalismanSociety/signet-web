@@ -15,14 +15,14 @@ describe('isValidAmountInput', () => {
       expect(isValidAmountInput('1000000', decimals)).toBe(true)
     })
 
-    it('allows large integers up to max supply (15 digits)', () => {
+    it('allows large integers', () => {
       expect(isValidAmountInput('100000000000000', decimals)).toBe(true) // 100 trillion (15 digits)
-      expect(isValidAmountInput('999999999999999', decimals)).toBe(true) // max 15 digits
+      expect(isValidAmountInput('999999999999999', decimals)).toBe(true)
     })
 
-    it('rejects integers exceeding 15 digits', () => {
-      expect(isValidAmountInput('1000000000000000', decimals)).toBe(false) // 16 digits
-      expect(isValidAmountInput('12345678901234567890', decimals)).toBe(false) // 20 digits
+    it('allows integers exceeding 15 digits by default', () => {
+      expect(isValidAmountInput('1000000000000000', decimals)).toBe(true) // 16 digits
+      expect(isValidAmountInput('12345678901234567890', decimals)).toBe(true) // 20 digits
     })
 
     it('allows decimals with valid precision', () => {
@@ -134,5 +134,12 @@ describe('createAmountInputRegex', () => {
 
     expect(regex18.test('1.123456789012345678')).toBe(true)
     expect(regex18.test('1.1234567890123456789')).toBe(false)
+  })
+
+  it('supports optional max digits before decimal limit', () => {
+    const regexWithCap = createAmountInputRegex(18, 5)
+
+    expect(regexWithCap.test('12345')).toBe(true)
+    expect(regexWithCap.test('123456')).toBe(false)
   })
 })
