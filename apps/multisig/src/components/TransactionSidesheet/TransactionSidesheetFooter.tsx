@@ -79,10 +79,8 @@ export const SignerCta: React.FC<{
     // Get the token being transferred
     const outgoingToken = t.decoded?.type === TransactionType.Vote ? voteSum?.token : sumOutgoing?.token
 
-    if (!outgoingToken) {
-      console.error('No outgoing token found')
-      return false
-    }
+    // No outgoing token means no tokens are being transferred (e.g. ChangeConfig)
+    if (!outgoingToken) return true
 
     const availableBalance =
       balances?.find(({ address, chainId, tokenId }) => {
@@ -115,7 +113,17 @@ export const SignerCta: React.FC<{
   ])
 
   const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
-    if (asDraft || existentialDepositLoadable.state === 'loading') return true
+    // If the transaction is being saved as draft, we don't need to check for balance. Similarly, if the existential deposit or multisig deposit
+    //  total is still loading or errored, we optimistically assume the user has enough balance to proceed, as we don't want to block them from
+    //  saving drafts or approving transactions due to a temporary loading state or error in fetching on-chain constants.
+    if (
+      asDraft ||
+      existentialDepositLoadable.state === 'loading' ||
+      existentialDepositLoadable.state === 'hasError' ||
+      multisigDepositTotal.state === 'loading' ||
+      multisigDepositTotal.state === 'hasError'
+    )
+      return true
 
     let txCost = BigInt(fee?.amount.toString() ?? 0) + BigInt(existentialDepositLoadable.contents.amount.toString())
     if (firstApproval) {
@@ -142,6 +150,7 @@ export const SignerCta: React.FC<{
     fee?.amount,
     firstApproval,
     balances,
+    multisigDepositTotal.state,
     multisigDepositTotal.contents.amount,
     user,
     t.multisig.chain.id,
