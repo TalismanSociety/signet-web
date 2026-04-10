@@ -79,10 +79,8 @@ export const SignerCta: React.FC<{
     // Get the token being transferred
     const outgoingToken = t.decoded?.type === TransactionType.Vote ? voteSum?.token : sumOutgoing?.token
 
-    if (!outgoingToken) {
-      console.error('No outgoing token found')
-      return false
-    }
+    // No outgoing token means no tokens are being transferred (e.g. ChangeConfig)
+    if (!outgoingToken) return true
 
     const availableBalance =
       balances?.find(({ address, chainId, tokenId }) => {
