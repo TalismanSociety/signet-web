@@ -3,20 +3,21 @@ import { Checkbox } from '@components/ui/checkbox'
 import { selectedAccountState } from '@domains/auth'
 import { multisigDepositTotalSelector, tokenPriceState } from '@domains/chains'
 import { accountsState } from '@domains/extension'
-import { balancesState } from '@domains/balances'
-import { useSelectedMultisig, calcSumOutgoing, calcVoteSum } from '@domains/multisig'
+// import { balancesState } from '@domains/balances'
+import { useSelectedMultisig } from '@domains/multisig'
+// import { calcSumOutgoing, calcVoteSum } from '@domains/multisig'
 import { Transaction, Balance } from '@domains/offchain-data/metadata/types'
 import { TransactionType } from '@domains/offchain-data/metadata/types'
 import usePendingTransactions from '@domains/multisig/usePendingTransactions'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { cn } from '@util/tailwindcss'
-import { Address } from '../../util/addresses'
-import { existentialDepositSelector } from '@domains/chains'
+// import { Address } from '../../util/addresses'
+// import { existentialDepositSelector } from '@domains/chains'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
-import { useUser } from '@domains/auth'
+// import { useUser } from '@domains/auth'
 
 export type TransactionSidesheetLoading = {
   any: boolean
@@ -39,21 +40,21 @@ export const SignerCta: React.FC<{
   loading: TransactionSidesheetLoading
 }> = ({ canReject, onApprove, onCancel, onDeleteDraft, onReject, onSaveDraft, fee, loading, readyToExecute, t }) => {
   const extensionAccounts = useRecoilValue(accountsState)
-  const balances = useRecoilValue(balancesState)
+  // const balances = useRecoilValue(balancesState)
   const [asDraft, setAsDraft] = useState(false)
-  const [sumOutgoing] = useMemo(() => calcSumOutgoing(t), [t])
-  const voteSum = useMemo(() => calcVoteSum(t), [t])
-  const [multisig] = useSelectedMultisig()
+  // const [sumOutgoing] = useMemo(() => calcSumOutgoing(t), [t])
+  // const voteSum = useMemo(() => calcVoteSum(t), [t])
+  // const [multisig] = useSelectedMultisig()
   const { data: pendingTransactions, isLoading: pendingLoading } = usePendingTransactions()
   const feeTokenPrice = useRecoilValueLoadable(tokenPriceState(fee?.token))
-  const existentialDepositLoadable = useRecoilValueLoadable(existentialDepositSelector(t.multisig.chain.id))
+  // const existentialDepositLoadable = useRecoilValueLoadable(existentialDepositSelector(t.multisig.chain.id))
   const multisigDepositTotal = useRecoilValueLoadable(
     multisigDepositTotalSelector({
       chain_id: t.multisig.chain.id,
       signatories: t?.approvals ? Object.keys(t.approvals).length : 0,
     })
   )
-  const { user } = useUser()
+  // const { user } = useUser()
 
   const isCreating = useMemo(() => !t.draft && !t.rawPending && !t.executedAt, [t.draft, t.executedAt, t.rawPending])
 
@@ -72,89 +73,90 @@ export const SignerCta: React.FC<{
     return !Object.values(t.approvals).find(v => v === true)
   }, [t])
 
-  const multisigHasEnoughBalance = useMemo(() => {
-    // No need to check for multisig balance if not going to execute the transaction
-    if (asDraft || !readyToExecute || existentialDepositLoadable.state === 'loading') return true
+  // Skip balance check — always treat as sufficient
+  const multisigHasEnoughBalance = true
+  // const multisigHasEnoughBalance = useMemo(() => {
+  //   // No need to check for multisig balance if not going to execute the transaction
+  //   if (asDraft || !readyToExecute || existentialDepositLoadable.state === 'loading') return true
+  //
+  //   // Get the token being transferred
+  //   const outgoingToken = t.decoded?.type === TransactionType.Vote ? voteSum?.token : sumOutgoing?.token
+  //
+  //   // No outgoing token means no tokens are being transferred (e.g. ChangeConfig)
+  //   if (!outgoingToken) return true
+  //
+  //   const availableBalance =
+  //     balances?.find(({ address, chainId, tokenId }) => {
+  //       const parsedAddress = Address.fromSs58(address)
+  //       return (
+  //         parsedAddress &&
+  //         parsedAddress.isEqual(multisig.proxyAddress) &&
+  //         tokenId === outgoingToken.id &&
+  //         chainId === t.multisig.chain.id
+  //       )
+  //     }).sum.planck.transferable ?? 0n
+  //
+  //   const txTokensAmount = BigInt(
+  //     t.decoded?.type === TransactionType.Vote ? voteSum?.amount.toString() ?? 0 : sumOutgoing?.amount.toString() ?? 0
+  //   )
+  //
+  //   return availableBalance >= txTokensAmount
+  // }, [
+  //   asDraft,
+  //   balances,
+  //   existentialDepositLoadable.state,
+  //   multisig.proxyAddress,
+  //   readyToExecute,
+  //   sumOutgoing?.amount,
+  //   sumOutgoing?.token,
+  //   t.decoded?.type,
+  //   t.multisig.chain.id,
+  //   voteSum?.amount,
+  //   voteSum?.token,
+  // ])
 
-    // Get the token being transferred
-    const outgoingToken = t.decoded?.type === TransactionType.Vote ? voteSum?.token : sumOutgoing?.token
-
-    // No outgoing token means no tokens are being transferred (e.g. ChangeConfig)
-    if (!outgoingToken) return true
-
-    const availableBalance =
-      balances?.find(({ address, chainId, tokenId }) => {
-        const parsedAddress = Address.fromSs58(address)
-        return (
-          parsedAddress &&
-          parsedAddress.isEqual(multisig.proxyAddress) &&
-          tokenId === outgoingToken.id &&
-          chainId === t.multisig.chain.id
-        )
-      }).sum.planck.transferable ?? 0n
-
-    const txTokensAmount = BigInt(
-      t.decoded?.type === TransactionType.Vote ? voteSum?.amount.toString() ?? 0 : sumOutgoing?.amount.toString() ?? 0
-    )
-
-    return availableBalance >= txTokensAmount
-  }, [
-    asDraft,
-    balances,
-    existentialDepositLoadable.state,
-    multisig.proxyAddress,
-    readyToExecute,
-    sumOutgoing?.amount,
-    sumOutgoing?.token,
-    t.decoded?.type,
-    t.multisig.chain.id,
-    voteSum?.amount,
-    voteSum?.token,
-  ])
-
-  const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
-    // If the transaction is being saved as draft, we don't need to check for balance. Similarly, if the existential deposit or multisig deposit
-    //  total is still loading or errored, we optimistically assume the user has enough balance to proceed, as we don't want to block them from
-    //  saving drafts or approving transactions due to a temporary loading state or error in fetching on-chain constants.
-    if (
-      asDraft ||
-      existentialDepositLoadable.state === 'loading' ||
-      existentialDepositLoadable.state === 'hasError' ||
-      multisigDepositTotal.state === 'loading' ||
-      multisigDepositTotal.state === 'hasError'
-    )
-      return true
-
-    let txCost = BigInt(fee?.amount.toString() ?? 0) + BigInt(existentialDepositLoadable.contents.amount.toString())
-    if (firstApproval) {
-      txCost += BigInt(multisigDepositTotal.contents.amount?.toString() ?? 0)
-    }
-
-    const availableBalance =
-      balances?.find(({ address, chainId, source }) => {
-        const parsedAddress = Address.fromSs58(address)
-        return (
-          parsedAddress &&
-          !!user &&
-          parsedAddress.isEqual(user.injected.address) &&
-          source === 'substrate-native' &&
-          chainId === t.multisig.chain.id
-        )
-      }).sum.planck.transferable ?? 0n
-
-    return availableBalance >= txCost
-  }, [
-    asDraft,
-    existentialDepositLoadable.state,
-    existentialDepositLoadable.contents.amount,
-    fee?.amount,
-    firstApproval,
-    balances,
-    multisigDepositTotal.state,
-    multisigDepositTotal.contents.amount,
-    user,
-    t.multisig.chain.id,
-  ])
+  // Skip balance check — always treat as sufficient
+  const connectedAccountHasEnoughBalance: boolean = true
+  // const connectedAccountHasEnoughBalance: boolean = useMemo(() => {
+  //   if (
+  //     asDraft ||
+  //     existentialDepositLoadable.state === 'loading' ||
+  //     existentialDepositLoadable.state === 'hasError' ||
+  //     multisigDepositTotal.state === 'loading' ||
+  //     multisigDepositTotal.state === 'hasError'
+  //   )
+  //     return true
+  //
+  //   let txCost = BigInt(fee?.amount.toString() ?? 0) + BigInt(existentialDepositLoadable.contents.amount.toString())
+  //   if (firstApproval) {
+  //     txCost += BigInt(multisigDepositTotal.contents.amount?.toString() ?? 0)
+  //   }
+  //
+  //   const availableBalance =
+  //     balances?.find(({ address, chainId, source }) => {
+  //       const parsedAddress = Address.fromSs58(address)
+  //       return (
+  //         parsedAddress &&
+  //         !!user &&
+  //         parsedAddress.isEqual(user.injected.address) &&
+  //         source === 'substrate-native' &&
+  //         chainId === t.multisig.chain.id
+  //       )
+  //     }).sum.planck.transferable ?? 0n
+  //
+  //   return availableBalance >= txCost
+  // }, [
+  //   asDraft,
+  //   existentialDepositLoadable.state,
+  //   existentialDepositLoadable.contents.amount,
+  //   fee?.amount,
+  //   firstApproval,
+  //   balances,
+  //   multisigDepositTotal.state,
+  //   multisigDepositTotal.contents.amount,
+  //   user,
+  //   t.multisig.chain.id,
+  // ])
 
   // Check if the user has an account connected which can approve the transaction
   const connectedAccountCanApprove: boolean = useMemo(() => {
