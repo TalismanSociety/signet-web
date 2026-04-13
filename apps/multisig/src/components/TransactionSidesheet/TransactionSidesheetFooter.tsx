@@ -3,20 +3,21 @@ import { Checkbox } from '@components/ui/checkbox'
 import { selectedAccountState } from '@domains/auth'
 import { multisigDepositTotalSelector, tokenPriceState } from '@domains/chains'
 import { accountsState } from '@domains/extension'
-import { balancesState } from '@domains/balances'
-import { useSelectedMultisig, calcSumOutgoing, calcVoteSum } from '@domains/multisig'
+// import { balancesState } from '@domains/balances'
+import { useSelectedMultisig } from '@domains/multisig'
+// import { calcSumOutgoing, calcVoteSum } from '@domains/multisig'
 import { Transaction, Balance } from '@domains/offchain-data/metadata/types'
 import { TransactionType } from '@domains/offchain-data/metadata/types'
 import usePendingTransactions from '@domains/multisig/usePendingTransactions'
 import { Skeleton } from '@talismn/ui'
 import { balanceToFloat, formatUsd } from '@util/numbers'
 import { cn } from '@util/tailwindcss'
-import { Address } from '../../util/addresses'
-import { existentialDepositSelector } from '@domains/chains'
+// import { Address } from '../../util/addresses'
+// import { existentialDepositSelector } from '@domains/chains'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
-import { useUser } from '@domains/auth'
+// import { useUser } from '@domains/auth'
 
 export type TransactionSidesheetLoading = {
   any: boolean
@@ -39,21 +40,21 @@ export const SignerCta: React.FC<{
   loading: TransactionSidesheetLoading
 }> = ({ canReject, onApprove, onCancel, onDeleteDraft, onReject, onSaveDraft, fee, loading, readyToExecute, t }) => {
   const extensionAccounts = useRecoilValue(accountsState)
-  const balances = useRecoilValue(balancesState)
+  // const balances = useRecoilValue(balancesState)
   const [asDraft, setAsDraft] = useState(false)
-  const [sumOutgoing] = useMemo(() => calcSumOutgoing(t), [t])
-  const voteSum = useMemo(() => calcVoteSum(t), [t])
-  const [multisig] = useSelectedMultisig()
+  // const [sumOutgoing] = useMemo(() => calcSumOutgoing(t), [t])
+  // const voteSum = useMemo(() => calcVoteSum(t), [t])
+  // const [multisig] = useSelectedMultisig()
   const { data: pendingTransactions, isLoading: pendingLoading } = usePendingTransactions()
   const feeTokenPrice = useRecoilValueLoadable(tokenPriceState(fee?.token))
-  const existentialDepositLoadable = useRecoilValueLoadable(existentialDepositSelector(t.multisig.chain.id))
+  // const existentialDepositLoadable = useRecoilValueLoadable(existentialDepositSelector(t.multisig.chain.id))
   const multisigDepositTotal = useRecoilValueLoadable(
     multisigDepositTotalSelector({
       chain_id: t.multisig.chain.id,
       signatories: t?.approvals ? Object.keys(t.approvals).length : 0,
     })
   )
-  const { user } = useUser()
+  // const { user } = useUser()
 
   const isCreating = useMemo(() => !t.draft && !t.rawPending && !t.executedAt, [t.draft, t.executedAt, t.rawPending])
 
