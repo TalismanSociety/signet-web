@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { accountsState, extensionAllowedState, extensionInitiatedState, extensionLoadingState } from './index'
 import { web3AccountsSubscribe, web3Enable } from '@polkadot/extension-dapp'
@@ -21,8 +21,11 @@ export const ExtensionWatcher = () => {
   const [subscribed, setSubscribed] = useState(false)
   const [accounts, setAccounts] = useRecoilState(accountsState)
   const { toast } = useToast()
+  const connectingRef = useRef(false)
 
   const connectWallet = useCallback(async () => {
+    if (connectingRef.current) return
+    connectingRef.current = true
     try {
       setExtensionLoading(true)
       // fire Connect Wallet popup and detect accounts allowed in extensions
@@ -60,16 +63,18 @@ export const ExtensionWatcher = () => {
       setDetectedExtensions(detected)
     } catch (e) {
       console.error(e)
+      setExtensionAllowed(false)
       setExtensionsDetected(false)
       setDetectedExtensions([])
     } finally {
       setExtensionLoading(false)
+      connectingRef.current = false
     }
   }, [setExtensionAllowed, setExtensionLoading, toast])
 
   useEffect(() => {
-    if (extensionAllowed && !extensionLoading && !extensionsDetected) connectWallet()
-  }, [connectWallet, extensionAllowed, extensionLoading, extensionsDetected])
+    if (extensionAllowed && !extensionsDetected) connectWallet()
+  }, [connectWallet, extensionAllowed, extensionsDetected])
 
   // subscribe to extension accounts - we only subscribe once per session, don't need to unsubscribe / re-subscribe
   useEffect(() => {
