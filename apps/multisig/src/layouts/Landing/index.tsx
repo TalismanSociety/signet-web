@@ -7,7 +7,6 @@ import Footer from '../Footer'
 import { Button } from '@components/ui/button'
 import { AppMockup } from './AppMockup'
 import Logomark from '@components/Logomark'
-import { ArrowUpRight } from 'lucide-react'
 import { useEffect } from 'react'
 import { CONFIG } from '@lib/config'
 import { PolkadotMultisigLogo } from '@components/Logo/PolkadotMultisig'
@@ -77,24 +76,14 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
             <>
               <Logomark className="w-[32px] h-[32px] lg:w-[40px] lg:h-[40px] mb-[24px]" />
               <h1 className="leading-[1] text-[48px] lg:text-[64px] font-bold text-primary whitespace-nowrap">
-                {extensionAccounts.length > 0 ? 'Welcome Back' : 'Sign-in'}
+                {extensionAccounts.length > 0 ? 'Welcome Back' : 'Signet'}
               </h1>
               <p className="text-gray-200 mt-[20px] lg:mt-[32px] text-[16px] lg:text-[18px]">
-                Sign in with your whitelisted account or find out more at <br className="hidden lg:block" />
-                <a className="text-offWhite" href={`mailto:${CONFIG.CONTACT_EMAIL}`} target="_blank" rel="noreferrer">
-                  {CONFIG.CONTACT_EMAIL}
-                </a>
-              </p>
-              <p className="text-gray-200 mt-[20px] lg:mt-[32px] text-[16px] lg:text-[18px]">
-                Alternatively, try the community version{' '}
-                <a
-                  className="text-offWhite hover:text-gray-200"
-                  href="https://polkadotmultisig.com"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Polkadot Multisig
-                </a>
+                Signet is Talisman’s <span className="text-offWhite">zero-custody multisig</span> solution for Substrate
+                and Bittensor.
+                <br />
+                Create new multisigs, load existing ones, and manage treasury operations using the Proxy and Multisig
+                pallets.
               </p>
             </>
           )}
@@ -102,7 +91,7 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
             <Button className="mt-[24px]" asLink to="/overview">
               Go to Dashboard
             </Button>
-          ) : CONFIG.IS_POLKADOT_MULTISIG ? (
+          ) : (
             <Button
               disabled={extensionAllowed || extensionLoading}
               loading={extensionLoading}
@@ -110,19 +99,6 @@ const Landing: React.FC<{ disableRedirect?: boolean }> = ({ disableRedirect }) =
               className="w-max mt-[24px] lg:mt-[32px] group"
             >
               {!extensionAllowed || extensionLoading ? 'Connect Wallet' : 'No Accounts Connected'}
-            </Button>
-          ) : (
-            <Button
-              className="w-max mt-[24px] lg:mt-[32px] group"
-              variant="outline"
-              asLink
-              to={CONFIG.SIGNET_LANDING_PAGE}
-              target="_blank"
-            >
-              <div className="flex items-center gap-[8px]">
-                <span>Get Early Access</span>
-                <ArrowUpRight className="text-primary group-hover:text-black" height={20} width={20} />
-              </div>
             </Button>
           )}
         </div>

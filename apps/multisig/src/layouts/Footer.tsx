@@ -6,12 +6,6 @@ const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
   return (
     <footer className="flex-col md:flex-row flex items-start md:items-center justify-center md:justify-between gap-[12px] md:gap-[16px] px-[16px] pb-[24px] lg:px-[96px]">
       <div className="flex items-center gap-x-[12px] [&>a]:text-center [&>a]:text-[14px] [&>a]:text-offWhite ">
-        <a className="text-offWhite hover:text-gray-200" href={CONFIG.SIGNET_LANDING_PAGE}>
-          Signet (Beta)
-        </a>
-        <a className="hover:text-gray-200" href="https://guide.polkadotmultisig.com" target="_blank" rel="noreferrer">
-          Guide
-        </a>
         <a className="hover:text-gray-200" href="https://t.me/signetmsig" target="_blank" rel="noreferrer">
           Contact
         </a>
@@ -44,15 +38,6 @@ const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
         </a>
       ) : (
         <div className="flex items-center justify-center gap-[24px]">
-          <a
-            className={cn(
-              darkTalisman ? 'text-offWhite lg:text-gray-900' : '',
-              'hover:opacity-80 text-[14px] text-center'
-            )}
-            href={CONFIG.SIGNET_LANDING_PAGE}
-          >
-            Signet (Beta)
-          </a>
           <div className="group [&>a]:transition-all [&>a]:duration-300 [&>a]:text-[14px] hover:scale-105 transition-all duration-300">
             <a
               className={cn(
@@ -77,7 +62,7 @@ const Footer: React.FC<{ darkTalisman?: boolean }> = ({ darkTalisman }) => {
               target="_blank"
               rel="noreferrer"
             >
-              {'by Talisman'}
+              {'by Talisman (beta)'}
             </a>
           </div>
         </div>
