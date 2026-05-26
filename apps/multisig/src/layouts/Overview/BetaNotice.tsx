@@ -68,8 +68,6 @@ const BetaNotice = () => {
             .
           </span>
           <br />
-          <p>Please use with caution.</p>
-          <br />
           <Button css={{ width: '164px' }} onClick={close}>
             I understand
           </Button>
