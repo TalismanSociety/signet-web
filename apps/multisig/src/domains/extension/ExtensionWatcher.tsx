@@ -15,7 +15,7 @@ export const ExtensionWatcher = () => {
   // which will trigger the web3AccountsSubscribe call
   const [extensionsDetected, setExtensionsDetected] = useState(false)
   const [extensionAllowed, setExtensionAllowed] = useRecoilState(extensionAllowedState)
-  const [_extensionLoading, setExtensionLoading] = useRecoilState(extensionLoadingState)
+  const [, setExtensionLoading] = useRecoilState(extensionLoadingState)
   const [detectedExtensions, setDetectedExtensions] = useState<string[]>([])
   const [extensionInitiated, setExtensionInitiated] = useRecoilState(extensionInitiatedState)
   const [subscribed, setSubscribed] = useState(false)
