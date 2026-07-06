@@ -4608,6 +4608,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/curves@npm:^2.2.0, @noble/curves@npm:~2.2.0":
+  version: 2.2.0
+  resolution: "@noble/curves@npm:2.2.0"
+  dependencies:
+    "@noble/hashes": 2.2.0
+  checksum: 2b6f02c18918578f528791644886f54333c67323f5ccefe10bf250f08760f63786b807390d8d5f8562c661e70dd3559ce8e51e1fe360118c8fd47071c2bd6991
+  languageName: node
+  linkType: hard
+
 "@noble/hashes@npm:1.2.0":
   version: 1.2.0
   resolution: "@noble/hashes@npm:1.2.0"
@@ -4633,6 +4642,13 @@ __metadata:
   version: 1.3.3
   resolution: "@noble/hashes@npm:1.3.3"
   checksum: 8a6496d1c0c64797339bc694ad06cdfaa0f9e56cd0c3f68ae3666cfb153a791a55deb0af9c653c7ed2db64d537aa3e3054629740d2f2338bb1dcb7ab60cd205b
+  languageName: node
+  linkType: hard
+
+"@noble/hashes@npm:2.2.0, @noble/hashes@npm:^2.2.0, @noble/hashes@npm:~2.2.0":
+  version: 2.2.0
+  resolution: "@noble/hashes@npm:2.2.0"
+  checksum: a8745fb5da57a73ddd3dd6d5ad45d156ea664be51ead5344ca1528f8e56ad0ba0720ec8adff3bda37c50c72a86a33a57332ec02c3fb8d2a2612f9c3e5e7079ab
   languageName: node
   linkType: hard
 
@@ -7195,6 +7211,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scure/base@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@scure/base@npm:2.2.0"
+  checksum: 2dd91f310765366e2dcb5e37709eb35ccd57d3f2f112d36232ca03fb8819c8764708f333ac40935fa719ff2e943bd50e1912ab43d212e44e807100d21f835f13
+  languageName: node
+  linkType: hard
+
 "@scure/bip32@npm:1.3.0":
   version: 1.3.0
   resolution: "@scure/bip32@npm:1.3.0"
@@ -7234,6 +7257,16 @@ __metadata:
     "@noble/hashes": ~1.3.0
     "@scure/base": ~1.1.0
   checksum: c5bd6f1328fdbeae2dcdd891825b1610225310e5e62a4942714db51066866e4f7bef242c7b06a1b9dcc8043a4a13412cf5c5df76d3b10aa9e36b82e9b6e3eeaa
+  languageName: node
+  linkType: hard
+
+"@scure/sr25519@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@scure/sr25519@npm:2.2.0"
+  dependencies:
+    "@noble/curves": ~2.2.0
+    "@noble/hashes": ~2.2.0
+  checksum: 565a1c3a360d48ebedae48579cd2f45b2447b2def9228f1ac705a921d180835dff1b20c58c28df48b54b5712b1e0b73f563e4b5f4ad13be49690989756571493
   languageName: node
   linkType: hard
 
@@ -10187,7 +10220,7 @@ __metadata:
     "@talismn/balances-react": 0.0.0-pr1378-20240327183927
     "@talismn/development": "workspace:^"
     "@talismn/icons": "workspace:^"
-    "@talismn/siws": 0.0.18
+    "@talismn/siws": 2.0.0
     "@talismn/ui": "workspace:^"
     "@talismn/util": ^0.2.0
     "@tanstack/eslint-plugin-query": ^5.35.6
@@ -10301,16 +10334,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@talismn/siws@npm:0.0.18":
-  version: 0.0.18
-  resolution: "@talismn/siws@npm:0.0.18"
+"@talismn/siws@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@talismn/siws@npm:2.0.0"
   dependencies:
-    "@azns/resolver-core": ^1.6.0
-    "@types/jest": ^29.5.8
-  peerDependencies:
-    "@polkadot/api": ^10.10.1
-    "@polkadot/extension-dapp": ^0.46.5
-  checksum: 75b972bc5e715d1409aed213de3662464ce1d077605ddfa862c75c49d6d2b7323f85e6221b85858d432cb16865fc73c7de97413ed9730b16cfe25866e8519857
+    "@noble/curves": ^2.2.0
+    "@noble/hashes": ^2.2.0
+    "@scure/base": ^2.2.0
+    "@scure/sr25519": ^2.2.0
+  checksum: d89cbcefc7a79e44fa446937bb77fd8a2a86d7cf7f1c77d966276fbc4fa6b66fa39c3a34ad5720db8a705fda5bcb72299c3af9b592e3527e019ace3065e576e4
   languageName: node
   linkType: hard
 
@@ -10979,7 +11011,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:*, @types/jest@npm:^29.5.8":
+"@types/jest@npm:*":
   version: 29.5.12
   resolution: "@types/jest@npm:29.5.12"
   dependencies:

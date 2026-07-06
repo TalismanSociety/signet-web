@@ -43,7 +43,7 @@
     "@talismn/balances": "0.0.0-pr1378-20240327183927",
     "@talismn/balances-react": "0.0.0-pr1378-20240327183927",
     "@talismn/icons": "workspace:^",
-    "@talismn/siws": "0.0.18",
+    "@talismn/siws": "2.0.0",
     "@talismn/ui": "workspace:^",
     "@talismn/util": "^0.2.0",
     "@tanstack/react-query": "^5.37.1",
