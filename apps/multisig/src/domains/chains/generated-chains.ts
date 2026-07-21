@@ -147,7 +147,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
-        url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=',
+        url: 'wss://kusama.api.onfinality.io/rpc?apikey=',
       },
       {
         url: 'wss://rpc.ibp.network/kusama',
@@ -217,7 +217,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
-        url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=',
+        url: 'wss://statemint.api.onfinality.io/rpc?apikey=',
       },
       {
         url: 'wss://sys.ibp.network/statemint',
@@ -265,7 +265,7 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
     },
     rpcs: [
       {
-        url: 'wss://astar.api.onfinality.io/rpc?apikey=',
+        url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=',
       },
       {
         url: 'wss://sys.ibp.network/statemine',
@@ -306,9 +306,6 @@ export const supportedChains: Chain<SupportedChainIds>[] = [
       id: 'bifrost-polkadot-substrate-native',
     },
     rpcs: [
-      {
-        url: 'wss://astar.api.onfinality.io/rpc?apikey=',
-      },
       {
         url: 'wss://bifrost-polkadot-rpc.dwellir.com',
       },
