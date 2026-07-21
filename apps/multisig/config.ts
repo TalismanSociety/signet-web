@@ -32,7 +32,7 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   'kusama': {
     id: 'kusama',
     polkaAssemblyUrl: 'https://kusama.polkassembly.io',
-    rpcs: [{ url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=' }],
+    rpcs: [{ url: 'wss://kusama.api.onfinality.io/rpc?apikey=' }],
   },
   'bittensor': {
     id: 'bittensor',
@@ -41,11 +41,15 @@ export const SUPPORTED_CHAINS: Record<string, SupportedChain> = {
   },
   'polkadot-asset-hub': {
     id: 'polkadot-asset-hub',
+    rpcs: [{ url: 'wss://statemint.api.onfinality.io/rpc?apikey=' }],
+  },
+  'kusama-asset-hub': {
+    id: 'kusama-asset-hub',
     rpcs: [{ url: 'wss://assethub-kusama.api.onfinality.io/rpc?apikey=' }],
   },
-  'kusama-asset-hub': { id: 'kusama-asset-hub', rpcs: [{ url: 'wss://astar.api.onfinality.io/rpc?apikey=' }] },
 
-  'bifrost-polkadot': { id: 'bifrost-polkadot', rpcs: [{ url: 'wss://astar.api.onfinality.io/rpc?apikey=' }] },
+  // no OnFinality endpoint exists for Bifrost Polkadot; rely on chaindata rpcs
+  'bifrost-polkadot': { id: 'bifrost-polkadot' },
   'moonbeam': { id: 'moonbeam', rpcs: [{ url: 'wss://moonbeam.api.onfinality.io/rpc?apikey=' }] },
   'phala': { id: 'phala' },
   'mythos': {
