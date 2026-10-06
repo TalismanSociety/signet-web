@@ -92,13 +92,17 @@ export const getExtrinsicErrorsFromEvents = (
   let proxyError: string | undefined
   // check if proxy or multisig call failed
   try {
-    const proxyEvent = events.find(({ event }) => event.section === 'proxy' && event.method === 'ProxyExecuted')
-    if (proxyEvent) {
+    // an extrinsic may contain several proxy calls (e.g. batched), report the first one that failed
+    const proxyEvents = events.filter(({ event }) => event.section === 'proxy' && event.method === 'ProxyExecuted')
+    for (const proxyEvent of proxyEvents) {
       const [result] = proxyEvent.event.data
       const proxyEventResult = result as Result<any, DispatchError>
       if (proxyEventResult.isErr) {
         const errMessage = getDispatchErrorMessage(proxyEventResult.asErr)
-        if (errMessage) proxyError = errMessage
+        if (errMessage) {
+          proxyError = errMessage
+          break
+        }
       }
     }
   } catch (e) {}
