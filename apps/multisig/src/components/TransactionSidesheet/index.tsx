@@ -11,6 +11,7 @@ import { useApi } from '@domains/chains/pjs-api'
 import { useMultisigExtrinsicFromCalldata } from '@domains/multisig/useMultisigExtrinsicFromCalldata'
 import { useCancelAsMulti } from '@domains/chains'
 import { getErrorString } from '@util/misc'
+import { getExtrinsicErrorsFromEvents } from '@util/errors'
 import { SubmittableResult } from '@polkadot/api'
 import { useDeleteDraftMetadata, useSaveDraftMetadata } from '@domains/offchain-data/tx-metadata-draft'
 import { useNavigate } from 'react-router-dom'
@@ -109,6 +110,30 @@ export const TransactionSidesheet: React.FC<TransactionSidesheetProps> = ({
       }
       const r = await approve()
       const extrinsicId = `${r.result.blockNumber}-${r.result.txIndex}`
+
+      // the outer extrinsic (asMulti / asMultiThreshold1) succeeds even when the wrapped proxy call fails,
+      // the failure is only reported via proxy.ProxyExecuted(Err) / multisig.MultisigExecuted(Err) events.
+      if (r.executed) {
+        const errors = getExtrinsicErrorsFromEvents(r.result.events)
+        if (errors?.proxyError || errors?.systemError) {
+          const message = errors.proxyError ?? errors.systemError ?? 'unknown error'
+          console.error('[TransactionSidesheet] transaction executed but inner call failed', {
+            extrinsicId,
+            txHash: r.result.txHash.toHex(),
+            errors,
+            events: r.result.events.map(
+              ({ event }) => `${event.section}.${event.method} ${JSON.stringify(event.data.toHuman())}`
+            ),
+          })
+          const err = new Error(`Transaction executed at ${extrinsicId} but the inner call failed: ${message}`)
+          if (onApproveFailed) onApproveFailed(err)
+          else toast({ title: 'Transaction executed but failed on-chain', description: err.message })
+          onClose?.()
+          if (!preventRedirect) navigate('/overview?tab=history')
+          return
+        }
+      }
+
       toast({
         title: r?.executed ? 'Transaction Executed!' : 'Transaction Approved!',
         description: `The transaction has been ${r?.executed ? 'executed' : 'approved'} at ${extrinsicId}`,
