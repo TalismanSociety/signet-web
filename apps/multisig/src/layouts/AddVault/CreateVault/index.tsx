@@ -199,37 +199,68 @@ const CreateMultisig = () => {
           description: 'Please try again, make sure you have enough balance for gas and existential deposit.',
         })
       }
+      if (initialVaultFundsLoadable.state !== 'hasValue') {
+        console.error('[handleTransferProxy] initial vault fund not ready', {
+          state: initialVaultFundsLoadable.state,
+          contents: initialVaultFundsLoadable.contents,
+        })
+        resolve()
+        setTransferring(false)
+        return toast({
+          title: 'Could not transfer proxy.',
+          description:
+            initialVaultFundsLoadable.state === 'loading'
+              ? 'Still loading chain constants, please try again in a moment.'
+              : getErrorString(initialVaultFundsLoadable.contents),
+        })
+      }
+      const onFailure = (err: string) => {
+        setTransferring(false)
+        toast({
+          title: 'Failed to transfer proxy.',
+          description: err,
+        })
+        resolve()
+      }
       transferProxyToMultisig(
         selectedSigner?.injected.address,
         createdProxy,
         multisigAddress,
         initialVaultFundsLoadable.contents,
-        async () => {
-          const { isProxyDelegatee } = await addressIsProxyDelegatee(createdProxy, multisigAddress)
-
-          if (!isProxyDelegatee) {
-            const msg =
-              'Please try again or submit a bug report with your signer address and any relevant transaction hashes.'
-            return toast({
-              title: 'Failed to transfer proxy.',
-              description: msg,
+        async result => {
+          try {
+            const { isProxyDelegatee, proxyDelegatees } = await addressIsProxyDelegatee(createdProxy, multisigAddress)
+            console.log('[handleTransferProxy] proxy delegatee check', {
+              txHash: result.txHash.toHex(),
+              proxy: createdProxy.toSs58(chain),
+              expectedMultisig: multisigAddress.toSs58(chain),
+              isProxyDelegatee,
+              proxyDelegatees: proxyDelegatees.map(a => a.toSs58(chain)),
             })
+
+            if (!isProxyDelegatee) {
+              const msg =
+                'Please try again or submit a bug report with your signer address and any relevant transaction hashes.'
+              console.error('[handleTransferProxy] multisig is not a delegatee of the proxy after transfer tx')
+              return onFailure(msg)
+            }
+            handleCreateTeam()
+          } catch (e) {
+            console.error('[handleTransferProxy] failed to verify proxy delegatee', e)
+            onFailure(getErrorString(e))
           }
-          handleCreateTeam()
         },
-        err => {
-          setTransferring(false)
-          toast({
-            title: 'Failed to transfer proxy.',
-            description: err,
-          })
-          resolve()
-        }
-      )
+        onFailure
+      ).catch(e => {
+        console.error('[handleTransferProxy] transferProxyToMultisig threw', e)
+        onFailure(getErrorString(e))
+      })
     })
   }, [
     addressIsProxyDelegatee,
+    chain,
     createdProxy,
+    initialVaultFundsLoadable.state,
     initialVaultFundsLoadable.contents,
     handleCreateTeam,
     multisigAddress,
