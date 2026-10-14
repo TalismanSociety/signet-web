@@ -13,12 +13,16 @@ import { ProxiesSettings } from './ProxiesSettings'
 import { TransactionSidesheet } from '@components/TransactionSidesheet'
 import { useToast } from '@components/ui/use-toast'
 import { ExternalLink } from 'lucide-react'
+import { AlertCircle } from '@talismn/icons'
 import { Button } from '@components/ui/button'
 import { useUser } from '@domains/auth'
 import { NameForm } from './NameForm'
 import { DescriptionForm } from './DescriptionForm'
 import { RecoverMultisig } from './RecoverMultisig'
 import { MIN_MULTISIG_MEMBERS, MIN_MULTISIG_THRESHOLD } from '@util/constants'
+import { useProxyDepositRequirement } from '@domains/proxy/useProxyDepositRequirement'
+import { useSystemToken } from '@domains/chains/tokens'
+import { formatUnits } from '@util/numbers'
 
 const Settings = () => {
   const [multisig] = useSelectedMultisig()
@@ -30,6 +34,10 @@ const Settings = () => {
   const newMultisigAddress = toMultisigAddress(newMembers, newThreshold)
   const hasAny = multisig.proxies?.find(p => p.proxyType === 'Any') !== undefined
   const { toast } = useToast()
+  const api = apiLoadable.state === 'hasValue' ? apiLoadable.contents : undefined
+  const systemToken = useSystemToken(api)
+  const { requirement: proxyDeposit } = useProxyDepositRequirement(api, multisig.proxyAddress)
+  const insufficientProxyDeposit = proxyDeposit !== undefined && !proxyDeposit.sufficient
 
   const changed = useMemo(() => {
     return !newMultisigAddress.isEqual(multisig.multisigAddress)
@@ -46,6 +54,13 @@ const Settings = () => {
     const api = apiLoadable.contents
     if (!api.tx.proxy?.addProxy || !api.tx.proxy.removeProxy || !api.tx.proxy.proxy || !api.tx.utility?.batchAll) {
       throw Error('chain doesnt have proxy or utility pallet')
+    }
+    if (insufficientProxyDeposit) {
+      console.error('[Settings] proxied account cannot cover proxy deposit', proxyDeposit)
+      return toast({
+        title: 'Insufficient balance in proxied account',
+        description: 'The proxied account needs more free balance to reserve the proxy deposit.',
+      })
     }
     const batchCall = api.tx.utility.batchAll([
       api.tx.proxy.addProxy(newMultisigAddress.bytes, 'Any', 0),
@@ -121,6 +136,24 @@ const Settings = () => {
             <ProxiesSettings proxies={multisig.proxies} />
           </div>
         </div>
+        {hasAny && changed && insufficientProxyDeposit && proxyDeposit && (
+          <div className="bg-gray-800 w-full rounded-[12px] p-[16px] mt-[32px] text-offWhite flex items-start gap-[12px]">
+            <AlertCircle size={24} className="text-orange-400 min-w-[24px]" />
+            <p>
+              <span className="font-bold">Insufficient balance in proxied account.</span> Changing the signer
+              configuration adds a new proxy to the proxied account, which reserves a proxy deposit from the proxied
+              account itself. It needs at least{' '}
+              <span className="font-bold">
+                {formatUnits(proxyDeposit.required, systemToken?.tokenDecimals ?? 0)} {systemToken?.tokenSymbol}
+              </span>{' '}
+              free but currently has{' '}
+              <span className="font-bold">
+                {formatUnits(proxyDeposit.free, systemToken?.tokenDecimals ?? 0)} {systemToken?.tokenSymbol}
+              </span>
+              . Top up the proxied account and try again.
+            </p>
+          </div>
+        )}
         {hasAny || !multisig.allProxies ? (
           <div
             css={{
@@ -139,6 +172,7 @@ const Settings = () => {
             <Button
               disabled={
                 !changed ||
+                insufficientProxyDeposit ||
                 apiLoadable.state !== 'hasValue' ||
                 newMembers.length < MIN_MULTISIG_MEMBERS ||
                 newThreshold < MIN_MULTISIG_THRESHOLD

@@ -31,7 +31,7 @@ import {
 import { TxMetadata } from '@domains/offchain-data/metadata/types'
 import { useInsertTxMetadata } from '../offchain-data/metadata'
 import { captureException } from '@sentry/react'
-import { handleSubmittableResultError } from '@util/errors'
+import { getExtrinsicErrorsFromEvents, handleSubmittableResultError } from '@util/errors'
 import { useAddSmartContract } from '@domains/offchain-data'
 import { rawPendingTransactionsDependency } from './storage-getters'
 import { supportedChains } from './generated-chains'
@@ -834,33 +834,72 @@ export const useTransferProxyToMultisig = (chain: Chain) => {
         throw new Error('chain missing balances or utility or proxy pallet')
       }
 
-      // Define the inner batch call
-      const proxyBatchCall = api.tx.utility.batchAll([
-        api.tx.proxy.addProxy(multisigAddress.bytes, 'Any', 0),
-        api.tx.proxy.removeProxy(extensionAddress.bytes, 'Any', 0),
-      ])
-
-      // Define the inner proxy call
-      const proxyCall = api.tx.proxy.proxy(proxyAddress.bytes, null, proxyBatchCall)
+      // NOTE: do not nest a `utility.batchAll` inside `proxy.proxy` here. `utility.batchAll` adds a
+      // "no nested batchAll" filter to the origin, and some chains (e.g. Bittensor's custom proxy pallet)
+      // make `proxy.proxy` inherit the outer origin's filters, so the inner batch gets rejected with
+      // `system.CallFiltered` while the outer extrinsic still succeeds. Flattening into two separate
+      // `proxy.proxy` calls avoids this and behaves identically on chains with the upstream proxy pallet.
+      const addProxyCall = api.tx.proxy.proxy(
+        proxyAddress.bytes,
+        null,
+        api.tx.proxy.addProxy(multisigAddress.bytes, 'Any', 0)
+      )
+      const removeProxyCall = api.tx.proxy.proxy(
+        proxyAddress.bytes,
+        null,
+        api.tx.proxy.removeProxy(extensionAddress.bytes, 'Any', 0)
+      )
 
       // Define the outer batch call
-      const signerBatchCall = api?.tx?.utility?.batchAll([
+      const signerBatchCall = api.tx.utility.batchAll([
         api.tx.balances.transferKeepAlive(proxyAddress.bytes, existentialDeposit.amount),
-        proxyCall,
+        addProxyCall,
+        removeProxyCall,
       ])
 
       if (metadata) await injectMetadata(metadata)
 
+      console.log('[transferProxyToMultisig] submitting', {
+        chain: chain.id,
+        signer: extensionAddress.toSs58(chain),
+        proxy: proxyAddress.toSs58(chain),
+        multisig: multisigAddress.toSs58(chain),
+        fundAmount: existentialDeposit?.amount?.toString(),
+        call: signerBatchCall.method.toHuman(),
+        callHex: signerBatchCall.method.toHex(),
+      })
+
+      let completed = false
       // Send the batch call
       const unsubscribe = await signerBatchCall
         .signAndSend(extensionAddress.toSs58(chain), { signer, withSignedTransaction: true }, result => {
           try {
+            console.log('[transferProxyToMultisig] status', result.status.toHuman(), {
+              txHash: result.txHash.toHex(),
+              dispatchError: result.dispatchError?.toHuman(),
+              events: result.events.map(
+                ({ event }) => `${event.section}.${event.method} ${JSON.stringify(event.data.toHuman())}`
+              ),
+            })
             handleSubmittableResultError(result)
             if (!(result?.status?.isFinalized || result.status.isInBlock)) return
+            if (completed) return
 
-            result.events.forEach(({ event }): void => {
-              if (event.section === 'system' && event.method === 'ExtrinsicSuccess') onSuccess(result)
-            })
+            // proxy.proxy swallows errors from the inner call: the extrinsic still succeeds and the
+            // failure is only reported via proxy.ProxyExecuted(Err). Surface that as a failure.
+            const errors = getExtrinsicErrorsFromEvents(result.events)
+            if (errors?.proxyError || errors?.systemError) {
+              throw new Error(errors.proxyError ?? errors.systemError)
+            }
+
+            const hasSuccessEvent = result.events.some(
+              ({ event }) => event.section === 'system' && event.method === 'ExtrinsicSuccess'
+            )
+            if (hasSuccessEvent) {
+              completed = true
+              if (unsubscribe) unsubscribe()
+              onSuccess(result)
+            }
           } catch (e) {
             if (unsubscribe) unsubscribe()
             console.error('Failed to deposit and transfer pure proxy to multisig:', e)
