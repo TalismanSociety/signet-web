@@ -1,5 +1,11 @@
 # Signet
 
+> ⚠️ **This repository is archived and no longer maintained.**
+>
+> [signet.talisman.xyz](https://signet.talisman.xyz) no longer runs on this source code: Signet has moved to a new codebase that is not open source. The code here is kept for reference only and will not receive updates, bug fixes or security patches.
+>
+> Your multisigs and funds live on-chain and are not affected. Keep managing them on [Signet](https://signet.talisman.xyz).
+
 Signet is a multisig coordination interface built by [Talisman](https://github.com/TalismanSociety), allowing users to create, manage, and sign multisig transactions across supported Substrate-based chains.
 
 > **Note:** This frontend requires a locally running instance of the [Signet Backend](https://github.com/TalismanSociety/signet-backend). Be sure to start the backend before using the app.
